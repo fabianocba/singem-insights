@@ -1,6 +1,6 @@
 {
   "name": "ifdesk",
-  "version": "1.6.2",
+  "version": "0.1.1",
   "description": "IFDESK - Sistema de Controle de Material (IF Baiano)",
   "main": "index.html",
   "type": "module",
