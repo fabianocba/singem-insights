@@ -1,0 +1,72 @@
+{
+  "currentVersion": "v1.6.2",
+  "currentBuild": "2026-02-10-1526",
+  "releases": [
+    {
+      "version": "v1.6.2",
+      "build": "2026-02-10-1526",
+      "date": "2026-02-10",
+      "type": "patch",
+      "changes": [
+        "✨ Total NF agora é campo manual obrigatório",
+        "🔄 Soma dos itens calculada em tempo real",
+        "📊 Campo Diferença (Soma - Total) para validação",
+        "🛡️ Validação ao salvar: divergência Total×Itens com tolerância R$ 0,05",
+        "🔧 Helpers de moeda PT-BR: parseMoneyInputBR, money2, fmtMoneyBR"
+      ]
+    },
+    {
+      "version": "v1.6.1",
+      "build": "2026-02-10-1504",
+      "date": "2026-02-10",
+      "type": "patch",
+      "changes": [
+        "🐛 Corrigido select de empenhos vazio na tela de NF",
+        "🔧 buscarEmpenhos(true) inclui todos os empenhos",
+        "📋 Adicionado DEBUG_NF_EMPENHO para diagnóstico"
+      ]
+    },
+    {
+      "version": "v1.6.0",
+      "build": "2026-02-10-1454",
+      "date": "2026-02-10",
+      "type": "major",
+      "changes": [
+        "🔧 Módulo de NF-e reformulado: entrada 100% manual",
+        "📋 Removidas automações e IA do módulo de notas fiscais",
+        "🎯 Novo formulário simplificado para cadastro de NF",
+        "📦 Sistema de versão visual implementado",
+        "🔄 Cache busting automático por build",
+        "👁️ Rodapé fixo com versão e build visíveis",
+        "📝 Changelog estruturado em JSON"
+      ]
+    },
+    {
+      "version": "v1.4.0",
+      "build": "2026-02-09-1400",
+      "date": "2026-02-09",
+      "type": "minor",
+      "changes": [
+        "✅ Parser namespace-aware para NF-e XML v4.00",
+        "🔍 Conciliação NF × Empenho implementada",
+        "📊 Formatação ERP para valores decimais",
+        "🐛 Correção de leitura de data (timezone)",
+        "🔗 Vínculo correto de CNPJ emitente"
+      ]
+    },
+    {
+      "version": "v1.3.1",
+      "build": "2025-11-07",
+      "date": "2025-11-07",
+      "type": "patch",
+      "changes": [
+        "🐛 BUGFIX: Imports do repository.js corrigidos",
+        "✅ Sistema de bootstrap robusto com retry",
+        "🛡️ Cache-busting automático ao mudar versão"
+      ]
+    }
+  ],
+  "upgradeNotes": {
+    "v1.5.0": "Módulo de NF-e agora é 100% manual. O módulo anterior com automações foi movido para _legacy/importar-nfe-automacao.html"
+  }
+}

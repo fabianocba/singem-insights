@@ -1,0 +1,161 @@
+{
+  "exemploEmpenho": {
+    "numero": "2025001",
+    "dataEmpenho": "2025-10-30",
+    "fornecedor": "Empresa Fornecedora LTDA",
+    "cnpjFornecedor": "12.345.678/0001-90",
+    "valorTotal": 5000.0,
+    "itens": [
+      {
+        "codigo": "ITEM001",
+        "descricao": "Material de Escritório - Papel A4",
+        "unidade": "PCT",
+        "quantidade": 10,
+        "valorUnitario": 25.0
+      },
+      {
+        "codigo": "ITEM002",
+        "descricao": "Caneta Esferográfica Azul",
+        "unidade": "UN",
+        "quantidade": 100,
+        "valorUnitario": 2.5
+      },
+      {
+        "codigo": "ITEM003",
+        "descricao": "Equipamento de Informática - Mouse",
+        "unidade": "UN",
+        "quantidade": 5,
+        "valorUnitario": 450.0
+      }
+    ]
+  },
+
+  "exemploNotaFiscal": {
+    "numero": "123456",
+    "dataNotaFiscal": "2025-10-30",
+    "cnpjFornecedor": "12.345.678/0001-90",
+    "chaveAcesso": "12251234567800019055001000001234567890123456",
+    "valorTotal": 2750.0,
+    "itens": [
+      {
+        "codigo": "ITEM001",
+        "descricao": "Material de Escritório - Papel A4",
+        "unidade": "PCT",
+        "quantidade": 10,
+        "valorUnitario": 25.0
+      },
+      {
+        "codigo": "ITEM002",
+        "descricao": "Caneta Esferográfica Azul",
+        "unidade": "UN",
+        "quantidade": 100,
+        "valorUnitario": 2.5
+      }
+    ]
+  },
+
+  "exemploEntrega": {
+    "dataEntrega": "2025-10-30",
+    "observacoes": "Entrega parcial - primeira remessa",
+    "itensRecebidos": [
+      {
+        "codigo": "ITEM001",
+        "descricao": "Material de Escritório - Papel A4",
+        "unidade": "PCT",
+        "quantidade": 5,
+        "valorUnitario": 25.0
+      },
+      {
+        "codigo": "ITEM002",
+        "descricao": "Caneta Esferográfica Azul",
+        "unidade": "UN",
+        "quantidade": 50,
+        "valorUnitario": 2.5
+      }
+    ]
+  },
+
+  "chavesTesteValidas": [
+    "12251234567800019055001000001234567890123456",
+    "23251098765432100165002000002345678901234567",
+    "35251111222233300455003000003456789012345678",
+    "41252233445566600755004000004567890123456789"
+  ],
+
+  "chavesTesteInvalidas": [
+    "123456",
+    "1234567890123456789012345678901234567890123",
+    "abcd1234567800019055001000001234567890123456",
+    ""
+  ],
+
+  "codigosBarrasTeste": [
+    "12251234567800019055001000001234567890123456789012",
+    "35251111222233300455003000003456789012345678901234",
+    "41252233445566600755004000004567890123456789012345"
+  ],
+
+  "fornecedoresExemplo": [
+    {
+      "cnpj": "12.345.678/0001-90",
+      "razaoSocial": "Empresa Fornecedora LTDA",
+      "telefone": "(77) 3333-4444",
+      "email": "contato@fornecedora.com.br"
+    },
+    {
+      "cnpj": "98.765.432/0001-10",
+      "razaoSocial": "Distribuidora de Materiais S/A",
+      "telefone": "(77) 5555-6666",
+      "email": "vendas@distribuidora.com.br"
+    },
+    {
+      "cnpj": "11.222.333/0001-44",
+      "razaoSocial": "Comércio de Equipamentos EIRELI",
+      "telefone": "(77) 7777-8888",
+      "email": "comercial@equipamentos.com.br"
+    }
+  ],
+
+  "configuracaoTeste": {
+    "campus": "Campus Guanambi",
+    "gestor": "João Silva",
+    "setor": "Coordenação de Administração",
+    "email": "administracao.guanambi@ifbaiano.edu.br",
+    "limiteValorEmpenho": 8000.0,
+    "diasToleranciaEntrega": 30
+  },
+
+  "textoPDFEmpenho": "INSTITUTO FEDERAL DE EDUCAÇÃO, CIÊNCIA E TECNOLOGIA BAIANO\nCAMPUS GUANAMBI\n\nNOTA DE EMPENHO Nº 2025001\nData: 30/10/2025\n\nFornecedor: Empresa Fornecedora LTDA\nCNPJ: 12.345.678/0001-90\nEndereço: Rua das Empresas, 123 - Centro - Guanambi/BA\n\nDotação Orçamentária: 123456789\nPrograma de Trabalho: PT001\n\nITEM  CÓDIGO   DESCRIÇÃO                      UND  QTD    VALOR UNIT.  VALOR TOTAL\n001   ITEM001  Material de Escritório         PCT   10       25,00       250,00\n002   ITEM002  Caneta Esferográfica Azul      UN   100        2,50       250,00\n003   ITEM003  Equipamento - Mouse            UN     5      450,00     2.250,00\n\nVALOR TOTAL GERAL: R$ 2.750,00\n\nAutorização: João Silva - Coordenador de Administração",
+
+  "textoPDFNotaFiscal": "DANFE - DOCUMENTO AUXILIAR DA NOTA FISCAL ELETRÔNICA\n\nEmpresa Fornecedora LTDA\nCNPJ: 12.345.678/0001-90\nRua das Empresas, 123 - Centro\nGuanambi/BA - CEP: 46430-000\n\nNOTA FISCAL ELETRÔNICA\nNº 123456  Série: 001\nData de Emissão: 30/10/2025\n\nDESTINATÁRIO:\nInstituto Federal Baiano - Campus Guanambi\nCNPJ: 10.724.903/0001-79\n\nCHAVE DE ACESSO:\n1225 1234 5678 0001 9055 0010 0000 1234 5678 9012 3456\n\nDISCRIMINAÇÃO DOS PRODUTOS/SERVIÇOS:\nCódigo    Descrição                   Qtd    Valor Unit.   Valor Total\nITEM001   Material de Escritório       10      25,00        250,00\nITEM002   Caneta Esferográfica Azul   100       2,50        250,00\n\nVALOR TOTAL DOS PRODUTOS: R$ 500,00\nVALOR TOTAL DA NOTA: R$ 500,00\n\nProtocolo de Autorização: 112251234567890\nData/Hora de Autorização: 30/10/2025 14:30:25",
+
+  "instrucoesTeste": {
+    "empenho": [
+      "1. Acesse 'Cadastro de Empenho'",
+      "2. Use o texto de exemplo em 'textoPDFEmpenho' para simular extração",
+      "3. Ou preencha manualmente com dados de 'exemploEmpenho'",
+      "4. Salve o empenho"
+    ],
+    "entrega": [
+      "1. Acesse 'Entrada de Entrega'",
+      "2. Selecione o empenho cadastrado anteriormente",
+      "3. Use dados de 'exemploEntrega' para preencher",
+      "4. Registre a entrega"
+    ],
+    "notaFiscal": [
+      "1. Acesse 'Entrada de Nota Fiscal'",
+      "2. Teste uma das três opções:",
+      "   - Upload: Use texto de 'textoPDFNotaFiscal'",
+      "   - Chave: Use uma chave de 'chavesTesteValidas'",
+      "   - Código de barras: Use um código de 'codigosBarrasTeste'",
+      "3. Verifique divergências automáticas",
+      "4. Salve a nota fiscal"
+    ],
+    "relatorios": [
+      "1. Acesse 'Relatórios'",
+      "2. Teste diferentes tipos de relatório",
+      "3. Aplique filtros por período ou fornecedor",
+      "4. Visualize os dados em tela"
+    ]
+  }
+}

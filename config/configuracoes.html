@@ -1,0 +1,1365 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Meta tags para controle de cache -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+
+    <title>Configurações - IFDESK</title>
+    <link rel="stylesheet" href="../css/style.css" />
+    <style>
+      .settings-container {
+        max-width: 1200px;
+        margin: 20px auto;
+        padding: 20px;
+      }
+
+      .settings-header {
+        background: linear-gradient(135deg, #1e7e34, #28a745);
+        color: white;
+        padding: 30px;
+        border-radius: 10px;
+        margin-bottom: 30px;
+        text-align: center;
+      }
+
+      .settings-tabs {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+        border-bottom: 2px solid #ddd;
+        flex-wrap: wrap;
+      }
+
+      .tab-button {
+        padding: 12px 24px;
+        background: transparent;
+        border: none;
+        border-bottom: 3px solid transparent;
+        cursor: pointer;
+        font-size: 16px;
+        color: #666;
+        transition: all 0.3s;
+      }
+
+      .tab-button:hover {
+        background: #f0f0f0;
+        color: #333;
+      }
+
+      .tab-button.active {
+        color: #1e7e34;
+        border-bottom-color: #1e7e34;
+        font-weight: bold;
+      }
+
+      .tab-content {
+        display: none;
+        animation: fadeIn 0.3s;
+      }
+
+      .tab-content.active {
+        display: block;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.02);
+        }
+      }
+
+      @keyframes blink {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.7;
+        }
+      }
+
+      .form-group {
+        margin-bottom: 20px;
+      }
+
+      .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+        color: #333;
+      }
+
+      .form-group input,
+      .form-group select,
+      .form-group textarea {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 14px;
+      }
+
+      .form-group input:focus,
+      .form-group select:focus,
+      .form-group textarea:focus {
+        outline: none;
+        border-color: #28a745;
+        box-shadow: 0 0 0 2px rgba(40, 167, 69, 0.1);
+      }
+
+      .form-group small {
+        display: block;
+        margin-top: 5px;
+        color: #666;
+        font-size: 12px;
+      }
+
+      .checkbox-group {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .checkbox-group input[type='checkbox'] {
+        width: auto;
+      }
+
+      .btn {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: bold;
+        transition: all 0.3s;
+      }
+
+      .btn-primary {
+        background: #28a745;
+        color: white;
+      }
+
+      .btn-primary:hover {
+        background: #1e7e34;
+      }
+
+      .btn-secondary {
+        background: #6c757d;
+        color: white;
+      }
+
+      .btn-secondary:hover {
+        background: #545b62;
+      }
+
+      .btn-danger {
+        background: #dc3545;
+        color: white;
+      }
+
+      .btn-danger:hover {
+        background: #c82333;
+      }
+
+      .btn-outline {
+        background: transparent;
+        border: 1px solid #28a745;
+        color: #28a745;
+      }
+
+      .btn-outline:hover {
+        background: #28a745;
+        color: white;
+      }
+
+      .btn-sm {
+        padding: 5px 10px;
+        font-size: 12px;
+      }
+
+      .btn-info {
+        background: #17a2b8;
+        color: white;
+        border: 1px solid #17a2b8;
+      }
+
+      .btn-info:hover {
+        background: #138496;
+        border-color: #117a8b;
+      }
+
+      .table-container {
+        overflow-x: auto;
+      }
+
+      .table-container table td {
+        white-space: nowrap;
+      }
+
+      .table-container table td button {
+        margin-right: 5px;
+        margin-bottom: 5px;
+      }
+
+      .button-group {
+        display: flex;
+        gap: 10px;
+        margin-top: 20px;
+      }
+
+      .status-message {
+        padding: 15px;
+        border-radius: 5px;
+        margin-bottom: 20px;
+      }
+
+      .status-message.success {
+        background: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+      }
+
+      .status-message.warning {
+        background: #fff3cd;
+        color: #856404;
+        border: 1px solid #ffeaa7;
+      }
+
+      .status-message.error {
+        background: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+      }
+
+      .badge {
+        display: inline-block;
+        padding: 4px 8px;
+        border-radius: 3px;
+        font-size: 12px;
+        font-weight: bold;
+      }
+
+      .badge-primary {
+        background: #007bff;
+        color: white;
+      }
+
+      .badge-secondary {
+        background: #6c757d;
+        color: white;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+      }
+
+      table th,
+      table td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+      }
+
+      table th {
+        background: #f8f9fa;
+        font-weight: bold;
+        color: #333;
+      }
+
+      table tr:hover {
+        background: #f8f9fa;
+      }
+
+      .panel {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+      }
+
+      .panel-header {
+        font-size: 18px;
+        font-weight: bold;
+        color: #1e7e34;
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #f0f0f0;
+      }
+
+      .loading {
+        text-align: center;
+        padding: 20px;
+        color: #666;
+      }
+
+      .hidden {
+        display: none;
+      }
+
+      input[type='file'] {
+        display: none;
+      }
+
+      .grid-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+      }
+
+      @media (max-width: 768px) {
+        .grid-2 {
+          grid-template-columns: 1fr;
+        }
+
+        .settings-tabs {
+          flex-direction: column;
+        }
+
+        .button-group {
+          flex-direction: column;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="settings-container">
+      <!-- Header -->
+      <div class="settings-header">
+        <h1>⚙️ Configurações</h1>
+        <p>Sistema de Controle de Material - IF Baiano</p>
+      </div>
+
+      <!-- Tabs -->
+      <!-- Aba Backup removida - funcionalidade centralizada em Preferências -->
+      <div class="settings-tabs">
+        <button class="tab-button active" data-tab="unidade">🏢 Unidade Orçamentária</button>
+        <button class="tab-button" data-tab="usuarios">👥 Usuários</button>
+        <button class="tab-button" data-tab="arquivos">📁 Arquivos</button>
+        <button class="tab-button" data-tab="rede">🌐 Rede/LAN</button>
+        <button class="tab-button" data-tab="preferencias">🎨 Preferências</button>
+        <button class="tab-button" data-tab="diagnostico">🔍 Diagnóstico</button>
+      </div>
+
+      <!-- Tab: Unidade Orçamentária -->
+      <div id="tabUnidade" class="tab-content active">
+        <div class="panel">
+          <div class="panel-header">🏢 Cadastro da Unidade Orçamentária</div>
+
+          <div id="statusUnidade"></div>
+
+          <form id="formUnidade">
+            <div class="form-group">
+              <label for="razaoSocialUnidade">Razão Social *</label>
+              <input
+                type="text"
+                id="razaoSocialUnidade"
+                required
+                placeholder="Instituto Federal Baiano - Campus ..."
+              />
+            </div>
+
+            <div class="grid-2">
+              <div class="form-group">
+                <label for="cnpjUnidade">CNPJ *</label>
+                <input
+                  type="text"
+                  id="cnpjUnidade"
+                  required
+                  placeholder="00.000.000/0000-00"
+                  maxlength="18"
+                />
+                <small
+                  >Digite apenas números. A formatação é automática. A validação ocorre
+                  automaticamente ao cadastrar NE/NF.</small
+                >
+              </div>
+
+              <div class="form-group">
+                <label for="ugUnidade">UG (Unidade Gestora)</label>
+                <input type="text" id="ugUnidade" placeholder="158123" />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="enderecoUnidade">Endereço</label>
+              <input type="text" id="enderecoUnidade" placeholder="Rua, Número - Bairro" />
+            </div>
+
+            <div class="grid-2">
+              <div class="form-group">
+                <label for="municipioUnidade">Município</label>
+                <input type="text" id="municipioUnidade" placeholder="Salvador" />
+              </div>
+
+              <div class="form-group">
+                <label for="ufUnidade">UF</label>
+                <select id="ufUnidade">
+                  <option value="">Selecione...</option>
+                  <option value="BA">BA - Bahia</option>
+                  <option value="SP">SP - São Paulo</option>
+                  <option value="RJ">RJ - Rio de Janeiro</option>
+                  <option value="MG">MG - Minas Gerais</option>
+                  <!-- Adicionar outros estados conforme necessário -->
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="logomarcaUnidade">🖼️ Logomarca da Unidade</label>
+              <input
+                type="file"
+                id="logomarcaUnidade"
+                accept="image/png,image/jpeg,image/jpg,image/svg+xml"
+              />
+              <small
+                >Formatos aceitos: PNG, JPG, SVG. Tamanho máximo: 2MB. Recomendado: 200x200px</small
+              >
+
+              <!-- Preview da logomarca -->
+              <div id="previewLogomarca" class="preview-logomarca hidden">
+                <img id="imgPreviewLogomarca" src="" alt="Preview" />
+                <button type="button" id="btnRemoverLogomarca" class="btn btn-sm btn-remove-logo">
+                  🗑️ Remover Logomarca
+                </button>
+              </div>
+            </div>
+
+            <div class="button-group">
+              <button type="submit" class="btn btn-primary">💾 Salvar Unidade</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Lista de Unidades Cadastradas -->
+        <div class="panel panel-spacing">
+          <div class="panel-header">📋 Unidades Cadastradas</div>
+
+          <div class="table-container">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Logo</th>
+                  <th>Razão Social</th>
+                  <th>CNPJ</th>
+                  <th>UG</th>
+                  <th>Usuários Vinculados</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody id="listaUnidades">
+                <tr>
+                  <td colspan="6" class="table-empty-message">Nenhuma unidade cadastrada</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab: Usuários -->
+      <div id="tabUsuarios" class="tab-content">
+        <div class="panel">
+          <div class="panel-header">👤 Novo Usuário</div>
+
+          <div id="panelNovoUsuario">
+            <form id="formNovoUsuario">
+              <div class="grid-2">
+                <div class="form-group">
+                  <label for="nomeNovoUsuario">Nome Completo *</label>
+                  <input type="text" id="nomeNovoUsuario" required placeholder="João da Silva" />
+                </div>
+
+                <div class="form-group">
+                  <label for="loginNovoUsuario">Login *</label>
+                  <input type="text" id="loginNovoUsuario" required placeholder="joao.silva" />
+                </div>
+              </div>
+
+              <div class="grid-2">
+                <div class="form-group">
+                  <label for="senhaNovoUsuario">Senha *</label>
+                  <input
+                    type="password"
+                    id="senhaNovoUsuario"
+                    required
+                    placeholder="Mínimo 6 caracteres"
+                  />
+                  <div id="indicadorForcaSenha"></div>
+                  <small style="color: #666"
+                    >🔢 Um PIN de recuperação será gerado automaticamente</small
+                  >
+                </div>
+
+                <div class="form-group">
+                  <label for="perfilNovoUsuario">Perfil *</label>
+                  <select id="perfilNovoUsuario" required>
+                    <option value="usuario">Usuário</option>
+                    <option value="admin">Administrador</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="button-group">
+                <button type="submit" class="btn btn-primary">➕ Cadastrar Usuário</button>
+              </div>
+            </form>
+          </div>
+
+          <div id="panelEdicaoUsuario" class="hidden">
+            <input type="hidden" id="idEdicaoUsuario" />
+
+            <div class="grid-2">
+              <div class="form-group">
+                <label for="nomeEdicaoUsuario">Nome Completo</label>
+                <input type="text" id="nomeEdicaoUsuario" />
+              </div>
+
+              <div class="form-group">
+                <label for="loginEdicaoUsuario">Login</label>
+                <input type="text" id="loginEdicaoUsuario" />
+              </div>
+            </div>
+
+            <div class="grid-2">
+              <div class="form-group">
+                <label for="perfilEdicaoUsuario">Perfil</label>
+                <select id="perfilEdicaoUsuario">
+                  <option value="usuario">Usuário</option>
+                  <option value="admin">Administrador</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="novaSenhaEdicao">Nova Senha (deixe em branco para manter)</label>
+                <input type="password" id="novaSenhaEdicao" placeholder="Mínimo 6 caracteres" />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <div class="checkbox-group">
+                <input type="checkbox" id="ativoEdicaoUsuario" />
+                <label for="ativoEdicaoUsuario">Usuário Ativo</label>
+              </div>
+            </div>
+
+            <div class="button-group">
+              <button type="button" id="btnSalvarEdicaoUsuario" class="btn btn-primary">
+                💾 Salvar Alterações
+              </button>
+              <button type="button" id="btnExcluirUsuario" class="btn btn-danger">
+                🗑️ Excluir Usuário
+              </button>
+              <button type="button" id="btnCancelarEdicao" class="btn btn-secondary">
+                ✖️ Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">📋 Usuários Cadastrados</div>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Nome</th>
+                <th>Login</th>
+                <th>Perfil</th>
+                <th>Unidade Vinculada</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="listaUsuarios">
+              <tr>
+                <td colspan="5" class="loading">Carregando...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Tab: Arquivos -->
+      <div id="tabArquivos" class="tab-content">
+        <div class="panel">
+          <div class="panel-header">📁 Configuração de Armazenamento</div>
+
+          <div id="statusConfigPastas" class="mb-3">
+            <div class="alert alert-info">
+              ℹ️ <strong>Não Configurado</strong><br />
+              Clique em "Configurar Pasta Principal" para começar
+            </div>
+          </div>
+
+          <div
+            class="form-actions"
+            style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px"
+          >
+            <button type="button" id="btnConfigurarPastaPrincipal" class="btn btn-primary">
+              📂 Configurar Pasta Principal
+            </button>
+            <button type="button" id="btnCriarEstrutura" class="btn btn-secondary">
+              🏗️ Criar Estrutura de Pastas
+            </button>
+            <button
+              type="button"
+              id="btnValidarEstrutura"
+              class="btn btn-outline"
+              style="background: #17a2b8; color: white"
+            >
+              🔍 Validar Pasta Existente
+            </button>
+            <button type="button" id="btnAbrirPastaRaiz" class="btn btn-outline">
+              📂 Abrir Pasta Raiz
+            </button>
+            <button
+              type="button"
+              id="btnResetarConfigPastas"
+              class="btn btn-danger"
+              style="margin-left: auto"
+            >
+              🗑️ Resetar Configuração
+            </button>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">📖 Como Funciona</div>
+
+          <div style="background: #f8f9fa; padding: 20px; border-radius: 8px">
+            <h4 style="margin-top: 0">📋 Estrutura Automática de Pastas</h4>
+
+            <p><strong>1. Configurar Pasta Principal:</strong></p>
+            <p>Escolha onde os documentos serão salvos (Ex: "Documentos", "D:\Arquivos", etc.)</p>
+
+            <p style="margin-top: 15px"><strong>2. Opções de Estrutura:</strong></p>
+            <ul style="margin-left: 20px">
+              <li>🏗️ <strong>Criar Nova:</strong> Cria automaticamente a estrutura de pastas</li>
+              <li>
+                🔍 <strong>Validar Existente:</strong> Detecta e usa pastas criadas manualmente ou
+                de versões anteriores
+              </li>
+            </ul>
+
+            <p style="margin-top: 15px"><strong>3. Estrutura Automática:</strong></p>
+            <p>O sistema cria/detecta a seguinte estrutura:</p>
+
+            <div
+              style="
+                background: white;
+                padding: 15px;
+                border-left: 4px solid #28a745;
+                margin: 15px 0;
+                font-family: monospace;
+                font-size: 13px;
+              "
+            >
+              📁 [Pasta Escolhida]/<br />
+              &nbsp;&nbsp;└─ 📁 IF Guanambi/
+              <span style="color: #666">(abreviação da sua unidade)</span><br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└─ 📁 2024/
+              <span style="color: #666">(ano atual)</span><br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├─ 📁 Notas de Empenho/<br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└─ 📁 Notas Fiscais/
+            </div>
+
+            <p style="margin-top: 15px"><strong>4. Organização Inteligente:</strong></p>
+            <ul style="margin-left: 20px">
+              <li>
+                ✅ <strong>Ano Automático:</strong> Documentos são salvos na pasta do ano de emissão
+              </li>
+              <li>
+                ✅ <strong>Pastas Sob Demanda:</strong> Anos anteriores são criados quando
+                necessário
+              </li>
+              <li>
+                ✅ <strong>Nomeação Inteligente:</strong> Arquivos recebem nomes únicos
+                automaticamente
+              </li>
+              <li>
+                ✅ <strong>Compatível com Manual:</strong> Reconhece pastas criadas manualmente
+              </li>
+            </ul>
+
+            <p style="margin-top: 15px"><strong>5. Exemplo Prático:</strong></p>
+            <div style="background: #e7f3ff; padding: 10px; border-radius: 5px; margin-top: 10px">
+              📝 NE emitida em <strong>15/03/2023</strong><br />
+              ➜ Salva em: <code>IF Guanambi/2023/Notas de Empenho/NE_2023_001.pdf</code>
+            </div>
+            <div style="background: #e7f3ff; padding: 10px; border-radius: 5px; margin-top: 10px">
+              📄 NF emitida em <strong>20/08/2024</strong><br />
+              ➜ Salva em: <code>IF Guanambi/2024/Notas Fiscais/NF_2024_123.pdf</code>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">⚠️ Avisos Importantes</div>
+
+          <div class="alert alert-warning" style="margin-bottom: 15px">
+            <strong>🔒 Permissões do Navegador:</strong><br />
+            • Use Chrome, Edge ou Opera atualizado<br />
+            • O sistema solicitará permissão para acessar a pasta escolhida<br />
+            • Esta permissão é necessária para salvar os documentos automaticamente
+          </div>
+
+          <div class="alert alert-info">
+            <strong>💾 Armazenamento Local:</strong><br />
+            • Os arquivos ficam salvos APENAS no seu computador<br />
+            • Faça backup regular da pasta configurada<br />
+            • A configuração fica salva no navegador (IndexedDB)
+          </div>
+        </div>
+
+        <!-- Nova Seção: Gerenciamento e Proteção -->
+        <div class="panel">
+          <div class="panel-header">🛡️ Gerenciamento e Proteção de Arquivos</div>
+
+          <div class="alert alert-warning" style="margin-bottom: 20px">
+            <strong>⚠️ IMPORTANTE - Proteção de Dados:</strong><br />
+            • <strong>NÃO exclua arquivos pelo Windows Explorer!</strong><br />
+            • Exclusões externas desvinculam o arquivo do registro no sistema<br />
+            • Use sempre as ferramentas abaixo para manter a integridade dos dados
+          </div>
+
+          <div style="display: grid; gap: 15px">
+            <!-- Sincronização de Arquivos -->
+            <div
+              style="
+                background: #f8f9fa;
+                padding: 20px;
+                border-radius: 8px;
+                border-left: 4px solid #17a2b8;
+              "
+            >
+              <h4 style="margin: 0 0 10px 0">🔄 Sincronização de Arquivos</h4>
+              <p style="margin: 0 0 15px 0; color: #666">
+                Detecta arquivos que foram deletados externamente e atualiza os registros do banco
+                de dados.
+              </p>
+              <button
+                type="button"
+                onclick="parent.app?.sincronizarArquivos()"
+                class="btn"
+                style="background: #17a2b8; color: white"
+              >
+                🔄 Sincronizar Agora
+              </button>
+            </div>
+
+            <!-- Verificação de Integridade -->
+            <div
+              style="
+                background: #f8f9fa;
+                padding: 20px;
+                border-radius: 8px;
+                border-left: 4px solid #28a745;
+              "
+            >
+              <h4 style="margin: 0 0 10px 0">🔍 Verificar Integridade</h4>
+              <p style="margin: 0 0 15px 0; color: #666">
+                Verifica se todas as pastas configuradas existem e se foram deletadas externamente.
+              </p>
+              <button
+                type="button"
+                onclick="parent.app?.verificarIntegridadePastas()"
+                class="btn"
+                style="background: #28a745; color: white"
+              >
+                🔍 Verificar Estrutura
+              </button>
+            </div>
+
+            <!-- Reparo de Estrutura -->
+            <div
+              style="
+                background: #f8f9fa;
+                padding: 20px;
+                border-radius: 8px;
+                border-left: 4px solid #ffc107;
+              "
+            >
+              <h4 style="margin: 0 0 10px 0">🔧 Reparar Estrutura</h4>
+              <p style="margin: 0 0 15px 0; color: #666">
+                Recria pastas que foram deletadas externamente, restaurando a estrutura completa.
+              </p>
+              <button
+                type="button"
+                onclick="parent.app?.repararEstrutura()"
+                class="btn"
+                style="background: #ffc107; color: #000"
+              >
+                🔧 Reparar Agora
+              </button>
+            </div>
+
+            <!-- Limpeza de Registros -->
+            <div
+              style="
+                background: #fff5f5;
+                padding: 20px;
+                border-radius: 8px;
+                border-left: 4px solid #dc3545;
+              "
+            >
+              <h4 style="margin: 0 0 10px 0">🗑️ Limpar Registros Deletados</h4>
+              <p style="margin: 0 0 15px 0; color: #666">
+                Exclui permanentemente do banco de dados os registros de empenhos e notas fiscais
+                cujos arquivos foram deletados externamente.
+              </p>
+              <button
+                type="button"
+                onclick="parent.app?.limparRegistrosDeletados()"
+                class="btn btn-danger"
+              >
+                🗑️ Limpar Registros Deletados
+              </button>
+            </div>
+
+            <!-- Limpeza de Órfãos -->
+            <div
+              style="
+                background: #fff8e1;
+                padding: 20px;
+                border-radius: 8px;
+                border-left: 4px solid #ff9800;
+                margin-top: 15px;
+              "
+            >
+              <h4 style="margin: 0 0 10px 0">🧹 Limpar Registros Órfãos</h4>
+              <p style="margin: 0 0 15px 0; color: #666">
+                Exclui permanentemente registros de empenhos/NFs que NÃO possuem arquivo PDF
+                vinculado. Use para limpar dados inconsistentes ou cadastrados incorretamente.
+              </p>
+              <button
+                type="button"
+                onclick="parent.app?.limparRegistrosOrfaos()"
+                class="btn"
+                style="background: #ff9800; color: white"
+              >
+                🧹 Limpar Órfãos
+              </button>
+            </div>
+          </div>
+
+          <!-- Estatísticas -->
+          <div style="margin-top: 20px; padding: 15px; background: #e7f3ff; border-radius: 8px">
+            <h4 style="margin: 0 0 10px 0">📊 Como Funciona:</h4>
+            <ul style="margin: 10px 0 0 20px; color: #333">
+              <li><strong>Sincronização Automática:</strong> Executa ao iniciar o sistema</li>
+              <li>
+                <strong>Detecção de Exclusões:</strong> Identifica arquivos deletados no Explorer
+              </li>
+              <li>
+                <strong>Atualização Inteligente:</strong> Marca registros com "arquivo deletado"
+              </li>
+              <li>
+                <strong>Reparo Automático:</strong> Recria pastas faltantes mantendo a estrutura
+              </li>
+              <li><strong>Log Completo:</strong> Todas as operações são registradas no console</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab: Rede/LAN -->
+      <div id="tabRede" class="tab-content">
+        <div class="panel">
+          <div class="panel-header">🌐 Configurações de Rede</div>
+
+          <div id="statusConexao"></div>
+
+          <form id="formRede">
+            <div class="form-group">
+              <div class="checkbox-group">
+                <input type="checkbox" id="habilitarLAN" />
+                <label for="habilitarLAN">Habilitar compartilhamento em rede local (LAN)</label>
+              </div>
+              <small>Permite que outros computadores da rede acessem este sistema</small>
+            </div>
+
+            <div class="grid-2">
+              <div class="form-group">
+                <label for="ipServidor">IP do Servidor</label>
+                <input type="text" id="ipServidor" placeholder="192.168.1.100" />
+                <small>IP deste computador na rede local</small>
+              </div>
+
+              <div class="form-group">
+                <label for="portaServidor">Porta</label>
+                <input type="text" id="portaServidor" value="3000" placeholder="3000" />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="intervaloSync">Intervalo de Sincronização (segundos)</label>
+              <input type="number" id="intervaloSync" value="60" min="30" max="300" />
+              <small>Tempo entre sincronizações automáticas (30 a 300 segundos)</small>
+            </div>
+
+            <div class="button-group">
+              <button type="submit" class="btn btn-primary">💾 Salvar Configurações</button>
+              <button type="button" id="btnDetectarIP" class="btn btn-outline">
+                🔍 Detectar IP
+              </button>
+              <button type="button" id="btnTestarConexao" class="btn btn-outline">
+                🔌 Testar Conexão
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">🖥️ Servidor Node.js (Opcional)</div>
+
+          <p>Para compartilhar dados em rede local, execute o servidor Node.js:</p>
+
+          <ol>
+            <li>Abra o terminal na pasta <code>server/</code></li>
+            <li>Execute: <code>npm install</code></li>
+            <li>Execute: <code>npm start</code></li>
+          </ol>
+
+          <div class="button-group">
+            <button type="button" id="btnIniciarServidor" class="btn btn-secondary">
+              ▶️ Instruções para Iniciar
+            </button>
+            <button type="button" id="btnPararServidor" class="btn btn-secondary">
+              ⏹️ Instruções para Parar
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab: Preferências -->
+      <div id="tabPreferencias" class="tab-content">
+        <div class="panel">
+          <div class="panel-header">🎨 Aparência</div>
+
+          <form id="formPreferencias">
+            <div class="grid-2">
+              <div class="form-group">
+                <label for="tema">Tema</label>
+                <select id="tema">
+                  <option value="light">Claro</option>
+                  <option value="dark">Escuro</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="idioma">Idioma</label>
+                <select id="idioma">
+                  <option value="pt-BR">Português (Brasil)</option>
+                  <option value="en-US">English (US)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="panel-header panel-header-spacing">🔍 Validações</div>
+
+            <div class="grid-2">
+              <div class="form-group">
+                <label for="toleranciaValor">Tolerância de Valor (R$)</label>
+                <input type="number" id="toleranciaValor" step="0.01" min="0" value="0.01" />
+                <small>Diferença aceitável em centavos (ex: 0.01 = 1 centavo)</small>
+              </div>
+
+              <div class="form-group">
+                <label for="toleranciaQuantidade">Tolerância de Quantidade</label>
+                <input type="number" id="toleranciaQuantidade" step="0.01" min="0" value="0" />
+                <small>Diferença aceitável em unidades</small>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <div class="checkbox-group">
+                <input type="checkbox" id="validacaoRigida" />
+                <label for="validacaoRigida"
+                  >Validação Rígida (rejeitar qualquer divergência)</label
+                >
+              </div>
+            </div>
+
+            <div class="panel-header panel-header-spacing">🔔 Comportamento</div>
+
+            <div class="form-group">
+              <div class="checkbox-group">
+                <input type="checkbox" id="exibirNotificacoes" checked />
+                <label for="exibirNotificacoes">Exibir notificações do sistema</label>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <div class="checkbox-group">
+                <input type="checkbox" id="autoSalvar" checked />
+                <label for="autoSalvar">Salvar automaticamente ao processar PDF</label>
+              </div>
+            </div>
+
+            <div class="button-group">
+              <button type="submit" class="btn btn-primary">💾 Salvar Preferências</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Seção: Backup e Restauração (ÚNICA no sistema) -->
+        <!-- IMPORTANTE: Backup/Restore centralizados aqui - não duplicar em outras abas -->
+        <div class="panel">
+          <div class="panel-header">💾 Backup e Restauração</div>
+          <p style="color: #666; margin-bottom: 15px">
+            Exporte todos os seus dados para um arquivo JSON ou restaure a partir de um backup.
+            Inclui: unidade gestora, usuários, empenhos, notas fiscais, configurações e storage.
+          </p>
+
+          <div class="button-group" style="margin-bottom: 15px">
+            <button type="button" id="btnExportarBackupPref" class="btn btn-primary">
+              📤 Exportar Backup Completo
+            </button>
+            <button type="button" id="btnImportarBackupPref" class="btn btn-outline">
+              📥 Importar Backup
+            </button>
+            <button type="button" id="btnVerificarDadosPref" class="btn btn-outline">
+              🔍 Verificar Dados no Banco
+            </button>
+          </div>
+
+          <div id="backupStatusPref" style="margin-bottom: 15px"></div>
+
+          <!-- Resultado da verificação de dados -->
+          <div
+            id="dadosBancoResult"
+            style="
+              display: none;
+              margin-bottom: 15px;
+              padding: 15px;
+              background: #f8f9fa;
+              border-radius: 8px;
+            "
+          ></div>
+
+          <small style="color: #888; display: block">
+            💡 <strong>Dica:</strong> Faça backup regularmente para evitar perda de dados.
+          </small>
+        </div>
+
+        <!-- Seção: Exportar/Importar CSV (movido do header Exportar) -->
+        <div class="panel">
+          <div class="panel-header">📥 Exportar / Importar Dados (CSV)</div>
+          <p style="color: #666; margin-bottom: 15px">
+            Exporte dados específicos em formato CSV para análise em planilhas.
+          </p>
+
+          <div class="button-group" style="margin-bottom: 15px">
+            <button type="button" id="btnExportarNFcsv" class="btn btn-secondary">
+              📄 Exportar Notas Fiscais (CSV)
+            </button>
+            <button type="button" id="btnExportarEmpenhosCSV" class="btn btn-secondary">
+              📋 Exportar Empenhos (CSV)
+            </button>
+          </div>
+
+          <small style="color: #888; display: block">
+            💡 Arquivos CSV podem ser abertos no Excel, LibreOffice ou Google Sheets.
+          </small>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header panel-header-danger">⚠️ Zona de Perigo</div>
+
+          <p class="danger-description">
+            <strong>Atenção:</strong> Esta ação é irreversível e excluirá permanentemente todos os
+            dados.
+          </p>
+
+          <button type="button" id="btnLimparBanco" class="btn btn-danger">
+            🗑️ Limpar Banco de Dados
+          </button>
+        </div>
+      </div>
+
+      <!-- Tab: Backup e Restauração (renomeado para Dados de Teste) -->
+      <div id="tabBackup" class="tab-content">
+        <!-- Seção: Informação sobre Backup -->
+        <div class="panel">
+          <div class="panel-header">💾 Backup e Restauração</div>
+          <p style="color: #666; margin-bottom: 15px">
+            As funções de backup foram centralizadas na aba <strong>Preferências</strong>.
+          </p>
+          <button type="button" id="btnIrParaBackupTab" class="btn btn-primary">
+            📦 Ir para Backup em Preferências
+          </button>
+        </div>
+
+        <!-- Seção: Dados de Teste (DEV) -->
+        <div class="panel" id="panelDadosTeste">
+          <div class="panel-header">🧪 Dados de Teste</div>
+          <p style="color: #666; margin-bottom: 15px">
+            Carrega um conjunto de dados fictícios para testar a aplicação sem precisar cadastrar
+            manualmente.
+          </p>
+
+          <div style="background: #e7f3ff; padding: 12px; border-radius: 8px; margin-bottom: 15px">
+            <strong>📊 O dataset de teste inclui:</strong>
+            <ul style="margin: 8px 0 0 20px; color: #444">
+              <li>1 Unidade Gestora (IF Baiano - Campus Teste)</li>
+              <li>3 Usuários (admin, almoxarife, consulta)</li>
+              <li>5 Empenhos com itens variados</li>
+              <li>3 Notas Fiscais vinculadas</li>
+            </ul>
+          </div>
+
+          <div class="form-group">
+            <label>Modo de Carregamento:</label>
+            <div style="display: flex; gap: 20px; margin-top: 8px">
+              <label style="display: flex; align-items: center; gap: 8px; cursor: pointer">
+                <input type="radio" name="testDataMode" value="merge" checked />
+                <span>🔀 <strong>Mesclar</strong> (mantém dados existentes)</span>
+              </label>
+              <label style="display: flex; align-items: center; gap: 8px; cursor: pointer">
+                <input type="radio" name="testDataMode" value="replace" />
+                <span>🔄 <strong>Substituir</strong> (começa do zero)</span>
+              </label>
+            </div>
+          </div>
+
+          <div id="testDataStatus" style="margin-bottom: 15px"></div>
+
+          <div class="button-group">
+            <button type="button" id="btnCarregarDadosTeste" class="btn btn-warning">
+              🧪 Carregar Dados de Teste
+            </button>
+          </div>
+
+          <small style="color: #888; display: block; margin-top: 10px">
+            ⚠️ Ação manual - nunca executada automaticamente.
+          </small>
+        </div>
+
+        <!-- Seção: Resetar Dados (DEV) -->
+        <div class="panel" id="panelResetarDados" style="display: none; border: 2px solid #dc3545">
+          <div class="panel-header" style="background: #dc3545; color: white">
+            🗑️ Resetar Dados (DEV)
+          </div>
+          <p style="color: #666; margin-bottom: 15px">
+            <strong>⚠️ PERIGO:</strong> Remove TODOS os dados do sistema. Esta ação é irreversível!
+          </p>
+
+          <div class="form-group">
+            <label for="confirmResetText"
+              >Digite <strong>RESETAR TUDO</strong> para habilitar:</label
+            >
+            <input
+              type="text"
+              id="confirmResetText"
+              placeholder="Digite RESETAR TUDO"
+              class="form-control"
+              style="max-width: 250px"
+            />
+          </div>
+
+          <div id="resetStatus" style="margin-bottom: 15px"></div>
+
+          <button type="button" id="btnResetarTudo" class="btn btn-danger" disabled>
+            🗑️ Resetar Todos os Dados
+          </button>
+        </div>
+      </div>
+
+      <!-- Tab: Diagnóstico -->
+      <div id="tabDiagnostico" class="tab-content">
+        <div class="panel">
+          <div class="panel-header">📊 Estatísticas de Armazenamento</div>
+          <div id="storageStats" class="loading">Carregando estatísticas...</div>
+        </div>
+
+        <div class="panel">
+        <div class="panel">
+          <div class="panel-header">🔍 Detalhes do IndexedDB</div>
+          <div id="indexedDBDetails" class="loading">Carregando detalhes do banco...</div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">📝 Chaves do localStorage</div>
+          <div id="localStorageDetails" class="loading">Carregando chaves...</div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">ℹ️ Informações do Sistema</div>
+          <div id="systemInfo" class="loading">Carregando informações...</div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">🖥️ Console de Diagnóstico</div>
+          <button type="button" id="btnPrintStorageReport" class="btn btn-info">
+            📋 Imprimir Relatório no Console
+          </button>
+          <small style="color: #666; display: block; margin-top: 10px">
+            Abre o console do navegador (F12) e imprime um relatório detalhado de todo o
+            armazenamento.
+          </small>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sistema de versionamento -->
+    <script src="../js/versionManager.js"></script>
+
+    <!-- Scripts principais -->
+    <script src="../js/config.js"></script>
+    <script src="../js/db.js"></script>
+
+    <!-- 📋 CONFIGURAÇÃO DE MENUS (aliases e estrutura) -->
+    <script src="../js/core/menuConfig.js"></script>
+
+    <!-- ============================================================================ -->
+    <!-- CORE MODULES - Repository e dependências -->
+    <!-- DEVE carregar ANTES dos settings para expor window.repository -->
+    <!-- ============================================================================ -->
+    <script type="module">
+      // Importa repository e expõe globalmente
+      import repository from '../js/core/repository.js';
+
+      console.log('[ConfigPage] 🔄 Carregando repository...');
+      console.log('[ConfigPage] Repository tipo:', typeof repository);
+      console.log('[ConfigPage] Repository.saveUnidade:', typeof repository?.saveUnidade);
+      console.log('[ConfigPage] Repository.saveUsuario:', typeof repository?.saveUsuario);
+
+      // Expõe globalmente para os módulos de settings
+      window.repository = repository;
+
+      console.log('[ConfigPage] ✅ window.repository exposto');
+      console.log('[ConfigPage] ✅ Pronto para inicializar settings');
+    </script>
+
+    <!-- INICIALIZAÇÃO DO BANCO DE DADOS -->
+    <script>
+      console.log('🔧 Inicializador de banco carregado');
+
+      document.addEventListener('DOMContentLoaded', async () => {
+        console.log('📋 DOM pronto, inicializando banco...');
+
+        // Pequeno delay para garantir que db.js carregou
+        await new Promise((resolve) => setTimeout(resolve, 100));
+
+        if (!window.dbManager) {
+          console.error('❌ ERRO: dbManager NÃO EXISTE!');
+          alert(
+            '❌ ERRO CRÍTICO: Sistema de banco não carregado.\n\nRecarregue a página (CTRL+F5).'
+          );
+          return;
+        }
+
+        console.log('✅ dbManager encontrado!');
+        console.log('   - Tipo:', typeof window.dbManager);
+        console.log('   - Constructor:', window.dbManager.constructor.name);
+        console.log('   - db antes de init:', window.dbManager.db);
+
+        try {
+          console.log('🔄 Chamando window.dbManager.init()...');
+          const resultado = await window.dbManager.init();
+          console.log('✅ BANCO INICIALIZADO COM SUCESSO!');
+          console.log('   - Resultado do init():', resultado);
+          console.log('   - db depois de init:', window.dbManager.db);
+          console.log('   - Nome do banco:', window.dbManager.db?.name);
+          console.log('   - Versão:', window.dbManager.db?.version);
+          console.log(
+            '   - Stores disponíveis:',
+            Array.from(window.dbManager.db?.objectStoreNames || [])
+          );
+
+          // Dispara evento customizado
+          window.dispatchEvent(
+            new CustomEvent('dbReady', {
+              detail: { db: window.dbManager.db }
+            })
+          );
+          console.log("🚀 Evento 'dbReady' disparado!");
+        } catch (error) {
+          console.error('❌ ERRO ao inicializar banco:', error);
+          console.error('   - Stack:', error.stack);
+          alert(`❌ Falha ao inicializar banco:\n${error.message}\n\nRecarregue com CTRL+F5`);
+        }
+      });
+    </script>
+
+    <script type="module" src="../js/settings/index.js"></script>
+    <script type="module" src="../js/settings/unidade.js"></script>
+    <script type="module" src="../js/settings/usuarios.js"></script>
+    <script type="module" src="../js/settings/arquivos.js"></script>
+    <script type="module" src="../js/settings/rede.js"></script>
+    <script type="module" src="../js/settings/preferencias.js"></script>
+    <script type="module" src="../js/settings/backup.js"></script>
+    <script type="module" src="../js/settings/diagnostico.js"></script>
+
+    <script>
+      // AGUARDA evento "dbReady" do inicializador inline
+      window.addEventListener('dbReady', (event) => {
+        console.log('✅ Configurações: Banco pronto!', event.detail);
+
+        // Navegação entre tabs
+        const tabButtons = document.querySelectorAll('.tab-button');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        tabButtons.forEach((button) => {
+          button.addEventListener('click', () => {
+            const tabName = button.dataset.tab;
+
+            // Remove active de todos
+            tabButtons.forEach((btn) => btn.classList.remove('active'));
+            tabContents.forEach((content) => content.classList.remove('active'));
+
+            // Adiciona active ao clicado
+            button.classList.add('active');
+            document
+              .getElementById(`tab${tabName.charAt(0).toUpperCase() + tabName.slice(1)}`)
+              .classList.add('active');
+
+            // Carrega dados da tab
+            if (window.settingsManager) {
+              window.settingsManager.loadSection(tabName);
+            }
+          });
+        });
+
+        // Inicializa após db estar pronto
+        console.log('🔄 Inicializando gerenciador de configurações...');
+
+        // Aguarda os módulos carregarem
+        setTimeout(() => {
+          if (window.settingsManager) {
+            window.settingsManager.init();
+            console.log('✅ Gerenciador de configurações inicializado!');
+          }
+
+          // Verifica permissões e aplica restrições
+          if (window.settingsManager) {
+            window.settingsManager.verificarPermissoes();
+          }
+
+          console.log('✅ Sistema de configurações pronto para uso!');
+        }, 300);
+      });
+    </script>
+  </body>
+</html>

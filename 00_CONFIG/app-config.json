@@ -1,0 +1,11 @@
+{
+  "versao": "1.0.0",
+  "dataCriacao": "2026-02-10T16:20:14.169Z",
+  "app": "IFDESK",
+  "estrutura": "v2",
+  "configuracoes": {
+    "autoBackup": true,
+    "backupIntervalo": "daily",
+    "manterHistorico": 30
+  }
+}

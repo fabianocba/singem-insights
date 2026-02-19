@@ -1,0 +1,9 @@
+# Ignorar pasta de arquivos legados
+_legacy/
+
+# Node modules
+node_modules/
+
+# Arquivos de build/dist
+dist/
+build/

@@ -1,0 +1,1804 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Meta tags para controle de cache -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+
+    <title>Controle de Material - IF Baiano</title>
+
+    <!-- Sistema de versão centralizado -->
+    <script type="module" src="js/config/version.js"></script>
+    <!-- Sistema de versionamento e cache busting -->
+    <script src="js/versionManager.js"></script>
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/consultas.css" />
+    <link rel="stylesheet" href="css/protecao.css" />
+    <link rel="stylesheet" href="css/reports.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script src="https://unpkg.com/@zxing/library@latest/umd/index.min.js"></script>
+  </head>
+  <body>
+    <!-- Header -->
+    <header class="header hidden" id="mainHeader">
+      <div class="container">
+        <div class="logo">
+          <h1>📋 Controle de Material</h1>
+          <p>IF Baiano - Campus</p>
+        </div>
+        <nav class="nav">
+          <button id="btnHome" class="nav-btn active">🏠 Início</button>
+          <!-- Botão Exportar removido - funcionalidade centralizada em Configurações → Preferências -->
+          <button id="btnConfig" class="nav-btn">⚙️ Configurações</button>
+          <div
+            id="usuarioLogadoInfo"
+            class="usuario-info"
+            style="margin-right: 15px; color: #fff; font-size: 14px"
+          >
+            <span id="usuarioLogadoNome"></span>
+          </div>
+          <button id="btnSair" class="nav-btn btn-sair">🚪 Sair</button>
+        </nav>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main">
+      <div class="container">
+        <!-- Tela de Login -->
+        <section id="loginScreen" class="screen active">
+          <div class="login-container">
+            <div class="login-header">
+              <div class="login-logo">🏛️</div>
+              <h1 id="loginUnidadeNome">Bem-vindo(a)</h1>
+              <p id="loginUnidadeInfo">Sistema de Controle de Material</p>
+            </div>
+
+            <div class="login-box">
+              <h2>Entrar no Sistema</h2>
+
+              <div class="form-group">
+                <label for="loginUsuario">Usuário</label>
+                <input
+                  type="text"
+                  id="loginUsuario"
+                  placeholder="Digite seu login"
+                  autocomplete="username"
+                />
+              </div>
+
+              <div class="form-group">
+                <label for="loginSenha">Senha</label>
+                <input
+                  type="password"
+                  id="loginSenha"
+                  placeholder="Digite sua senha"
+                  autocomplete="current-password"
+                />
+              </div>
+
+              <div class="remember-block">
+                <label class="remember-option">
+                  <input type="checkbox" id="rememberUser" />
+                  <span>Lembrar meu usuário</span>
+                </label>
+                <label class="remember-option">
+                  <input type="checkbox" id="rememberPass" />
+                  <span>Salvar senha neste dispositivo (menos seguro)</span>
+                </label>
+                <div class="remember-warning">Use apenas em computador pessoal.</div>
+                <button type="button" id="btnClearRemember" class="btn-link">
+                  Esquecer neste dispositivo
+                </button>
+              </div>
+
+              <div class="recover-link">
+                <button type="button" id="btnRecuperarSenha" class="btn-link">
+                  Esqueci minha senha / Recuperar acesso
+                </button>
+              </div>
+
+              <button id="btnLogin" class="btn btn-primary btn-block">🔐 Entrar</button>
+
+              <div id="loginError" class="login-error hidden"></div>
+
+              <div class="login-footer">
+                <details class="login-help">
+                  <summary>💡 Primeiro acesso?</summary>
+                  <div class="login-help-content">
+                    <p><strong>Sistema SINGEM</strong></p>
+                    <p>Entre com suas credenciais institucionais.</p>
+                    <p>
+                      <small
+                        >⚠️ Se é o primeiro acesso, contate o administrador para cadastro.</small
+                      >
+                    </p>
+                  </div>
+                </details>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Tela Inicial - Menu Principal -->
+        <section id="homeScreen" class="screen">
+          <div class="welcome">
+            <h2>Sistema de Controle de Material</h2>
+            <p>Gerencie notas de empenho, recebimentos e relatórios de forma integrada</p>
+          </div>
+
+          <div class="menu-grid">
+            <div class="menu-item" data-screen="empenhoScreen">
+              <div class="menu-icon">📝</div>
+              <h3>Cadastro de Empenho</h3>
+              <p>Cadastre novas notas de empenho e faça upload dos PDFs</p>
+            </div>
+
+            <div class="menu-item" data-screen="entregaScreen">
+              <div class="menu-icon">📦</div>
+              <h3>Entrada de Entrega</h3>
+              <p>Registre recebimentos semanais de materiais</p>
+            </div>
+
+            <div class="menu-item" data-screen="notaFiscalScreen">
+              <div class="menu-icon">📄</div>
+              <h3>Entrada de Nota Fiscal</h3>
+              <p>Cadastre notas fiscais e compare com empenhos</p>
+            </div>
+
+            <div class="menu-item" data-screen="relatoriosScreen">
+              <div class="menu-icon">📊</div>
+              <h3>Relatórios</h3>
+              <p>Gere relatórios de conferência e análises</p>
+            </div>
+
+            <div class="menu-item" id="consultasMenuItem">
+              <div class="menu-icon">🔍</div>
+              <h3>Consultas Diversas</h3>
+              <p>Acesse dados abertos do Compras.gov.br</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Tela de Consultas Diversas -->
+        <section id="consultasScreen" class="screen">
+          <div class="screen-header">
+            <button class="btn-back">← Voltar</button>
+            <h2>🔍 Consultas Diversas</h2>
+          </div>
+
+          <div id="consultasContainer" class="consultas-wrapper">
+            <!-- Menu de Consultas (Tela Inicial) -->
+            <div id="menuConsultas" class="menu-consultas">
+              <!-- Controle de Modo API -->
+              <div id="apiModeControl" class="api-mode-control">
+                <label class="api-status-label">
+                  <span id="apiStatusText">🌐 Modo: API Real</span>
+                </label>
+                <button id="btnToggleAPIMode" class="btn btn-sm btn-outline btn-toggle-api">
+                  🎭 Alternar para Modo Demo
+                </button>
+              </div>
+
+              <div class="welcome-consultas">
+                <h3>Selecione o tipo de consulta</h3>
+                <p>
+                  Escolha abaixo a categoria de dados que deseja consultar nos Dados Abertos do
+                  Compras.gov.br
+                </p>
+              </div>
+
+              <div class="menu-grid-consultas">
+                <div
+                  class="menu-item-consulta"
+                  data-consulta="materiais"
+                  onclick="window.abrirConsulta('materiais');"
+                >
+                  <div class="menu-icon-consulta">📦</div>
+                  <h4>Catálogo de Material</h4>
+                  <p>Consulte itens do CATMAT por grupo, classe ou PDM</p>
+                </div>
+
+                <div
+                  class="menu-item-consulta"
+                  data-consulta="servicos"
+                  onclick="window.abrirConsulta('servicos')"
+                >
+                  <div class="menu-icon-consulta">🛠️</div>
+                  <h4>Catálogo de Serviço</h4>
+                  <p>Consulte serviços do CATSER por grupo e classe</p>
+                </div>
+
+                <div
+                  class="menu-item-consulta"
+                  data-consulta="uasg"
+                  onclick="window.abrirConsulta('uasg')"
+                >
+                  <div class="menu-icon-consulta">🏛️</div>
+                  <h4>Consultar UASG</h4>
+                  <p>Busque unidades administrativas por código ou UF</p>
+                </div>
+
+                <div
+                  class="menu-item-consulta"
+                  data-consulta="arp"
+                  onclick="window.abrirConsulta('arp')"
+                >
+                  <div class="menu-icon-consulta">📋</div>
+                  <h4>ARP - Atas de Preços</h4>
+                  <p>Consulte itens de Atas de Registro de Preços</p>
+                </div>
+
+                <div
+                  class="menu-item-consulta"
+                  data-consulta="pncp"
+                  onclick="window.abrirConsulta('pncp')"
+                >
+                  <div class="menu-icon-consulta">📑</div>
+                  <h4>Contratações PNCP</h4>
+                  <p>Lei 14.133/2021 - Portal Nacional de Contratações</p>
+                </div>
+
+                <div
+                  class="menu-item-consulta"
+                  data-consulta="legado-licitacoes"
+                  onclick="window.abrirConsulta('legado-licitacoes')"
+                >
+                  <div class="menu-icon-consulta">📚</div>
+                  <h4>Licitações (Legado)</h4>
+                  <p>Consulte licitações do sistema antigo ComprasNet</p>
+                </div>
+
+                <div
+                  class="menu-item-consulta"
+                  data-consulta="legado-itens"
+                  onclick="window.abrirConsulta('legado-itens')"
+                >
+                  <div class="menu-icon-consulta">📄</div>
+                  <h4>Itens de Licitação (Legado)</h4>
+                  <p>Consulte itens de licitações do sistema legado</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tela de Consulta (inicialmente oculta) -->
+            <div id="telaConsulta" class="tela-consulta hidden">
+              <!-- Breadcrumb / Voltar -->
+              <div class="consulta-nav">
+                <button id="btnVoltarMenu" class="btn btn-secondary">◀ Voltar ao Menu</button>
+                <h3 id="tituloConsulta">Consulta</h3>
+              </div>
+
+              <!-- Filtros Dinâmicos -->
+              <section class="filters-section">
+                <h4>🎛️ Filtros de Busca</h4>
+                <div id="filtersContainer">
+                  <p class="text-muted">Carregando filtros...</p>
+                </div>
+              </section>
+
+              <!-- Paginação Superior -->
+              <section class="pagination-section">
+                <div id="paginationContainer"></div>
+              </section>
+
+              <!-- Resultados -->
+              <section class="results-section">
+                <h4>📋 Resultados</h4>
+                <div id="resultsTable">
+                  <div class="empty-state">
+                    <p>📋 Nenhum resultado ainda.</p>
+                    <p class="text-muted">Configure os filtros e clique em "Buscar".</p>
+                  </div>
+                </div>
+              </section>
+
+              <!-- Paginação Inferior -->
+              <section class="pagination-section">
+                <div id="paginationContainer2"></div>
+              </section>
+            </div>
+          </div>
+        </section>
+
+        <!-- Tela de Cadastro de Empenho -->
+        <section id="empenhoScreen" class="screen">
+          <div class="screen-header">
+            <button class="btn-back">← Voltar</button>
+            <h2>📝 Gerenciamento de Empenhos</h2>
+          </div>
+
+          <!-- ✅ MENSAGEM DE CONFIGURAÇÃO DE PASTA -->
+          <div
+            id="fs-config-message"
+            style="
+              display: none;
+              background: #fff3cd;
+              border: 1px solid #ffc107;
+              border-radius: 8px;
+              padding: 15px;
+              margin: 15px 0;
+              animation: slideDown 0.3s;
+            "
+          >
+            <div style="display: flex; align-items: center; gap: 10px">
+              <span style="font-size: 24px">⚠️</span>
+              <div style="flex: 1">
+                <strong>Pasta não configurada</strong>
+                <p style="margin: 5px 0 0 0; font-size: 14px; color: #856404">
+                  Para salvar PDFs automaticamente no seu computador, clique no botão abaixo para
+                  selecionar uma pasta.
+                  <br />Sem configurar, os arquivos serão baixados normalmente.
+                </p>
+              </div>
+              <button
+                onclick="window.fsManager?.selectMainDirectory().then(ok => ok && (document.getElementById('fs-config-message').style.display = 'none'))"
+                style="
+                  background: #28a745;
+                  color: white;
+                  border: none;
+                  padding: 10px 20px;
+                  border-radius: 5px;
+                  cursor: pointer;
+                  white-space: nowrap;
+                "
+              >
+                📁 Selecionar Pasta
+              </button>
+            </div>
+          </div>
+
+          <!-- Abas de navegação -->
+          <div class="tabs-container">
+            <button class="tab-btn active" data-tab="cadastro">📝 Novo Cadastro</button>
+            <button class="tab-btn" data-tab="controle-saldos">📊 Controle de Saldos</button>
+            <button class="tab-btn" data-tab="relatorio">📋 Relatório de Empenhos</button>
+
+            <!-- ✅ BOTÃO PARA SELECIONAR PASTA PRINCIPAL -->
+            <button
+              id="btnSelectMainDir"
+              onclick="window.fsManager?.selectMainDirectory().then(ok => {
+                if (ok) {
+                  alert('✅ Pasta configurada com sucesso!\n\n🧪 Teste de escrita realizado automaticamente.\n\nVerifique o arquivo ifdesk_test.txt na pasta selecionada.\n\nOs próximos arquivos serão salvos automaticamente.');
+                  document.getElementById('fs-config-message').style.display = 'none';
+                }
+              }).catch(err => {
+                alert('❌ Erro ao configurar pasta:\n\n' + err.message);
+              })"
+              style="
+                margin-left: auto;
+                background: linear-gradient(135deg, #1976d2, #1565c0);
+                color: white;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 5px;
+                cursor: pointer;
+                font-weight: 600;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+              "
+              title="Selecione a pasta onde os PDFs serão salvos automaticamente"
+            >
+              📁 Selecionar Pasta Principal
+            </button>
+
+            <!-- ✅ BOTÃO PARA TESTAR PASTA (opcional) -->
+            <button
+              id="btnTestDir"
+              onclick="window.fsManager?.testWriteAccess().then(() => {
+                alert('✅ Teste bem-sucedido!\n\nA pasta está configurada corretamente.\nArquivo de teste criado: ifdesk_test.txt');
+              }).catch(err => {
+                alert('❌ Erro no teste:\n\n' + err.message + '\n\nClique em Selecionar Pasta Principal primeiro.');
+              })"
+              style="
+                background: #6c757d;
+                color: white;
+                border: none;
+                padding: 10px 16px;
+                border-radius: 5px;
+                cursor: pointer;
+                font-weight: 600;
+                display: flex;
+                align-items: center;
+                gap: 6px;
+              "
+              title="Testar se a pasta configurada está funcionando"
+            >
+              🧪 Testar Pasta
+            </button>
+          </div>
+
+          <!-- Conteúdo: Cadastro -->
+          <div class="tab-content active" id="tabCadastro">
+            <!-- Lista de Empenhos para Edição -->
+            <div
+              id="listaEmpenhosCadastro"
+              class="empenhos-lista-cadastro"
+              style="margin-bottom: 30px"
+            >
+              <div
+                style="
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                  margin-bottom: 15px;
+                  flex-wrap: wrap;
+                  gap: 10px;
+                "
+              >
+                <h3 style="margin: 0; color: #333">📋 Empenhos Cadastrados</h3>
+                <div style="display: flex; gap: 10px; align-items: center">
+                  <input
+                    type="text"
+                    id="buscaEmpenhoCadastro"
+                    placeholder="🔍 Buscar empenho..."
+                    style="
+                      padding: 8px 12px;
+                      border: 1px solid #ddd;
+                      border-radius: 6px;
+                      min-width: 200px;
+                    "
+                  />
+                  <select
+                    id="filtroAnoCadastro"
+                    style="padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px"
+                  >
+                    <option value="">Todos os anos</option>
+                  </select>
+                  <button
+                    type="button"
+                    id="btnNovoEmpenho"
+                    style="
+                      background: #28a745;
+                      color: white;
+                      border: none;
+                      padding: 8px 16px;
+                      border-radius: 6px;
+                      cursor: pointer;
+                      display: flex;
+                      align-items: center;
+                      gap: 5px;
+                    "
+                  >
+                    ➕ Novo Empenho
+                  </button>
+                </div>
+              </div>
+              <div
+                id="empenhosPorAnoCadastro"
+                style="
+                  max-height: 400px;
+                  overflow-y: auto;
+                  border: 1px solid #e0e0e0;
+                  border-radius: 8px;
+                  background: #fafafa;
+                "
+              >
+                <p style="padding: 20px; text-align: center; color: #666">Carregando empenhos...</p>
+              </div>
+            </div>
+
+            <hr style="border: none; border-top: 2px solid #e0e0e0; margin: 20px 0" />
+
+            <div class="form-container">
+              <h2 style="margin-bottom: 20px; color: #333">� Cadastro Manual de Nota de Empenho</h2>
+
+              <form id="formEmpenho" class="form">
+                <!-- CABEÇALHO DO EMPENHO -->
+                <fieldset
+                  style="
+                    border: 1px solid #ddd;
+                    padding: 15px;
+                    margin-bottom: 20px;
+                    border-radius: 5px;
+                  "
+                >
+                  <legend style="font-weight: bold; color: #333">📋 Cabeçalho do Empenho</legend>
+
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label for="naturezaDespesa">Natureza da Despesa *</label>
+                      <select id="naturezaDespesa" required>
+                        <option value="">-- Selecione --</option>
+                        <option value="339030">339030 - Material de Consumo</option>
+                        <option value="449052">449052 - Equipamentos e Material Permanente</option>
+                      </select>
+                    </div>
+                    <div class="form-group">
+                      <label for="anoEmpenho">Ano *</label>
+                      <input type="number" id="anoEmpenho" required min="2000" max="2099" />
+                    </div>
+                    <div class="form-group">
+                      <label for="numeroEmpenho">Número do Empenho *</label>
+                      <input type="text" id="numeroEmpenho" required />
+                    </div>
+                    <div class="form-group">
+                      <label for="dataEmpenho">Data de Emissão *</label>
+                      <input type="date" id="dataEmpenho" required />
+                    </div>
+                  </div>
+
+                  <div class="form-row">
+                    <div class="form-group" style="flex: 1">
+                      <label for="processoSuapEmpenho">Processo (SUAP)</label>
+                      <div style="display: flex; gap: 8px; align-items: flex-start">
+                        <div style="flex: 1">
+                          <input
+                            type="text"
+                            id="processoSuapEmpenho"
+                            placeholder="23000.000000/2024-00"
+                            style="width: 100%"
+                          />
+                          <small>Informe o processo do SUAP</small>
+                        </div>
+                        <button
+                          type="button"
+                          id="btnConsultarProcesso"
+                          class="btn btn-secondary"
+                          title="Consultar processo no SUAP"
+                          style="white-space: nowrap; padding: 8px 12px"
+                          onclick="window.consultarProcessoSuap()"
+                        >
+                          🔍 Consultar
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label for="valorTotalEmpenho">Valor Total do Empenho *</label>
+                      <input type="text" id="valorTotalEmpenho" placeholder="0,00" required />
+                      <small>Valor fixo do empenho (será comparado com soma dos itens)</small>
+                    </div>
+                  </div>
+                </fieldset>
+
+                <!-- DADOS DO FORNECEDOR -->
+                <fieldset
+                  style="
+                    border: 1px solid #ddd;
+                    padding: 15px;
+                    margin-bottom: 20px;
+                    border-radius: 5px;
+                  "
+                >
+                  <legend style="font-weight: bold; color: #333">🏢 Dados do Fornecedor</legend>
+
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label for="fornecedorEmpenho">Razão Social *</label>
+                      <input type="text" id="fornecedorEmpenho" required />
+                    </div>
+                    <div class="form-group">
+                      <label for="cnpjFornecedor">CNPJ *</label>
+                      <input
+                        type="text"
+                        id="cnpjFornecedor"
+                        placeholder="00.000.000/0000-00"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label for="telefoneFornecedor">Telefone</label>
+                      <input type="tel" id="telefoneFornecedor" placeholder="(00) 00000-0000" />
+                    </div>
+                    <div class="form-group">
+                      <label for="emailFornecedor">E-mail</label>
+                      <input
+                        type="email"
+                        id="emailFornecedor"
+                        placeholder="contato@empresa.com.br"
+                      />
+                    </div>
+                  </div>
+                </fieldset>
+
+                <div class="items-section">
+                  <div class="items-header items-header-flex">
+                    <h3 class="items-title">Itens do Empenho</h3>
+                    <span id="badgeStatusEmpenho" class="badge badge-status">RASCUNHO</span>
+                  </div>
+
+                  <div id="totaisEmpenho" class="totais-empenho">
+                    <div>Valor Total dos itens: <strong id="totalItensValor">R$ 0,00</strong></div>
+                    <div>Saldo do Empenho: <strong id="diferencaValor">R$ 0,00</strong></div>
+                  </div>
+
+                  <div id="itensEmpenho" class="items-list">
+                    <!-- Itens serão adicionados dinamicamente -->
+                  </div>
+
+                  <div class="items-actions">
+                    <button type="button" id="btnAddItem" class="btn btn-secondary">
+                      + Adicionar Item
+                    </button>
+                    <button type="button" id="btnValidarEmpenho" class="btn btn-success" disabled>
+                      ✅ Validar NE
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Seção: Anexar PDF da NE -->
+                <div
+                  class="anexo-section"
+                  style="
+                    margin-top: 20px;
+                    padding: 15px;
+                    border: 1px dashed #ccc;
+                    border-radius: 8px;
+                    background: #fafafa;
+                  "
+                >
+                  <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap">
+                    <button
+                      type="button"
+                      id="btnAnexarPdfNE"
+                      class="btn btn-secondary"
+                      style="display: flex; align-items: center; gap: 6px"
+                    >
+                      📎 Anexar PDF da NE
+                    </button>
+                    <span id="statusAnexoPdfNE" style="color: #666; font-size: 14px"
+                      >Nenhum PDF anexado.</span
+                    >
+                  </div>
+                </div>
+
+                <div class="form-actions">
+                  <button type="button" id="btnCancelarEmpenho" class="btn btn-secondary">
+                    Cancelar
+                  </button>
+                  <button type="submit" class="btn btn-primary">Salvar Empenho</button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <!-- Conteúdo: Controle de Saldos -->
+          <div class="tab-content" id="tabControleSaldos">
+            <div id="controleSaldosContainer">
+              <!-- Conteúdo será carregado dinamicamente -->
+            </div>
+          </div>
+
+          <!-- Conteúdo: Relatório (Somente Visualização) -->
+          <div class="tab-content" id="tabRelatorio">
+            <!-- Seletor de Tipo de Relatório -->
+            <div
+              class="relatorio-tipos"
+              style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap"
+            >
+              <button
+                class="btn-tipo-relatorio active"
+                data-tipo="todos"
+                title="Todos os empenhos cadastrados"
+              >
+                📋 Todos os Empenhos
+              </button>
+              <button class="btn-tipo-relatorio" data-tipo="ano" title="Empenhos filtrados por ano">
+                📅 Por Ano
+              </button>
+              <button
+                class="btn-tipo-relatorio"
+                data-tipo="com-saldo"
+                title="Empenhos com saldo disponível"
+              >
+                💰 Com Saldo
+              </button>
+              <button
+                class="btn-tipo-relatorio"
+                data-tipo="sem-saldo"
+                title="Empenhos totalmente utilizados"
+              >
+                🔴 Sem Saldo
+              </button>
+              <button
+                class="btn-tipo-relatorio"
+                data-tipo="rascunho"
+                title="Empenhos em fase de cadastro"
+              >
+                📝 Em Cadastro
+              </button>
+              <button
+                class="btn-tipo-relatorio"
+                data-tipo="validado"
+                title="Empenhos validados e prontos"
+              >
+                ✅ Validados
+              </button>
+            </div>
+
+            <!-- Filtros específicos por tipo -->
+            <div
+              id="filtrosRelatorioContainer"
+              class="relatorio-header"
+              style="
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 20px;
+                flex-wrap: wrap;
+                gap: 10px;
+              "
+            >
+              <h3 id="tituloRelatorioAtual" style="margin: 0; color: #333">📋 Todos os Empenhos</h3>
+              <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap">
+                <input
+                  type="text"
+                  id="buscaEmpenhoRelatorio"
+                  placeholder="🔍 Buscar..."
+                  style="
+                    padding: 8px 12px;
+                    border: 1px solid #ddd;
+                    border-radius: 6px;
+                    min-width: 180px;
+                  "
+                />
+                <select
+                  id="filtroAnoRelatorio"
+                  style="padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px"
+                >
+                  <option value="">Todos os anos</option>
+                </select>
+                <select
+                  id="ordenacaoRelatorio"
+                  style="padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px"
+                >
+                  <option value="recente">📅 Mais recentes</option>
+                  <option value="antigo">📅 Mais antigos</option>
+                  <option value="numero">🔢 Por número</option>
+                  <option value="valor-desc">💰 Maior valor</option>
+                  <option value="valor-asc">💰 Menor valor</option>
+                  <option value="saldo-desc">📊 Maior saldo</option>
+                  <option value="saldo-asc">📊 Menor saldo</option>
+                </select>
+                <button
+                  id="btnExportarRelatorio"
+                  class="btn btn-secondary"
+                  style="padding: 8px 12px; display: flex; align-items: center; gap: 4px"
+                  title="Exportar relatório"
+                >
+                  📥 Exportar
+                </button>
+              </div>
+            </div>
+
+            <!-- Resumo/Estatísticas -->
+            <div
+              id="resumoRelatorio"
+              style="
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                gap: 12px;
+                margin-bottom: 20px;
+              "
+            >
+              <!-- Preenchido dinamicamente -->
+            </div>
+
+            <p
+              style="
+                margin-bottom: 15px;
+                padding: 10px;
+                background: #e8f4f8;
+                border-radius: 6px;
+                color: #2c5282;
+                font-size: 0.9em;
+              "
+            >
+              ℹ️ <strong>Modo Visualização:</strong> Para editar empenhos, utilize a aba "Novo
+              Cadastro".
+            </p>
+            <div id="relatorioEmpenhosContainer">
+              <!-- Conteúdo será carregado dinamicamente -->
+            </div>
+          </div>
+        </section>
+
+        <!-- Tela de Entrada de Entrega -->
+        <section id="entregaScreen" class="screen">
+          <div class="screen-header">
+            <button class="btn-back">← Voltar</button>
+            <h2>📦 Entrada de Entrega</h2>
+          </div>
+
+          <div class="form-container">
+            <form id="formEntrega" class="form">
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="empenhoSelect">Selecionar Empenho *</label>
+                  <select id="empenhoSelect" required>
+                    <option value="">Selecione um empenho...</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="dataEntrega">Data da Entrega *</label>
+                  <input type="date" id="dataEntrega" required />
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="observacoesEntrega">Observações</label>
+                <textarea id="observacoesEntrega" rows="3"></textarea>
+              </div>
+
+              <div class="items-section">
+                <h3>Itens Recebidos</h3>
+                <div id="itensEntrega" class="items-list">
+                  <!-- Itens do empenho selecionado aparecerão aqui -->
+                </div>
+              </div>
+
+              <div class="form-actions">
+                <button type="button" class="btn btn-secondary">Cancelar</button>
+                <button type="submit" class="btn btn-primary">Registrar Entrega</button>
+              </div>
+            </form>
+          </div>
+        </section>
+
+        <!-- Tela de Nota Fiscal -->
+        <section id="notaFiscalScreen" class="screen nf-screen">
+          <div class="screen-header">
+            <button class="btn-back">← Voltar</button>
+            <h2>📄 Entrada de Nota Fiscal</h2>
+          </div>
+
+          <div class="form-container">
+            <!-- ✅ ENTRADA MANUAL (PADRÃO) - Empenho obrigatório no topo -->
+            <div
+              class="nf-empenho-section"
+              style="
+                background: #e3f2fd;
+                padding: 20px;
+                border-radius: 8px;
+                margin-bottom: 20px;
+                border: 2px solid #1976d2;
+              "
+            >
+              <h3
+                style="
+                  margin: 0 0 15px 0;
+                  color: #1565c0;
+                  display: flex;
+                  align-items: center;
+                  gap: 10px;
+                "
+              >
+                <span>📋</span> 1. Selecione o Empenho (Obrigatório)
+              </h3>
+              <div
+                class="empenho-select-container"
+                style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap"
+              >
+                <select
+                  id="empenhoAssociado"
+                  style="
+                    flex: 1;
+                    min-width: 300px;
+                    padding: 12px;
+                    font-size: 16px;
+                    border: 2px solid #1976d2;
+                    border-radius: 6px;
+                  "
+                  required
+                >
+                  <option value="">Selecione um empenho validado...</option>
+                </select>
+                <button
+                  type="button"
+                  id="btnCadastrarEmpenho"
+                  class="btn btn-outline"
+                  title="Cadastrar novo empenho"
+                  style="padding: 12px 16px"
+                >
+                  + Novo Empenho
+                </button>
+              </div>
+              <div
+                id="infoEmpenhoSelecionado"
+                style="
+                  margin-top: 15px;
+                  padding: 10px;
+                  background: #fff;
+                  border-radius: 6px;
+                  display: none;
+                "
+              >
+                <small style="color: #666"
+                  >Fornecedor: <strong id="nfFornecedorInfo">-</strong> | CNPJ:
+                  <strong id="nfCnpjInfo">-</strong> | Itens:
+                  <strong id="nfItensInfo">0</strong></small
+                >
+              </div>
+            </div>
+
+            <!-- Importação Opcional (Colapsável) -->
+            <details
+              class="import-opcoes"
+              style="margin-bottom: 20px; border: 1px solid #ddd; border-radius: 8px"
+            >
+              <summary
+                style="
+                  padding: 15px;
+                  cursor: pointer;
+                  background: #f8f9fa;
+                  border-radius: 8px;
+                  font-weight: 600;
+                  color: #666;
+                "
+              >
+                📥 Importar dados (opcional) - Clique para expandir
+              </summary>
+              <div style="padding: 15px">
+                <div
+                  class="opcoes-grid"
+                  style="
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                    gap: 15px;
+                  "
+                >
+                  <div
+                    class="opcao-card"
+                    data-opcao="upload"
+                    id="opcaoUpload"
+                    style="
+                      padding: 15px;
+                      border: 1px solid #ddd;
+                      border-radius: 8px;
+                      text-align: center;
+                      cursor: pointer;
+                    "
+                  >
+                    <div class="opcao-icon" style="font-size: 32px">📎</div>
+                    <h4 style="margin: 10px 0 5px">Upload do PDF</h4>
+                    <p style="font-size: 12px; color: #666; margin: 0">
+                      Extrair dados do PDF da NF
+                    </p>
+                  </div>
+                  <div
+                    class="opcao-card"
+                    data-opcao="chave"
+                    id="opcaoChave"
+                    style="
+                      padding: 15px;
+                      border: 1px solid #ddd;
+                      border-radius: 8px;
+                      text-align: center;
+                      cursor: pointer;
+                    "
+                  >
+                    <div class="opcao-icon" style="font-size: 32px">🔑</div>
+                    <h4 style="margin: 10px 0 5px">Chave de Acesso</h4>
+                    <p style="font-size: 12px; color: #666; margin: 0">
+                      Buscar via chave de 44 dígitos
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </details>
+
+            <!-- Área de Upload de PDF -->
+            <div class="entrada-content" id="contentUpload">
+              <div class="upload-area">
+                <div class="upload-box" id="uploadNotaFiscal">
+                  <div class="upload-icon">📎</div>
+                  <p>Clique ou arraste o PDF da Nota Fiscal</p>
+                  <input type="file" id="fileNotaFiscal" accept=".pdf" hidden />
+                </div>
+
+                <!-- Área de Preview dos Dados Extraídos -->
+                <div id="previewDadosNF" class="preview-dados hidden">
+                  <h4 class="preview-title">📋 Dados Extraídos do PDF</h4>
+
+                  <!-- Alerta de Divergência -->
+                  <div id="alertaDivergencia" class="alert hidden"></div>
+
+                  <!-- Cabeçalho da NF -->
+                  <div class="dados-cabecalho">
+                    <h5>📄 Dados do Cabeçalho</h5>
+                    <div class="grid-dados-nf">
+                      <div>
+                        <strong>Número NF:</strong>
+                        <span id="previewNumeroNF">-</span>
+                      </div>
+                      <div>
+                        <strong>Data Emissão:</strong>
+                        <span id="previewDataNF">-</span>
+                      </div>
+                      <div>
+                        <strong>Nome Fornecedor:</strong>
+                        <span id="previewNomeFornecedor">-</span>
+                      </div>
+                      <div>
+                        <strong>CNPJ Emitente:</strong>
+                        <span id="previewCNPJEmitente">-</span>
+                      </div>
+                      <div>
+                        <strong>CNPJ Destinatário:</strong>
+                        <span id="previewCNPJDestinatario">-</span>
+                      </div>
+                      <div>
+                        <strong>Chave de Acesso:</strong>
+                        <span id="previewChaveAcesso">-</span>
+                      </div>
+                      <div class="valor-total-destaque">
+                        <strong>Valor Total:</strong>
+                        <span id="previewValorTotal">R$ 0,00</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Itens Extraídos -->
+                  <div class="dados-itens secao-itens">
+                    <h5>📦 Itens/Produtos Extraídos</h5>
+                    <div id="tabelaItensExtraidos" class="tabela-itens-container">
+                      <!-- Tabela será gerada dinamicamente -->
+                    </div>
+                  </div>
+
+                  <!-- Resumo da Validação -->
+                  <div class="resumo-validacao">
+                    <h5>📊 Resumo da Validação</h5>
+                    <div class="grid-dados-nf">
+                      <div>
+                        <strong>Total de Itens:</strong>
+                        <span id="resumoTotalItens">0</span>
+                      </div>
+                      <div>
+                        <strong>Valor Total (Cabeçalho):</strong>
+                        <span id="resumoValorCabecalho">R$ 0,00</span>
+                      </div>
+                      <div>
+                        <strong>Soma dos Itens:</strong>
+                        <span id="resumoSomaItens">R$ 0,00</span>
+                      </div>
+                      <div>
+                        <strong>Diferença:</strong>
+                        <span id="resumoDiferenca">R$ 0,00</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Ação de Transferir -->
+                  <div class="acoes-centralizadas">
+                    <button
+                      type="button"
+                      id="btnTransferirDados"
+                      class="btn btn-primary btn-salvar-confirmacao"
+                    >
+                      ✅ Transferir Dados para Formulário
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Área de Entrada por Chave de Acesso -->
+            <div class="entrada-content hidden" id="contentChave">
+              <div class="chave-entrada">
+                <div class="form-group">
+                  <label for="chaveAcessoInput">Chave de Acesso da NF-e (44 dígitos) *</label>
+                  <input
+                    type="text"
+                    id="chaveAcessoInput"
+                    placeholder="Digite ou cole a chave de acesso de 44 dígitos"
+                    maxlength="60"
+                    inputmode="numeric"
+                  />
+                  <small>Exemplo: 12345678901234567890123456789012345678901234</small>
+                </div>
+                <div class="chave-actions">
+                  <button type="button" id="btnBuscarPorChave" class="btn btn-primary">
+                    🔍 Buscar Nota Fiscal
+                  </button>
+                  <button type="button" id="btnLimparChave" class="btn btn-outline">
+                    🗑️ Limpar
+                  </button>
+                </div>
+                <div id="chaveStatus" class="status-message hidden"></div>
+              </div>
+            </div>
+
+            <form id="formNotaFiscal" class="form">
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="numeroNotaFiscal">Número da Nota Fiscal *</label>
+                  <input type="text" id="numeroNotaFiscal" required />
+                </div>
+                <div class="form-group">
+                  <label for="dataNotaFiscal">Data da Nota Fiscal *</label>
+                  <input type="date" id="dataNotaFiscal" required />
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="cnpjEmitente">CNPJ Emitente (Fornecedor) *</label>
+                  <input type="text" id="cnpjEmitente" placeholder="00.000.000/0000-00" required />
+                </div>
+                <div class="form-group">
+                  <label for="cnpjDestinatario">CNPJ Destinatário *</label>
+                  <input
+                    type="text"
+                    id="cnpjDestinatario"
+                    placeholder="00.000.000/0000-00"
+                    required
+                  />
+                  <small>Valida se a NF foi emitida para a instituição correta</small>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="chaveAcesso">Chave de Acesso (opcional)</label>
+                  <input
+                    type="text"
+                    id="chaveAcesso"
+                    maxlength="44"
+                    placeholder="44 dígitos (opcional)"
+                  />
+                </div>
+                <div class="form-group">
+                  <label for="valorTotalNF">Valor Total da NF *</label>
+                  <input
+                    type="text"
+                    id="valorTotalNF"
+                    class="input-valor-destaque"
+                    placeholder="Digite o valor da NF"
+                    required
+                  />
+                  <small>Informe o valor total conforme a nota fiscal</small>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="empenhoAssociado" style="display: none">Empenho Associado</label>
+                <!-- Select movido para o topo da tela -->
+              </div>
+
+              <div id="divergenciasContainer" class="divergencias hidden">
+                <h3>⚠️ Divergências Encontradas</h3>
+                <div id="listaDivergencias"></div>
+              </div>
+
+              <div class="items-section">
+                <div class="nf-items-header">
+                  <h3>📦 Itens da Nota Fiscal</h3>
+                  <small id="nfItensHint">Selecione um empenho para sugestões de itens</small>
+                </div>
+                <!-- Datalist para autocompletar itens do empenho -->
+                <datalist id="datalistItensEmpenho"></datalist>
+                <div class="nf-items-wrap">
+                  <!-- Tabela ERP de itens -->
+                  <table class="nf-items" id="tabelaItensNF">
+                    <thead>
+                      <tr>
+                        <th class="col-seq">#</th>
+                        <th class="col-sub">Subelem.</th>
+                        <th class="col-item">Item Cpr.</th>
+                        <th class="col-desc">Descrição</th>
+                        <th class="col-un">Un</th>
+                        <th class="col-qtd">Qtd</th>
+                        <th class="col-vlr">Vlr Unit.</th>
+                        <th class="col-total">Vlr Total</th>
+                        <th class="col-actions"></th>
+                      </tr>
+                    </thead>
+                    <tbody id="itensNotaFiscal">
+                      <!-- Itens serão adicionados dinamicamente como <tr> -->
+                    </tbody>
+                  </table>
+                  <!-- Barra fixa de totais (sticky bottom) -->
+                  <div class="nf-totals-bar" id="nfTotalsBar">
+                    <div class="tot-card">
+                      <div class="label">Soma Itens</div>
+                      <div class="value" id="nfSomaItensLabel">0,00</div>
+                    </div>
+                    <div class="tot-card">
+                      <div class="label">Total NF (manual)</div>
+                      <div class="value" id="nfTotalManualLabel">0,00</div>
+                    </div>
+                    <div class="tot-card">
+                      <div class="label">Diferença</div>
+                      <div class="value" id="nfDiferencaLabel">0,00</div>
+                    </div>
+                    <div class="tot-status ok" id="nfConciliacaoBadge">OK</div>
+                  </div>
+                </div>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px">
+                  <!-- REMOVIDO: Botão manual PROIBIDO - Itens só podem vir do Empenho -->
+                  <button type="button" id="btnAddItemFromEmpenho" class="btn btn-primary">
+                    📋 Adicionar do Empenho
+                  </button>
+                </div>
+
+                <!-- Soma dos itens e Diferença -->
+                <div class="form-row secao-empenho">
+                  <div class="form-group">
+                    <label for="somaItensNF" class="label-bold-large"> Soma Total dos Itens </label>
+                    <input
+                      type="text"
+                      id="somaItensNF"
+                      class="input-readonly-highlight input-valor-destaque"
+                      placeholder="R$ 0,00"
+                      readonly
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label for="nfDiferenca" class="label-bold-large"
+                      >Diferença (Soma - Total)</label
+                    >
+                    <input
+                      type="text"
+                      id="nfDiferenca"
+                      class="input-readonly-highlight"
+                      placeholder="R$ 0,00"
+                      readonly
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label class="label-bold-large">Status da Validação</label>
+                    <div id="divergenciaValor" class="status-validacao"></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-actions">
+                <button type="button" class="btn btn-secondary">Cancelar</button>
+                <button
+                  type="button"
+                  id="btnValidarNF"
+                  class="btn btn-warning"
+                  title="Valida NF contra Empenho vinculado"
+                >
+                  🔍 Validar NF
+                </button>
+                <button type="submit" class="btn btn-primary">Salvar Nota Fiscal</button>
+              </div>
+            </form>
+
+            <!-- Modal de Resultado da Validação -->
+            <div id="modalValidacaoNF" class="modal hidden">
+              <div class="modal-content" style="max-width: 700px">
+                <div class="modal-header">
+                  <h3 id="modalValidacaoTitulo">🔍 Resultado da Validação</h3>
+                  <button type="button" class="modal-close" id="btnFecharValidacaoNF">
+                    &times;
+                  </button>
+                </div>
+                <div class="modal-body" id="modalValidacaoBody">
+                  <!-- Conteúdo gerado dinamicamente -->
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" id="btnFecharValidacaoNF2">
+                    Fechar
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Tela de Relatórios -->
+        <section id="relatoriosScreen" class="screen">
+          <div class="screen-header">
+            <button class="btn-back">← Voltar</button>
+            <h2>📊 Relatórios</h2>
+          </div>
+
+          <div class="reports-container">
+            <!-- Acesso Rápido às Pastas (somente visualização) -->
+            <div class="file-management-section">
+              <h3>📁 Acesso Rápido às Pastas</h3>
+              <p class="nf-warning-text">
+                ⚙️ Para configurar a estrutura de pastas, vá em
+                <strong>Configurações → Arquivos</strong>
+              </p>
+              <div class="file-management-actions">
+                <button id="btnAbrirPastaEmpenhos" class="btn btn-outline">
+                  📝 Abrir Pasta Empenhos
+                </button>
+                <button id="btnAbrirPastaNotasFiscais" class="btn btn-outline">
+                  📄 Abrir Pasta Notas Fiscais
+                </button>
+                <button id="btnEstatisticasArquivos" class="btn btn-outline">
+                  📊 Estatísticas
+                </button>
+              </div>
+              <div id="fileStatsDisplay" class="file-stats hidden">
+                <!-- Estatísticas serão exibidas aqui -->
+              </div>
+            </div>
+
+            <div class="report-filters">
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="filtroDataInicio">Data Início</label>
+                  <input type="date" id="filtroDataInicio" />
+                </div>
+                <div class="form-group">
+                  <label for="filtroDataFim">Data Fim</label>
+                  <input type="date" id="filtroDataFim" />
+                </div>
+                <div class="form-group">
+                  <label for="filtroFornecedor">Fornecedor</label>
+                  <select id="filtroFornecedor">
+                    <option value="">Todos os fornecedores</option>
+                  </select>
+                </div>
+              </div>
+              <button id="btnFiltrar" class="btn btn-primary">Filtrar</button>
+            </div>
+
+            <!-- RELATÓRIOS DINÂMICOS - Nível ERP -->
+            <div class="report-section-dynamic">
+              <h3>📈 Relatórios Gerenciais</h3>
+
+              <!-- Filtros Dinâmicos -->
+              <div class="report-filters" id="reportDynamicFilters">
+                <div class="report-filter-group">
+                  <label for="filtroReportDateFrom">Data Início</label>
+                  <input type="date" id="filtroReportDateFrom" />
+                </div>
+                <div class="report-filter-group">
+                  <label for="filtroReportDateTo">Data Fim</label>
+                  <input type="date" id="filtroReportDateTo" />
+                </div>
+                <div class="report-filter-group">
+                  <label for="filtroReportAno">Ano</label>
+                  <select id="filtroReportAno">
+                    <option value="">Todos</option>
+                  </select>
+                </div>
+                <div class="report-filter-group">
+                  <label for="filtroReportFornecedor">Fornecedor</label>
+                  <select id="filtroReportFornecedor">
+                    <option value="">Todos</option>
+                  </select>
+                </div>
+                <div class="report-filter-group">
+                  <label for="filtroReportSubelemento">Subelemento</label>
+                  <select id="filtroReportSubelemento">
+                    <option value="">Todos</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Cards de Relatórios -->
+              <div class="report-cards-grid" id="reportCardsContainer">
+                <!-- Preenchido via JS -->
+              </div>
+
+              <!-- Área de Resultado -->
+              <div id="reportResultArea" class="hidden">
+                <div id="reportResultContainer"></div>
+              </div>
+            </div>
+
+            <hr style="margin: 2rem 0; border-color: #eee" />
+
+            <!-- Relatórios Legados -->
+            <h3 style="margin-bottom: 1rem">📋 Relatórios Básicos</h3>
+            <div class="report-types">
+              <div class="report-card" data-report="conferencia">
+                <h3>📋 Relatório de Conferência</h3>
+                <p>Para envio ao fornecedor baseado nas entregas</p>
+                <button class="btn btn-secondary">Gerar</button>
+              </div>
+
+              <div class="report-card" data-report="saldos">
+                <h3>📊 Controle de Saldos de Empenhos</h3>
+                <p>Acompanhamento detalhado de recebimentos por item</p>
+                <button class="btn btn-primary">Visualizar</button>
+              </div>
+
+              <div class="report-card" data-report="empenhos">
+                <h3>📝 Relatório de Empenhos</h3>
+                <p>Lista completa de empenhos cadastrados</p>
+                <button class="btn btn-secondary">Gerar</button>
+              </div>
+
+              <div class="report-card" data-report="entregas">
+                <h3>📦 Relatório de Entregas</h3>
+                <p>Histórico de recebimentos por período</p>
+                <button class="btn btn-secondary">Gerar</button>
+              </div>
+
+              <div class="report-card" data-report="divergencias">
+                <h3>⚠️ Relatório de Divergências</h3>
+                <p>Diferenças entre empenhos e notas fiscais</p>
+                <button class="btn btn-secondary">Gerar</button>
+              </div>
+            </div>
+
+            <div id="reportContent" class="report-content hidden">
+              <div class="report-header">
+                <h3 id="reportTitle"></h3>
+                <div class="report-actions">
+                  <button id="btnExportPDF" class="btn btn-primary">📄 Exportar PDF</button>
+                  <button id="btnExportCSV" class="btn btn-secondary">📊 Exportar CSV</button>
+                  <button id="btnCloseReport" class="btn btn-outline">✕ Fechar</button>
+                </div>
+              </div>
+              <div id="reportData" class="report-data">
+                <!-- Dados do relatório aparecerão aqui -->
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Tela de Configurações -->
+        <section id="configScreen" class="screen">
+          <div class="screen-header">
+            <button class="btn-back">← Voltar</button>
+            <h2>⚙️ Configurações</h2>
+          </div>
+          <div class="config-iframe-container">
+            <iframe
+              id="configIframe"
+              src="config/configuracoes.html"
+              title="Configurações do Sistema"
+              class="config-iframe"
+            >
+            </iframe>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay hidden">
+      <div class="loading-spinner"></div>
+      <p>Processando...</p>
+    </div>
+
+    <!-- Scripts -->
+    <!-- Platform Core (Error Boundary + Performance) - PRIMEIRO -->
+    <script src="js/platform-core.js"></script>
+
+    <script src="js/config.js" defer></script>
+    <script src="js/db.js" defer></script>
+    <script src="js/utils/dbSafe.js" defer></script>
+    <script src="js/utils/uxHelpers.js" defer></script>
+
+    <script src="js/pdfReader.js" defer></script>
+    <script type="module" src="js/neParserInit.js"></script>
+    <script src="js/nfeIntegration.js" defer></script>
+    <script src="js/fsManager.js" defer></script>
+
+    <!-- 📎 Anexar PDF da NE -->
+    <script src="js/anexarPdfNE.js" defer></script>
+
+    <!-- Proteção e Integridade de Pastas -->
+    <script src="js/core/protection.js" defer></script>
+    <script src="js/core/integrity.js" defer></script>
+    <script src="js/core/trashManager.js" defer></script>
+    <script src="js/core/fsManagerLegacy.js" defer></script>
+
+    <!-- 🔒 SISTEMA DE BACKUP E RESTAURAÇÃO -->
+    <script src="js/core/dataBackup.js" defer></script>
+
+    <!-- 📋 CONFIGURAÇÃO DE MENUS (aliases e estrutura) -->
+    <script src="js/core/menuConfig.js" defer></script>
+
+    <!-- Scripts de Configurações -->
+    <!-- ========================================== -->
+    <!-- APP PRINCIPAL - DEVE CARREGAR PRIMEIRO -->
+    <!-- Define window.repository e window.app -->
+    <!-- ========================================== -->
+    <!-- ✅ FORMATADORES BRASILEIROS (antes do app.js) -->
+    <script type="module" src="js/utils/formatters.js"></script>
+    <script src="js/fsRoot.js" defer></script>
+    <!-- Validador de NF (antes do app.js) -->
+    <script src="js/nfValidator.js" defer></script>
+    <script type="module" src="js/app.js"></script>
+
+    <!-- ========================================== -->
+    <!-- MÓDULO DE RELATÓRIOS DINÂMICOS -->
+    <!-- ========================================== -->
+    <script type="module">
+      import { initReportsUI } from './js/reports/reportUI.js';
+
+      // Inicializa quando o DOM estiver pronto e dbManager disponível
+      document.addEventListener('DOMContentLoaded', async () => {
+        // Aguarda dbManager estar pronto
+        const waitForDB = () =>
+          new Promise((resolve) => {
+            if (window.dbManager?.loja) {
+              resolve();
+            } else {
+              setTimeout(() => waitForDB().then(resolve), 100);
+            }
+          });
+
+        try {
+          await waitForDB();
+          await initReportsUI();
+          console.log('[index.html] ✅ Módulo de relatórios inicializado');
+        } catch (err) {
+          console.error('[index.html] ❌ Erro ao inicializar relatórios:', err);
+        }
+      });
+    </script>
+
+    <!-- ========================================== -->
+    <!-- MÓDULOS DE CONFIGURAÇÕES -->
+    <!-- Dependem de window.repository do app.js -->
+    <!-- ========================================== -->
+    <script src="js/settings/index.js" defer></script>
+    <script src="js/settings/unidade.js" defer></script>
+    <script src="js/settings/usuarios.js" defer></script>
+    <script src="js/settings/rede.js" defer></script>
+    <script src="js/settings/preferencias.js" defer></script>
+    <script src="js/settings/arquivos.js" defer></script>
+
+    <!-- UI Proteção de Pastas -->
+    <script src="js/ui/settings/protecao.js" defer></script>
+
+    <!-- Parser Refinado (módulos) -->
+    <script src="js/refine/patterns.js" defer></script>
+    <script src="js/refine/logger.js" defer></script>
+    <script src="js/refine/normalize.js" defer></script>
+    <script src="js/refine/validate.js" defer></script>
+    <script src="js/refine/analyzer.js" defer></script>
+    <script src="js/refine/detectors.js" defer></script>
+    <script src="js/refine/score.js" defer></script>
+    <script src="js/refine/ocrFallback.js" defer></script>
+    <script src="js/refine/extract/header.js" defer></script>
+    <script src="js/refine/extract/items.js" defer></script>
+    <script src="js/refine/extract/totals.js" defer></script>
+    <script src="js/refine/index.js" defer></script>
+    <script src="js/refine/ui-integration.js" defer></script>
+
+    <!-- ========================================== -->
+    <!-- BRIDGE GLOBAL: Define funções no escopo global -->
+    <!-- (Deve vir ANTES dos módulos ES6) -->
+    <!-- ========================================== -->
+    <script>
+      // Cria objeto global para armazenar referências dos módulos
+      window.ConsultasModule = {
+        UIConsultas: null,
+        initialized: false
+      };
+
+      // Captura erros do console para mostrar na tela
+      window.ConsultasErros = [];
+      const consoleError = console.error;
+      console.error = function (...args) {
+        // Armazena o erro
+        window.ConsultasErros.push(args.join(' '));
+        // Chama o console.error original
+        consoleError.apply(console, args);
+      };
+
+      // Função GLOBAL para mostrar erro COPIÁVEL na tela
+      window.mostrarErroCopivel = function (titulo, mensagem, detalhes = '') {
+        // Remove qualquer erro anterior
+        const erroAnterior = document.getElementById('erro-copivel');
+        if (erroAnterior) erroAnterior.remove();
+
+        // Cria div de erro
+        const divErro = document.createElement('div');
+        divErro.id = 'erro-copivel';
+        divErro.style.cssText = `
+          position: fixed;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          background: white;
+          border: 3px solid #dc3545;
+          border-radius: 12px;
+          padding: 25px;
+          max-width: 600px;
+          width: 90%;
+          z-index: 10000;
+          box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+          font-family: Arial, sans-serif;
+        `;
+
+        const conteudoCompleto = `${titulo}\n\n${mensagem}${
+          detalhes ? '\n\nDetalhes:\n' + detalhes : ''
+        }`;
+
+        divErro.innerHTML = `
+          <div style="text-align: center; margin-bottom: 20px;">
+            <div style="font-size: 48px; color: #dc3545;">❌</div>
+            <h3 style="color: #dc3545; margin: 10px 0;">${titulo}</h3>
+          </div>
+
+          <div style="background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 6px; padding: 15px; margin-bottom: 20px; font-family: 'Courier New', monospace; font-size: 14px; white-space: pre-wrap; word-wrap: break-word; max-height: 300px; overflow-y: auto; text-align: left;"><!--
+          -->${mensagem}${detalhes ? '\n\nDetalhes:\n' + detalhes : ''}<!--
+        --></div>
+
+          <div style="display: flex; gap: 10px; justify-content: center;">
+            <button id="btn-copiar-erro" style="background: #007bff; color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: bold;">
+              📋 COPIAR ERRO
+            </button>
+            <button id="btn-fechar-erro" style="background: #6c757d; color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: bold;">
+              ✖️ FECHAR
+            </button>
+          </div>
+        `;
+
+        document.body.appendChild(divErro);
+
+        // Botão copiar
+        document.getElementById('btn-copiar-erro').addEventListener('click', () => {
+          navigator.clipboard
+            .writeText(conteudoCompleto)
+            .then(() => {
+              const btn = document.getElementById('btn-copiar-erro');
+              btn.innerHTML = '✅ COPIADO!';
+              btn.style.background = '#28a745';
+              setTimeout(() => {
+                btn.innerHTML = '📋 COPIAR ERRO';
+                btn.style.background = '#007bff';
+              }, 2000);
+            })
+            .catch(() => {
+              alert('Não foi possível copiar. Selecione o texto e copie manualmente (Ctrl+C).');
+            });
+        });
+
+        // Botão fechar
+        document.getElementById('btn-fechar-erro').addEventListener('click', () => {
+          divErro.remove();
+        });
+      };
+
+      // Função que espera o módulo carregar (com timeout)
+      function aguardarModulo(callback, tentativas = 0) {
+        const MAX_TENTATIVAS = 50; // 50 tentativas = 5 segundos (mais tempo!)
+
+        if (window.ConsultasModule.UIConsultas) {
+          // Módulo carregado! Executa callback
+          callback();
+        } else if (tentativas < MAX_TENTATIVAS) {
+          // Mostra feedback visual na primeira tentativa
+          if (tentativas === 0) {
+            // Cria indicador de carregamento se não existir
+            let loader = document.getElementById('consultas-loader');
+            if (!loader) {
+              loader = document.createElement('div');
+              loader.id = 'consultas-loader';
+              loader.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: rgba(0,0,0,0.8);
+                color: white;
+                padding: 20px 40px;
+                border-radius: 8px;
+                font-size: 18px;
+                z-index: 9999;
+                font-family: Arial, sans-serif;
+              `;
+              loader.innerHTML = '⏳ Carregando módulo...';
+              document.body.appendChild(loader);
+            }
+          }
+
+          // Ainda não carregou, aguarda mais um pouco
+          setTimeout(() => {
+            aguardarModulo(callback, tentativas + 1);
+          }, 100); // Tenta novamente em 100ms
+        } else {
+          // Remove loader
+          const loader = document.getElementById('consultas-loader');
+          if (loader) loader.remove();
+
+          // Timeout - módulo não carregou - USA ERRO COPIÁVEL
+          const errosConsole =
+            window.ConsultasErros.length > 0
+              ? '\n\nERROS DO CONSOLE:\n' + window.ConsultasErros.join('\n')
+              : '\n\nNenhum erro foi capturado no console.';
+
+          mostrarErroCopivel(
+            'TIMEOUT - Módulo não carregou',
+            'O módulo de Consultas Diversas não foi carregado após 5 segundos.',
+            'Possíveis causas:\n' +
+              '1. Erro ao carregar arquivos JavaScript\n' +
+              '2. Bloqueio de scripts no navegador\n' +
+              '3. Erro de sintaxe nos módulos ES6\n' +
+              '4. Caminho incorreto dos arquivos\n' +
+              errosConsole +
+              '\n\nIMPORTANTE: Pressione F12 e vá na aba Console para ver todos os erros!'
+          );
+        }
+      }
+
+      // Função global para abrir consulta (chamada pelos onclick dos cards)
+      window.abrirConsulta = function (dataset) {
+        aguardarModulo(() => {
+          // Remove loader se existir
+          const loader = document.getElementById('consultas-loader');
+          if (loader) loader.remove();
+
+          // Módulo está carregado, pode prosseguir
+          try {
+            if (typeof window.ConsultasModule.UIConsultas.showConsulta !== 'function') {
+              mostrarErroCopivel(
+                'Função não encontrada',
+                'A função showConsulta não foi encontrada no módulo carregado.',
+                'window.ConsultasModule.UIConsultas.showConsulta = ' +
+                  typeof window.ConsultasModule.UIConsultas.showConsulta
+              );
+              return;
+            }
+
+            // Chama a função do módulo
+            window.ConsultasModule.UIConsultas.showConsulta(dataset);
+          } catch (error) {
+            mostrarErroCopivel(
+              'Erro ao executar showConsulta',
+              error.message,
+              'Stack trace:\n' + (error.stack || 'Não disponível')
+            );
+          }
+        });
+      };
+    </script>
+
+    <!-- Scripts de Consultas Diversas (ES6 Modules) -->
+    <!-- CARREGA IMEDIATAMENTE quando a página carrega (não espera abrir a tela) -->
+    <script type="module">
+      // Importa módulo de consultas IMEDIATAMENTE
+      console.log('🔄 Importando módulos de Consultas...');
+
+      import * as Consultas from './js/consultas/index.js';
+
+      console.log('✅ Módulos importados:', Consultas);
+
+      // REGISTRA o módulo no objeto global IMEDIATAMENTE
+      window.ConsultasModule.UIConsultas = {
+        init: Consultas.init,
+        showConsulta: Consultas.showConsulta,
+        showMenu: Consultas.showMenu
+      };
+      window.ConsultasModule.initialized = true;
+      window.ConsultasModule.loading = false;
+
+      console.log('✅ Módulo PRONTO em window.ConsultasModule:', window.ConsultasModule);
+
+      // Expõe globalmente para o app.js poder usar
+      window.initConsultas = () => {
+        console.log('🚀 initConsultas chamado');
+        try {
+          Consultas.init();
+          console.log('✅ Consultas.init() executado com sucesso');
+        } catch (error) {
+          console.error('❌ Erro em init():', error);
+          alert('❌ Erro ao inicializar:\n\n' + error.message);
+        }
+      };
+
+      console.log('✅ Setup completo!');
+      console.log('   - window.initConsultas:', typeof window.initConsultas);
+      console.log('   - window.abrirConsulta:', typeof window.abrirConsulta);
+      console.log('   - window.ConsultasModule.initialized:', window.ConsultasModule.initialized);
+    </script>
+
+    <!-- ========================================== -->
+    <!-- IFDESK Soft Init - Carrega melhorias de forma segura -->
+    <!-- NÃO quebra nada se falhar -->
+    <!-- ========================================== -->
+    <script type="module" src="js/softInit.js"></script>
+
+    <!-- Módulo de Exportação CSV -->
+    <script src="js/exportCSV.js" defer></script>
+    <!-- Informações da infraestrutura (exibe nota no console) -->
+    <script src="js/infrastructureInfo.js" defer></script>
+  </body>
+</html>

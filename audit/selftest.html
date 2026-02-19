@@ -1,0 +1,295 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>IFDESK - Self-Test (Auditoria no Navegador)</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        overflow: hidden;
+      }
+
+      .header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 30px;
+        text-align: center;
+      }
+
+      .header h1 {
+        font-size: 2rem;
+        margin-bottom: 10px;
+      }
+
+      .header p {
+        opacity: 0.9;
+      }
+
+      .content {
+        padding: 30px;
+      }
+
+      .test-section {
+        margin-bottom: 30px;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        overflow: hidden;
+      }
+
+      .test-header {
+        background: #f5f5f5;
+        padding: 15px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        cursor: pointer;
+        transition: background 0.3s;
+      }
+
+      .test-header:hover {
+        background: #eeeeee;
+      }
+
+      .test-header h2 {
+        font-size: 1.3rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .status {
+        padding: 5px 15px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: bold;
+      }
+
+      .status.success {
+        background: #4caf50;
+        color: white;
+      }
+
+      .status.warning {
+        background: #ff9800;
+        color: white;
+      }
+
+      .status.error {
+        background: #f44336;
+        color: white;
+      }
+
+      .status.pending {
+        background: #9e9e9e;
+        color: white;
+      }
+
+      .test-body {
+        padding: 20px;
+        display: none;
+        background: #fafafa;
+      }
+
+      .test-body.active {
+        display: block;
+      }
+
+      .test-result {
+        background: white;
+        padding: 15px;
+        border-radius: 6px;
+        margin-bottom: 10px;
+        font-family: 'Courier New', monospace;
+        font-size: 0.9rem;
+        max-height: 300px;
+        overflow-y: auto;
+      }
+
+      .actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 20px;
+        flex-wrap: wrap;
+      }
+
+      .btn {
+        padding: 12px 24px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 1rem;
+        font-weight: bold;
+        transition: all 0.3s;
+      }
+
+      .btn-primary {
+        background: #667eea;
+        color: white;
+      }
+
+      .btn-primary:hover {
+        background: #5568d3;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+      }
+
+      .btn-secondary {
+        background: #4caf50;
+        color: white;
+      }
+
+      .btn-secondary:hover {
+        background: #45a049;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
+      }
+
+      .summary {
+        background: #f5f5f5;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 30px;
+      }
+
+      .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        margin-top: 15px;
+      }
+
+      .summary-card {
+        background: white;
+        padding: 15px;
+        border-radius: 6px;
+        text-align: center;
+      }
+
+      .summary-card h3 {
+        font-size: 2rem;
+        margin-bottom: 5px;
+      }
+
+      .summary-card p {
+        color: #666;
+        font-size: 0.9rem;
+      }
+
+      pre {
+        white-space: pre-wrap;
+        word-wrap: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>🔍 IFDESK Self-Test</h1>
+        <p>Auditoria automática no navegador - IndexedDB, Cache, Performance e Storage</p>
+      </div>
+
+      <div class="content">
+        <div class="summary">
+          <h2>📊 Resumo dos Testes</h2>
+          <div class="summary-grid">
+            <div class="summary-card">
+              <h3 id="summary-total">0</h3>
+              <p>Testes Executados</p>
+            </div>
+            <div class="summary-card">
+              <h3 id="summary-success" style="color: #4caf50">0</h3>
+              <p>Sucessos</p>
+            </div>
+            <div class="summary-card">
+              <h3 id="summary-warning" style="color: #ff9800">0</h3>
+              <p>Avisos</p>
+            </div>
+            <div class="summary-card">
+              <h3 id="summary-error" style="color: #f44336">0</h3>
+              <p>Erros</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Test: IndexedDB -->
+        <div class="test-section" data-test="indexeddb">
+          <div class="test-header" onclick="toggleTest('indexeddb')">
+            <h2>💾 IndexedDB</h2>
+            <span class="status pending">Pendente</span>
+          </div>
+          <div class="test-body">
+            <div class="test-result" id="result-indexeddb">
+              Clique em "Executar Testes" para começar...
+            </div>
+          </div>
+        </div>
+
+        <!-- Test: Service Worker & Cache -->
+        <div class="test-section" data-test="cache">
+          <div class="test-header" onclick="toggleTest('cache')">
+            <h2>🗂️ Service Worker & Cache</h2>
+            <span class="status pending">Pendente</span>
+          </div>
+          <div class="test-body">
+            <div class="test-result" id="result-cache">
+              Clique em "Executar Testes" para começar...
+            </div>
+          </div>
+        </div>
+
+        <!-- Test: Storage -->
+        <div class="test-section" data-test="storage">
+          <div class="test-header" onclick="toggleTest('storage')">
+            <h2>💿 Storage (localStorage/sessionStorage)</h2>
+            <span class="status pending">Pendente</span>
+          </div>
+          <div class="test-body">
+            <div class="test-result" id="result-storage">
+              Clique em "Executar Testes" para começar...
+            </div>
+          </div>
+        </div>
+
+        <!-- Test: Performance -->
+        <div class="test-section" data-test="performance">
+          <div class="test-header" onclick="toggleTest('performance')">
+            <h2>⚡ Performance</h2>
+            <span class="status pending">Pendente</span>
+          </div>
+          <div class="test-body">
+            <div class="test-result" id="result-performance">
+              Clique em "Executar Testes" para começar...
+            </div>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button class="btn btn-primary" onclick="runAllTests()">
+            ▶️ Executar Todos os Testes
+          </button>
+          <button class="btn btn-secondary" onclick="exportResults()">💾 Exportar JSON</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="selftest.js"></script>
+  </body>
+</html>

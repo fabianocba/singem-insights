@@ -1,0 +1,122 @@
+{
+  "env": {
+    "browser": true,
+    "es2021": true
+  },
+  "extends": ["eslint:recommended", "prettier"],
+  "parserOptions": {
+    "ecmaVersion": 2021,
+    "sourceType": "module"
+  },
+  "ignorePatterns": [
+    "data/**",
+    "backup/**",
+    "*.min.js",
+    "*.min.css",
+    "**/*.pdf",
+    "img/**",
+    "testes/pdfs/**",
+    "node_modules/**",
+    "dist/**",
+    "html/assets/**",
+    "scripts/**/*.mjs"
+  ],
+  "overrides": [
+    {
+      "files": ["scripts/audit.js", "scripts/quality-check.mjs"],
+      "env": {
+        "node": true,
+        "browser": false
+      },
+      "parserOptions": {
+        "sourceType": "module",
+        "ecmaVersion": 2021
+      }
+    },
+    {
+      "files": ["scripts/scan-refs.js", "server/**/*.js"],
+      "env": {
+        "node": true,
+        "browser": false
+      },
+      "parserOptions": {
+        "sourceType": "commonjs"
+      }
+    },
+    {
+      "files": ["scripts/test-security-modules.js", "scripts/util/reset-ifdesk.js"],
+      "env": {
+        "browser": true,
+        "node": false
+      }
+    },
+    {
+      "files": ["tests/**/*.js", "**/*.test.js", "**/*.spec.js"],
+      "env": {
+        "node": true,
+        "browser": true
+      },
+      "globals": {
+        "describe": "readonly",
+        "it": "readonly",
+        "expect": "readonly",
+        "beforeEach": "readonly",
+        "afterEach": "readonly",
+        "beforeAll": "readonly",
+        "afterAll": "readonly",
+        "vi": "readonly",
+        "global": "writable",
+        "window": "writable",
+        "document": "writable",
+        "localStorage": "writable",
+        "sessionStorage": "writable"
+      }
+    },
+    {
+      "files": ["js/refine/**/*.js"],
+      "env": {
+        "browser": true,
+        "commonjs": true
+      },
+      "globals": {
+        "module": "readonly"
+      }
+    },
+    {
+      "files": ["js/pdfReader.js", "js/refine/index.js"],
+      "rules": {
+        "complexity": ["warn", 120]
+      }
+    },
+    {
+      "files": ["js/app.js"],
+      "rules": {
+        "max-lines": ["warn", { "max": 6000, "skipBlankLines": true, "skipComments": true }],
+        "complexity": ["warn", 30]
+      }
+    }
+  ],
+  "rules": {
+    "no-unused-vars": ["warn", { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }],
+    "no-undef": "error",
+    "eqeqeq": ["error", "always"],
+    "curly": ["error", "all"],
+    "no-console": [
+      "warn",
+      { "allow": ["warn", "error", "info", "log", "table", "group", "groupEnd", "groupCollapsed"] }
+    ],
+    "consistent-return": "warn",
+    "no-var": "warn",
+    "prefer-const": "warn",
+    "prefer-arrow-callback": "warn",
+    "complexity": ["warn", 25],
+    "max-lines": ["warn", { "max": 2000, "skipBlankLines": true, "skipComments": true }]
+  },
+  "globals": {
+    "pdfjsLib": "readonly",
+    "ZXing": "readonly",
+    "Swal": "readonly",
+    "Tesseract": "readonly",
+    "importScripts": "readonly"
+  }
+}

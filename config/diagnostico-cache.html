@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>IFDESK - Diagnóstico de Cache</title>
+    <style>
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        max-width: 800px;
+        margin: 50px auto;
+        padding: 20px;
+        background: #f5f5f5;
+      }
+      .container {
+        background: white;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+      h1 {
+        color: #2c3e50;
+        border-bottom: 3px solid #3498db;
+        padding-bottom: 10px;
+      }
+      .status {
+        padding: 15px;
+        margin: 15px 0;
+        border-radius: 5px;
+        border-left: 5px solid;
+      }
+      .success {
+        background: #d4edda;
+        border-color: #28a745;
+        color: #155724;
+      }
+      .warning {
+        background: #fff3cd;
+        border-color: #ffc107;
+        color: #856404;
+      }
+      .error {
+        background: #f8d7da;
+        border-color: #dc3545;
+        color: #721c24;
+      }
+      .info {
+        background: #d1ecf1;
+        border-color: #17a2b8;
+        color: #0c5460;
+      }
+      pre {
+        background: #2c3e50;
+        color: #ecf0f1;
+        padding: 15px;
+        border-radius: 5px;
+        overflow-x: auto;
+      }
+      .timestamp {
+        font-family: monospace;
+        font-size: 0.9em;
+        color: #666;
+      }
+      button {
+        background: #3498db;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+        margin: 5px;
+      }
+      button:hover {
+        background: #2980b9;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🔍 Diagnóstico de Cache - IFDESK</h1>
+
+      <div class="info">
+        <strong>📋 Objetivo:</strong> Verificar se o servidor está configurado corretamente para
+        desabilitar cache de arquivos JavaScript.
+      </div>
+
+      <h2>🧪 Resultados dos Testes</h2>
+      <div id="results"></div>
+
+      <h2>🔧 Ações</h2>
+      <button onclick="runTests()">🔄 Executar Testes Novamente</button>
+      <button onclick="clearCache()">🗑️ Limpar Cache do Navegador</button>
+      <button onclick="window.location.href='configuracoes.html'">➡️ Ir para Configurações</button>
+
+      <h2>📊 Informações Técnicas</h2>
+      <pre id="technical-info"></pre>
+    </div>
+
+    <script>
+      const EXPECTED_VERSION = '20251105-002';
+
+      function log(message, type = 'info') {
+        const results = document.getElementById('results');
+        const div = document.createElement('div');
+        div.className = `status ${type}`;
+        div.innerHTML = message;
+        results.appendChild(div);
+      }
+
+      function clearResults() {
+        document.getElementById('results').innerHTML = '';
+      }
+
+      async function runTests() {
+        clearResults();
+
+        log('🔄 Iniciando testes de diagnóstico...', 'info');
+
+        // Teste 1: Verificar se db.js carrega
+        log('📝 Teste 1: Verificando carregamento de db.js...', 'info');
+
+        try {
+          const timestamp = Date.now();
+          const response = await fetch(`../js/db.js?v=${EXPECTED_VERSION}&t=${timestamp}`);
+          const headers = response.headers;
+
+          const cacheControl = headers.get('cache-control');
+          const pragma = headers.get('pragma');
+          const expires = headers.get('expires');
+
+          log(
+            `✅ db.js carregado com sucesso!<br>
+                     <span class="timestamp">Cache-Control: ${cacheControl || 'não definido'}</span><br>
+                     <span class="timestamp">Pragma: ${pragma || 'não definido'}</span><br>
+                     <span class="timestamp">Expires: ${expires || 'não definido'}</span>`,
+            'success'
+          );
+
+          // Verifica se cache está desabilitado
+          if (cacheControl && cacheControl.includes('no-cache')) {
+            log('✅ Cache desabilitado corretamente!', 'success');
+          } else {
+            log(
+              '⚠️ Cache NÃO está desabilitado! O servidor precisa ser reiniciado com a opção -c-1',
+              'warning'
+            );
+          }
+        } catch (error) {
+          log(`❌ Erro ao carregar db.js: ${error.message}`, 'error');
+        }
+
+        // Teste 2: Verificar se DatabaseManager está disponível
+        log('📝 Teste 2: Verificando DatabaseManager...', 'info');
+
+        await new Promise((resolve) => setTimeout(resolve, 500));
+
+        if (window.dbManager) {
+          log(
+            `✅ window.dbManager está disponível!<br>
+                     <span class="timestamp">Tipo: ${typeof window.dbManager}</span><br>
+                     <span class="timestamp">Constructor: ${window.dbManager.constructor.name}</span>`,
+            'success'
+          );
+        } else {
+          log('❌ window.dbManager NÃO está disponível!', 'error');
+        }
+
+        // Teste 3: Versão do carregamento
+        log('📝 Teste 3: Verificando versão...', 'info');
+        log(
+          `ℹ️ Versão esperada: <code>${EXPECTED_VERSION}</code><br>
+                 <span class="timestamp">Timestamp atual: ${new Date().toISOString()}</span>`,
+          'info'
+        );
+
+        // Informações técnicas
+        updateTechnicalInfo();
+      }
+
+      function updateTechnicalInfo() {
+        const info = {
+          'User Agent': navigator.userAgent,
+          Plataforma: navigator.platform,
+          Idioma: navigator.language,
+          'Cookies Habilitados': navigator.cookieEnabled,
+          'URL Atual': window.location.href,
+          Timestamp: new Date().toISOString(),
+          'IndexedDB Suportado': !!window.indexedDB,
+          'ServiceWorker Suportado': !!navigator.serviceWorker
+        };
+
+        document.getElementById('technical-info').textContent = JSON.stringify(info, null, 2);
+      }
+
+      function clearCache() {
+        if (confirm('Isso irá recarregar a página e tentar limpar o cache. Continuar?')) {
+          // Força recarga sem cache
+          window.location.reload(true);
+        }
+      }
+
+      // Executa testes automaticamente ao carregar
+      window.addEventListener('DOMContentLoaded', runTests);
+    </script>
+
+    <!-- Carrega db.js para teste -->
+    <script src="../js/db.js?v=20251105-002"></script>
+  </body>
+</html>

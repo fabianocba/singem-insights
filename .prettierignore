@@ -1,0 +1,22 @@
+# Prettier ignore patterns
+
+# Dados e backups
+data/**
+backup/**
+
+# Bibliotecas de terceiros
+**/*.min.js
+**/*.min.css
+node_modules/
+
+# PDFs e imagens
+**/*.pdf
+img/**
+testes/pdfs/**
+
+# Build output
+dist/
+build/
+
+# Cache
+.cache/

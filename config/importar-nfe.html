@@ -771,7 +771,7 @@
         color: var(--success);
       }
 
-      /* Modal de Itens do Empenho - CENTRALIZADO */
+      /* Modal de Itens do Empenho - CENTRALIZADO E MODERNO */
       .modal-itens-empenho {
         display: none;
         position: fixed;
@@ -779,6 +779,9 @@
         z-index: 9999;
         align-items: center;
         justify-content: center;
+        padding: 20px;
+        /* Sobrescreve modal-overlay genérico */
+        background: transparent !important;
       }
       .modal-itens-empenho.open {
         display: flex;
@@ -786,22 +789,130 @@
       .modal-itens-empenho > .overlay {
         position: absolute;
         inset: 0;
-        background: rgba(0, 0, 0, 0.5);
+        background: rgba(17, 24, 39, 0.55);
+        backdrop-filter: blur(4px);
         cursor: pointer;
+        transition: background 0.2s ease;
       }
       .modal-itens-empenho > .modal-content {
         position: relative;
         z-index: 1;
-        width: min(800px, 92vw);
+        width: min(860px, 94vw);
         max-height: 85vh;
         overflow: hidden;
         display: flex;
         flex-direction: column;
+        background: #ffffff;
+        border-radius: 16px;
+        box-shadow:
+          0 25px 60px rgba(0, 0, 0, 0.35),
+          0 0 0 1px rgba(0, 0, 0, 0.05);
+        animation: modalSlideIn 0.25s ease-out;
+      }
+      @keyframes modalSlideIn {
+        from {
+          opacity: 0;
+          transform: translateY(-20px) scale(0.97);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+        }
+      }
+      .modal-itens-empenho .modal-header {
+        padding: 18px 24px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+      }
+      .modal-itens-empenho .modal-header h3 {
+        margin: 0;
+        font-size: 17px;
+        font-weight: 700;
+        color: #1e293b;
+        letter-spacing: 0.2px;
+      }
+      .modal-itens-empenho .modal-close {
+        background: rgba(0, 0, 0, 0.05);
+        border: none;
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        font-size: 20px;
+        cursor: pointer;
+        color: #64748b;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.15s ease;
+      }
+      .modal-itens-empenho .modal-close:hover {
+        background: #fee2e2;
+        color: #dc2626;
       }
       .modal-itens-empenho .modal-body {
         flex: 1;
         overflow-y: auto;
-        max-height: 60vh;
+        max-height: 55vh;
+        padding: 16px 24px;
+      }
+      .modal-itens-empenho .modal-controls {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 16px;
+        padding-bottom: 14px;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+      }
+      .modal-itens-empenho .btn-sm.btn-outline {
+        padding: 9px 14px;
+        border-radius: 10px;
+        border: 1px solid rgba(0, 0, 0, 0.12);
+        background: #f8fafc;
+        font-size: 13px;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        font-weight: 500;
+      }
+      .modal-itens-empenho .btn-sm.btn-outline:hover {
+        background: #e2e8f0;
+        border-color: rgba(0, 0, 0, 0.18);
+      }
+      .modal-itens-empenho .modal-footer {
+        padding: 16px 24px;
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        border-top: 1px solid rgba(0, 0, 0, 0.08);
+        background: #fafbfc;
+      }
+      .modal-itens-empenho .modal-footer .btn {
+        padding: 11px 18px;
+        border-radius: 10px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.15s ease;
+      }
+      .modal-itens-empenho .modal-footer .btn-secondary {
+        background: #fff;
+        border: 1px solid rgba(0, 0, 0, 0.12);
+        color: #475569;
+      }
+      .modal-itens-empenho .modal-footer .btn-secondary:hover {
+        background: #f1f5f9;
+      }
+      .modal-itens-empenho .modal-footer .btn-primary {
+        background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
+        border: none;
+        color: #fff;
+        box-shadow: 0 2px 8px rgba(30, 64, 175, 0.3);
+      }
+      .modal-itens-empenho .modal-footer .btn-primary:hover {
+        background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+        box-shadow: 0 4px 12px rgba(30, 64, 175, 0.4);
       }
       .modal-controls {
         display: flex;
@@ -810,50 +921,71 @@
         padding-bottom: 10px;
         border-bottom: 1px solid var(--border);
       }
-      .itens-checklist {
+      .modal-itens-empenho .itens-checklist {
         display: flex;
         flex-direction: column;
-        gap: 8px;
+        gap: 10px;
       }
-      .item-check-row {
+      .modal-itens-empenho .item-check-row {
         display: flex;
         align-items: flex-start;
-        gap: 10px;
-        padding: 10px;
-        background: #f8f9fa;
-        border-radius: 6px;
-        transition: background 0.2s;
+        gap: 12px;
+        padding: 14px 16px;
+        background: #f8fafc;
+        border-radius: 12px;
+        border: 1px solid rgba(0, 0, 0, 0.04);
+        transition: all 0.15s ease;
       }
-      .item-check-row:hover {
-        background: #e9ecef;
+      .modal-itens-empenho .item-check-row:hover {
+        background: #f1f5f9;
+        border-color: rgba(0, 0, 0, 0.08);
       }
-      .item-check-row input[type='checkbox'] {
-        margin-top: 3px;
-        width: 18px;
-        height: 18px;
+      .modal-itens-empenho .item-check-row.ja-adicionado {
+        background: #f0fdf4;
+        border-color: rgba(34, 197, 94, 0.15);
+        opacity: 0.7;
+      }
+      .modal-itens-empenho .item-check-row input[type='checkbox'] {
+        margin-top: 2px;
+        width: 20px;
+        height: 20px;
         cursor: pointer;
+        accent-color: #1e40af;
+        flex-shrink: 0;
       }
-      .item-check-row label {
+      .modal-itens-empenho .item-check-row input[type='checkbox']:disabled {
+        cursor: not-allowed;
+        opacity: 0.5;
+      }
+      .modal-itens-empenho .item-check-row label {
         flex: 1;
         cursor: pointer;
-        line-height: 1.4;
+        line-height: 1.5;
       }
-      .item-check-row .item-codigo {
-        font-weight: bold;
-        color: var(--primary);
-        font-family: monospace;
+      .modal-itens-empenho .item-check-row .item-codigo {
+        font-weight: 700;
+        color: #1e40af;
+        font-family: 'Consolas', 'Monaco', monospace;
+        background: #dbeafe;
+        padding: 2px 8px;
+        border-radius: 6px;
+        font-size: 13px;
       }
-      .item-check-row .item-desc {
-        color: var(--text);
+      .modal-itens-empenho .item-check-row .item-desc {
+        color: #334155;
+        font-weight: 500;
       }
-      .item-check-row .item-unidade {
-        color: var(--muted);
+      .modal-itens-empenho .item-check-row .item-unidade {
+        color: #64748b;
         font-size: 0.9em;
       }
-      .item-check-row .item-qtd-valor {
+      .modal-itens-empenho .item-check-row .item-qtd-valor {
         font-size: 0.85em;
-        color: var(--muted);
-        margin-top: 4px;
+        color: #64748b;
+        margin-top: 6px;
+        background: rgba(0, 0, 0, 0.02);
+        padding: 4px 8px;
+        border-radius: 6px;
       }
     </style>
 
@@ -861,7 +993,7 @@
       // ==================================================
       // CADASTRO MANUAL DE NOTA FISCAL - IFDESK
       // Módulo ERP com validação cruzada NF × Empenho
-      // Versão 2.0.0
+      // Versão 2.1.0 - Modal Modernizado
       // ==================================================
 
       // Estado da aplicação
