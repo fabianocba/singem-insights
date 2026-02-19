@@ -53,3 +53,13 @@ coverage/
 docs/*.json
 docs/implementacao/*.json
 docs/bugfixes/*.json
+# Dados reais / documentos (não versionar)
+01_EMPENHOS/
+02_NOTAS_FISCAIS/
+03_RELATORIOS/
+04_BACKUPS/
+05_ANEXOS/
+data/exemplos/
+storage/
+coverage/
+node_modules/
