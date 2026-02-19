@@ -1,3 +1,20 @@
+## [0.1.1] - 2026-02-19
+
+### Added
+- Estrutura backend Node/Express institucional
+- PostgreSQL preparado com migrations
+- Identity provider pattern (local + govbr stub)
+- Integrações stub: CATMAT / SERPRO
+- Organização Git com branch dev
+
+### Changed
+- Remoção de dados locais do repositório
+- Padronização de ambiente com .env.example
+
+### Security
+- Remoção de credenciais hardcoded
+- JWT server-side
+
 # 📋 CHANGELOG - IFDESK
 
 ## [1.6.9] - 2026-02-11
