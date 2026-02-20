@@ -1,5 +1,5 @@
 /**
- * IFDESK - Integration Layer
+ * SINGEM - Integration Layer
  * @module utils/integration
  *
  * Camada de integração que expõe os novos utilitários globalmente
@@ -20,24 +20,24 @@ import * as Throttle from './throttle.js';
 import * as DOMBatch from './domBatch.js';
 
 /**
- * Expõe utilitários no objeto global window.IFDeskUtils
+ * Expõe utilitários no objeto global window.SINGEMUtils
  * Permite que código legado use as novas funções sem imports
  */
 export function exposeGlobalUtils() {
   // Cria namespace global se não existir
-  if (!window.IFDeskUtils) {
-    window.IFDeskUtils = {};
+  if (!window.SINGEMUtils) {
+    window.SINGEMUtils = {};
   }
 
   // Errors
-  window.IFDeskUtils.errors = {
+  window.SINGEMUtils.errors = {
     getErrorLog: ErrorUtils.getErrorLog,
     exportErrorLog: ErrorUtils.exportErrorLog,
     clearErrorLog: ErrorUtils.clearErrorLog
   };
 
   // Guard
-  window.IFDeskUtils.guard = {
+  window.SINGEMUtils.guard = {
     safeAsync: Guard.safeAsync,
     tryOrDefault: Guard.tryOrDefault,
     retryWithBackoff: Guard.retryWithBackoff,
@@ -48,7 +48,7 @@ export function exposeGlobalUtils() {
   };
 
   // Validate
-  window.IFDeskUtils.validate = {
+  window.SINGEMUtils.validate = {
     validateCNPJ: Validate.validateCNPJ,
     validateCPF: Validate.validateCPF,
     validateEmail: Validate.validateEmail,
@@ -63,7 +63,7 @@ export function exposeGlobalUtils() {
   };
 
   // Sanitize
-  window.IFDeskUtils.sanitize = {
+  window.SINGEMUtils.sanitize = {
     escapeHTML: Sanitize.escapeHTML,
     safeHTML: Sanitize.safeHTML,
     stripDangerousTags: Sanitize.stripDangerousTags,
@@ -74,7 +74,7 @@ export function exposeGlobalUtils() {
   };
 
   // Logger
-  window.IFDeskUtils.logger = {
+  window.SINGEMUtils.logger = {
     debug: Logger.debug,
     info: Logger.info,
     warn: Logger.warn,
@@ -86,7 +86,7 @@ export function exposeGlobalUtils() {
   };
 
   // Scheduler
-  window.IFDeskUtils.scheduler = {
+  window.SINGEMUtils.scheduler = {
     defer: Scheduler.defer,
     idle: Scheduler.idle,
     raf: Scheduler.raf,
@@ -97,12 +97,12 @@ export function exposeGlobalUtils() {
   };
 
   // Throttle
-  window.IFDeskUtils.throttle = Throttle.throttle;
-  window.IFDeskUtils.debounce = Throttle.debounce;
-  window.IFDeskUtils.debounceRaf = Throttle.debounceRaf;
+  window.SINGEMUtils.throttle = Throttle.throttle;
+  window.SINGEMUtils.debounce = Throttle.debounce;
+  window.SINGEMUtils.debounceRaf = Throttle.debounceRaf;
 
   // DOMBatch
-  window.IFDeskUtils.domBatch = {
+  window.SINGEMUtils.domBatch = {
     createDOMBatch: DOMBatch.createDOMBatch,
     readDOM: DOMBatch.readDOM,
     writeDOM: DOMBatch.writeDOM,
@@ -113,8 +113,8 @@ export function exposeGlobalUtils() {
     batchWrites: DOMBatch.batchWrites
   };
 
-  console.info('✅ IFDeskUtils exposto globalmente em window.IFDeskUtils');
-  console.info('📦 Utilitários disponíveis:', Object.keys(window.IFDeskUtils));
+  console.info('✅ SINGEMUtils exposto globalmente em window.SINGEMUtils');
+  console.info('📦 Utilitários disponíveis:', Object.keys(window.SINGEMUtils));
 }
 
 /**
@@ -198,7 +198,7 @@ export function init() {
     exposeValidationHelpers();
 
     console.info('🎉 Camada de integração inicializada com sucesso!');
-    console.info('💡 Use window.IFDeskUtils para acessar os utilitários');
+    console.info('💡 Use window.SINGEMUtils para acessar os utilitários');
 
     return true;
   } catch (error) {

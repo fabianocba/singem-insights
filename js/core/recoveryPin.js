@@ -1,5 +1,5 @@
 /**
- * 🔢 Sistema de PIN de Recuperação - IFDESK
+ * 🔢 Sistema de PIN de Recuperação - SINGEM
  *
  * Gera e valida PINs numéricos de 6 dígitos para recuperação de senha.
  * PINs são armazenados com hash PBKDF2 (mesma segurança da senha).

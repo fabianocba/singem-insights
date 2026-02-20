@@ -132,7 +132,7 @@ class FileSystemManager {
 
   /**
    * Testa a capacidade de escrita na pasta selecionada
-   * Cria um arquivo de teste 'ifdesk_test.txt' para validar permissões
+   * Cria um arquivo de teste 'SINGEM_test.txt' para validar permissões
    * @returns {Promise<boolean>} True se o teste foi bem-sucedido
    */
   async testWriteAccess() {
@@ -144,12 +144,12 @@ class FileSystemManager {
 
     try {
       // Criar arquivo de teste
-      const testFileName = 'ifdesk_test.txt';
-      const testContent = `IFDESK - Teste de Escrita
+      const testFileName = 'SINGEM_test.txt';
+      const testContent = `SINGEM - Teste de Escrita
 Data: ${new Date().toLocaleString('pt-BR')}
 Status: OK
 
-Este é um arquivo de teste criado automaticamente pelo sistema IFDESK.
+Este é um arquivo de teste criado automaticamente pelo sistema SINGEM.
 Ele pode ser excluído com segurança.`;
 
       const fileHandle = await this.mainDirectoryHandle.getFileHandle(testFileName, {
@@ -335,8 +335,8 @@ Ele pode ser excluído com segurança.`;
       // Verificar se está usando nova estrutura (v2)
       const metadados = await this.obterMetadadosEstrutura();
 
-      if (metadados?.pastaIfdesk === 'IFDESK' || metadados?.versaoEstrutura === 'v2') {
-        // Usar nova estrutura IFDESK
+      if (metadados?.pastaSINGEM === 'SINGEM' || metadados?.versaoEstrutura === 'v2') {
+        // Usar nova estrutura SINGEM
         return await this.getOrCreateSubfolderV2(folderType, year, metadados);
       }
 
@@ -349,8 +349,8 @@ Ele pode ser excluído com segurança.`;
   }
 
   /**
-   * NOVA ESTRUTURA V2: Usa pastas padronizadas IFDESK
-   * Estrutura: IFDESK/[UNIDADE]/01_EMPENHOS/<ANO>/
+   * NOVA ESTRUTURA V2: Usa pastas padronizadas SINGEM
+   * Estrutura: SINGEM/[UNIDADE]/01_EMPENHOS/<ANO>/
    */
   async getOrCreateSubfolderV2(folderType, year, metadados) {
     const STRUCTURE = FileSystemManager.FOLDER_STRUCTURE;
@@ -408,7 +408,7 @@ Ele pode ser excluído com segurança.`;
     const configPastas = await this.obterConfigEstrutura();
 
     // Usar valores padrão se não houver configuração
-    let abreviacaoUnidade = 'IFDESK';
+    let abreviacaoUnidade = 'SINGEM';
     if (configPastas && configPastas.unidade && configPastas.unidade.abreviacao) {
       abreviacaoUnidade = configPastas.unidade.abreviacao;
     } else {
@@ -690,7 +690,7 @@ Ele pode ser excluído com segurança.`;
 
       // Obter configuração para caminho completo
       const configPastas = await this.obterConfigEstrutura();
-      const unidade = configPastas?.unidade?.abreviacao || 'IFDESK';
+      const unidade = configPastas?.unidade?.abreviacao || 'SINGEM';
       const tipoPasta = folderType === 'empenhos' ? 'Notas de Empenho' : 'Notas Fiscais';
 
       // Informações do arquivo salvo
@@ -1603,11 +1603,11 @@ Ele pode ser excluído com segurança.`;
   }
 
   // ============================================================================
-  // NOVA ESTRUTURA DE PASTAS IFDESK
+  // NOVA ESTRUTURA DE PASTAS SINGEM
   // ============================================================================
 
   /**
-   * Estrutura padrão do IFDESK
+   * Estrutura padrão do SINGEM
    */
   static get FOLDER_STRUCTURE() {
     return {
@@ -1633,7 +1633,7 @@ Ele pode ser excluído com segurança.`;
 
   /**
    * ✅ VERSÃO CORRIGIDA: Recebe handle já selecionado pelo usuário
-   * Configura pasta principal e cria estrutura IFDESK completa
+   * Configura pasta principal e cria estrutura SINGEM completa
    *
    * IMPORTANTE: Esta função NÃO chama showDirectoryPicker!
    * O handle deve ser obtido diretamente no event listener do clique.
@@ -1658,26 +1658,26 @@ Ele pode ser excluído com segurança.`;
       }
       console.log('[FS] ✅ Permissão concedida');
 
-      // 2. Criar pasta IFDESK dentro da pasta selecionada
-      console.log('[FS] 📁 Criando pasta IFDESK...');
-      const ifdeskHandle = await this.ensureAppRootDir(baseHandle);
+      // 2. Criar pasta SINGEM dentro da pasta selecionada
+      console.log('[FS] 📁 Criando pasta SINGEM...');
+      const SINGEMHandle = await this.ensureAppRootDir(baseHandle);
 
-      // 3. Criar estrutura completa dentro de IFDESK
+      // 3. Criar estrutura completa dentro de SINGEM
       console.log('[FS] 🏗️ Criando estrutura de pastas...');
-      const estrutura = await this.ensureFullStructure(ifdeskHandle, unidadeNome);
+      const estrutura = await this.ensureFullStructure(SINGEMHandle, unidadeNome);
 
       // 4. Validar permissão com teste real de escrita
       console.log('[FS] 🧪 Testando escrita...');
-      await this.testWriteAccessInFolder(ifdeskHandle);
+      await this.testWriteAccessInFolder(SINGEMHandle);
 
       // 5. Salvar configuração
-      this.mainDirectoryHandle = ifdeskHandle;
+      this.mainDirectoryHandle = SINGEMHandle;
       await this.saveFolderReference();
 
       // 6. Salvar metadados da estrutura
       await this.salvarMetadadosEstrutura({
         pastaBase: baseHandle.name,
-        pastaIfdesk: 'IFDESK',
+        pastaSINGEM: 'SINGEM',
         unidade: unidadeNome,
         unidadePasta: estrutura.unidadePasta,
         estrutura: estrutura,
@@ -1686,14 +1686,14 @@ Ele pode ser excluído com segurança.`;
         versaoEstrutura: 'v2'
       });
 
-      console.log('[FS] ✅✅✅ Estrutura IFDESK criada com sucesso!');
+      console.log('[FS] ✅✅✅ Estrutura SINGEM criada com sucesso!');
 
       return {
         success: true,
         pastaBase: baseHandle.name,
-        pastaIfdesk: 'IFDESK',
+        pastaSINGEM: 'SINGEM',
         estrutura: estrutura,
-        caminhoCompleto: `${baseHandle.name}/IFDESK`
+        caminhoCompleto: `${baseHandle.name}/SINGEM`
       };
     } catch (error) {
       console.error('[FS] ❌ Erro ao configurar pasta:', error);
@@ -1706,7 +1706,7 @@ Ele pode ser excluído com segurança.`;
 
   /**
    * @deprecated Use configurarPastaPrincipalComHandle em vez disso
-   * Configura pasta principal e cria estrutura IFDESK completa
+   * Configura pasta principal e cria estrutura SINGEM completa
    * Este é o ÚNICO ponto de entrada para configuração (via gesto do usuário)
    * @param {string} unidadeNome - Nome da unidade (opcional, ex: "IF GUANAMBI")
    * @returns {Promise<Object>} Resultado da configuração
@@ -1714,7 +1714,7 @@ Ele pode ser excluído com segurança.`;
   async configurarPastaPrincipalComEstrutura(unidadeNome = null) {
     console.log('[FS] ⚠️ AVISO: configurarPastaPrincipalComEstrutura está deprecada');
     console.log('[FS] ⚠️ Use configurarPastaPrincipalComHandle em vez disso');
-    console.log('[FS] 🚀 Iniciando configuração de pasta principal com estrutura IFDESK...');
+    console.log('[FS] 🚀 Iniciando configuração de pasta principal com estrutura SINGEM...');
 
     if (!this.isSupported) {
       throw new Error(
@@ -1738,37 +1738,37 @@ Ele pode ser excluído com segurança.`;
         throw new Error('Permissão de escrita negada pelo usuário');
       }
 
-      // 3. Criar pasta IFDESK dentro da pasta selecionada
-      const ifdeskHandle = await this.ensureAppRootDir(baseHandle);
+      // 3. Criar pasta SINGEM dentro da pasta selecionada
+      const SINGEMHandle = await this.ensureAppRootDir(baseHandle);
 
-      // 4. Criar estrutura completa dentro de IFDESK
-      const estrutura = await this.ensureFullStructure(ifdeskHandle, unidadeNome);
+      // 4. Criar estrutura completa dentro de SINGEM
+      const estrutura = await this.ensureFullStructure(SINGEMHandle, unidadeNome);
 
       // 5. Validar permissão com teste real de escrita
-      await this.testWriteAccessInFolder(ifdeskHandle);
+      await this.testWriteAccessInFolder(SINGEMHandle);
 
       // 6. Salvar configuração
-      this.mainDirectoryHandle = ifdeskHandle;
+      this.mainDirectoryHandle = SINGEMHandle;
       await this.saveFolderReference();
 
       // 7. Salvar metadados da estrutura
       await this.salvarMetadadosEstrutura({
         pastaBase: baseHandle.name,
-        pastaIfdesk: 'IFDESK',
+        pastaSINGEM: 'SINGEM',
         unidade: unidadeNome,
         estrutura: estrutura,
         dataConfiguracao: new Date().toISOString(),
         permissao: 'granted'
       });
 
-      console.log('[FS] ✅✅✅ Estrutura IFDESK criada com sucesso!');
+      console.log('[FS] ✅✅✅ Estrutura SINGEM criada com sucesso!');
 
       return {
         success: true,
         pastaBase: baseHandle.name,
-        pastaIfdesk: 'IFDESK',
+        pastaSINGEM: 'SINGEM',
         estrutura: estrutura,
-        caminhoCompleto: `${baseHandle.name}/IFDESK`
+        caminhoCompleto: `${baseHandle.name}/SINGEM`
       };
     } catch (error) {
       if (error.name === 'AbortError') {
@@ -1781,30 +1781,30 @@ Ele pode ser excluído com segurança.`;
   }
 
   /**
-   * Cria ou obtém a pasta raiz "IFDESK" dentro da pasta base
+   * Cria ou obtém a pasta raiz "SINGEM" dentro da pasta base
    * @param {FileSystemDirectoryHandle} baseHandle - Handle da pasta base
-   * @returns {Promise<FileSystemDirectoryHandle>} Handle da pasta IFDESK
+   * @returns {Promise<FileSystemDirectoryHandle>} Handle da pasta SINGEM
    */
   async ensureAppRootDir(baseHandle) {
-    console.log('[FS] 📁 Criando/obtendo pasta IFDESK...');
+    console.log('[FS] 📁 Criando/obtendo pasta SINGEM...');
 
     try {
-      const ifdeskHandle = await baseHandle.getDirectoryHandle('IFDESK', { create: true });
-      console.log('[FS] ✅ Pasta IFDESK pronta');
-      return ifdeskHandle;
+      const SINGEMHandle = await baseHandle.getDirectoryHandle('SINGEM', { create: true });
+      console.log('[FS] ✅ Pasta SINGEM pronta');
+      return SINGEMHandle;
     } catch (error) {
-      console.error('[FS] ❌ Erro ao criar pasta IFDESK:', error);
-      throw new Error(`Não foi possível criar a pasta IFDESK: ${error.message}`);
+      console.error('[FS] ❌ Erro ao criar pasta SINGEM:', error);
+      throw new Error(`Não foi possível criar a pasta SINGEM: ${error.message}`);
     }
   }
 
   /**
-   * Cria estrutura completa de pastas dentro de IFDESK
-   * @param {FileSystemDirectoryHandle} ifdeskHandle - Handle da pasta IFDESK
+   * Cria estrutura completa de pastas dentro de SINGEM
+   * @param {FileSystemDirectoryHandle} SINGEMHandle - Handle da pasta SINGEM
    * @param {string} unidadeNome - Nome da unidade (opcional)
    * @returns {Promise<Object>} Detalhes da estrutura criada
    */
-  async ensureFullStructure(ifdeskHandle, unidadeNome = null) {
+  async ensureFullStructure(SINGEMHandle, unidadeNome = null) {
     console.log('[FS] 🏗️ Criando estrutura completa de pastas...');
 
     const estrutura = {
@@ -1817,10 +1817,10 @@ Ele pode ser excluído com segurança.`;
     const anosIniciais = [anoAtual - 1, anoAtual, anoAtual + 1]; // Ano anterior, atual e próximo
 
     // Se tiver unidade, criar nível adicional
-    let rootHandle = ifdeskHandle;
+    let rootHandle = SINGEMHandle;
     if (unidadeNome) {
       const unidadeSanitizada = this.sanitizeFolderName(unidadeNome);
-      rootHandle = await ifdeskHandle.getDirectoryHandle(unidadeSanitizada, { create: true });
+      rootHandle = await SINGEMHandle.getDirectoryHandle(unidadeSanitizada, { create: true });
       estrutura.unidadePasta = unidadeSanitizada;
       console.log(`[FS] ✅ Pasta da unidade criada: ${unidadeSanitizada}`);
     }
@@ -1906,7 +1906,7 @@ Ele pode ser excluído com segurança.`;
       const configData = {
         versao: '1.0.0',
         dataCriacao: new Date().toISOString(),
-        app: 'IFDESK',
+        app: 'SINGEM',
         estrutura: 'v2',
         configuracoes: {
           autoBackup: true,
@@ -1980,8 +1980,8 @@ Ele pode ser excluído com segurança.`;
   async testWriteAccessInFolder(folderHandle) {
     console.log('[FS] 🧪 Testando capacidade de escrita...');
 
-    const testFileName = '.ifdesk_write_test';
-    const testContent = `IFDESK Write Test - ${new Date().toISOString()}`;
+    const testFileName = '.SINGEM_write_test';
+    const testContent = `SINGEM Write Test - ${new Date().toISOString()}`;
 
     try {
       // Criar arquivo de teste
@@ -2146,7 +2146,7 @@ Ele pode ser excluído com segurança.`;
   }
 
   /**
-   * Salva arquivo na nova estrutura IFDESK
+   * Salva arquivo na nova estrutura SINGEM
    * @param {File|Blob} file - Arquivo a ser salvo
    * @param {string} tipo - Tipo (empenhos, notas_fiscais, relatorios, backups, anexos)
    * @param {Object} opcoes - Opções adicionais
@@ -2242,7 +2242,7 @@ Ele pode ser excluído com segurança.`;
   }
 
   /**
-   * Verifica se a estrutura IFDESK está configurada
+   * Verifica se a estrutura SINGEM está configurada
    * @returns {Promise<Object>} Status da configuração
    */
   async verificarEstruturaConfigurada() {

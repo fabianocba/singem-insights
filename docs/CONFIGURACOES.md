@@ -1,56 +1,56 @@
-# Módulo de Configurações - IFDESK
+﻿# MÃ³dulo de ConfiguraÃ§Ãµes - SINGEM
 
-## 📋 Visão Geral
+## ðŸ“‹ VisÃ£o Geral
 
-O Módulo de Configurações permite gerenciar todas as configurações do sistema IFDESK, incluindo cadastro da unidade orçamentária, usuários, rede e preferências.
+O MÃ³dulo de ConfiguraÃ§Ãµes permite gerenciar todas as configuraÃ§Ãµes do sistema SINGEM, incluindo cadastro da unidade orÃ§amentÃ¡ria, usuÃ¡rios, rede e preferÃªncias.
 
-## 🏗️ Estrutura de Arquivos
+## ðŸ—ï¸ Estrutura de Arquivos
 
 ```
 js/settings/
-├── index.js          # Controller principal
-├── unidade.js        # Gerencia Unidade Orçamentária
-├── usuarios.js       # Gerencia Usuários e autenticação
-├── rede.js          # Gerencia configurações de rede/LAN
-└── preferencias.js   # Gerencia preferências gerais
+â”œâ”€â”€ index.js          # Controller principal
+â”œâ”€â”€ unidade.js        # Gerencia Unidade OrÃ§amentÃ¡ria
+â”œâ”€â”€ usuarios.js       # Gerencia UsuÃ¡rios e autenticaÃ§Ã£o
+â”œâ”€â”€ rede.js          # Gerencia configuraÃ§Ãµes de rede/LAN
+â””â”€â”€ preferencias.js   # Gerencia preferÃªncias gerais
 
-configuracoes.html    # Interface de configurações
+configuracoes.html    # Interface de configuraÃ§Ãµes
 
 server/
-├── index.js         # Servidor Node.js (opcional)
-├── package.json     # Dependências Node.js
-└── README.md        # Documentação do servidor
+â”œâ”€â”€ index.js         # Servidor Node.js (opcional)
+â”œâ”€â”€ package.json     # DependÃªncias Node.js
+â””â”€â”€ README.md        # DocumentaÃ§Ã£o do servidor
 ```
 
-## 🏢 Seção 1: Unidade Orçamentária
+## ðŸ¢ SeÃ§Ã£o 1: Unidade OrÃ§amentÃ¡ria
 
 ### Funcionalidades
 
-- ✅ Cadastro de dados da instituição
-- ✅ Validação de CNPJ com algoritmo oficial da Receita Federal
-- ✅ Formatação automática de CNPJ
-- ✅ Armazenamento no IndexedDB (store: `config`, id: `unidadeOrcamentaria`)
-- ✅ Função global `getUnidadeOrcamentaria()` para outros módulos
+- âœ… Cadastro de dados da instituiÃ§Ã£o
+- âœ… ValidaÃ§Ã£o de CNPJ com algoritmo oficial da Receita Federal
+- âœ… FormataÃ§Ã£o automÃ¡tica de CNPJ
+- âœ… Armazenamento no IndexedDB (store: `config`, id: `unidadeOrcamentaria`)
+- âœ… FunÃ§Ã£o global `getUnidadeOrcamentaria()` para outros mÃ³dulos
 
 ### Campos
 
-- **Razão Social** (obrigatório)
-- **CNPJ** (obrigatório, com validação de DV)
+- **RazÃ£o Social** (obrigatÃ³rio)
+- **CNPJ** (obrigatÃ³rio, com validaÃ§Ã£o de DV)
 - **UG** - Unidade Gestora (opcional)
-- **Endereço** (opcional)
-- **Município** (opcional)
+- **EndereÃ§o** (opcional)
+- **MunicÃ­pio** (opcional)
 - **UF** (opcional)
 
-### Validação de CNPJ
+### ValidaÃ§Ã£o de CNPJ
 
-O sistema implementa o **algoritmo oficial da Receita Federal** para validação de CNPJ:
+O sistema implementa o **algoritmo oficial da Receita Federal** para validaÃ§Ã£o de CNPJ:
 
-1. Elimina CNPJs conhecidos como inválidos (11111111111111, etc.)
-2. Calcula primeiro dígito verificador
-3. Calcula segundo dígito verificador
-4. Compara com os dígitos informados
+1. Elimina CNPJs conhecidos como invÃ¡lidos (11111111111111, etc.)
+2. Calcula primeiro dÃ­gito verificador
+3. Calcula segundo dÃ­gito verificador
+4. Compara com os dÃ­gitos informados
 
-### Uso Programático
+### Uso ProgramÃ¡tico
 
 ```javascript
 // Obter unidade configurada
@@ -63,24 +63,24 @@ if (unidade) {
 }
 ```
 
-## 👥 Seção 2: Usuários
+## ðŸ‘¥ SeÃ§Ã£o 2: UsuÃ¡rios
 
 ### Funcionalidades
 
-- ✅ CRUD completo de usuários
-- ✅ Hash de senha com **PBKDF2** (Web Crypto API)
-- ✅ 100.000 iterações + salt aleatório
-- ✅ Indicador de força de senha
-- ✅ Perfis: Usuário e Administrador
-- ✅ Ativação/desativação de usuários
-- ✅ Autenticação segura
+- âœ… CRUD completo de usuÃ¡rios
+- âœ… Hash de senha com **PBKDF2** (Web Crypto API)
+- âœ… 100.000 iteraÃ§Ãµes + salt aleatÃ³rio
+- âœ… Indicador de forÃ§a de senha
+- âœ… Perfis: UsuÃ¡rio e Administrador
+- âœ… AtivaÃ§Ã£o/desativaÃ§Ã£o de usuÃ¡rios
+- âœ… AutenticaÃ§Ã£o segura
 
-### Estrutura de Usuário
+### Estrutura de UsuÃ¡rio
 
 ```javascript
 {
   id: "user_1234567890_abc123",
-  nome: "João da Silva",
+  nome: "JoÃ£o da Silva",
   login: "joao.silva",
   senhaHash: "salt_hex:hash_hex",
   perfil: "admin", // ou "usuario"
@@ -94,52 +94,52 @@ if (unidade) {
 
 O sistema usa **PBKDF2-SHA256** com:
 
-- **Salt aleatório** de 16 bytes
-- **100.000 iterações**
+- **Salt aleatÃ³rio** de 16 bytes
+- **100.000 iteraÃ§Ãµes**
 - **Hash de 256 bits**
 - Formato armazenado: `salt_hex:hash_hex`
 
-### Autenticação
+### AutenticaÃ§Ã£o
 
 ```javascript
 const resultado = await window.settingsUsuarios.autenticar('joao.silva', 'senha123');
 
 if (resultado.sucesso) {
-  console.log('Usuário logado:', resultado.usuario);
+  console.log('UsuÃ¡rio logado:', resultado.usuario);
   // { id, nome, login, perfil }
 } else {
   console.log('Erro:', resultado.mensagem);
 }
 ```
 
-### Força da Senha
+### ForÃ§a da Senha
 
-Critérios avaliados:
+CritÃ©rios avaliados:
 
-- ✅ Comprimento ≥ 8 caracteres
-- ✅ Maiúsculas e minúsculas
-- ✅ Números
-- ✅ Caracteres especiais (@$!%\*?&#)
+- âœ… Comprimento â‰¥ 8 caracteres
+- âœ… MaiÃºsculas e minÃºsculas
+- âœ… NÃºmeros
+- âœ… Caracteres especiais (@$!%\*?&#)
 
-Classificação:
+ClassificaÃ§Ã£o:
 
-- **Fraca:** 0-1 critério
-- **Média:** 2 critérios
-- **Forte:** 3 critérios
-- **Muito Forte:** 4 critérios
+- **Fraca:** 0-1 critÃ©rio
+- **MÃ©dia:** 2 critÃ©rios
+- **Forte:** 3 critÃ©rios
+- **Muito Forte:** 4 critÃ©rios
 
-## 🌐 Seção 3: Rede/LAN
+## ðŸŒ SeÃ§Ã£o 3: Rede/LAN
 
 ### Funcionalidades
 
-- ✅ Configuração de servidor em rede local
-- ✅ Detecção automática de IP via WebRTC
-- ✅ Validação de formato de IP
-- ✅ Health check periódico (30s)
-- ✅ Teste de conexão manual
-- ✅ Servidor Node.js opcional (Express)
+- âœ… ConfiguraÃ§Ã£o de servidor em rede local
+- âœ… DetecÃ§Ã£o automÃ¡tica de IP via WebRTC
+- âœ… ValidaÃ§Ã£o de formato de IP
+- âœ… Health check periÃ³dico (30s)
+- âœ… Teste de conexÃ£o manual
+- âœ… Servidor Node.js opcional (Express)
 
-### Configuração
+### ConfiguraÃ§Ã£o
 
 ```javascript
 {
@@ -155,7 +155,7 @@ Classificação:
 
 ### Servidor Node.js
 
-#### Instalação
+#### InstalaÃ§Ã£o
 
 ```bash
 cd server
@@ -168,47 +168,47 @@ npm install
 npm start
 ```
 
-#### Endpoints Disponíveis
+#### Endpoints DisponÃ­veis
 
 - `GET /health` - Health check
-- `GET /api/info` - Informações do sistema
+- `GET /api/info` - InformaÃ§Ãµes do sistema
 - `GET /api/empenhos` - Lista empenhos (placeholder)
 - `POST /api/empenhos` - Envia empenho (placeholder)
 - `GET /api/notas-fiscais` - Lista NFs (placeholder)
-- `POST /api/sync` - Sincronização (placeholder)
+- `POST /api/sync` - SincronizaÃ§Ã£o (placeholder)
 
-### Health Check Automático
+### Health Check AutomÃ¡tico
 
-O sistema verifica automaticamente a cada 30 segundos se o servidor está online:
+O sistema verifica automaticamente a cada 30 segundos se o servidor estÃ¡ online:
 
 ```javascript
-// Ativo: ✅ Servidor Online
-// Inativo: ❌ Servidor Offline
+// Ativo: âœ… Servidor Online
+// Inativo: âŒ Servidor Offline
 ```
 
-### Detecção de IP
+### DetecÃ§Ã£o de IP
 
 Usa **WebRTC** para detectar IP local:
 
-1. Cria conexão RTCPeerConnection
+1. Cria conexÃ£o RTCPeerConnection
 2. Captura candidatos ICE
 3. Extrai IP do tipo 192.168.x.x
-4. Fallback para IP padrão sugerido
+4. Fallback para IP padrÃ£o sugerido
 
-## 🎨 Seção 4: Preferências
+## ðŸŽ¨ SeÃ§Ã£o 4: PreferÃªncias
 
 ### Funcionalidades
 
-- ✅ Tema claro/escuro
-- ✅ Seleção de idioma
-- ✅ Tolerâncias de validação
-- ✅ Notificações
-- ✅ Auto-salvar
-- ✅ Validação rígida
-- ✅ Exportar/importar configurações
-- ✅ Limpar banco de dados
+- âœ… Tema claro/escuro
+- âœ… SeleÃ§Ã£o de idioma
+- âœ… TolerÃ¢ncias de validaÃ§Ã£o
+- âœ… NotificaÃ§Ãµes
+- âœ… Auto-salvar
+- âœ… ValidaÃ§Ã£o rÃ­gida
+- âœ… Exportar/importar configuraÃ§Ãµes
+- âœ… Limpar banco de dados
 
-### Configuração
+### ConfiguraÃ§Ã£o
 
 ```javascript
 {
@@ -224,31 +224,31 @@ Usa **WebRTC** para detectar IP local:
 }
 ```
 
-### Tolerâncias
+### TolerÃ¢ncias
 
-#### Tolerância de Valor
+#### TolerÃ¢ncia de Valor
 
-Diferença aceitável em centavos entre NE e NF:
+DiferenÃ§a aceitÃ¡vel em centavos entre NE e NF:
 
-- **0.01** = 1 centavo (padrão)
-- **0.00** = validação exata
+- **0.01** = 1 centavo (padrÃ£o)
+- **0.00** = validaÃ§Ã£o exata
 - **0.10** = 10 centavos
 
-#### Tolerância de Quantidade
+#### TolerÃ¢ncia de Quantidade
 
-Diferença aceitável em unidades:
+DiferenÃ§a aceitÃ¡vel em unidades:
 
-- **0** = quantidade exata (padrão)
-- **1** = aceita ±1 unidade
+- **0** = quantidade exata (padrÃ£o)
+- **1** = aceita Â±1 unidade
 
-### Uso Programático
+### Uso ProgramÃ¡tico
 
 ```javascript
-// Obter tolerância de valor
+// Obter tolerÃ¢ncia de valor
 const tolerancia = await window.getToleranciaValor();
 console.log(tolerancia); // 0.01
 
-// Obter tolerância de quantidade
+// Obter tolerÃ¢ncia de quantidade
 const toleranciaQtd = await window.getToleranciaQuantidade();
 console.log(toleranciaQtd); // 0
 ```
@@ -269,15 +269,15 @@ O sistema aplica CSS custom properties:
 --cor-fundo: #1a1a1a --cor-texto: #f0f0f0 --cor-card: #2d2d2d --cor-borda: #404040;
 ```
 
-### Exportar Configurações
+### Exportar ConfiguraÃ§Ãµes
 
-Gera arquivo JSON com todas as configurações:
+Gera arquivo JSON com todas as configuraÃ§Ãµes:
 
 ```json
 {
   "versao": "1.0",
   "dataExportacao": "2025-01-15T10:30:00.000Z",
-  "sistema": "IFDESK",
+  "sistema": "SINGEM",
   "configuracoes": {
     "unidadeOrcamentaria": { ... },
     "usuarios": { ... },
@@ -287,44 +287,44 @@ Gera arquivo JSON com todas as configurações:
 }
 ```
 
-Nome do arquivo: `ifdesk-config-2025-01-15.json`
+Nome do arquivo: `singem-config-2025-01-15.json`
 
-### Importar Configurações
+### Importar ConfiguraÃ§Ãµes
 
-1. Valida arquivo (sistema: "IFDESK")
+1. Valida arquivo (sistema: "SINGEM")
 2. Confirma sobrescrita
-3. Importa cada seção
-4. Recarrega página
+3. Importa cada seÃ§Ã£o
+4. Recarrega pÃ¡gina
 
 ### Limpar Banco de Dados
 
-⚠️ **OPERAÇÃO DESTRUTIVA**
+âš ï¸ **OPERAÃ‡ÃƒO DESTRUTIVA**
 
 Exclui permanentemente:
 
-- ✅ Todas as Notas de Empenho
-- ✅ Todas as Notas Fiscais
-- ✅ Todos os registros de Entrega
-- ✅ Todos os arquivos
+- âœ… Todas as Notas de Empenho
+- âœ… Todas as Notas Fiscais
+- âœ… Todos os registros de Entrega
+- âœ… Todos os arquivos
 
-**Mantém:**
+**MantÃ©m:**
 
-- ✅ Configurações (unidade, usuários, rede, preferências)
+- âœ… ConfiguraÃ§Ãµes (unidade, usuÃ¡rios, rede, preferÃªncias)
 
-Requer **dupla confirmação**.
+Requer **dupla confirmaÃ§Ã£o**.
 
-## 💾 Armazenamento IndexedDB
+## ðŸ’¾ Armazenamento IndexedDB
 
 ### Store: `config`
 
-Todas as configurações são armazenadas no store `config`:
+Todas as configuraÃ§Ãµes sÃ£o armazenadas no store `config`:
 
-| ID                    | Conteúdo              |
+| ID                    | ConteÃºdo              |
 | --------------------- | --------------------- |
-| `unidadeOrcamentaria` | Dados da instituição  |
-| `usuarios`            | Lista de usuários     |
-| `rede`                | Configurações de rede |
-| `preferencias`        | Preferências gerais   |
+| `unidadeOrcamentaria` | Dados da instituiÃ§Ã£o  |
+| `usuarios`            | Lista de usuÃ¡rios     |
+| `rede`                | ConfiguraÃ§Ãµes de rede |
+| `preferencias`        | PreferÃªncias gerais   |
 
 ### Estrutura
 
@@ -359,7 +359,7 @@ Todas as configurações são armazenadas no store `config`:
 }
 ```
 
-## 🔌 Integração com Sistema Principal
+## ðŸ”Œ IntegraÃ§Ã£o com Sistema Principal
 
 ### 1. Adicionar Link no Menu
 
@@ -367,25 +367,25 @@ Edite `index.html`, adicione no menu:
 
 ```html
 <div class="menu-item" onclick="window.open('configuracoes.html', '_blank')">
-  <h2>⚙️</h2>
-  <p>Configurações</p>
+  <h2>âš™ï¸</h2>
+  <p>ConfiguraÃ§Ãµes</p>
 </div>
 ```
 
 ### 2. Validar CNPJ em NE/NF
 
-Edite `app.js`, método `salvarEmpenho()`:
+Edite `app.js`, mÃ©todo `salvarEmpenho()`:
 
 ```javascript
 async salvarEmpenho() {
-  // ... código existente ...
+  // ... cÃ³digo existente ...
 
   // Valida CNPJ da unidade
   const unidade = await window.getUnidadeOrcamentaria();
   if (unidade && dados.cnpjUnidade) {
     if (dados.cnpjUnidade !== unidade.cnpjNumeros) {
       const continuar = confirm(
-        `⚠️ ATENÇÃO - Divergência de CNPJ!\n\n` +
+        `âš ï¸ ATENÃ‡ÃƒO - DivergÃªncia de CNPJ!\n\n` +
         `CNPJ Configurado: ${unidade.cnpj}\n` +
         `CNPJ no Empenho: ${dados.cnpjUnidade}\n\n` +
         `Deseja continuar mesmo assim?`
@@ -398,33 +398,33 @@ async salvarEmpenho() {
 }
 ```
 
-### 3. Aplicar Tolerâncias na Comparação
+### 3. Aplicar TolerÃ¢ncias na ComparaÃ§Ã£o
 
-Edite `db.js`, método `compararNotaFiscalComEmpenho()`:
+Edite `db.js`, mÃ©todo `compararNotaFiscalComEmpenho()`:
 
 ```javascript
 async compararNotaFiscalComEmpenho(notaFiscal, empenho) {
-  // Obtém tolerâncias configuradas
+  // ObtÃ©m tolerÃ¢ncias configuradas
   const toleranciaValor = await window.getToleranciaValor();
   const toleranciaQtd = await window.getToleranciaQuantidade();
 
-  // ... código de comparação ...
+  // ... cÃ³digo de comparaÃ§Ã£o ...
 
-  // Compara valores com tolerância
+  // Compara valores com tolerÃ¢ncia
   const diferencaValor = Math.abs(valorNF - valorNE);
   if (diferencaValor > toleranciaValor) {
     divergencias.push({
       tipo: 'valor',
-      mensagem: `Diferença de R$ ${diferencaValor.toFixed(2)}`
+      mensagem: `DiferenÃ§a de R$ ${diferencaValor.toFixed(2)}`
     });
   }
 
-  // Compara quantidades com tolerância
+  // Compara quantidades com tolerÃ¢ncia
   const diferencaQtd = Math.abs(qtdNF - qtdNE);
   if (diferencaQtd > toleranciaQtd) {
     divergencias.push({
       tipo: 'quantidade',
-      mensagem: `Diferença de ${diferencaQtd} unidades`
+      mensagem: `DiferenÃ§a de ${diferencaQtd} unidades`
     });
   }
 
@@ -432,68 +432,68 @@ async compararNotaFiscalComEmpenho(notaFiscal, empenho) {
 }
 ```
 
-## 🔒 Segurança
+## ðŸ”’ SeguranÃ§a
 
 ### Senhas
 
-- ✅ **PBKDF2-SHA256** com 100.000 iterações
-- ✅ Salt aleatório de 16 bytes
-- ✅ Hash de 256 bits
-- ✅ Nunca armazenar senha em texto plano
-- ✅ Web Crypto API (nativa do navegador)
+- âœ… **PBKDF2-SHA256** com 100.000 iteraÃ§Ãµes
+- âœ… Salt aleatÃ³rio de 16 bytes
+- âœ… Hash de 256 bits
+- âœ… Nunca armazenar senha em texto plano
+- âœ… Web Crypto API (nativa do navegador)
 
 ### CNPJ
 
-- ✅ Validação com algoritmo oficial da Receita Federal
-- ✅ Verificação de dígitos verificadores
-- ✅ Eliminação de CNPJs conhecidos como inválidos
+- âœ… ValidaÃ§Ã£o com algoritmo oficial da Receita Federal
+- âœ… VerificaÃ§Ã£o de dÃ­gitos verificadores
+- âœ… EliminaÃ§Ã£o de CNPJs conhecidos como invÃ¡lidos
 
 ### Rede
 
-- ⚠️ Servidor Node.js para **uso em LAN privada apenas**
-- ⚠️ **NÃO expor à internet sem SSL e autenticação**
-- ⚠️ Configurar firewall para bloquear acesso externo
+- âš ï¸ Servidor Node.js para **uso em LAN privada apenas**
+- âš ï¸ **NÃƒO expor Ã  internet sem SSL e autenticaÃ§Ã£o**
+- âš ï¸ Configurar firewall para bloquear acesso externo
 
 ### IndexedDB
 
-- ✅ Armazenamento local isolado por origem
-- ✅ Não acessível por outros sites
-- ✅ Sincronização opcional via servidor LAN
+- âœ… Armazenamento local isolado por origem
+- âœ… NÃ£o acessÃ­vel por outros sites
+- âœ… SincronizaÃ§Ã£o opcional via servidor LAN
 
-## 📱 Responsividade
+## ðŸ“± Responsividade
 
-O módulo é totalmente responsivo:
+O mÃ³dulo Ã© totalmente responsivo:
 
 - **Desktop:** Grade de 2 colunas
 - **Tablet:** Grade de 2 colunas
 - **Mobile:** Grade de 1 coluna, tabs em coluna
 
-## ♿ Acessibilidade
+## â™¿ Acessibilidade
 
-- ✅ Labels em todos os inputs
-- ✅ Placeholders descritivos
-- ✅ Mensagens de validação claras
-- ✅ Cores com contraste adequado
-- ✅ Foco visível em elementos interativos
+- âœ… Labels em todos os inputs
+- âœ… Placeholders descritivos
+- âœ… Mensagens de validaÃ§Ã£o claras
+- âœ… Cores com contraste adequado
+- âœ… Foco visÃ­vel em elementos interativos
 
-## 🧪 Testando
+## ðŸ§ª Testando
 
-### 1. Unidade Orçamentária
+### 1. Unidade OrÃ§amentÃ¡ria
 
 1. Acesse `configuracoes.html`
-2. Preencha Razão Social e CNPJ
-3. Clique "Validar CNPJ" (deve mostrar ✅ ou ❌)
+2. Preencha RazÃ£o Social e CNPJ
+3. Clique "Validar CNPJ" (deve mostrar âœ… ou âŒ)
 4. Salve
 5. Verifique no console: `await getUnidadeOrcamentaria()`
 
-### 2. Usuários
+### 2. UsuÃ¡rios
 
-1. Acesse aba "Usuários"
-2. Cadastre um usuário de teste
-3. Veja força da senha ao digitar
+1. Acesse aba "UsuÃ¡rios"
+2. Cadastre um usuÃ¡rio de teste
+3. Veja forÃ§a da senha ao digitar
 4. Salve e verifique na tabela
-5. Edite o usuário
-6. Teste autenticação no console:
+5. Edite o usuÃ¡rio
+6. Teste autenticaÃ§Ã£o no console:
    ```javascript
    await settingsUsuarios.autenticar('login', 'senha');
    ```
@@ -505,37 +505,38 @@ O módulo é totalmente responsivo:
 3. Habilite LAN
 4. Salve
 5. Abra terminal: `cd server && npm install && npm start`
-6. Clique "Testar Conexão" (deve mostrar ✅)
+6. Clique "Testar ConexÃ£o" (deve mostrar âœ…)
 
-### 4. Preferências
+### 4. PreferÃªncias
 
-1. Acesse aba "Preferências"
+1. Acesse aba "PreferÃªncias"
 2. Mude tema para "Escuro" (deve aplicar imediatamente)
-3. Ajuste tolerâncias
+3. Ajuste tolerÃ¢ncias
 4. Salve
-5. Exporte configurações (baixa JSON)
+5. Exporte configuraÃ§Ãµes (baixa JSON)
 6. Importe o mesmo arquivo (deve recarregar)
 
-## 🚀 Próximas Implementações
+## ðŸš€ PrÃ³ximas ImplementaÃ§Ãµes
 
-- [ ] Autenticação completa no sistema principal
-- [ ] Sincronização real entre máquinas
+- [ ] AutenticaÃ§Ã£o completa no sistema principal
+- [ ] SincronizaÃ§Ã£o real entre mÃ¡quinas
 - [ ] Upload de arquivos via servidor
-- [ ] Auditoria de ações (log)
+- [ ] Auditoria de aÃ§Ãµes (log)
 - [ ] Multi-idioma completo
-- [ ] Backup automático
-- [ ] Relatórios de configurações
+- [ ] Backup automÃ¡tico
+- [ ] RelatÃ³rios de configuraÃ§Ãµes
 
-## 📞 Suporte
+## ðŸ“ž Suporte
 
-Para dúvidas ou problemas:
+Para dÃºvidas ou problemas:
 
 1. Verifique este documento
-2. Consulte a documentação principal do IFDESK
-3. Entre em contato com o suporte técnico
+2. Consulte a documentaÃ§Ã£o principal do SINGEM
+3. Entre em contato com o suporte tÃ©cnico
 
 ---
 
-**Versão:** 1.0  
+**VersÃ£o:** 1.0  
 **Data:** Janeiro 2025  
-**Sistema:** IFDESK - IF Baiano
+**Sistema:** SINGEM - IF Baiano
+

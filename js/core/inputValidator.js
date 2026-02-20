@@ -1,5 +1,5 @@
 /**
- * Módulo de Validação de Entrada - IFDESK
+ * Módulo de Validação de Entrada - SINGEM
  * Valida e sanitiza dados de formulários antes do processamento
  */
 

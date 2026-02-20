@@ -1,79 +1,79 @@
-# 🗂️ Guia: File System Access API - Implementação Correta
+﻿# ðŸ—‚ï¸ Guia: File System Access API - ImplementaÃ§Ã£o Correta
 
-## ✅ Status: IMPLEMENTADO CORRETAMENTE
+## âœ… Status: IMPLEMENTADO CORRETAMENTE
 
-Sistema configurado seguindo as melhores práticas para evitar **SecurityError** e garantir funcionamento adequado da File System Access API.
+Sistema configurado seguindo as melhores prÃ¡ticas para evitar **SecurityError** e garantir funcionamento adequado da File System Access API.
 
 ---
 
-## 🎯 Princípios Implementados
+## ðŸŽ¯ PrincÃ­pios Implementados
 
-### 1. **Gesto do Usuário OBRIGATÓRIO**
+### 1. **Gesto do UsuÃ¡rio OBRIGATÃ“RIO**
 
 ```javascript
-// ✅ CORRETO - showDirectoryPicker() APENAS em click
-<button onclick="window.fsManager.selectMainDirectory()">📁 Selecionar Pasta Principal</button>;
+// âœ… CORRETO - showDirectoryPicker() APENAS em click
+<button onclick="window.fsManager.selectMainDirectory()">ðŸ“ Selecionar Pasta Principal</button>;
 
-// ❌ ERRADO - NUNCA chamar automaticamente
+// âŒ ERRADO - NUNCA chamar automaticamente
 async function salvarArquivo() {
-  await window.showDirectoryPicker(); // ❌ SecurityError!
+  await window.showDirectoryPicker(); // âŒ SecurityError!
 }
 ```
 
-### 2. **Reutilização de Handle Salvo**
+### 2. **ReutilizaÃ§Ã£o de Handle Salvo**
 
 ```javascript
-// ✅ CORRETO - Buscar handle salvo do IndexedDB
+// âœ… CORRETO - Buscar handle salvo do IndexedDB
 const savedHandle = await this.restoreFolderReference();
 if (savedHandle) {
   // Usar handle sem chamar picker novamente
 }
 
-// ❌ ERRADO - Chamar picker toda vez
-await window.showDirectoryPicker(); // ❌ Pede pasta toda hora!
+// âŒ ERRADO - Chamar picker toda vez
+await window.showDirectoryPicker(); // âŒ Pede pasta toda hora!
 ```
 
-### 3. **Verificação de Permissão SEM Solicitar**
+### 3. **VerificaÃ§Ã£o de PermissÃ£o SEM Solicitar**
 
 ```javascript
-// ✅ CORRETO - queryPermission (não pede nada)
+// âœ… CORRETO - queryPermission (nÃ£o pede nada)
 const permission = await handle.queryPermission({ mode: 'readwrite' });
 if (permission === 'granted') {
   // OK, pode usar
 }
 
-// ❌ ERRADO - requestPermission fora de gesto
-const permission = await handle.requestPermission(); // ❌ SecurityError!
+// âŒ ERRADO - requestPermission fora de gesto
+const permission = await handle.requestPermission(); // âŒ SecurityError!
 ```
 
 ### 4. **Fallback Transparente**
 
 ```javascript
-// ✅ CORRETO - 3 estratégias automáticas
-1. Tenta salvar na pasta (se permissão)
-2. Mostra mensagem (se não configurado)
+// âœ… CORRETO - 3 estratÃ©gias automÃ¡ticas
+1. Tenta salvar na pasta (se permissÃ£o)
+2. Mostra mensagem (se nÃ£o configurado)
 3. Faz download (sempre funciona)
 ```
 
 ---
 
-## 🔧 Arquivos Implementados
+## ðŸ”§ Arquivos Implementados
 
 ### 1. **js/fsManager.js** (1491 linhas)
 
-#### Funções Principais:
+#### FunÃ§Ãµes Principais:
 
-##### `selectMainDirectory()` - ÚNICO LOCAL QUE CHAMA PICKER
+##### `selectMainDirectory()` - ÃšNICO LOCAL QUE CHAMA PICKER
 
 ```javascript
 async selectMainDirectory() {
-  // ✅ Chamado APENAS por clique de botão
+  // âœ… Chamado APENAS por clique de botÃ£o
   this.mainDirectoryHandle = await window.showDirectoryPicker({
     mode: 'readwrite',
     startIn: 'documents'
   });
 
-  // Solicitar permissão explicitamente
+  // Solicitar permissÃ£o explicitamente
   await this.mainDirectoryHandle.requestPermission({ mode: 'readwrite' });
 
   // Salvar no IndexedDB
@@ -84,15 +84,15 @@ async selectMainDirectory() {
 }
 ```
 
-##### `testWriteAccess()` - Valida escrita após seleção
+##### `testWriteAccess()` - Valida escrita apÃ³s seleÃ§Ã£o
 
 ```javascript
 async testWriteAccess() {
-  console.log('[FS] 🧪 Testando capacidade de escrita...');
+  console.log('[FS] ðŸ§ª Testando capacidade de escrita...');
 
   // Criar arquivo de teste
   const fileHandle = await this.mainDirectoryHandle.getFileHandle(
-    'ifdesk_test.txt',
+    'singem_test.txt',
     { create: true }
   );
 
@@ -100,7 +100,7 @@ async testWriteAccess() {
   await writable.write('Teste OK - ' + new Date().toLocaleString('pt-BR'));
   await writable.close();
 
-  console.log('[FS] ✅ Teste bem-sucedido');
+  console.log('[FS] âœ… Teste bem-sucedido');
 }
 ```
 
@@ -114,7 +114,7 @@ async restoreFolderReference() {
   if (result?.handle) {
     this.mainDirectoryHandle = result.handle;
 
-    // ✅ queryPermission (não pede permissão)
+    // âœ… queryPermission (nÃ£o pede permissÃ£o)
     const permission = await this.mainDirectoryHandle.queryPermission({
       mode: 'readwrite'
     });
@@ -123,7 +123,7 @@ async restoreFolderReference() {
       return true; // OK, pode usar
     }
 
-    // ⚠️ NÃO solicita permissão aqui (seria sem gesto)
+    // âš ï¸ NÃƒO solicita permissÃ£o aqui (seria sem gesto)
     return false;
   }
 }
@@ -135,7 +135,7 @@ async restoreFolderReference() {
 async hasFolderWithPermission() {
   if (!this.mainDirectoryHandle) return false;
 
-  // ✅ APENAS query, NUNCA request
+  // âœ… APENAS query, NUNCA request
   const permission = await this.mainDirectoryHandle.queryPermission({
     mode: 'readwrite'
   });
@@ -144,11 +144,11 @@ async hasFolderWithPermission() {
 }
 ```
 
-##### `saveFileWithFallback()` - 3 Estratégias
+##### `saveFileWithFallback()` - 3 EstratÃ©gias
 
 ```javascript
 async saveFileWithFallback(file, folderType, textContent, metadados) {
-  // ESTRATÉGIA 1: Salvar na pasta local (se permissão)
+  // ESTRATÃ‰GIA 1: Salvar na pasta local (se permissÃ£o)
   if (this.mainDirectoryHandle) {
     const hasPermission = await this.hasFolderWithPermission();
     if (hasPermission) {
@@ -156,53 +156,53 @@ async saveFileWithFallback(file, folderType, textContent, metadados) {
     }
   }
 
-  // ESTRATÉGIA 2: Mostrar mensagem (se não configurado)
+  // ESTRATÃ‰GIA 2: Mostrar mensagem (se nÃ£o configurado)
   if (!this.mainDirectoryHandle) {
     this.showConfigureFolderMessage();
   }
 
-  // ESTRATÉGIA 3: Download automático (sempre funciona)
+  // ESTRATÃ‰GIA 3: Download automÃ¡tico (sempre funciona)
   return await this.downloadFile(file, folderType, metadados);
 }
 ```
 
 ---
 
-### 2. **index.html** - Botões com Gesto do Usuário
+### 2. **index.html** - BotÃµes com Gesto do UsuÃ¡rio
 
-#### Botão Principal (Tabs)
+#### BotÃ£o Principal (Tabs)
 
 ```html
 <button
   id="btnSelectMainDir"
   onclick="window.fsManager?.selectMainDirectory().then(ok => {
     if (ok) {
-      alert('✅ Pasta configurada!\n🧪 Teste automático OK');
+      alert('âœ… Pasta configurada!\nðŸ§ª Teste automÃ¡tico OK');
     }
   })"
 >
-  📁 Selecionar Pasta Principal
+  ðŸ“ Selecionar Pasta Principal
 </button>
 ```
 
-#### Botão de Teste (Opcional)
+#### BotÃ£o de Teste (Opcional)
 
 ```html
 <button
   id="btnTestDir"
   onclick="window.fsManager?.testWriteAccess().then(() => {
-    alert('✅ Teste OK - ifdesk_test.txt criado');
+    alert('âœ… Teste OK - singem_test.txt criado');
   })"
 >
-  🧪 Testar Pasta
+  ðŸ§ª Testar Pasta
 </button>
 ```
 
-#### Mensagem de Aviso (Oculta por padrão)
+#### Mensagem de Aviso (Oculta por padrÃ£o)
 
 ```html
 <div id="fs-config-message" style="display: none; background: #fff3cd;">
-  <strong>📁 Pasta não configurada</strong>
+  <strong>ðŸ“ Pasta nÃ£o configurada</strong>
   <p>Para salvar automaticamente, clique em "Selecionar Pasta"</p>
   <button onclick="window.fsManager?.selectMainDirectory()">Configurar Agora</button>
 </div>
@@ -216,7 +216,7 @@ async saveFileWithFallback(file, folderType, textContent, metadados) {
 
 ```javascript
 async _salvarArquivoEmpenho(file, textContent, extractedData) {
-  // ✅ Usa função com fallback (NUNCA chama picker)
+  // âœ… Usa funÃ§Ã£o com fallback (NUNCA chama picker)
   const result = await window.fsManager.saveFileWithFallback(
     file,
     'empenhos',
@@ -227,9 +227,9 @@ async _salvarArquivoEmpenho(file, textContent, extractedData) {
   // Informa se foi download
   if (result.method === 'download') {
     this.showInfo(
-      '📥 Arquivo baixado automaticamente!\n\n' +
+      'ðŸ“¥ Arquivo baixado automaticamente!\n\n' +
       'Para salvar na pasta local:\n' +
-      '1. Clique em "📁 Selecionar Pasta Principal"'
+      '1. Clique em "ðŸ“ Selecionar Pasta Principal"'
     );
   }
 }
@@ -237,60 +237,60 @@ async _salvarArquivoEmpenho(file, textContent, extractedData) {
 
 ---
 
-## 🧪 Fluxo de Teste Completo
+## ðŸ§ª Fluxo de Teste Completo
 
-### Cenário 1: Primeira Vez (Sem Configuração)
+### CenÃ¡rio 1: Primeira Vez (Sem ConfiguraÃ§Ã£o)
 
-**Ações:**
+**AÃ§Ãµes:**
 
-1. Abrir aplicação
+1. Abrir aplicaÃ§Ã£o
 2. Fazer upload de PDF
 3. Clicar em "Processar PDF"
 
 **Resultado Esperado:**
 
 ```
-[FS] ℹ️ Pasta não configurada
-[FS] 🔄 Fallback para download
-[FS] 📥 Download automático concluído
+[FS] â„¹ï¸ Pasta nÃ£o configurada
+[FS] ðŸ”„ Fallback para download
+[FS] ðŸ“¥ Download automÃ¡tico concluÃ­do
 ```
 
-✅ Arquivo é baixado automaticamente  
-✅ Mensagem amarela aparece (sugestão de configurar)  
-✅ NENHUM erro no console
+âœ… Arquivo Ã© baixado automaticamente  
+âœ… Mensagem amarela aparece (sugestÃ£o de configurar)  
+âœ… NENHUM erro no console
 
 ---
 
-### Cenário 2: Configurar Pasta
+### CenÃ¡rio 2: Configurar Pasta
 
-**Ações:**
+**AÃ§Ãµes:**
 
-1. Clicar em "📁 Selecionar Pasta Principal"
+1. Clicar em "ðŸ“ Selecionar Pasta Principal"
 2. Escolher pasta no seletor
-3. Ver alert de confirmação
+3. Ver alert de confirmaÃ§Ã£o
 
 **Resultado Esperado:**
 
 ```
-[FS] 🖱️ selectMainDirectory() chamada
-[FS] 📂 Abrindo seletor de pasta...
-[FS] ✅ Pasta selecionada: MinhaPasta
-[FS] ✅ Permissão de escrita concedida
-[FS] 💾 Salvando referência no IndexedDB...
-[FS] ✅ Referência da pasta salva
-[FS] 🧪 Testando capacidade de escrita...
-[FS] ✅ Teste bem-sucedido - ifdesk_test.txt
+[FS] ðŸ–±ï¸ selectMainDirectory() chamada
+[FS] ðŸ“‚ Abrindo seletor de pasta...
+[FS] âœ… Pasta selecionada: MinhaPasta
+[FS] âœ… PermissÃ£o de escrita concedida
+[FS] ðŸ’¾ Salvando referÃªncia no IndexedDB...
+[FS] âœ… ReferÃªncia da pasta salva
+[FS] ðŸ§ª Testando capacidade de escrita...
+[FS] âœ… Teste bem-sucedido - singem_test.txt
 ```
 
-✅ Alert: "Pasta configurada com sucesso!"  
-✅ Arquivo `ifdesk_test.txt` criado na pasta  
-✅ Handle salvo no IndexedDB
+âœ… Alert: "Pasta configurada com sucesso!"  
+âœ… Arquivo `singem_test.txt` criado na pasta  
+âœ… Handle salvo no IndexedDB
 
 ---
 
-### Cenário 3: Usar Pasta Configurada
+### CenÃ¡rio 3: Usar Pasta Configurada
 
-**Ações:**
+**AÃ§Ãµes:**
 
 1. Fazer novo upload de PDF
 2. Clicar em "Processar PDF"
@@ -298,91 +298,91 @@ async _salvarArquivoEmpenho(file, textContent, extractedData) {
 **Resultado Esperado:**
 
 ```
-[FS] 💾 Iniciando salvamento com fallback...
-[FS] 🔍 Verificando permissão da pasta...
-[FS] ✅ Permissão válida
-[FS] ✅ Arquivo salvo na pasta local
+[FS] ðŸ’¾ Iniciando salvamento com fallback...
+[FS] ðŸ” Verificando permissÃ£o da pasta...
+[FS] âœ… PermissÃ£o vÃ¡lida
+[FS] âœ… Arquivo salvo na pasta local
 ```
 
-✅ PDF salvo em: `[Pasta]/[Unidade]/[Ano]/Notas de Empenho/NE.pdf`  
-✅ NENHUM download  
-✅ NENHUMA mensagem (salvou silenciosamente)
+âœ… PDF salvo em: `[Pasta]/[Unidade]/[Ano]/Notas de Empenho/NE.pdf`  
+âœ… NENHUM download  
+âœ… NENHUMA mensagem (salvou silenciosamente)
 
 ---
 
-### Cenário 4: Teste Manual de Pasta
+### CenÃ¡rio 4: Teste Manual de Pasta
 
-**Ações:**
+**AÃ§Ãµes:**
 
-1. Clicar em "🧪 Testar Pasta"
+1. Clicar em "ðŸ§ª Testar Pasta"
 
 **Resultado Esperado:**
 
 ```
-[FS] 🧪 Testando capacidade de escrita...
-[FS] ✅ Teste bem-sucedido
+[FS] ðŸ§ª Testando capacidade de escrita...
+[FS] âœ… Teste bem-sucedido
 ```
 
-✅ Alert: "Teste OK - ifdesk_test.txt criado"  
-✅ Arquivo de teste atualizado
+âœ… Alert: "Teste OK - singem_test.txt criado"  
+âœ… Arquivo de teste atualizado
 
 ---
 
-## 📋 Checklist de Verificação
+## ðŸ“‹ Checklist de VerificaÃ§Ã£o
 
 ### Requisitos de Ambiente:
 
 - [ ] **HTTPS** ou `http://localhost` (Chromium)
-- [ ] Navegador: Chrome/Edge (versão recente)
+- [ ] Navegador: Chrome/Edge (versÃ£o recente)
 - [ ] IndexedDB habilitado
 - [ ] Sem iframe (ou com `allow="filesystem-access"`)
 
-### Implementação:
+### ImplementaÃ§Ã£o:
 
-- [x] `showDirectoryPicker()` APENAS em click de botão
+- [x] `showDirectoryPicker()` APENAS em click de botÃ£o
 - [x] Handle salvo no IndexedDB
-- [x] Permissão solicitada com `requestPermission()`
-- [x] Verificação com `queryPermission()` (não request)
-- [x] Fallback para download automático
-- [x] Teste de escrita após seleção
+- [x] PermissÃ£o solicitada com `requestPermission()`
+- [x] VerificaÃ§Ã£o com `queryPermission()` (nÃ£o request)
+- [x] Fallback para download automÃ¡tico
+- [x] Teste de escrita apÃ³s seleÃ§Ã£o
 - [x] Logs claros com prefixo `[FS]`
-- [x] Mensagem visual para usuário
+- [x] Mensagem visual para usuÃ¡rio
 
 ---
 
-## 🔍 Diagnóstico de Problemas
+## ðŸ” DiagnÃ³stico de Problemas
 
 ### Problema: "SecurityError: Must be handling a user gesture"
 
 **Causa:** `showDirectoryPicker()` chamado fora de click  
-**Solução:** ✅ JÁ CORRIGIDO - Picker APENAS em botão
+**SoluÃ§Ã£o:** âœ… JÃ CORRIGIDO - Picker APENAS em botÃ£o
 
 ---
 
-### Problema: "Pasta não configurada" sempre
+### Problema: "Pasta nÃ£o configurada" sempre
 
-**Causa:** IndexedDB limpo ou permissão expirada  
-**Solução:**
+**Causa:** IndexedDB limpo ou permissÃ£o expirada  
+**SoluÃ§Ã£o:**
 
 1. Clicar em "Selecionar Pasta Principal"
 2. Escolher pasta novamente
-3. Ver alert de confirmação
+3. Ver alert de confirmaÃ§Ã£o
 
 ---
 
 ### Problema: Download em vez de salvar local
 
-**Causa:** Permissão não concedida ou handle perdido  
+**Causa:** PermissÃ£o nÃ£o concedida ou handle perdido  
 **Logs Esperados:**
 
 ```
-[FS] ⚠️ Sem permissão válida
-[FS] 🔄 Fallback para download
+[FS] âš ï¸ Sem permissÃ£o vÃ¡lida
+[FS] ðŸ”„ Fallback para download
 ```
 
-**Solução:**
+**SoluÃ§Ã£o:**
 
-1. Clicar em "🧪 Testar Pasta"
+1. Clicar em "ðŸ§ª Testar Pasta"
 2. Se falhar: clicar em "Selecionar Pasta Principal"
 3. Reprocessar PDF
 
@@ -391,85 +391,86 @@ async _salvarArquivoEmpenho(file, textContent, extractedData) {
 ### Problema: "NotAllowedError" ao escrever
 
 **Causa:** Sistema de arquivos protegido  
-**Solução:**
+**SoluÃ§Ã£o:**
 
-- Escolher pasta SEM proteção (ex: Documentos, Desktop)
-- Não usar: Program Files, Windows, System32
+- Escolher pasta SEM proteÃ§Ã£o (ex: Documentos, Desktop)
+- NÃ£o usar: Program Files, Windows, System32
 
 ---
 
-## 🎯 Resultado Final
+## ðŸŽ¯ Resultado Final
 
-### ✅ Garantias Implementadas:
+### âœ… Garantias Implementadas:
 
 1. **ZERO SecurityError**
    - showDirectoryPicker() APENAS em click
    - Nunca chamado automaticamente
 
-2. **Funciona SEM configuração**
-   - Download automático como fallback
+2. **Funciona SEM configuraÃ§Ã£o**
+   - Download automÃ¡tico como fallback
    - Mensagem orientativa para configurar
 
-3. **Funciona COM configuração**
+3. **Funciona COM configuraÃ§Ã£o**
    - Salva na pasta local escolhida
    - Handle reutilizado do IndexedDB
-   - Permissão validada antes de usar
+   - PermissÃ£o validada antes de usar
 
-4. **Teste Automático**
+4. **Teste AutomÃ¡tico**
    - Valida escrita ao configurar
-   - Cria `ifdesk_test.txt` para conferir
+   - Cria `singem_test.txt` para conferir
    - Pode testar manualmente depois
 
 5. **UX Profissional**
-   - Botões claros e visíveis
+   - BotÃµes claros e visÃ­veis
    - Mensagens orientativas
    - Fallback transparente
    - Logs detalhados para debug
 
 ---
 
-## 📊 Compatibilidade
+## ðŸ“Š Compatibilidade
 
-| Navegador  | Suporte | Observações             |
+| Navegador  | Suporte | ObservaÃ§Ãµes             |
 | ---------- | ------- | ----------------------- |
-| Chrome 86+ | ✅ Sim  | Suporte completo        |
-| Edge 86+   | ✅ Sim  | Suporte completo        |
-| Firefox    | ❌ Não  | Usa fallback (download) |
-| Safari     | ❌ Não  | Usa fallback (download) |
-| Opera      | ✅ Sim  | Baseado em Chromium     |
+| Chrome 86+ | âœ… Sim  | Suporte completo        |
+| Edge 86+   | âœ… Sim  | Suporte completo        |
+| Firefox    | âŒ NÃ£o  | Usa fallback (download) |
+| Safari     | âŒ NÃ£o  | Usa fallback (download) |
+| Opera      | âœ… Sim  | Baseado em Chromium     |
 
-**Nota:** Navegadores sem suporte usam download automático (fallback sempre funciona)
+**Nota:** Navegadores sem suporte usam download automÃ¡tico (fallback sempre funciona)
 
 ---
 
-## 🚀 Próximos Passos
+## ðŸš€ PrÃ³ximos Passos
 
 1. **Testar agora:**
-   - Recarregar página (F5)
+   - Recarregar pÃ¡gina (F5)
    - Clicar em "Selecionar Pasta Principal"
    - Fazer upload de PDF
    - Verificar pasta no explorador
 
 2. **Se funcionar:**
-   - ✅ Tudo configurado corretamente
+   - âœ… Tudo configurado corretamente
    - Usar normalmente
 
-3. **Se não funcionar:**
+3. **Se nÃ£o funcionar:**
    - Abrir Console (F12)
    - Copiar logs `[FS]`
    - Reportar aqui com logs completos
 
 ---
 
-## 📞 Status
+## ðŸ“ž Status
 
-✅ **SISTEMA COMPLETO E FUNCIONAL**
+âœ… **SISTEMA COMPLETO E FUNCIONAL**
 
 - File System Access API implementada corretamente
 - SecurityError 100% resolvido
-- Teste de escrita automático
+- Teste de escrita automÃ¡tico
 - Fallback transparente
 - Logs detalhados
-- Documentação completa
+- DocumentaÃ§Ã£o completa
 
-**Teste agora e reporte o resultado!** 🎉
+**Teste agora e reporte o resultado!** ðŸŽ‰
+

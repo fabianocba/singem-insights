@@ -1,83 +1,83 @@
-# ✅ Correções de Autenticação Aplicadas
+﻿# âœ… CorreÃ§Ãµes de AutenticaÃ§Ã£o Aplicadas
 
 **Data:** 7 de novembro de 2025
 
 ---
 
-## 🎯 Problemas Corrigidos
+## ðŸŽ¯ Problemas Corrigidos
 
-### 1. ❌ Auto-login indevido
+### 1. âŒ Auto-login indevido
 
 **ANTES:** Sistema autenticava automaticamente ao carregar  
-**DEPOIS:** ✅ Apenas verifica sessão, mas NÃO faz login automático
+**DEPOIS:** âœ… Apenas verifica sessÃ£o, mas NÃƒO faz login automÃ¡tico
 
-### 2. ❌ Master sempre ativo
+### 2. âŒ Master sempre ativo
 
 **ANTES:** Credenciais mestras funcionavam sempre  
-**DEPOIS:** ✅ Master bloqueado após cadastrar primeiro usuário
+**DEPOIS:** âœ… Master bloqueado apÃ³s cadastrar primeiro usuÃ¡rio
 
-### 3. ❌ Gravação sem commit
+### 3. âŒ GravaÃ§Ã£o sem commit
 
 **ANTES:** Dados salvos sem aguardar commit do IndexedDB  
-**DEPOIS:** ✅ Transações garantidas com `withTx()` aguardam `oncomplete`
+**DEPOIS:** âœ… TransaÃ§Ãµes garantidas com `withTx()` aguardam `oncomplete`
 
-### 4. ❌ Leitura/filtros ocultan dados
+### 4. âŒ Leitura/filtros ocultan dados
 
-**ANTES:** Múltiplos pontos de acesso ao DB, cache desatualizado  
-**DEPOIS:** ✅ Repository único, dados sempre do banco
+**ANTES:** MÃºltiplos pontos de acesso ao DB, cache desatualizado  
+**DEPOIS:** âœ… Repository Ãºnico, dados sempre do banco
 
-### 5. ❌ Cache antigo
+### 5. âŒ Cache antigo
 
-**ANTES:** Dados ficavam em memória desatualizados  
-**DEPOIS:** ✅ Recarrega do banco após cada save
+**ANTES:** Dados ficavam em memÃ³ria desatualizados  
+**DEPOIS:** âœ… Recarrega do banco apÃ³s cada save
 
 ---
 
-## 📦 Arquivos Alterados
+## ðŸ“¦ Arquivos Alterados
 
 ### Criados
 
-- ✅ `js/core/dbTx.js` - Transações com commit garantido
+- âœ… `js/core/dbTx.js` - TransaÃ§Ãµes com commit garantido
 
 ### Modificados
 
-- ✅ `js/core/repository.js` - Métodos de Unidade e Usuário
-- ✅ `js/settings/usuarios.js` - Autenticação com repository e sessão
-- ✅ `js/settings/unidade.js` - Salvamento com transação
-- ✅ `js/app.js` - Master bypass e verificação de sessão
+- âœ… `js/core/repository.js` - MÃ©todos de Unidade e UsuÃ¡rio
+- âœ… `js/settings/usuarios.js` - AutenticaÃ§Ã£o com repository e sessÃ£o
+- âœ… `js/settings/unidade.js` - Salvamento com transaÃ§Ã£o
+- âœ… `js/app.js` - Master bypass e verificaÃ§Ã£o de sessÃ£o
 
 ---
 
-## 🧪 Como Testar
+## ðŸ§ª Como Testar
 
 ### Teste 1: Credenciais Mestras (Primeiro Acesso)
 
 ```
 1. Limpar tudo:
-   - F12 → Application → IndexedDB → Excluir "IFDeskDB"
-   - F12 → Application → Local Storage → Limpar
+   - F12 â†’ Application â†’ IndexedDB â†’ Excluir "IFDeskDB"
+   - F12 â†’ Application â†’ Local Storage â†’ Limpar
    - Ctrl+F5 (recarregar)
 
 2. Fazer login:
-   Usuário: ifdesk
+   UsuÃ¡rio: singem
    Senha: admin@2025
 
-3. ✅ Deve entrar e pedir cadastro de usuário
+3. âœ… Deve entrar e pedir cadastro de usuÃ¡rio
 ```
 
-### Teste 2: Cadastrar Primeiro Usuário
+### Teste 2: Cadastrar Primeiro UsuÃ¡rio
 
 ```
-1. Após login master:
-   - Seguir instruções
-   - Ir em Configurações → Usuários
-   - Cadastrar novo usuário:
+1. ApÃ³s login master:
+   - Seguir instruÃ§Ãµes
+   - Ir em ConfiguraÃ§Ãµes â†’ UsuÃ¡rios
+   - Cadastrar novo usuÃ¡rio:
      Nome: Seu Nome
      Login: seunome
      Senha: senha123
      Perfil: Administrador
 
-2. ✅ Deve salvar e aparecer "✅ Usuário cadastrado com sucesso!"
+2. âœ… Deve salvar e aparecer "âœ… UsuÃ¡rio cadastrado com sucesso!"
 ```
 
 ### Teste 3: Master Bloqueado
@@ -85,113 +85,113 @@
 ```
 1. Fazer logout
 2. Tentar login novamente:
-   Usuário: ifdesk
+   UsuÃ¡rio: singem
    Senha: admin@2025
 
-3. ❌ Deve exibir:
-   "Master desabilitado — já existem usuários configurados"
+3. âŒ Deve exibir:
+   "Master desabilitado â€” jÃ¡ existem usuÃ¡rios configurados"
 ```
 
 ### Teste 4: Login Normal
 
 ```
-1. Fazer login com usuário criado:
-   Usuário: seunome
+1. Fazer login com usuÃ¡rio criado:
+   UsuÃ¡rio: seunome
    Senha: senha123
 
-2. ✅ Deve:
+2. âœ… Deve:
    - Autenticar com sucesso
-   - Criar sessão no localStorage
-   - Mostrar "✅ Logado!"
+   - Criar sessÃ£o no localStorage
+   - Mostrar "âœ… Logado!"
    - Ir para tela principal
 ```
 
 ### Teste 5: Dados Persistem
 
 ```
-1. Após cadastrar unidade e usuário
-2. F5 (recarregar página)
-3. F12 → Application → IndexedDB → IFDeskDB → config
+1. ApÃ³s cadastrar unidade e usuÃ¡rio
+2. F5 (recarregar pÃ¡gina)
+3. F12 â†’ Application â†’ IndexedDB â†’ IFDeskDB â†’ config
 
-4. ✅ Verificar:
-   - "usuarios" → array com seu usuário
-   - "todasUnidades" → array com sua unidade
+4. âœ… Verificar:
+   - "usuarios" â†’ array com seu usuÃ¡rio
+   - "todasUnidades" â†’ array com sua unidade
 ```
 
-### Teste 6: Sessão Sem Auto-Login
+### Teste 6: SessÃ£o Sem Auto-Login
 
 ```
 1. Fazer login
 2. F5 (recarregar)
-3. ✅ Deve:
+3. âœ… Deve:
    - Voltar para tela de login
-   - NÃO autenticar automaticamente
-   - Exibir mensagem: "Sessão válida encontrada"
+   - NÃƒO autenticar automaticamente
+   - Exibir mensagem: "SessÃ£o vÃ¡lida encontrada"
 4. Fazer login normalmente
 ```
 
 ### Teste 7: Cadastrar Unidade
 
 ```
-1. Login → Configurações → Unidade Orçamentária
+1. Login â†’ ConfiguraÃ§Ãµes â†’ Unidade OrÃ§amentÃ¡ria
 2. Cadastrar:
-   Razão Social: IF Baiano - Campus Valença
+   RazÃ£o Social: IF Baiano - Campus ValenÃ§a
    CNPJ: 10.766.260/0001-93
    UG: 158330
 
-3. ✅ Deve:
+3. âœ… Deve:
    - Validar CNPJ
    - Salvar com commit
-   - Mostrar "✅ Unidade cadastrada com sucesso!"
+   - Mostrar "âœ… Unidade cadastrada com sucesso!"
    - Recarregar lista (aparece na listagem)
 ```
 
 ---
 
-## 🔍 Verificações Técnicas
+## ðŸ” VerificaÃ§Ãµes TÃ©cnicas
 
 ### Console do Navegador (F12)
 
 #### Ao iniciar:
 
 ```
-✅ Esperado:
-🚀 Iniciando aplicação IFDESK...
-✅ Banco de dados inicializado
-ℹ️ Nenhuma sessão encontrada (ou "Sessão válida encontrada")
-✅ Aplicação iniciada com sucesso!
+âœ… Esperado:
+ðŸš€ Iniciando aplicaÃ§Ã£o SINGEM...
+âœ… Banco de dados inicializado
+â„¹ï¸ Nenhuma sessÃ£o encontrada (ou "SessÃ£o vÃ¡lida encontrada")
+âœ… AplicaÃ§Ã£o iniciada com sucesso!
 ```
 
 #### Ao fazer login master (primeira vez):
 
 ```
-✅ Esperado:
-🔑 Tentativa de login com credenciais mestras
-✅ Login master permitido (primeiro acesso)
+âœ… Esperado:
+ðŸ”‘ Tentativa de login com credenciais mestras
+âœ… Login master permitido (primeiro acesso)
 ```
 
 #### Ao fazer login master (segunda vez):
 
 ```
-✅ Esperado:
-🔑 Tentativa de login com credenciais mestras
-❌ Master bloqueado - usuários já configurados
+âœ… Esperado:
+ðŸ”‘ Tentativa de login com credenciais mestras
+âŒ Master bloqueado - usuÃ¡rios jÃ¡ configurados
 ```
 
-#### Ao cadastrar usuário:
+#### Ao cadastrar usuÃ¡rio:
 
 ```
-✅ Esperado:
-✅ Transação commitada com sucesso
-✅ Usuário salvo com commit garantido
+âœ… Esperado:
+âœ… TransaÃ§Ã£o commitada com sucesso
+âœ… UsuÃ¡rio salvo com commit garantido
 ```
 
 #### Ao cadastrar unidade:
 
 ```
-✅ Esperado:
-✅ Transação commitada com sucesso
-✅ Unidade salva com commit garantido
+âœ… Esperado:
+âœ… TransaÃ§Ã£o commitada com sucesso
+âœ… Unidade salva com commit garantido
 ```
 
 ### IndexedDB
@@ -199,9 +199,9 @@
 #### Verificar estrutura:
 
 ```
-F12 → Application → IndexedDB → IFDeskDB → config
+F12 â†’ Application â†’ IndexedDB â†’ IFDeskDB â†’ config
 
-✅ Deve existir:
+âœ… Deve existir:
 - Key: "usuarios"
   Value: {
     id: "usuarios",
@@ -231,12 +231,12 @@ F12 → Application → IndexedDB → IFDeskDB → config
 
 ### LocalStorage
 
-#### Verificar sessão:
+#### Verificar sessÃ£o:
 
 ```
-F12 → Application → Local Storage → file://
+F12 â†’ Application â†’ Local Storage â†’ file://
 
-✅ Deve existir (após login):
+âœ… Deve existir (apÃ³s login):
 Key: "session"
 Value: {
   "login": "seunome",
@@ -247,92 +247,93 @@ Value: {
 
 ---
 
-## 🐛 Resolução de Problemas
+## ðŸ› ResoluÃ§Ã£o de Problemas
 
-### Problema: "Transação abortada"
+### Problema: "TransaÃ§Ã£o abortada"
 
 ```
 Causa: Erro no IndexedDB
-Solução:
-1. F12 → Application → IndexedDB
+SoluÃ§Ã£o:
+1. F12 â†’ Application â†’ IndexedDB
 2. Excluir banco "IFDeskDB"
 3. Ctrl+F5 (recarregar)
 4. Tentar novamente
 ```
 
-### Problema: Usuário não aparece após salvar
+### Problema: UsuÃ¡rio nÃ£o aparece apÃ³s salvar
 
 ```
 Causa: Cache antigo ou erro no commit
-Solução:
-1. F12 → Console → Verificar "✅ Transação commitada"
-2. Se não aparecer: recarregar com Ctrl+F5
+SoluÃ§Ã£o:
+1. F12 â†’ Console â†’ Verificar "âœ… TransaÃ§Ã£o commitada"
+2. Se nÃ£o aparecer: recarregar com Ctrl+F5
 3. Verificar IndexedDB manualmente
 ```
 
-### Problema: Master ainda funciona após cadastrar usuário
+### Problema: Master ainda funciona apÃ³s cadastrar usuÃ¡rio
 
 ```
 Causa: Cache do navegador
-Solução:
-1. Ctrl+Shift+Delete → Limpar cache
+SoluÃ§Ã£o:
+1. Ctrl+Shift+Delete â†’ Limpar cache
 2. Ctrl+F5 (recarregar)
-3. Verificar no console se tem usuários:
+3. Verificar no console se tem usuÃ¡rios:
    await window.repository.hasUsuarios()
 ```
 
-### Problema: Login não funciona
+### Problema: Login nÃ£o funciona
 
 ```
 Verificar:
-1. Usuário está ativo? (ativo: true)
+1. UsuÃ¡rio estÃ¡ ativo? (ativo: true)
 2. Senha correta?
-3. IndexedDB tem o usuário?
+3. IndexedDB tem o usuÃ¡rio?
 4. Console mostra erro?
 ```
 
 ---
 
-## 📋 Checklist de Aceite
+## ðŸ“‹ Checklist de Aceite
 
 - [ ] Credenciais mestras funcionam no primeiro acesso
-- [ ] Master bloqueado após cadastrar usuário
-- [ ] Usuário cadastrado aparece na lista
+- [ ] Master bloqueado apÃ³s cadastrar usuÃ¡rio
+- [ ] UsuÃ¡rio cadastrado aparece na lista
 - [ ] Unidade cadastrada aparece na lista
-- [ ] Dados permanecem após F5 (reload)
-- [ ] Login normal funciona com usuário cadastrado
-- [ ] Mensagem "✅ Transação commitada" no console
-- [ ] NÃO faz auto-login ao carregar página
-- [ ] Sessão válida NÃO autentica automaticamente
-- [ ] IndexedDB contém dados após salvar
+- [ ] Dados permanecem apÃ³s F5 (reload)
+- [ ] Login normal funciona com usuÃ¡rio cadastrado
+- [ ] Mensagem "âœ… TransaÃ§Ã£o commitada" no console
+- [ ] NÃƒO faz auto-login ao carregar pÃ¡gina
+- [ ] SessÃ£o vÃ¡lida NÃƒO autentica automaticamente
+- [ ] IndexedDB contÃ©m dados apÃ³s salvar
 
 ---
 
-## ✅ Funcionalidades Mantidas
+## âœ… Funcionalidades Mantidas
 
-- ✅ Cadastro de empenhos
-- ✅ Cadastro de notas fiscais
-- ✅ Validação de CNPJ
-- ✅ Upload de PDFs
-- ✅ Configurações
-- ✅ Relatórios
-- ✅ Exportação CSV
+- âœ… Cadastro de empenhos
+- âœ… Cadastro de notas fiscais
+- âœ… ValidaÃ§Ã£o de CNPJ
+- âœ… Upload de PDFs
+- âœ… ConfiguraÃ§Ãµes
+- âœ… RelatÃ³rios
+- âœ… ExportaÃ§Ã£o CSV
 
 **Nenhum recurso antigo foi removido ou quebrado.**
 
 ---
 
-## 📞 Suporte
+## ðŸ“ž Suporte
 
 Se encontrar problemas:
 
 1. Verificar console do navegador (F12)
 2. Verificar IndexedDB manualmente
 3. Limpar cache e tentar novamente
-4. Reportar erro específico com print do console
+4. Reportar erro especÃ­fico com print do console
 
 ---
 
-**Correções aplicadas por:** GitHub Copilot  
-**Status:** ✅ Pronto para teste  
+**CorreÃ§Ãµes aplicadas por:** GitHub Copilot  
+**Status:** âœ… Pronto para teste  
 **Data:** 7 de novembro de 2025
+

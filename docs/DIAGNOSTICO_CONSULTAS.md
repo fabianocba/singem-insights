@@ -1,15 +1,15 @@
-# 🔍 DIAGNÓSTICO COMPLETO - CONSULTAS DIVERSAS
+﻿# ðŸ” DIAGNÃ“STICO COMPLETO - CONSULTAS DIVERSAS
 
-## ✅ TESTE 1 - Confirmado que funciona
+## âœ… TESTE 1 - Confirmado que funciona
 
 - [x] teste-clique.html funcionou
-- [x] onclick está funcionando no navegador
+- [x] onclick estÃ¡ funcionando no navegador
 
-## 🧪 TESTE 2 - Verificar se onclick está sendo chamado no IFDESK
+## ðŸ§ª TESTE 2 - Verificar se onclick estÃ¡ sendo chamado no SINGEM
 
 ### PASSO A PASSO:
 
-1. **Abra o IFDESK no navegador**
+1. **Abra o SINGEM no navegador**
 
 2. **Limpe tudo (Console - F12)**:
 
@@ -19,20 +19,20 @@
    location.reload();
    ```
 
-3. **Faça login**: `ifdesk` / `admin@2025`
+3. **FaÃ§a login**: `singem` / `admin@2025`
 
 4. **Abra o Console (F12)** e mantenha aberto
 
 5. **Clique em "Consultas Diversas"**
    - Deve aparecer no console:
      ```
-     🔍 Abrindo Consultas Diversas...
-     🔍 Iniciando módulo de Consultas Diversas...
-     📦 Menu encontrado: true
-     🔎 Tela de consulta encontrada: true
+     ðŸ” Abrindo Consultas Diversas...
+     ðŸ” Iniciando mÃ³dulo de Consultas Diversas...
+     ðŸ“¦ Menu encontrado: true
+     ðŸ”Ž Tela de consulta encontrada: true
      ...
-     ✅ Módulo de Consultas Diversas inicializado!
-     🌐 window.abrirConsulta criada: function
+     âœ… MÃ³dulo de Consultas Diversas inicializado!
+     ðŸŒ window.abrirConsulta criada: function
      ```
 
 6. **TESTE MANUAL NO CONSOLE**:
@@ -41,59 +41,59 @@
      teste();
      ```
    - Isso deve abrir a consulta de "materiais"
-   - Se FUNCIONAR = o módulo está OK, problema é no onclick
-   - Se NÃO FUNCIONAR = problema no módulo
+   - Se FUNCIONAR = o mÃ³dulo estÃ¡ OK, problema Ã© no onclick
+   - Se NÃƒO FUNCIONAR = problema no mÃ³dulo
 
-7. **Clique no card "📦 Catálogo de Material"**
+7. **Clique no card "ðŸ“¦ CatÃ¡logo de Material"**
    - Deve aparecer:
      ```
      CLIQUE DETECTADO em materiais
-     🌐 Chamada global para abrir: materiais
-     🔍 UIConsultas disponível: function
-     📦 UIConsultas objeto completo: {...}
-     🚀 Chamando UIConsultas.showConsulta...
-     🔍 Abrindo consulta: materiais
+     ðŸŒ Chamada global para abrir: materiais
+     ðŸ” UIConsultas disponÃ­vel: function
+     ðŸ“¦ UIConsultas objeto completo: {...}
+     ðŸš€ Chamando UIConsultas.showConsulta...
+     ðŸ” Abrindo consulta: materiais
      ...
-     ✅ Consulta aberta com sucesso!
+     âœ… Consulta aberta com sucesso!
      ```
 
-## 📋 RESULTADOS POSSÍVEIS:
+## ðŸ“‹ RESULTADOS POSSÃVEIS:
 
-### ✅ CENÁRIO 1: Console mostra "CLIQUE DETECTADO"
+### âœ… CENÃRIO 1: Console mostra "CLIQUE DETECTADO"
 
-- **Diagnóstico**: onclick está funcionando
-- **Problema**: Pode ser erro dentro da função showConsulta
-- **Solução**: Verificar mensagens de erro após "Abrindo consulta"
+- **DiagnÃ³stico**: onclick estÃ¡ funcionando
+- **Problema**: Pode ser erro dentro da funÃ§Ã£o showConsulta
+- **SoluÃ§Ã£o**: Verificar mensagens de erro apÃ³s "Abrindo consulta"
 
-### ❌ CENÁRIO 2: Console NÃO mostra "CLIQUE DETECTADO"
+### âŒ CENÃRIO 2: Console NÃƒO mostra "CLIQUE DETECTADO"
 
-- **Diagnóstico**: onclick não está sendo executado
-- **Possíveis causas**:
+- **DiagnÃ³stico**: onclick nÃ£o estÃ¡ sendo executado
+- **PossÃ­veis causas**:
   1. CSS sobrepondo os cards (z-index, pointer-events)
   2. Outro elemento capturando o clique
   3. JavaScript bloqueando eventos
 - **Teste**: Digite no console `teste()` e veja se funciona
 
-### ❌ CENÁRIO 3: Mostra "UIConsultas.showConsulta não é uma função"
+### âŒ CENÃRIO 3: Mostra "UIConsultas.showConsulta nÃ£o Ã© uma funÃ§Ã£o"
 
-- **Diagnóstico**: Módulo não carregou corretamente
-- **Solução**: Verificar erros de importação de módulos
+- **DiagnÃ³stico**: MÃ³dulo nÃ£o carregou corretamente
+- **SoluÃ§Ã£o**: Verificar erros de importaÃ§Ã£o de mÃ³dulos
 
-### ❌ CENÁRIO 4: Erro após "Chamando UIConsultas.showConsulta"
+### âŒ CENÃRIO 4: Erro apÃ³s "Chamando UIConsultas.showConsulta"
 
-- **Diagnóstico**: Erro dentro da função showConsulta
-- **Solução**: Analisar stack trace do erro
+- **DiagnÃ³stico**: Erro dentro da funÃ§Ã£o showConsulta
+- **SoluÃ§Ã£o**: Analisar stack trace do erro
 
-## 🎯 TESTES ADICIONAIS NO CONSOLE:
+## ðŸŽ¯ TESTES ADICIONAIS NO CONSOLE:
 
-### Teste 1: Verificar se função existe
+### Teste 1: Verificar se funÃ§Ã£o existe
 
 ```javascript
 typeof window.abrirConsulta;
 // Deve retornar: "function"
 ```
 
-### Teste 2: Chamar função manualmente
+### Teste 2: Chamar funÃ§Ã£o manualmente
 
 ```javascript
 window.abrirConsulta('materiais');
@@ -107,14 +107,14 @@ document.querySelector('.menu-item-consulta[data-consulta="materiais"]');
 // Deve retornar: elemento HTML
 ```
 
-### Teste 4: Simular clique programático
+### Teste 4: Simular clique programÃ¡tico
 
 ```javascript
 document.querySelector('.menu-item-consulta[data-consulta="materiais"]').click();
 // Deve executar o onclick
 ```
 
-### Teste 5: Verificar se há erros de módulo
+### Teste 5: Verificar se hÃ¡ erros de mÃ³dulo
 
 ```javascript
 console.log(window.initConsultas);
@@ -123,25 +123,26 @@ console.log(window.teste);
 // Todos devem ser: function
 ```
 
-## 📝 CHECKLIST DE VERIFICAÇÃO:
+## ðŸ“ CHECKLIST DE VERIFICAÃ‡ÃƒO:
 
-- [ ] Console mostra "🔍 Iniciando módulo de Consultas Diversas..."?
-- [ ] Console mostra "✅ Módulo de Consultas Diversas inicializado!"?
-- [ ] Console mostra "🌐 window.abrirConsulta criada: function"?
+- [ ] Console mostra "ðŸ” Iniciando mÃ³dulo de Consultas Diversas..."?
+- [ ] Console mostra "âœ… MÃ³dulo de Consultas Diversas inicializado!"?
+- [ ] Console mostra "ðŸŒ window.abrirConsulta criada: function"?
 - [ ] Comando `teste()` no console funciona?
 - [ ] Ao clicar no card, ele muda para azul claro?
 - [ ] Console mostra "CLIQUE DETECTADO"?
-- [ ] Console mostra "🌐 Chamada global para abrir"?
-- [ ] Console mostra "✅ Consulta aberta com sucesso!"?
+- [ ] Console mostra "ðŸŒ Chamada global para abrir"?
+- [ ] Console mostra "âœ… Consulta aberta com sucesso!"?
 - [ ] Aparecem os filtros de busca na tela?
 
-## 🆘 PRÓXIMOS PASSOS:
+## ðŸ†˜ PRÃ“XIMOS PASSOS:
 
 **Me envie:**
 
-1. ✅ ou ❌ para cada item do CHECKLIST acima
-2. TODA a saída do console (copie e cole aqui)
+1. âœ… ou âŒ para cada item do CHECKLIST acima
+2. TODA a saÃ­da do console (copie e cole aqui)
 3. O resultado do teste `teste()` no console
-4. Screenshot da tela se possível
+4. Screenshot da tela se possÃ­vel
 
-**Com essas informações vou identificar exatamente onde está o problema!**
+**Com essas informaÃ§Ãµes vou identificar exatamente onde estÃ¡ o problema!**
+

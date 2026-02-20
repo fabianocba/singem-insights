@@ -276,7 +276,7 @@ class SettingsArquivos {
       // Atualizar configuração local
       this.configPastas = {
         pastaRaiz: resultado.pastaBase,
-        pastaIfdesk: resultado.pastaIfdesk,
+        pastaSINGEM: resultado.pastaSINGEM,
         unidade: unidade,
         estrutura: resultado.estrutura,
         dataConfiguracao: new Date().toISOString(),
@@ -354,7 +354,7 @@ class SettingsArquivos {
           '1. Selecione a pasta base onde deseja salvar os arquivos\n' +
           '   (ex: D:\\ ou pasta de rede compartilhada)\n\n' +
           '2. O sistema criará automaticamente a estrutura:\n' +
-          '   IFDESK/\n' +
+          '   SINGEM/\n' +
           '     ├── 00_CONFIG/\n' +
           '     ├── 01_EMPENHOS/\n' +
           '     ├── 02_NOTAS_FISCAIS/\n' +
@@ -387,7 +387,7 @@ class SettingsArquivos {
       // Atualizar configuração local
       this.configPastas = {
         pastaRaiz: resultado.pastaBase,
-        pastaIfdesk: resultado.pastaIfdesk,
+        pastaSINGEM: resultado.pastaSINGEM,
         unidade: unidade,
         estrutura: resultado.estrutura,
         dataConfiguracao: new Date().toISOString(),
@@ -501,7 +501,7 @@ class SettingsArquivos {
 
   /**
    * Cria estrutura completa de pastas
-   * NOVA VERSÃO: Usa estrutura padronizada IFDESK
+   * NOVA VERSÃO: Usa estrutura padronizada SINGEM
    */
   async criarEstruturaCompleta() {
     try {
@@ -535,7 +535,7 @@ class SettingsArquivos {
       // Salvar metadados
       await fsManager.salvarMetadadosEstrutura({
         pastaBase: fsManager.mainDirectoryHandle.name,
-        pastaIfdesk: 'IFDESK',
+        pastaSINGEM: 'SINGEM',
         unidade: nomeUnidade,
         unidadePasta: estrutura.unidadePasta,
         estrutura: estrutura,
@@ -844,7 +844,7 @@ class SettingsArquivos {
       // Isso abrirá o explorador de arquivos com a pasta já selecionada
       try {
         const dirHandle = await window.showDirectoryPicker({
-          id: 'ifdesk-main-folder',
+          id: 'SINGEM-main-folder',
           mode: 'readwrite',
           startIn: fsManager.mainDirectoryHandle
         });

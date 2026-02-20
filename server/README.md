@@ -1,20 +1,20 @@
-# Servidor IFDESK
+﻿# Servidor SINGEM
 
-Servidor Node.js opcional para compartilhamento de dados do IFDESK em rede local (LAN).
+Servidor Node.js opcional para compartilhamento de dados do SINGEM em rede local (LAN).
 
-## 📋 Pré-requisitos
+## ðŸ“‹ PrÃ©-requisitos
 
 - Node.js 16+ instalado
 - NPM ou Yarn
 
-## 🚀 Instalação
+## ðŸš€ InstalaÃ§Ã£o
 
 ```bash
 cd server
 npm install
 ```
 
-## ▶️ Executar
+## â–¶ï¸ Executar
 
 ### Modo Normal
 
@@ -28,12 +28,12 @@ npm start
 npm run dev
 ```
 
-O servidor ficará disponível em:
+O servidor ficarÃ¡ disponÃ­vel em:
 
 - **Local:** http://localhost:3000
 - **Rede:** http://\<seu-ip\>:3000
 
-## 🔍 Endpoints Disponíveis
+## ðŸ” Endpoints DisponÃ­veis
 
 ### Health Check
 
@@ -43,13 +43,13 @@ GET /health
 
 Retorna status do servidor.
 
-### Informações do Sistema
+### InformaÃ§Ãµes do Sistema
 
 ```
 GET /api/info
 ```
 
-Retorna informações do IFDESK.
+Retorna informaÃ§Ãµes do SINGEM.
 
 ### Empenhos (Em Desenvolvimento)
 
@@ -73,13 +73,13 @@ POST   /api/notas-fiscais
 GET    /api/entregas
 ```
 
-### Sincronização (Em Desenvolvimento)
+### SincronizaÃ§Ã£o (Em Desenvolvimento)
 
 ```
 POST   /api/sync
 ```
 
-## ⚙️ Configuração
+## âš™ï¸ ConfiguraÃ§Ã£o
 
 ### Alterar Porta
 
@@ -93,29 +93,30 @@ Edite `package.json`:
 }
 ```
 
-Ou use variável de ambiente:
+Ou use variÃ¡vel de ambiente:
 
 ```bash
 PORT=8080 npm start
 ```
 
-## 🔒 Segurança
+## ðŸ”’ SeguranÃ§a
 
-⚠️ **IMPORTANTE:**
+âš ï¸ **IMPORTANTE:**
 
-- Este servidor é para uso em **rede local privada** apenas
-- **NÃO** exponha à internet sem configurar autenticação e SSL
+- Este servidor Ã© para uso em **rede local privada** apenas
+- **NÃƒO** exponha Ã  internet sem configurar autenticaÃ§Ã£o e SSL
 - Configure firewall para bloquear acesso externo
 
-## 📝 Status de Desenvolvimento
+## ðŸ“ Status de Desenvolvimento
 
-- ✅ Health check
-- ✅ Servir arquivos estáticos
-- ✅ CORS habilitado
-- 🔄 Endpoints de sincronização (placeholder)
-- 🔄 Autenticação (planejado)
-- 🔄 Upload de arquivos (planejado)
+- âœ… Health check
+- âœ… Servir arquivos estÃ¡ticos
+- âœ… CORS habilitado
+- ðŸ”„ Endpoints de sincronizaÃ§Ã£o (placeholder)
+- ðŸ”„ AutenticaÃ§Ã£o (planejado)
+- ðŸ”„ Upload de arquivos (planejado)
 
-## 📞 Suporte
+## ðŸ“ž Suporte
 
-Para dúvidas ou problemas, consulte a documentação principal do IFDESK.
+Para dÃºvidas ou problemas, consulte a documentaÃ§Ã£o principal do SINGEM.
+

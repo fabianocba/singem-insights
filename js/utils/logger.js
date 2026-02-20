@@ -1,5 +1,5 @@
 /**
- * IFDESK - Logger Centralizado
+ * SINGEM - Logger Centralizado
  * @module utils/logger
  *
  * Sistema de logging com níveis e armazenamento local.
@@ -45,7 +45,7 @@ const logStore = {
 
     if (config.enableLocalStorage) {
       try {
-        localStorage.setItem('ifdesk_logs', JSON.stringify(this.logs.slice(-50)));
+        localStorage.setItem('SINGEM_logs', JSON.stringify(this.logs.slice(-50)));
       } catch (e) {
         // Ignora se localStorage estiver cheio
       }
@@ -59,7 +59,7 @@ const logStore = {
   clear() {
     this.logs = [];
     if (config.enableLocalStorage) {
-      localStorage.removeItem('ifdesk_logs');
+      localStorage.removeItem('SINGEM_logs');
     }
   }
 };
@@ -261,7 +261,7 @@ export function group(label) {
 // Auto-carrega logs do localStorage se habilitado
 if (config.enableLocalStorage) {
   try {
-    const stored = localStorage.getItem('ifdesk_logs');
+    const stored = localStorage.getItem('SINGEM_logs');
     if (stored) {
       logStore.logs = JSON.parse(stored);
     }

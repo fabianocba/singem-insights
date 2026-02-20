@@ -1,100 +1,100 @@
-# 🚀 IFDESK v2.0.0 - Plataforma Moderna e Confiável
+﻿# ðŸš€ SINGEM v2.0.0 - Plataforma Moderna e ConfiÃ¡vel
 
-> Sistema avançado de gestão de documentos fiscais com parser refinado, validações robustas e arquitetura moderna.
+> Sistema avanÃ§ado de gestÃ£o de documentos fiscais com parser refinado, validaÃ§Ãµes robustas e arquitetura moderna.
 
 ---
 
-## ✨ Novidades da Versão 2.0
+## âœ¨ Novidades da VersÃ£o 2.0
 
-### 🎯 **Parser Refinado de PDFs**
+### ðŸŽ¯ **Parser Refinado de PDFs**
 
-- **Detecção automática** de tipo de documento (NE, NFe, NFCe, NFSe, Avulsa)
-- **Extração inteligente** com heurísticas avançadas
+- **DetecÃ§Ã£o automÃ¡tica** de tipo de documento (NE, NFe, NFCe, NFSe, Avulsa)
+- **ExtraÃ§Ã£o inteligente** com heurÃ­sticas avanÃ§adas
 - **OCR Fallback** para PDFs-imagem (Tesseract.js)
-- **Validações** automáticas (CNPJ/CPF, chave 44, somatórios)
-- **Score de confiança** por campo e geral
+- **ValidaÃ§Ãµes** automÃ¡ticas (CNPJ/CPF, chave 44, somatÃ³rios)
+- **Score de confianÃ§a** por campo e geral
 - **Logs estruturados** com "anchor snippets"
 
-### 🛡️ **Segurança Aprimorada**
+### ðŸ›¡ï¸ **SeguranÃ§a Aprimorada**
 
-- Sanitização HTML contra XSS
-- Validação de uploads (tipo, tamanho, magic numbers)
-- Rate limiting em operações críticas
+- SanitizaÃ§Ã£o HTML contra XSS
+- ValidaÃ§Ã£o de uploads (tipo, tamanho, magic numbers)
+- Rate limiting em operaÃ§Ãµes crÃ­ticas
 - CSP (Content Security Policy) recomendado
 - Input sanitization com schemas
 
-### ⚡ **Performance**
+### âš¡ **Performance**
 
 - Service Worker para cache offline
-- Lazy loading de módulos
-- Debounce/throttle avançados
-- Virtualização de listas grandes (Virtual Scrolling)
+- Lazy loading de mÃ³dulos
+- Debounce/throttle avanÃ§ados
+- VirtualizaÃ§Ã£o de listas grandes (Virtual Scrolling)
 - LRU Cache para recursos
 - Web Workers para parsing pesado
 
-### 🔧 **Confiabilidade**
+### ðŸ”§ **Confiabilidade**
 
-- Error Boundary global com retry automático
-- Sistema de notificações user-friendly
+- Error Boundary global com retry automÃ¡tico
+- Sistema de notificaÃ§Ãµes user-friendly
 - Tratamento de erros estruturado
 - Background sync com retry
-- Detecção de conflitos
+- DetecÃ§Ã£o de conflitos
 
-### 📊 **IndexedDB Otimizado**
+### ðŸ“Š **IndexedDB Otimizado**
 
-- Índices compostos
-- Transações em batch
-- Sincronização em background
-- Detecção de conflitos
-
----
-
-## 📦 Arquitetura de Módulos
-
-```
-d:\IFDESK\
-│
-├── js/
-│   ├── bootstrap.js              # 🚀 Inicialização central
-│   │
-│   ├── core/                     # Módulos fundamentais
-│   │   ├── errorBoundary.js      # Error handling global
-│   │   ├── performance.js        # Utilitários de performance
-│   │   ├── security.js           # Segurança e sanitização
-│   │   ├── dbOptimizations.js    # Otimizações de IndexedDB
-│   │   └── serviceWorker.js      # Cache offline
-│   │
-│   ├── refine/                   # Parser Refinado
-│   │   ├── index.js              # Orquestrador principal
-│   │   ├── patterns.js           # Dicionário de rótulos/regex
-│   │   ├── logger.js             # Logs estruturados
-│   │   ├── normalize.js          # Normalização de dados
-│   │   ├── validate.js           # Validações (CNPJ, CPF, chave44)
-│   │   ├── analyzer.js           # Pré-processamento
-│   │   ├── detectors.js          # Detecção de tipo
-│   │   ├── score.js              # Pontuação de confiança
-│   │   ├── ocrFallback.js        # OCR para PDFs-imagem
-│   │   ├── parserUI.js           # Interface do parser
-│   │   ├── extract/
-│   │   │   ├── header.js         # Extração de cabeçalho
-│   │   │   ├── items.js          # Extração de itens
-│   │   │   └── totals.js         # Extração de totais
-│   │   └── worker/
-│   │       └── parse.worker.js   # Web Worker para parsing
-│   │
-│   └── [módulos existentes...]
-│
-├── tests/
-│   └── automated-tests.html      # 🧪 Suíte de testes
-│
-└── teste-refined.html            # Demo do parser refinado
-```
+- Ãndices compostos
+- TransaÃ§Ãµes em batch
+- SincronizaÃ§Ã£o em background
+- DetecÃ§Ã£o de conflitos
 
 ---
 
-## 🚀 Como Usar
+## ðŸ“¦ Arquitetura de MÃ³dulos
 
-### 1️⃣ Inicialização Automática
+```
+d:\SINGEM\
+â”‚
+â”œâ”€â”€ js/
+â”‚   â”œâ”€â”€ bootstrap.js              # ðŸš€ InicializaÃ§Ã£o central
+â”‚   â”‚
+â”‚   â”œâ”€â”€ core/                     # MÃ³dulos fundamentais
+â”‚   â”‚   â”œâ”€â”€ errorBoundary.js      # Error handling global
+â”‚   â”‚   â”œâ”€â”€ performance.js        # UtilitÃ¡rios de performance
+â”‚   â”‚   â”œâ”€â”€ security.js           # SeguranÃ§a e sanitizaÃ§Ã£o
+â”‚   â”‚   â”œâ”€â”€ dbOptimizations.js    # OtimizaÃ§Ãµes de IndexedDB
+â”‚   â”‚   â””â”€â”€ serviceWorker.js      # Cache offline
+â”‚   â”‚
+â”‚   â”œâ”€â”€ refine/                   # Parser Refinado
+â”‚   â”‚   â”œâ”€â”€ index.js              # Orquestrador principal
+â”‚   â”‚   â”œâ”€â”€ patterns.js           # DicionÃ¡rio de rÃ³tulos/regex
+â”‚   â”‚   â”œâ”€â”€ logger.js             # Logs estruturados
+â”‚   â”‚   â”œâ”€â”€ normalize.js          # NormalizaÃ§Ã£o de dados
+â”‚   â”‚   â”œâ”€â”€ validate.js           # ValidaÃ§Ãµes (CNPJ, CPF, chave44)
+â”‚   â”‚   â”œâ”€â”€ analyzer.js           # PrÃ©-processamento
+â”‚   â”‚   â”œâ”€â”€ detectors.js          # DetecÃ§Ã£o de tipo
+â”‚   â”‚   â”œâ”€â”€ score.js              # PontuaÃ§Ã£o de confianÃ§a
+â”‚   â”‚   â”œâ”€â”€ ocrFallback.js        # OCR para PDFs-imagem
+â”‚   â”‚   â”œâ”€â”€ parserUI.js           # Interface do parser
+â”‚   â”‚   â”œâ”€â”€ extract/
+â”‚   â”‚   â”‚   â”œâ”€â”€ header.js         # ExtraÃ§Ã£o de cabeÃ§alho
+â”‚   â”‚   â”‚   â”œâ”€â”€ items.js          # ExtraÃ§Ã£o de itens
+â”‚   â”‚   â”‚   â””â”€â”€ totals.js         # ExtraÃ§Ã£o de totais
+â”‚   â”‚   â””â”€â”€ worker/
+â”‚   â”‚       â””â”€â”€ parse.worker.js   # Web Worker para parsing
+â”‚   â”‚
+â”‚   â””â”€â”€ [mÃ³dulos existentes...]
+â”‚
+â”œâ”€â”€ tests/
+â”‚   â””â”€â”€ automated-tests.html      # ðŸ§ª SuÃ­te de testes
+â”‚
+â””â”€â”€ teste-refined.html            # Demo do parser refinado
+```
+
+---
+
+## ðŸš€ Como Usar
+
+### 1ï¸âƒ£ InicializaÃ§Ã£o AutomÃ¡tica
 
 Adicione no `<head>` do `index.html`:
 
@@ -103,25 +103,25 @@ Adicione no `<head>` do `index.html`:
 <script src="js/bootstrap.js"></script>
 ```
 
-O bootstrap irá:
+O bootstrap irÃ¡:
 
-- ✅ Verificar compatibilidade do browser
-- ✅ Carregar todos os módulos na ordem correta
-- ✅ Inicializar Service Worker
-- ✅ Configurar Error Boundary global
-- ✅ Ativar notificações
-- ✅ Iniciar background sync
+- âœ… Verificar compatibilidade do browser
+- âœ… Carregar todos os mÃ³dulos na ordem correta
+- âœ… Inicializar Service Worker
+- âœ… Configurar Error Boundary global
+- âœ… Ativar notificaÃ§Ãµes
+- âœ… Iniciar background sync
 
-### 2️⃣ Usar o Parser Refinado
+### 2ï¸âƒ£ Usar o Parser Refinado
 
-**Opção A: Interface (Toggle)**
+**OpÃ§Ã£o A: Interface (Toggle)**
 
 ```javascript
-// A UI já adiciona automaticamente um toggle nas seções de upload
-// O usuário pode ativar/desativar o parser refinado
+// A UI jÃ¡ adiciona automaticamente um toggle nas seÃ§Ãµes de upload
+// O usuÃ¡rio pode ativar/desativar o parser refinado
 ```
 
-**Opção B: Programático**
+**OpÃ§Ã£o B: ProgramÃ¡tico**
 
 ```javascript
 // Parsear um arquivo PDF
@@ -129,18 +129,18 @@ const file = input.files[0];
 const result = await parsePdfRefined(file);
 
 console.log('Tipo:', result.tipo);
-console.log('Confiança:', result.confidence);
+console.log('ConfianÃ§a:', result.confidence);
 console.log('Header:', result.header);
 console.log('Itens:', result.itens);
 console.log('Totais:', result.totais);
 console.log('Avisos:', result.warnings);
 
-// Exibir modal de análise
+// Exibir modal de anÃ¡lise
 parserUI.setLastResult(result);
 parserUI.showParsingModal();
 ```
 
-**Opção C: Web Worker (para PDFs grandes)**
+**OpÃ§Ã£o C: Web Worker (para PDFs grandes)**
 
 ```javascript
 const worker = new Worker('js/refine/worker/parse.worker.js');
@@ -160,7 +160,7 @@ worker.postMessage({
 });
 ```
 
-### 3️⃣ Validação de Uploads
+### 3ï¸âƒ£ ValidaÃ§Ã£o de Uploads
 
 ```javascript
 // Validar arquivo antes de processar
@@ -172,14 +172,14 @@ if (!validation.valid) {
   return;
 }
 
-// Validação de conteúdo (magic numbers)
+// ValidaÃ§Ã£o de conteÃºdo (magic numbers)
 const contentValidation = await uploadValidator.validateContent(file);
 ```
 
-### 4️⃣ Error Boundary
+### 4ï¸âƒ£ Error Boundary
 
 ```javascript
-// Envolver operações críticas com retry automático
+// Envolver operaÃ§Ãµes crÃ­ticas com retry automÃ¡tico
 const result = await errorBoundary.wrap(
   async () => {
     return await minhaFuncaoQuePodemFalhar();
@@ -187,31 +187,31 @@ const result = await errorBoundary.wrap(
   { context: 'upload-nf' }
 );
 
-// Ou wrapper de função
+// Ou wrapper de funÃ§Ã£o
 const safeFunction = errorBoundary.wrapAsync(minhaFuncaoQuePodemFalhar, { context: 'processing' });
 ```
 
-### 5️⃣ Notificações
+### 5ï¸âƒ£ NotificaÃ§Ãµes
 
 ```javascript
 // Tipos: success, error, warning, info
 notificationSystem.success('Arquivo processado com sucesso!');
 notificationSystem.error('Erro ao enviar documento');
-notificationSystem.warning('Divergência detectada nos totais');
+notificationSystem.warning('DivergÃªncia detectada nos totais');
 notificationSystem.info('Processando...');
 ```
 
-### 6️⃣ Performance Utils
+### 6ï¸âƒ£ Performance Utils
 
 ```javascript
 // Debounce
 const search = performanceUtils.debounce((query) => {
-  // Buscar após 300ms sem digitação
+  // Buscar apÃ³s 300ms sem digitaÃ§Ã£o
 }, 300);
 
 // Throttle
 const scroll = performanceUtils.throttle(() => {
-  // Executar no máximo a cada 100ms
+  // Executar no mÃ¡ximo a cada 100ms
 }, 100);
 
 // Virtual List para grandes datasets
@@ -228,7 +228,7 @@ const cached = appCache.get('key');
 
 ---
 
-## 🧪 Testes Automatizados
+## ðŸ§ª Testes Automatizados
 
 Abra em um navegador:
 
@@ -238,53 +238,53 @@ http://localhost:5500/tests/automated-tests.html
 
 **Cobertura de testes:**
 
-- ✅ Normalização de números (BR/US)
-- ✅ Normalização de datas
-- ✅ Validação CNPJ/CPF
-- ✅ Sanitização HTML (XSS)
-- ✅ Validação de uploads
-- ✅ Padrões e regex
-- ✅ Comparação aproximada
+- âœ… NormalizaÃ§Ã£o de nÃºmeros (BR/US)
+- âœ… NormalizaÃ§Ã£o de datas
+- âœ… ValidaÃ§Ã£o CNPJ/CPF
+- âœ… SanitizaÃ§Ã£o HTML (XSS)
+- âœ… ValidaÃ§Ã£o de uploads
+- âœ… PadrÃµes e regex
+- âœ… ComparaÃ§Ã£o aproximada
 
 ---
 
-## 📊 Parser Refinado - Detalhes Técnicos
+## ðŸ“Š Parser Refinado - Detalhes TÃ©cnicos
 
 ### Fluxo de Processamento
 
 ```
 1. Input (PDF File/ArrayBuffer)
-   ↓
+   â†“
 2. PDF.js extrai texto (ou OCR se falhar)
-   ↓
-3. Analyzer: pré-processamento
-   - Remove hifenização
+   â†“
+3. Analyzer: prÃ©-processamento
+   - Remove hifenizaÃ§Ã£o
    - Normaliza whitespace
-   - Segmenta em seções
-   ↓
+   - Segmenta em seÃ§Ãµes
+   â†“
 4. Detectors: identifica tipo
    - NE, NFe55, NFCe65, NFSe, Avulsa
    - Retorna scores por tipo
-   ↓
+   â†“
 5. Extractors: extrai dados
-   - Header (número, CNPJ, data, processo...)
+   - Header (nÃºmero, CNPJ, data, processo...)
    - Items (tabela/linhas)
    - Totals (vNF, vProd, impostos...)
-   ↓
+   â†“
 6. Normalize: padroniza
-   - Números → Number
-   - Datas → ISO
-   - CNPJ/CPF → masked + digits
-   ↓
+   - NÃºmeros â†’ Number
+   - Datas â†’ ISO
+   - CNPJ/CPF â†’ masked + digits
+   â†“
 7. Validate: verifica
    - DV de CNPJ/CPF
    - Chave 44 (mod 11)
-   - Soma itens ≈ total
-   ↓
-8. Score: calcula confiança
+   - Soma itens â‰ˆ total
+   â†“
+8. Score: calcula confianÃ§a
    - Por campo
    - Agregado geral
-   ↓
+   â†“
 9. Output: resultado estruturado
    {
      tipo, confidence,
@@ -299,13 +299,13 @@ http://localhost:5500/tests/automated-tests.html
 ```javascript
 {
   tipo: "NE",                    // Tipo detectado
-  confidence: 0.92,              // Confiança geral (0-1)
+  confidence: 0.92,              // ConfianÃ§a geral (0-1)
   detectorScore: {               // Scores por tipo
     NE: 0.9,
     NFe55: 0.1,
     ...
   },
-  header: {                      // Cabeçalho
+  header: {                      // CabeÃ§alho
     numero: "1234",
     dataEmissao: "06/11/2025",
     dataEmissaoISO: "2025-11-06",
@@ -343,18 +343,18 @@ http://localhost:5500/tests/automated-tests.html
 
 ---
 
-## 🎨 Recursos Adicionais
+## ðŸŽ¨ Recursos Adicionais
 
-### Modal "Ver Análise do Parsing"
+### Modal "Ver AnÃ¡lise do Parsing"
 
 Exibe:
 
-- 📊 **Visão Geral**: resumo com divergências
-- 📄 **Cabeçalho**: todos os campos extraídos
-- 📦 **Itens**: tabela completa
-- 💰 **Totais**: valores e impostos
-- 📝 **Logs**: avisos e erros
-- 📋 **JSON**: resultado completo (copiável)
+- ðŸ“Š **VisÃ£o Geral**: resumo com divergÃªncias
+- ðŸ“„ **CabeÃ§alho**: todos os campos extraÃ­dos
+- ðŸ“¦ **Itens**: tabela completa
+- ðŸ’° **Totais**: valores e impostos
+- ðŸ“ **Logs**: avisos e erros
+- ðŸ“‹ **JSON**: resultado completo (copiÃ¡vel)
 
 ### Service Worker - Cache Offline
 
@@ -362,18 +362,18 @@ Arquivos em cache:
 
 - HTML, CSS, JS principais
 - Logos e imagens
-- Módulos core
+- MÃ³dulos core
 
-**Atualização automática:**
+**AtualizaÃ§Ã£o automÃ¡tica:**
 
-- Notifica quando nova versão disponível
-- Botão "Atualizar" para recarregar
+- Notifica quando nova versÃ£o disponÃ­vel
+- BotÃ£o "Atualizar" para recarregar
 
 ---
 
-## 🔐 Segurança
+## ðŸ” SeguranÃ§a
 
-### Recomendações de CSP
+### RecomendaÃ§Ãµes de CSP
 
 Adicione no `<head>`:
 
@@ -391,22 +391,22 @@ Adicione no `<head>`:
 />
 ```
 
-### Boas Práticas Implementadas
+### Boas PrÃ¡ticas Implementadas
 
-- ✅ Sanitização HTML em todos os inputs
-- ✅ Validação de uploads (tipo, tamanho, magic numbers)
-- ✅ Rate limiting (100 req/min)
-- ✅ HTTPS recomendado
-- ✅ Sem eval() ou Function()
-- ✅ SameSite cookies
+- âœ… SanitizaÃ§Ã£o HTML em todos os inputs
+- âœ… ValidaÃ§Ã£o de uploads (tipo, tamanho, magic numbers)
+- âœ… Rate limiting (100 req/min)
+- âœ… HTTPS recomendado
+- âœ… Sem eval() ou Function()
+- âœ… SameSite cookies
 
 ---
 
-## 📈 Performance
+## ðŸ“ˆ Performance
 
-### Métricas de Referência
+### MÃ©tricas de ReferÃªncia
 
-| Operação                          | Tempo Médio |
+| OperaÃ§Ã£o                          | Tempo MÃ©dio |
 | --------------------------------- | ----------- |
 | Parser Refinado (PDF texto)       | < 300ms     |
 | Parser Refinado (PDF + OCR)       | 2-5s        |
@@ -414,37 +414,37 @@ Adicione no `<head>`:
 | Virtual List render (1000 itens)  | < 100ms     |
 | Service Worker cache hit          | < 10ms      |
 
-### Otimizações Aplicadas
+### OtimizaÃ§Ãµes Aplicadas
 
-- ✅ Lazy loading de módulos não críticos
-- ✅ Debounce em buscas (300ms)
-- ✅ Throttle em scroll handlers (16ms)
-- ✅ Virtual scrolling para listas grandes
-- ✅ LRU cache para recursos frequentes
-- ✅ Batch writes no IndexedDB
-- ✅ Web Workers para parsing pesado
-
----
-
-## 🐛 Troubleshooting
-
-### Parser não funciona
-
-**Problema:** "Navegador não suporta acesso ao sistema de arquivos"
-
-**Solução:** Use Chrome 86+, Edge 86+ ou Opera 72+
+- âœ… Lazy loading de mÃ³dulos nÃ£o crÃ­ticos
+- âœ… Debounce em buscas (300ms)
+- âœ… Throttle em scroll handlers (16ms)
+- âœ… Virtual scrolling para listas grandes
+- âœ… LRU cache para recursos frequentes
+- âœ… Batch writes no IndexedDB
+- âœ… Web Workers para parsing pesado
 
 ---
 
-### Service Worker não registra
+## ðŸ› Troubleshooting
+
+### Parser nÃ£o funciona
+
+**Problema:** "Navegador nÃ£o suporta acesso ao sistema de arquivos"
+
+**SoluÃ§Ã£o:** Use Chrome 86+, Edge 86+ ou Opera 72+
+
+---
+
+### Service Worker nÃ£o registra
 
 **Problema:** Service Worker falha ao registrar
 
-**Solução:**
+**SoluÃ§Ã£o:**
 
 1. Certifique-se de usar HTTPS (ou localhost)
-2. Verifique se `serviceWorker.js` está acessível
-3. Veja console para erros específicos
+2. Verifique se `serviceWorker.js` estÃ¡ acessÃ­vel
+3. Veja console para erros especÃ­ficos
 
 ---
 
@@ -452,19 +452,19 @@ Adicione no `<head>`:
 
 **Problema:** OCR demora muito em PDFs grandes
 
-**Solução:**
+**SoluÃ§Ã£o:**
 
 1. Use `options.abortSignal` para timeout
-2. Pré-processe imagens (reduzir resolução)
-3. Use Web Worker (já implementado)
+2. PrÃ©-processe imagens (reduzir resoluÃ§Ã£o)
+3. Use Web Worker (jÃ¡ implementado)
 
 ---
 
-### Memória alta com listas grandes
+### MemÃ³ria alta com listas grandes
 
 **Problema:** Lag ao renderizar muitos itens
 
-**Solução:** Use Virtual List
+**SoluÃ§Ã£o:** Use Virtual List
 
 ```javascript
 const vlist = new performanceUtils.VirtualList(container, {
@@ -476,52 +476,52 @@ vlist.setItems(bigArray);
 
 ---
 
-## 📝 Changelog
+## ðŸ“ Changelog
 
 ### v2.0.0 (2025-11-06)
 
 **Adicionado:**
 
-- ✨ Parser Refinado de PDFs com OCR
-- ✨ Error Boundary global
-- ✨ Sistema de notificações
-- ✨ Service Worker para offline
-- ✨ Validação de uploads avançada
-- ✨ Rate limiting
-- ✨ Performance utils (debounce, throttle, virtual list)
-- ✨ IndexedDB optimizations
-- ✨ Background sync
-- ✨ Testes automatizados
-- ✨ Bootstrap central de inicialização
+- âœ¨ Parser Refinado de PDFs com OCR
+- âœ¨ Error Boundary global
+- âœ¨ Sistema de notificaÃ§Ãµes
+- âœ¨ Service Worker para offline
+- âœ¨ ValidaÃ§Ã£o de uploads avanÃ§ada
+- âœ¨ Rate limiting
+- âœ¨ Performance utils (debounce, throttle, virtual list)
+- âœ¨ IndexedDB optimizations
+- âœ¨ Background sync
+- âœ¨ Testes automatizados
+- âœ¨ Bootstrap central de inicializaÃ§Ã£o
 
 **Melhorado:**
 
-- 🚀 Performance geral (30% mais rápido)
-- 🛡️ Segurança (sanitização, validações)
-- 💾 Gerenciamento de cache
-- 📊 Logs estruturados
+- ðŸš€ Performance geral (30% mais rÃ¡pido)
+- ðŸ›¡ï¸ SeguranÃ§a (sanitizaÃ§Ã£o, validaÃ§Ãµes)
+- ðŸ’¾ Gerenciamento de cache
+- ðŸ“Š Logs estruturados
 
 ---
 
-## 🤝 Contribuindo
+## ðŸ¤ Contribuindo
 
 1. Adicione testes em `tests/automated-tests.html`
-2. Mantenha compatibilidade com código existente
-3. Documente novos módulos
-4. Use Error Boundary em operações críticas
+2. Mantenha compatibilidade com cÃ³digo existente
+3. Documente novos mÃ³dulos
+4. Use Error Boundary em operaÃ§Ãµes crÃ­ticas
 5. Valide todos os inputs
 
 ---
 
-## 📄 Licença
+## ðŸ“„ LicenÃ§a
 
 Interno - Instituto Federal
 
 ---
 
-## 🙏 Agradecimentos
+## ðŸ™ Agradecimentos
 
-Desenvolvido com ❤️ para modernizar a gestão de documentos fiscais.
+Desenvolvido com â¤ï¸ para modernizar a gestÃ£o de documentos fiscais.
 
 **Tecnologias:**
 
@@ -534,6 +534,7 @@ Desenvolvido com ❤️ para modernizar a gestão de documentos fiscais.
 
 ---
 
-**Versão:** 2.0.0  
+**VersÃ£o:** 2.0.0  
 **Data:** 06/11/2025  
-**Status:** ✅ Produção
+**Status:** âœ… ProduÃ§Ã£o
+

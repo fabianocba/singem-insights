@@ -1,4 +1,4 @@
-{
+﻿{
   "env": {
     "browser": true,
     "es2021": true
@@ -44,7 +44,7 @@
       }
     },
     {
-      "files": ["scripts/test-security-modules.js", "scripts/util/reset-ifdesk.js"],
+      "files": ["scripts/test-security-modules.js", "scripts/util/reset-singem.js"],
       "env": {
         "browser": true,
         "node": false
@@ -120,3 +120,4 @@
     "importScripts": "readonly"
   }
 }
+

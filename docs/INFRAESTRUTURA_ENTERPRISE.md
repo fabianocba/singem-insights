@@ -1,25 +1,25 @@
-# 🚀 Infraestrutura Enterprise - IFDESK
+﻿# ðŸš€ Infraestrutura Enterprise - SINGEM
 
-## 📋 Visão Geral
+## ðŸ“‹ VisÃ£o Geral
 
-Este documento descreve a nova infraestrutura enterprise implementada no sistema IFDESK, adicionando padrões modernos de arquitetura sem quebrar funcionalidades existentes.
+Este documento descreve a nova infraestrutura enterprise implementada no sistema SINGEM, adicionando padrÃµes modernos de arquitetura sem quebrar funcionalidades existentes.
 
-## 🎯 Objetivos Alcançados
+## ðŸŽ¯ Objetivos AlcanÃ§ados
 
-✅ **Event-Driven Architecture** - Sistema de mensageria para desacoplar módulos  
-✅ **Processamento Assíncrono** - Web Workers para operações pesadas  
-✅ **Fila Persistente** - Queue system com IndexedDB para confiabilidade  
-✅ **Repository Pattern** - Camada centralizada de acesso a dados  
-✅ **Validation Layer** - Validação de integridade antes da persistência  
-✅ **Feedback Visual** - Loading overlays e toast notifications
+âœ… **Event-Driven Architecture** - Sistema de mensageria para desacoplar mÃ³dulos  
+âœ… **Processamento AssÃ­ncrono** - Web Workers para operaÃ§Ãµes pesadas  
+âœ… **Fila Persistente** - Queue system com IndexedDB para confiabilidade  
+âœ… **Repository Pattern** - Camada centralizada de acesso a dados  
+âœ… **Validation Layer** - ValidaÃ§Ã£o de integridade antes da persistÃªncia  
+âœ… **Feedback Visual** - Loading overlays e toast notifications
 
-## 📦 Arquivos Criados
+## ðŸ“¦ Arquivos Criados
 
 ### 1. **js/core/eventBus.js**
 
 Sistema pub/sub baseado em `EventTarget` nativo do navegador.
 
-**Funções principais:**
+**FunÃ§Ãµes principais:**
 
 ```javascript
 import { emit, on, off, once } from './core/eventBus.js';
@@ -35,25 +35,25 @@ on('ne.salva', (event) => {
 // Remover listener
 off('ne.salva', handler);
 
-// Listener único (executa uma vez e remove)
+// Listener Ãºnico (executa uma vez e remove)
 once('pdf.parse:done', (event) => {
-  console.log('Parse concluído:', event.detail);
+  console.log('Parse concluÃ­do:', event.detail);
 });
 ```
 
-**Características:**
+**CaracterÃ­sticas:**
 
-- Log automático de todos eventos emitidos
+- Log automÃ¡tico de todos eventos emitidos
 - API simples e familiar
-- Zero dependências externas
+- Zero dependÃªncias externas
 
 ---
 
 ### 2. **js/ui/feedback.js**
 
-Sistema de feedback visual para operações longas.
+Sistema de feedback visual para operaÃ§Ãµes longas.
 
-**Funções principais:**
+**FunÃ§Ãµes principais:**
 
 ```javascript
 import { showLoading, hideLoading, notifySuccess, notifyError, notifyWarning, notifyInfo } from './ui/feedback.js';
@@ -65,26 +65,26 @@ showLoading('Processando PDF...');
 hideLoading();
 
 // Toasts
-notifySuccess('✅ Operação concluída!');
-notifyError('❌ Erro ao processar!');
-notifyWarning('⚠️ Atenção: verificar dados');
-notifyInfo('ℹ️ Processamento em andamento');
+notifySuccess('âœ… OperaÃ§Ã£o concluÃ­da!');
+notifyError('âŒ Erro ao processar!');
+notifyWarning('âš ï¸ AtenÃ§Ã£o: verificar dados');
+notifyInfo('â„¹ï¸ Processamento em andamento');
 ```
 
-**Características:**
+**CaracterÃ­sticas:**
 
 - Overlay modal com spinner animado
-- 4 tipos de toast com cores e ícones distintos
-- Auto-close configurável (3s padrão)
+- 4 tipos de toast com cores e Ã­cones distintos
+- Auto-close configurÃ¡vel (3s padrÃ£o)
 - Click-to-close habilitado
-- Criação lazy de elementos DOM
-- Estilos inline (sem dependência de CSS externo)
+- CriaÃ§Ã£o lazy de elementos DOM
+- Estilos inline (sem dependÃªncia de CSS externo)
 
 ---
 
 ### 3. **js/workers/pdfWorker.js**
 
-Web Worker para processamento assíncrono de PDFs.
+Web Worker para processamento assÃ­ncrono de PDFs.
 
 **Como funciona:**
 
@@ -110,7 +110,7 @@ worker.postMessage({
 
 worker.onmessage = (event) => {
   if (event.data.type === 'SUCCESS') {
-    console.log('Dados extraídos:', event.data.payload);
+    console.log('Dados extraÃ­dos:', event.data.payload);
   } else if (event.data.type === 'ERROR') {
     console.error('Erro:', event.data.payload.message);
   } else if (event.data.type === 'progress') {
@@ -119,26 +119,26 @@ worker.onmessage = (event) => {
 };
 ```
 
-**Características:**
+**CaracterÃ­sticas:**
 
-- Não trava a interface durante processamento
-- Timeout configurável (30s padrão)
+- NÃ£o trava a interface durante processamento
+- Timeout configurÃ¡vel (30s padrÃ£o)
 - Mensagens de progresso
-- Fallback automático para OCR
-- Detecção de tipo de documento (empenho/NF)
+- Fallback automÃ¡tico para OCR
+- DetecÃ§Ã£o de tipo de documento (empenho/NF)
 
 ---
 
 ### 4. **js/core/asyncQueue.js**
 
-Fila de tarefas assíncronas persistente em IndexedDB.
+Fila de tarefas assÃ­ncronas persistente em IndexedDB.
 
-**Funções principais:**
+**FunÃ§Ãµes principais:**
 
 ```javascript
 import * as asyncQueue from './core/asyncQueue.js';
 
-// Adicionar tarefa à fila
+// Adicionar tarefa Ã  fila
 const taskId = await asyncQueue.add('pdf.parse', {
   pdfBuffer: arrayBuffer,
   filename: 'documento.pdf'
@@ -158,33 +158,33 @@ await asyncQueue.cleanup(7);
 **Tipos de tarefa suportados:**
 
 - `pdf.parse` - Parse de PDF com Worker
-- `relatorio.gerar` - Geração de relatórios (extensível)
+- `relatorio.gerar` - GeraÃ§Ã£o de relatÃ³rios (extensÃ­vel)
 
-**Características:**
+**CaracterÃ­sticas:**
 
-- Persistência em IndexedDB (sobrevive a reloads)
+- PersistÃªncia em IndexedDB (sobrevive a reloads)
 - Processamento sequencial (uma por vez)
-- Status: PENDING → PROCESSING → COMPLETED/FAILED
-- Retry automático configurável
+- Status: PENDING â†’ PROCESSING â†’ COMPLETED/FAILED
+- Retry automÃ¡tico configurÃ¡vel
 - Emite eventos via eventBus
 
 ---
 
 ### 5. **js/core/repository.js**
 
-Camada centralizada de acesso a dados com validação.
+Camada centralizada de acesso a dados com validaÃ§Ã£o.
 
-**Funções principais:**
+**FunÃ§Ãµes principais:**
 
 ```javascript
 import repository from './core/repository.js';
 
-// Salvar empenho (valida campos obrigatórios)
+// Salvar empenho (valida campos obrigatÃ³rios)
 try {
   const id = await repository.saveEmpenho(empenho);
   console.log('Empenho salvo:', id);
 } catch (error) {
-  console.error('Validação falhou:', error.message);
+  console.error('ValidaÃ§Ã£o falhou:', error.message);
 }
 
 // Salvar nota fiscal
@@ -206,35 +206,35 @@ const arquivo = await repository.getArquivoByDocumentoId(123);
 const saldo = await repository.getSaldoEmpenho(123);
 await repository.updateSaldoEmpenho(123, { valorGasto: 1000 });
 
-// Limpar registros órfãos
+// Limpar registros Ã³rfÃ£os
 await repository.cleanupOrphanRecords();
 ```
 
-**Características:**
+**CaracterÃ­sticas:**
 
-- Valida campos obrigatórios antes de salvar
-- Emite eventos após operações bem-sucedidas
-- Encapsula dbManager existente (não quebra nada)
-- Mensagens de erro amigáveis
+- Valida campos obrigatÃ³rios antes de salvar
+- Emite eventos apÃ³s operaÃ§Ãµes bem-sucedidas
+- Encapsula dbManager existente (nÃ£o quebra nada)
+- Mensagens de erro amigÃ¡veis
 
 ---
 
 ### 6. **js/core/validators/required.js**
 
-Sistema de validação de campos obrigatórios.
+Sistema de validaÃ§Ã£o de campos obrigatÃ³rios.
 
-**Funções principais:**
+**FunÃ§Ãµes principais:**
 
 ```javascript
 import { assertRequired, validateEmpenho, validateNotaFiscal } from './core/validators/required.js';
 
-// Validação genérica
+// ValidaÃ§Ã£o genÃ©rica
 assertRequired(empenho, ['numero', 'data', 'fornecedor', 'cnpjFornecedor', 'valorTotal']);
 
-// Validação específica de empenho
+// ValidaÃ§Ã£o especÃ­fica de empenho
 validateEmpenho(empenho);
 
-// Validação específica de nota fiscal
+// ValidaÃ§Ã£o especÃ­fica de nota fiscal
 validateNotaFiscal(notaFiscal);
 ```
 
@@ -243,19 +243,19 @@ validateNotaFiscal(notaFiscal);
 - Considera vazio: `null`, `undefined`, `''`, `NaN`, `[]`
 - Suporta campos aninhados: `'endereco.cidade'`
 - Valida itens do array (quantidade, valores, etc.)
-- Lança `Error` com mensagem descritiva
+- LanÃ§a `Error` com mensagem descritiva
 
 **Exemplo de erro:**
 
 ```
-❌ Campos obrigatórios faltando: "numero", "fornecedor"
+âŒ Campos obrigatÃ³rios faltando: "numero", "fornecedor"
 
 Por favor, preencha todos os campos marcados com * antes de salvar.
 ```
 
 ---
 
-## 🔌 Integração
+## ðŸ”Œ IntegraÃ§Ã£o
 
 ### **js/app.js**
 
@@ -266,7 +266,7 @@ import * as feedback from './ui/feedback.js';
 import repository from './core/repository.js';
 import * as asyncQueue from './core/asyncQueue.js';
 
-// Método setupEventListeners() com 20+ listeners:
+// MÃ©todo setupEventListeners() com 20+ listeners:
 - pdf.parse:start/done/error
 - ne.salva, nf.salva
 - queue.task:start/done/error
@@ -280,13 +280,13 @@ import * as asyncQueue from './core/asyncQueue.js';
 <!-- type="module" adicionado para suportar ES6 imports -->
 <script type="module" src="js/app.js" defer></script>
 
-<!-- Script de informações (exibe nota no console) -->
+<!-- Script de informaÃ§Ãµes (exibe nota no console) -->
 <script src="js/infrastructureInfo.js" defer></script>
 ```
 
 ---
 
-## 📡 Eventos Disponíveis
+## ðŸ“¡ Eventos DisponÃ­veis
 
 ### **Salvamento de Dados**
 
@@ -301,29 +301,29 @@ import * as asyncQueue from './core/asyncQueue.js';
 | Evento            | Quando          | Payload                                       |
 | ----------------- | --------------- | --------------------------------------------- |
 | `pdf.parse:start` | Iniciando parse | `{ filename }`                                |
-| `pdf.parse:done`  | Parse concluído | `{ tipoDocumento, textoCompleto, metadados }` |
+| `pdf.parse:done`  | Parse concluÃ­do | `{ tipoDocumento, textoCompleto, metadados }` |
 | `pdf.parse:error` | Erro no parse   | `{ message, stack }`                          |
 
-### **Geração de Relatórios**
+### **GeraÃ§Ã£o de RelatÃ³rios**
 
 | Evento                  | Quando              | Payload               |
 | ----------------------- | ------------------- | --------------------- |
-| `relatorio.gerar:start` | Iniciando relatório | `{ tipo }`            |
-| `relatorio.gerar:done`  | Relatório concluído | `{ tipo, resultado }` |
-| `relatorio.gerar:error` | Erro no relatório   | `{ tipo, message }`   |
+| `relatorio.gerar:start` | Iniciando relatÃ³rio | `{ tipo }`            |
+| `relatorio.gerar:done`  | RelatÃ³rio concluÃ­do | `{ tipo, resultado }` |
+| `relatorio.gerar:error` | Erro no relatÃ³rio   | `{ tipo, message }`   |
 
-### **Fila Assíncrona**
+### **Fila AssÃ­ncrona**
 
 | Evento             | Quando            | Payload                |
 | ------------------ | ----------------- | ---------------------- |
 | `queue.task:added` | Tarefa adicionada | `{ id, tipo }`         |
 | `queue.task:start` | Iniciando tarefa  | `{ id, tipo }`         |
-| `queue.task:done`  | Tarefa concluída  | `{ id, tipo, result }` |
+| `queue.task:done`  | Tarefa concluÃ­da  | `{ id, tipo, result }` |
 | `queue.task:error` | Erro na tarefa    | `{ id, tipo, error }`  |
 
 ---
 
-## 🎯 Exemplos de Uso
+## ðŸŽ¯ Exemplos de Uso
 
 ### **Exemplo 1: Processar PDF com Feedback**
 
@@ -333,26 +333,26 @@ import * as feedback from './ui/feedback.js';
 
 // Configurar listeners
 eventBus.on('pdf.parse:start', () => {
-  feedback.showLoading('📄 Processando PDF...');
+  feedback.showLoading('ðŸ“„ Processando PDF...');
 });
 
 eventBus.on('pdf.parse:done', (event) => {
   feedback.hideLoading();
-  feedback.notifySuccess('✅ PDF processado com sucesso!');
+  feedback.notifySuccess('âœ… PDF processado com sucesso!');
   console.log('Dados:', event.detail);
 });
 
 eventBus.on('pdf.parse:error', (event) => {
   feedback.hideLoading();
-  feedback.notifyError(`❌ Erro: ${event.detail.message}`);
+  feedback.notifyError(`âŒ Erro: ${event.detail.message}`);
 });
 
 // Iniciar parse (emite eventos automaticamente)
 const worker = new Worker('./js/workers/pdfWorker.js');
-// ... código do worker
+// ... cÃ³digo do worker
 ```
 
-### **Exemplo 2: Salvar Empenho com Validação**
+### **Exemplo 2: Salvar Empenho com ValidaÃ§Ã£o**
 
 ```javascript
 import repository from './core/repository.js';
@@ -362,7 +362,7 @@ async function salvarEmpenhoSeguro(empenho) {
   try {
     feedback.showLoading('Salvando empenho...');
 
-    // Valida campos obrigatórios automaticamente
+    // Valida campos obrigatÃ³rios automaticamente
     const id = await repository.saveEmpenho(empenho);
 
     // Evento 'ne.salva' emitido automaticamente
@@ -376,12 +376,12 @@ async function salvarEmpenhoSeguro(empenho) {
 }
 ```
 
-### **Exemplo 3: Adicionar Tarefa à Fila**
+### **Exemplo 3: Adicionar Tarefa Ã  Fila**
 
 ```javascript
 import * as asyncQueue from './core/asyncQueue.js';
 
-// Adicionar parse de PDF à fila
+// Adicionar parse de PDF Ã  fila
 const taskId = await asyncQueue.add('pdf.parse', {
   pdfBuffer: arrayBuffer,
   filename: 'empenho_039.pdf'
@@ -390,14 +390,14 @@ const taskId = await asyncQueue.add('pdf.parse', {
 // Processar fila (executa tarefas pendentes)
 await asyncQueue.run();
 
-// Eventos serão emitidos automaticamente:
+// Eventos serÃ£o emitidos automaticamente:
 // - queue.task:start
 // - pdf.parse:start
 // - pdf.parse:done
 // - queue.task:done
 ```
 
-### **Exemplo 4: Escutar Múltiplos Eventos**
+### **Exemplo 4: Escutar MÃºltiplos Eventos**
 
 ```javascript
 import * as eventBus from './core/eventBus.js';
@@ -409,7 +409,7 @@ eventBus.on('ne.salva', (event) => {
   carregarEmpenhosSelect();
 });
 
-// Reagir a atualização de saldo
+// Reagir a atualizaÃ§Ã£o de saldo
 eventBus.on('saldo.atualizado', (event) => {
   console.log(`Saldo do empenho ${event.detail.empenhoId} atualizado`);
   // Recarregar controle de saldos
@@ -419,34 +419,34 @@ eventBus.on('saldo.atualizado', (event) => {
 
 ---
 
-## ✅ Regras Seguidas
+## âœ… Regras Seguidas
 
-Durante a implementação, **todas as regras foram rigorosamente seguidas**:
+Durante a implementaÃ§Ã£o, **todas as regras foram rigorosamente seguidas**:
 
-1. ✅ **NÃO alterar funcionalidades existentes** - Tudo continua funcionando
-2. ✅ **NÃO criar arquivos de demonstração** - Apenas código integrado
-3. ✅ **Integrar no fluxo REAL** - Conectado com app.js e index.html
-4. ✅ **Código limpo e modular** - Cada módulo tem responsabilidade única
+1. âœ… **NÃƒO alterar funcionalidades existentes** - Tudo continua funcionando
+2. âœ… **NÃƒO criar arquivos de demonstraÃ§Ã£o** - Apenas cÃ³digo integrado
+3. âœ… **Integrar no fluxo REAL** - Conectado com app.js e index.html
+4. âœ… **CÃ³digo limpo e modular** - Cada mÃ³dulo tem responsabilidade Ãºnica
 
 ---
 
-## 🔍 Monitoramento e Debug
+## ðŸ” Monitoramento e Debug
 
 ### **Abrir DevTools Console**
 
-Todos os módulos emitem logs detalhados:
+Todos os mÃ³dulos emitem logs detalhados:
 
 ```
 [EventBus] Sistema de eventos inicializado
-[Validators] Sistema de validação inicializado
-[AsyncQueue] Sistema de fila assíncrona inicializado
+[Validators] Sistema de validaÃ§Ã£o inicializado
+[AsyncQueue] Sistema de fila assÃ­ncrona inicializado
 [Repository] Camada de dados centralizada inicializada
-[App] ✅ Event listeners configurados com sucesso
+[App] âœ… Event listeners configurados com sucesso
 
-🚀 Iniciando aplicação IFDESK...
-✅ Banco de dados inicializado
-✅ Event listeners configurados
-✅ Dados da unidade carregados
+ðŸš€ Iniciando aplicaÃ§Ã£o SINGEM...
+âœ… Banco de dados inicializado
+âœ… Event listeners configurados
+âœ… Dados da unidade carregados
 ```
 
 ### **Logs de Eventos**
@@ -454,7 +454,7 @@ Todos os módulos emitem logs detalhados:
 ```
 [EventBus] Evento emitido: ne.salva
 [Repository] Validando empenho antes de salvar...
-[Repository] Empenho válido, salvando no banco...
+[Repository] Empenho vÃ¡lido, salvando no banco...
 [Repository] Empenho 123 salvo com sucesso
 [App] Empenho salvo: { id: 123, numero: '039', ... }
 ```
@@ -462,17 +462,17 @@ Todos os módulos emitem logs detalhados:
 ### **Logs de Fila**
 
 ```
-[AsyncQueue] Tarefa 1 adicionada à fila (tipo: pdf.parse)
+[AsyncQueue] Tarefa 1 adicionada Ã  fila (tipo: pdf.parse)
 [AsyncQueue] Iniciando processamento da fila
 [AsyncQueue] Executando tarefa 1 (tipo: pdf.parse)
-[AsyncQueue] Tarefa 1 concluída com sucesso
+[AsyncQueue] Tarefa 1 concluÃ­da com sucesso
 [AsyncQueue] Nenhuma tarefa pendente
 [AsyncQueue] Processamento finalizado
 ```
 
 ---
 
-## 📝 Próximos Passos Sugeridos
+## ðŸ“ PrÃ³ximos Passos Sugeridos
 
 ### **1. Substituir Chamadas Diretas ao dbManager**
 
@@ -485,7 +485,7 @@ import repository from './core/repository.js';
 const id = await repository.saveEmpenho(empenho); // valida + emite evento
 ```
 
-### **2. Usar PDF Worker no Lugar de Parse Síncrono**
+### **2. Usar PDF Worker no Lugar de Parse SÃ­ncrono**
 
 ```javascript
 // ANTES
@@ -499,10 +499,10 @@ const taskId = await asyncQueue.add('pdf.parse', {
 await asyncQueue.run();
 ```
 
-### **3. Adicionar Relatórios na Fila**
+### **3. Adicionar RelatÃ³rios na Fila**
 
 ```javascript
-// Gerar relatório de forma assíncrona
+// Gerar relatÃ³rio de forma assÃ­ncrona
 const taskId = await asyncQueue.add('relatorio.gerar', {
   tipo: 'empenhos',
   filtros: { cnpj: '12345678000199' }
@@ -510,9 +510,9 @@ const taskId = await asyncQueue.add('relatorio.gerar', {
 await asyncQueue.run();
 ```
 
-### **4. Expandir Validações**
+### **4. Expandir ValidaÃ§Ãµes**
 
-Adicionar novos validadores conforme necessário:
+Adicionar novos validadores conforme necessÃ¡rio:
 
 ```javascript
 // js/core/validators/cnpj.js
@@ -534,22 +534,23 @@ eventBus.emit('comparacao.concluida', {
 
 // Escutar no app.js
 eventBus.on('comparacao.concluida', (e) => {
-  feedback.notifyInfo(`Comparação concluída: ${e.detail.diferencas} diferenças`);
+  feedback.notifyInfo(`ComparaÃ§Ã£o concluÃ­da: ${e.detail.diferencas} diferenÃ§as`);
 });
 ```
 
 ---
 
-## 🎉 Conclusão
+## ðŸŽ‰ ConclusÃ£o
 
-A infraestrutura enterprise foi **totalmente implementada e integrada** no sistema IFDESK, adicionando padrões modernos de arquitetura sem quebrar nenhuma funcionalidade existente.
+A infraestrutura enterprise foi **totalmente implementada e integrada** no sistema SINGEM, adicionando padrÃµes modernos de arquitetura sem quebrar nenhuma funcionalidade existente.
 
-**Status: ✅ COMPLETO**
+**Status: âœ… COMPLETO**
 
 - 6 arquivos criados
 - Integrado em app.js e index.html
 - 20+ event listeners configurados
-- 12+ eventos disponíveis
+- 12+ eventos disponÃ­veis
 - Nota informativa exibida no console
 
-**Para verificar:** Abra o aplicativo e veja o console do DevTools! 🎯
+**Para verificar:** Abra o aplicativo e veja o console do DevTools! ðŸŽ¯
+

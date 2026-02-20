@@ -1,38 +1,38 @@
-## [0.1.1] - 2026-02-19
+﻿## [0.1.1] - 2026-02-19
 
 ### Added
 - Estrutura backend Node/Express institucional
 - PostgreSQL preparado com migrations
 - Identity provider pattern (local + govbr stub)
-- Integrações stub: CATMAT / SERPRO
-- Organização Git com branch dev
+- IntegraÃ§Ãµes stub: CATMAT / SERPRO
+- OrganizaÃ§Ã£o Git com branch dev
 
 ### Changed
-- Remoção de dados locais do repositório
-- Padronização de ambiente com .env.example
+- RemoÃ§Ã£o de dados locais do repositÃ³rio
+- PadronizaÃ§Ã£o de ambiente com .env.example
 
 ### Security
-- Remoção de credenciais hardcoded
+- RemoÃ§Ã£o de credenciais hardcoded
 - JWT server-side
 
-# 📋 CHANGELOG - IFDESK
+# ðŸ“‹ CHANGELOG - SINGEM
 
 ## [1.6.9] - 2026-02-11
 
-### 🎨 CSS/UX Moderno - Lista de Itens da NF
+### ðŸŽ¨ CSS/UX Moderno - Lista de Itens da NF
 
 **LAYOUT DE ITENS EM LINHAS:**
 
-- Header de colunas fixo (Seq | Subelem. | Item Cpr. | Descrição | Un | Qtd | V.Unit | V.Total)
+- Header de colunas fixo (Seq | Subelem. | Item Cpr. | DescriÃ§Ã£o | Un | Qtd | V.Unit | V.Total)
 - Wrapper com borda e sombra moderna
 - Zebra striping sutil nas linhas
 - Hover azul nos itens
-- Sequência em badge azul estilizado
+- SequÃªncia em badge azul estilizado
 
 **INPUTS APRIMORADOS:**
 
 - Border-radius 8px com foco azul
-- Valores numéricos alinhados à direita
+- Valores numÃ©ricos alinhados Ã  direita
 - Campo readonly (V.Total) com gradiente verde
 - Fonte monospace em campos de valor
 
@@ -40,78 +40,78 @@
 
 - Header de colunas escondido
 - Itens transformados em cards
-- Grid adaptativo (2 colunas → 1 coluna)
-- Badge de sequência posicionado no canto
+- Grid adaptativo (2 colunas â†’ 1 coluna)
+- Badge de sequÃªncia posicionado no canto
 
 **CSS ESCOPADO:**
 
 - Todas as regras prefixadas com `.nf-screen`
-- Não afeta tema global nem tela de Empenhos
-- Modular e manutenível
+- NÃ£o afeta tema global nem tela de Empenhos
+- Modular e manutenÃ­vel
 
 ---
 
 ## [1.6.8] - 2026-02-11
 
-### 🔒 Correção Módulo NF - Bloqueio Definitivo "Item Manual"
+### ðŸ”’ CorreÃ§Ã£o MÃ³dulo NF - Bloqueio Definitivo "Item Manual"
 
-**REMOÇÃO DO BOTÃO "ADICIONAR ITEM MANUAL":**
+**REMOÃ‡ÃƒO DO BOTÃƒO "ADICIONAR ITEM MANUAL":**
 
-- Botão removido do HTML (index.html)
+- BotÃ£o removido do HTML (index.html)
 - Listener JS neutralizado (app.js)
-- Itens da NF só podem ser criados via "Adicionar do Empenho"
-- Atributo `data-origem="EMPENHO"` adicionado aos itens para validação
+- Itens da NF sÃ³ podem ser criados via "Adicionar do Empenho"
+- Atributo `data-origem="EMPENHO"` adicionado aos itens para validaÃ§Ã£o
 
-**MODAL "ADICIONAR ITENS DO EMPENHO" - CORREÇÕES:**
+**MODAL "ADICIONAR ITENS DO EMPENHO" - CORREÃ‡Ã•ES:**
 
-- ✅ Todos os checkboxes DESMARCADOS por padrão
-- ✅ Botões "Marcar todos" e "Desmarcar todos" no topo
-- ✅ Modal CENTRALIZADO (não mais no canto inferior esquerdo)
-- ✅ CSS moderno escopado (não afeta tema global)
-- ✅ Overlay com blur e click para fechar
-- ✅ Animação de entrada suave
-- ✅ Itens já adicionados marcados visualmente (verde)
-- ✅ Não permite duplicação de itens
+- âœ… Todos os checkboxes DESMARCADOS por padrÃ£o
+- âœ… BotÃµes "Marcar todos" e "Desmarcar todos" no topo
+- âœ… Modal CENTRALIZADO (nÃ£o mais no canto inferior esquerdo)
+- âœ… CSS moderno escopado (nÃ£o afeta tema global)
+- âœ… Overlay com blur e click para fechar
+- âœ… AnimaÃ§Ã£o de entrada suave
+- âœ… Itens jÃ¡ adicionados marcados visualmente (verde)
+- âœ… NÃ£o permite duplicaÃ§Ã£o de itens
 
 **ESTRUTURA DO MODAL:**
 
-- Header com título e botão fechar
+- Header com tÃ­tulo e botÃ£o fechar
 - Barra de controles (Marcar/Desmarcar + contador)
-- Lista de itens com checkbox, badge do item e descrição
-- Footer com botões Cancelar e Adicionar
+- Lista de itens com checkbox, badge do item e descriÃ§Ã£o
+- Footer com botÃµes Cancelar e Adicionar
 
 ---
 
 ## [1.6.7] - 2026-02-11
 
-### 📊 Módulo de Relatórios Nível ERP
+### ðŸ“Š MÃ³dulo de RelatÃ³rios NÃ­vel ERP
 
-**NOVA ARQUITETURA DE RELATÓRIOS:**
+**NOVA ARQUITETURA DE RELATÃ“RIOS:**
 
-Implementação completa de módulo de relatórios gerenciais com arquitetura enterprise:
+ImplementaÃ§Ã£o completa de mÃ³dulo de relatÃ³rios gerenciais com arquitetura enterprise:
 
-- **reportRepository.js** - Camada de acesso a dados com normalização
-- **reportEngine.js** - Motor de relatórios com definições declarativas
-- **reportUI.js** - Interface dinâmica com filtros, tabelas e exportação
+- **reportRepository.js** - Camada de acesso a dados com normalizaÃ§Ã£o
+- **reportEngine.js** - Motor de relatÃ³rios com definiÃ§Ãµes declarativas
+- **reportUI.js** - Interface dinÃ¢mica com filtros, tabelas e exportaÃ§Ã£o
 - **reports.css** - Estilos modernos e responsivos
 
-**7 RELATÓRIOS DISPONÍVEIS:**
+**7 RELATÃ“RIOS DISPONÃVEIS:**
 
 1. **Resumo por Fornecedor** - Consolidado de NFs e valores por fornecedor
 2. **Resumo por Item** - Itens mais comprados com valores e quantidades
-3. **Saldos de Empenhos** - Empenhado × Executado × Saldo disponível
-4. **Execução por Subelemento** - Análise por natureza de despesa
-5. **Auditoria NF×Empenho** - Verificação de conformidade com severidades
+3. **Saldos de Empenhos** - Empenhado Ã— Executado Ã— Saldo disponÃ­vel
+4. **ExecuÃ§Ã£o por Subelemento** - AnÃ¡lise por natureza de despesa
+5. **Auditoria NFÃ—Empenho** - VerificaÃ§Ã£o de conformidade com severidades
 6. **Top 10 Itens por Valor** - Ranking de maiores gastos
 7. **Top 10 Fornecedores** - Principais parceiros por volume
 
 **FUNCIONALIDADES:**
 
-- Filtros dinâmicos: período, ano, fornecedor, subelemento
-- Exportação CSV com encoding UTF-8 BOM
-- Impressão otimizada com popup
+- Filtros dinÃ¢micos: perÃ­odo, ano, fornecedor, subelemento
+- ExportaÃ§Ã£o CSV com encoding UTF-8 BOM
+- ImpressÃ£o otimizada com popup
 - Tabela com headers sticky e zebra striping
-- Totalizadores automáticos
+- Totalizadores automÃ¡ticos
 - Badges de severidade coloridos
 - 100% client-side, usa IndexedDB
 
@@ -119,94 +119,94 @@ Implementação completa de módulo de relatórios gerenciais com arquitetura en
 
 ## [1.6.6] - 2026-02-11
 
-### 🎨 Modal "Adicionar Itens do Empenho" - CSS Moderno
+### ðŸŽ¨ Modal "Adicionar Itens do Empenho" - CSS Moderno
 
 **MELHORIAS VISUAIS:**
 
 - Modal centralizado com `position: fixed; inset: 0;`
 - Overlay com `backdrop-filter: blur(4px)` para efeito moderno
-- Animação de entrada suave (`@keyframes modalSlideIn`)
+- AnimaÃ§Ã£o de entrada suave (`@keyframes modalSlideIn`)
 - Sombra refinada: `box-shadow: 0 25px 60px rgba(0, 0, 0, 0.35)`
 - Border-radius aumentado para 16px
 - Header com gradiente sutil
 
 **CHECKLIST APRIMORADO:**
 
-- Itens desmarcados por padrão (`setAllChecks(false)`)
-- Botões "Marcar todos" / "Desmarcar todos" funcionais
-- Itens já adicionados com estilo diferenciado (verde)
-- Código do item com badge azul estilizado
+- Itens desmarcados por padrÃ£o (`setAllChecks(false)`)
+- BotÃµes "Marcar todos" / "Desmarcar todos" funcionais
+- Itens jÃ¡ adicionados com estilo diferenciado (verde)
+- CÃ³digo do item com badge azul estilizado
 - Hover states suaves em todos elementos
 - Checkbox com `accent-color` customizado
 
 **CSS ESCOPADO:**
 
 - Todos estilos prefixados com `.modal-itens-empenho`
-- Não afeta tema global do app
-- Botões primário/secundário com gradientes
+- NÃ£o afeta tema global do app
+- BotÃµes primÃ¡rio/secundÃ¡rio com gradientes
 
 ---
 
 ## [1.6.5] - 2026-02-11
 
-### 🔄 Build Dinâmico Automático + Regras Globais Permanentes
+### ðŸ”„ Build DinÃ¢mico AutomÃ¡tico + Regras Globais Permanentes
 
-**SISTEMA DE BUILD AUTOMÁTICO:**
+**SISTEMA DE BUILD AUTOMÃTICO:**
 
-- Build agora é gerado dinamicamente a cada reload (`generateBuild()`)
-- NÃO requer mais edição manual do build timestamp
+- Build agora Ã© gerado dinamicamente a cada reload (`generateBuild()`)
+- NÃƒO requer mais ediÃ§Ã£o manual do build timestamp
 - Formato: `YYYY-MM-DD-HHMM` (ex: 2026-02-11-1920)
 
-**NOVA ESTRUTURA DE VERSÃO:**
+**NOVA ESTRUTURA DE VERSÃƒO:**
 
-- `VERSION` objeto simplificado com getter dinâmico para build
+- `VERSION` objeto simplificado com getter dinÃ¢mico para build
 - `renderVersionUI()` atualiza elemento `#appVersion` se existir
 - `window.APP_VERSION` exposto globalmente
 
 **REGRAS GLOBAIS PERMANENTES DO PROJETO:**
 
-1. ✔ Rodar servidor local antes e depois de alterações
-2. ✔ Versionamento físico visível atualizado automaticamente
-3. ✔ Build timestamp automático (não manual)
-4. ✔ Bootstrap funcional garantido
-5. ✔ Funcionalidades existentes preservadas
-6. ✔ Arquivos desnecessários evitados
-7. ✔ Padrão enterprise mantido
+1. âœ” Rodar servidor local antes e depois de alteraÃ§Ãµes
+2. âœ” Versionamento fÃ­sico visÃ­vel atualizado automaticamente
+3. âœ” Build timestamp automÃ¡tico (nÃ£o manual)
+4. âœ” Bootstrap funcional garantido
+5. âœ” Funcionalidades existentes preservadas
+6. âœ” Arquivos desnecessÃ¡rios evitados
+7. âœ” PadrÃ£o enterprise mantido
 
-**PADRÃO DE INCREMENTO:**
+**PADRÃƒO DE INCREMENTO:**
 
-- Bug fix → PATCH: v1.6.5 → v1.6.6
-- Nova feature → MINOR: v1.6.5 → v1.7.0
-- Mudança estrutural → MAJOR: v1.6.5 → v2.0.0
+- Bug fix â†’ PATCH: v1.6.5 â†’ v1.6.6
+- Nova feature â†’ MINOR: v1.6.5 â†’ v1.7.0
+- MudanÃ§a estrutural â†’ MAJOR: v1.6.5 â†’ v2.0.0
 
 **Arquivos atualizados:**
 
-- `js/core/version.js` - fonte canônica com build dinâmico
+- `js/core/version.js` - fonte canÃ´nica com build dinÃ¢mico
 - `js/infrastructureInfo.js` - usa `VERSION` e `renderVersionUI()`
 
 ---
 
 ## [1.6.4] - 2026-02-11
 
-### 🔧 Versionamento Físico Local + Fix Bootstrap
+### ðŸ”§ Versionamento FÃ­sico Local + Fix Bootstrap
 
-**VERSIONAMENTO FÍSICO LOCAL OBRIGATÓRIO:**
+**VERSIONAMENTO FÃSICO LOCAL OBRIGATÃ“RIO:**
 
-- Criado `js/core/version.js` como arquivo central de versão
+- Criado `js/core/version.js` como arquivo central de versÃ£o
 - Exporta: `APP_VERSION`, `APP_BUILD`, `VERSION_INFO`, `logVersion()`
-- Versão exibida no console no formato padrão:
+- VersÃ£o exibida no console no formato padrÃ£o:
   ```
-  IFDESK
+  SINGEM
   v1.6.4
-  •
+  â€¢
   build 2026-02-11-1840
   ```
-- Expõe globalmente: `window.IFDESK_VERSION`, `window.IFDESK_BUILD`
+- ExpÃµe globalmente: `window.SINGEM_VERSION`, `window.SINGEM_BUILD`
 
 **FIX BOOTSTRAP - Timeout em 5 segundos:**
 
-- `window.__IFDESK_BOOTSTRAP_DONE__` flag setada após bootstrap
-- Evento `ifdesk:bootstrap:done` disparado após inicialização
+- `window.__SINGEM_BOOTSTRAP_DONE__` flag setada apÃ³s bootstrap
+- Evento `singem:bootstrap:done` disparado apÃ³s inicializaÃ§Ã£o
 - `waitForBootstrap()` agora usa evento em vez de polling
 - Timeout aumentado para 20 segundos (era 5s)
 - Removidos logs repetitivos de tentativas
@@ -214,284 +214,284 @@ Implementação completa de módulo de relatórios gerenciais com arquitetura en
   - `js/settings/unidade.js`
   - `js/settings/usuarios.js`
 
-**Atualizações:**
+**AtualizaÃ§Ãµes:**
 
-- `js/infrastructureInfo.js` importa e exibe versão
+- `js/infrastructureInfo.js` importa e exibe versÃ£o
 - `js/app.js` importa de `./core/version.js`
 
 ---
 
 ## [1.6.3] - 2026-02-11
 
-### 📋 Módulo NF: Itens do Empenho via Modal com Checklist
+### ðŸ“‹ MÃ³dulo NF: Itens do Empenho via Modal com Checklist
 
-**Remoção da Entrada Manual de Itens:**
+**RemoÃ§Ã£o da Entrada Manual de Itens:**
 
-- Botão "Adicionar Item" manual removido
-- Itens da NF devem ser idênticos aos itens do Empenho
+- BotÃ£o "Adicionar Item" manual removido
+- Itens da NF devem ser idÃªnticos aos itens do Empenho
 
 **Novo Modal "Adicionar do Empenho":**
 
 - Checklist com todos os itens do empenho selecionado
-- Todos os itens **desmarcados por padrão**
-- Botões "Marcar todos" e "Desmarcar todos" no topo
-- Itens já adicionados aparecem marcados como "✓ Já adicionado" e desabilitados
+- Todos os itens **desmarcados por padrÃ£o**
+- BotÃµes "Marcar todos" e "Desmarcar todos" no topo
+- Itens jÃ¡ adicionados aparecem marcados como "âœ“ JÃ¡ adicionado" e desabilitados
 - Modal **centralizado** na tela (corrigido posicionamento)
 
-**Validação NF × Empenho:**
+**ValidaÃ§Ã£o NF Ã— Empenho:**
 
-- Integração com `nfValidator.js`
-- Erros bloqueantes: item inexistente, qtd > saldo, CNPJ diferente, diferença total
-- Alertas: preço divergente (pode salvar)
-- Modal de divergências com relatório detalhado
+- IntegraÃ§Ã£o com `nfValidator.js`
+- Erros bloqueantes: item inexistente, qtd > saldo, CNPJ diferente, diferenÃ§a total
+- Alertas: preÃ§o divergente (pode salvar)
+- Modal de divergÃªncias com relatÃ³rio detalhado
 
-**Documentação:**
+**DocumentaÃ§Ã£o:**
 
-- Criado `docs/nf-tests.md` com 10 testes manuais obrigatórios
+- Criado `docs/nf-tests.md` com 10 testes manuais obrigatÃ³rios
 
 ---
 
 ## [1.6.2] - 2026-02-10
 
-### ✨ Total NF Manual + Soma Automática dos Itens
+### âœ¨ Total NF Manual + Soma AutomÃ¡tica dos Itens
 
-**Ajuste no módulo de Notas Fiscais** para padrão ERP:
+**Ajuste no mÃ³dulo de Notas Fiscais** para padrÃ£o ERP:
 
 **Valor Total da NF (Manual):**
 
-- Campo `#valorTotalNF` agora é **editável e obrigatório**
-- Usuário deve informar o valor total conforme a nota fiscal
-- Formatação automática ao sair do campo (blur)
+- Campo `#valorTotalNF` agora Ã© **editÃ¡vel e obrigatÃ³rio**
+- UsuÃ¡rio deve informar o valor total conforme a nota fiscal
+- FormataÃ§Ã£o automÃ¡tica ao sair do campo (blur)
 
-**Soma Total dos Itens (Automático):**
+**Soma Total dos Itens (AutomÃ¡tico):**
 
 - Campo `#somaItensNF` calcula automaticamente em tempo real
 - Atualiza ao adicionar/editar/remover itens
-- Atualiza ao alterar quantidade ou valor unitário
+- Atualiza ao alterar quantidade ou valor unitÃ¡rio
 
-**Campo Diferença:**
+**Campo DiferenÃ§a:**
 
 - Novo campo `#nfDiferenca` mostra (Soma - Total)
 - Visual: verde se OK, vermelho se divergente
 
-**Validação ao Salvar:**
+**ValidaÃ§Ã£o ao Salvar:**
 
-- Total NF > 0 obrigatório (bloqueante)
-- Tolerância de R$ 0,05 para divergência Total×Itens
-- Confirmação se divergência ultrapassar tolerância
+- Total NF > 0 obrigatÃ³rio (bloqueante)
+- TolerÃ¢ncia de R$ 0,05 para divergÃªncia TotalÃ—Itens
+- ConfirmaÃ§Ã£o se divergÃªncia ultrapassar tolerÃ¢ncia
 
 **Helpers de Moeda PT-BR:**
 
-- `parseMoneyInputBR()` — aceita entrada com vírgula e ponto
-- `money2()` — arredonda para 2 casas
-- `fmtMoneyBR()` — formata com vírgula decimal
+- `parseMoneyInputBR()` â€” aceita entrada com vÃ­rgula e ponto
+- `money2()` â€” arredonda para 2 casas
+- `fmtMoneyBR()` â€” formata com vÃ­rgula decimal
 
-**Verificação:**
+**VerificaÃ§Ã£o:**
 
-- Testes: 185/185 ✅
-- Lint: 15 warnings ✅
+- Testes: 185/185 âœ…
+- Lint: 15 warnings âœ…
 
 ---
 
 ## [1.6.1] - 2026-02-10
 
-### 🐛 Bugfix: Select de Empenhos Vazio
+### ðŸ› Bugfix: Select de Empenhos Vazio
 
-**Problema:** Na tela de Notas Fiscais, o dropdown "Empenho associado" mostrava "⚠️ Nenhum empenho cadastrado" mesmo quando existiam empenhos no banco.
+**Problema:** Na tela de Notas Fiscais, o dropdown "Empenho associado" mostrava "âš ï¸ Nenhum empenho cadastrado" mesmo quando existiam empenhos no banco.
 
-**Causa Raiz:** O método `buscarEmpenhos()` em [js/db.js](js/db.js) tem parâmetro `incluirSemArquivo = false` por padrão, retornando apenas empenhos COM arquivo PDF vinculado. Empenhos novos ou sem anexo eram excluídos.
+**Causa Raiz:** O mÃ©todo `buscarEmpenhos()` em [js/db.js](js/db.js) tem parÃ¢metro `incluirSemArquivo = false` por padrÃ£o, retornando apenas empenhos COM arquivo PDF vinculado. Empenhos novos ou sem anexo eram excluÃ­dos.
 
-**Correção em [js/app.js](js/app.js#L3823):**
+**CorreÃ§Ã£o em [js/app.js](js/app.js#L3823):**
 
-- Alterada chamada para `buscarEmpenhos(true)` — inclui TODOS os empenhos
+- Alterada chamada para `buscarEmpenhos(true)` â€” inclui TODOS os empenhos
 - Adicionada flag `DEBUG_NF_EMPENHO = true` com logging detalhado
 - Logs no console mostram quantidade de empenhos e estado do select
 
-**Verificação:**
+**VerificaÃ§Ã£o:**
 
-- Testes: 185/185 ✅
-- Lint: 15 warnings ✅
+- Testes: 185/185 âœ…
+- Lint: 15 warnings âœ…
 
 ---
 
 ## [1.6.0] - 2026-02-10
 
-### ✨ Simplificação do Módulo de Notas Fiscais
+### âœ¨ SimplificaÃ§Ã£o do MÃ³dulo de Notas Fiscais
 
 **Redesign completo** para entrada 100% manual estilo ERP:
 
 - **Fluxo Empenho-First:** Select de empenho movido para o topo
-- **Campos manuais:** Número NF, valor, data de emissão
-- **Associação automática:** Ao selecionar empenho, dados do fornecedor são carregados
-- **Interface simplificada:** Removida complexidade de parsers automáticos
+- **Campos manuais:** NÃºmero NF, valor, data de emissÃ£o
+- **AssociaÃ§Ã£o automÃ¡tica:** Ao selecionar empenho, dados do fornecedor sÃ£o carregados
+- **Interface simplificada:** Removida complexidade de parsers automÃ¡ticos
 
 ---
 
 ## [1.5.1] - 2026-02-09
 
-### 🧹 Limpeza Profunda do Projeto
+### ðŸ§¹ Limpeza Profunda do Projeto
 
-- Removida pasta `_legacy/` (código obsoleto)
+- Removida pasta `_legacy/` (cÃ³digo obsoleto)
 - Removida pasta `testes/` (testes manuais HTML)
-- Removidos arquivos órfãos não referenciados
-- Redução significativa no tamanho do projeto
+- Removidos arquivos Ã³rfÃ£os nÃ£o referenciados
+- ReduÃ§Ã£o significativa no tamanho do projeto
 
 ---
 
 ## [1.3.2] - 2025-11-05
 
-### ✨ Integração Completa de Autenticação
+### âœ¨ IntegraÃ§Ã£o Completa de AutenticaÃ§Ã£o
 
-**Sistema de Login 100% Funcional** 🎉
+**Sistema de Login 100% Funcional** ðŸŽ‰
 
-- **Autenticação Integrada ao HTML Principal**
-  - Login com credenciais mestras (`ifdesk` / `admin@2025`)
-  - Login com usuários cadastrados (IndexedDB)
-  - Validação de senha com PBKDF2 (100k iterações, SHA-256)
-  - Detecção automática de primeiro acesso
+- **AutenticaÃ§Ã£o Integrada ao HTML Principal**
+  - Login com credenciais mestras (`singem` / `admin@2025`)
+  - Login com usuÃ¡rios cadastrados (IndexedDB)
+  - ValidaÃ§Ã£o de senha com PBKDF2 (100k iteraÃ§Ãµes, SHA-256)
+  - DetecÃ§Ã£o automÃ¡tica de primeiro acesso
 
 - **Melhorias Visuais**
-  - Botão de login com feedback: "🔄 Autenticando..." → "✅ Logado!"
-  - Mensagem de boas-vindas com animação slideIn/slideOut
-  - Animação shake para erros de login
-  - Botão desabilitado durante processamento
-  - Credenciais mestras auto-exibidas se não há usuários
+  - BotÃ£o de login com feedback: "ðŸ”„ Autenticando..." â†’ "âœ… Logado!"
+  - Mensagem de boas-vindas com animaÃ§Ã£o slideIn/slideOut
+  - AnimaÃ§Ã£o shake para erros de login
+  - BotÃ£o desabilitado durante processamento
+  - Credenciais mestras auto-exibidas se nÃ£o hÃ¡ usuÃ¡rios
 
 - **Logs Informativos**
-  - Console mostra passo-a-passo da autenticação
-  - Logs coloridos: 🚀 🔐 ✅ ❌ ⚠️
+  - Console mostra passo-a-passo da autenticaÃ§Ã£o
+  - Logs coloridos: ðŸš€ ðŸ” âœ… âŒ âš ï¸
   - Facilita debug e troubleshooting
-  - Exemplo: `✅ Autenticado: João Silva (perfil: admin)`
+  - Exemplo: `âœ… Autenticado: JoÃ£o Silva (perfil: admin)`
 
-- **Verificações Automáticas**
-  - Detecta se há usuários cadastrados
+- **VerificaÃ§Ãµes AutomÃ¡ticas**
+  - Detecta se hÃ¡ usuÃ¡rios cadastrados
   - Mostra/esconde dica de primeiro acesso
   - Valida campos antes de enviar
   - Trata erros com mensagens claras
 
-### 🎨 Animações CSS
+### ðŸŽ¨ AnimaÃ§Ãµes CSS
 
 - `@keyframes slideInRight` - Mensagem de boas-vindas
-- `@keyframes slideOutRight` - Saída da mensagem
+- `@keyframes slideOutRight` - SaÃ­da da mensagem
 - `@keyframes shake` - Erro de login
-- Transições suaves no botão de login
-- Feedback visual instantâneo
+- TransiÃ§Ãµes suaves no botÃ£o de login
+- Feedback visual instantÃ¢neo
 
-### 📚 Documentação
+### ðŸ“š DocumentaÃ§Ã£o
 
 - **INTEGRACAO_AUTENTICACAO.md** (NOVO)
-  - Fluxo completo de autenticação
+  - Fluxo completo de autenticaÃ§Ã£o
   - Casos de uso detalhados
   - Diagramas de processo
   - Checklist de funcionalidades
-  - Estatísticas e métricas
+  - EstatÃ­sticas e mÃ©tricas
 
-### 🔧 Melhorias Técnicas
+### ðŸ”§ Melhorias TÃ©cnicas
 
-- Método `verificarUsuariosCadastrados()` em app.js
+- MÃ©todo `verificarUsuariosCadastrados()` em app.js
 - Logs estruturados em todas as etapas
 - Tratamento de erros robusto
 - Feedback visual em tempo real
-- Integração perfeita com IndexedDB
+- IntegraÃ§Ã£o perfeita com IndexedDB
 
 ---
 
 ## [1.3.1] - 2025-11-05
 
-### 🐛 Corrigido (CRÍTICO)
+### ðŸ› Corrigido (CRÃTICO)
 
-**TODOS OS 4 BUGS CRÍTICOS CORRIGIDOS** ✅
+**TODOS OS 4 BUGS CRÃTICOS CORRIGIDOS** âœ…
 
-**Bug #1: Inicialização do IndexedDB**
+**Bug #1: InicializaÃ§Ã£o do IndexedDB**
 
 - **Sintoma:** `TypeError: Cannot read properties of null (reading 'transaction')`
-- **Causa:** Módulos tentavam acessar banco antes da inicialização
-- **Solução:** Criado `ensureDBReady()` + wrappers seguros (`dbSafe.js`)
+- **Causa:** MÃ³dulos tentavam acessar banco antes da inicializaÃ§Ã£o
+- **SoluÃ§Ã£o:** Criado `ensureDBReady()` + wrappers seguros (`dbSafe.js`)
 - **Impacto:** `unidade.js`, `usuarios.js`
-- **Retry:** Automático com backoff exponencial via `initSafe()`
+- **Retry:** AutomÃ¡tico com backoff exponencial via `initSafe()`
 
-**Bug #2: ID da Unidade Orçamentária Sobrescrito**
+**Bug #2: ID da Unidade OrÃ§amentÃ¡ria Sobrescrito**
 
-- **Sintoma:** "Unidade orçamentária não cadastrada" ao cadastrar usuários
+- **Sintoma:** "Unidade orÃ§amentÃ¡ria nÃ£o cadastrada" ao cadastrar usuÃ¡rios
 - **Causa:** Spread operator `...unidade` sobrescrevia `id: "unidadeOrcamentaria"`
-- **Solução:** Invertida ordem do spread (ID fixo sempre sobrescreve)
+- **SoluÃ§Ã£o:** Invertida ordem do spread (ID fixo sempre sobrescreve)
 - **Impacto:** `unidade.js` (linha ~650)
 
-**Bug #3: Usuário Não Salva no Banco**
+**Bug #3: UsuÃ¡rio NÃ£o Salva no Banco**
 
-- **Sintoma:** Usuário cadastrado mas não aparece na lista
-- **Causa:** Método `saveUsuario()` não existia, tentava salvar item individual
-- **Solução:** Usar `saveUsuarios(this.usuarios)` para salvar lista completa
+- **Sintoma:** UsuÃ¡rio cadastrado mas nÃ£o aparece na lista
+- **Causa:** MÃ©todo `saveUsuario()` nÃ£o existia, tentava salvar item individual
+- **SoluÃ§Ã£o:** Usar `saveUsuarios(this.usuarios)` para salvar lista completa
 - **Impacto:** `usuarios.js` (linhas 224, 301)
 - **Extras:** Corrigido `deleteUsuario()` que estava fora da classe
 
-**Bug #4: Autenticação Não Encontra Usuário**
+**Bug #4: AutenticaÃ§Ã£o NÃ£o Encontra UsuÃ¡rio**
 
-- **Sintoma:** Login falha mesmo com usuário cadastrado
-- **Causa:** `autenticar()` usava `this.usuarios` vazio, não carregava do banco
-- **Solução:** Adicionar `await this.getUsuarios()` antes de autenticar
-- **Impacto:** `usuarios.js` (método `autenticar`)
+- **Sintoma:** Login falha mesmo com usuÃ¡rio cadastrado
+- **Causa:** `autenticar()` usava `this.usuarios` vazio, nÃ£o carregava do banco
+- **SoluÃ§Ã£o:** Adicionar `await this.getUsuarios()` antes de autenticar
+- **Impacto:** `usuarios.js` (mÃ©todo `autenticar`)
 - **Logs:** Adicionados logs informativos para debug
 
 **Bug #4.1: Vincular Unidade Falha**
 
-- **Sintoma:** Erro ao vincular usuário à unidade gestora
-- **Causa:** `this.unidades` vazio, não carregava do banco
-- **Solução:** Adicionar `await this.load()` antes de vincular
-- **Impacto:** `unidade.js` (método `vincularUnidadeAoUsuario`)
+- **Sintoma:** Erro ao vincular usuÃ¡rio Ã  unidade gestora
+- **Causa:** `this.unidades` vazio, nÃ£o carregava do banco
+- **SoluÃ§Ã£o:** Adicionar `await this.load()` antes de vincular
+- **Impacto:** `unidade.js` (mÃ©todo `vincularUnidadeAoUsuario`)
 
-### 🛠️ Melhorias
+### ðŸ› ï¸ Melhorias
 
-- **Cache-Busting Automático**
+- **Cache-Busting AutomÃ¡tico**
   - `ABRIR_APLICACAO.bat` com timestamp em URL
-  - `ABRIR_APLICACAO.ps1` com múltiplos fallbacks
-  - URLs únicas: `?nocache=timestamp&_=random`
+  - `ABRIR_APLICACAO.ps1` com mÃºltiplos fallbacks
+  - URLs Ãºnicas: `?nocache=timestamp&_=random`
   - Garante que navegador sempre carrega arquivos novos
 
-- **Diagnóstico de IndexedDB**
-  - Nova página `verificar-db.html` para debug
-  - Mostra estado do banco, unidade e usuários
+- **DiagnÃ³stico de IndexedDB**
+  - Nova pÃ¡gina `verificar-db.html` para debug
+  - Mostra estado do banco, unidade e usuÃ¡rios
   - Identifica problemas automaticamente
-  - Ações rápidas (limpar cache, resetar banco)
+  - AÃ§Ãµes rÃ¡pidas (limpar cache, resetar banco)
 
-### 📚 Documentação
+### ðŸ“š DocumentaÃ§Ã£o
 
-- `BUGFIX_COMPLETO.md` - Análise completa dos 4 bugs
+- `BUGFIX_COMPLETO.md` - AnÃ¡lise completa dos 4 bugs
 - `BUGFIX_UNIDADE_DB.md` - Bug #1 detalhado
 - `BUGFIX_ID_UNIDADE.md` - Bug #2 detalhado
 - `SOLUCAO_CACHE.md` - Guia de cache
-- `COMO_ABRIR.md` - Guia do usuário
-- Atualizados READMEs com instruções de cache
+- `COMO_ABRIR.md` - Guia do usuÃ¡rio
+- Atualizados READMEs com instruÃ§Ãµes de cache
 
-### ⚠️ Ação Necessária
+### âš ï¸ AÃ§Ã£o NecessÃ¡ria
 
 Para aplicar os bugfixes:
 
 1. **Limpar cache:** Ctrl+Shift+R ou `.\REINICIAR_SEM_CACHE.ps1`
-2. **Recadastrar unidade orçamentária**
-3. **Cadastrar usuários novamente**
-4. **Testar login e vinculação**
+2. **Recadastrar unidade orÃ§amentÃ¡ria**
+3. **Cadastrar usuÃ¡rios novamente**
+4. **Testar login e vinculaÃ§Ã£o**
 
 ---
 
 ## [1.3.0] - 2025-11-05
 
-### 🐛 Corrigido (CRÍTICO)
+### ðŸ› Corrigido (CRÃTICO)
 
-**Erro 1: Inicialização do IndexedDB**
+**Erro 1: InicializaÃ§Ã£o do IndexedDB**
 
 - **Sintoma:** `TypeError: Cannot read properties of null (reading 'transaction')`
-- **Causa:** Módulos tentavam acessar banco antes da inicialização
-- **Solução:** Criado `ensureDBReady()` + wrappers seguros (`dbSafe.js`)
+- **Causa:** MÃ³dulos tentavam acessar banco antes da inicializaÃ§Ã£o
+- **SoluÃ§Ã£o:** Criado `ensureDBReady()` + wrappers seguros (`dbSafe.js`)
 - **Impacto:** `unidade.js`, `usuarios.js`, `rede.js`, `preferencias.js`
-- **Retry:** Automático com backoff exponencial via `initSafe()`
+- **Retry:** AutomÃ¡tico com backoff exponencial via `initSafe()`
 - **Doc:** Ver `BUGFIX_UNIDADE_DB.md`
 
-**Erro 2: ID da Unidade Orçamentária Sobrescrito**
+**Erro 2: ID da Unidade OrÃ§amentÃ¡ria Sobrescrito**
 
-- **Sintoma:** "Unidade orçamentária não cadastrada" ao cadastrar usuários
+- **Sintoma:** "Unidade orÃ§amentÃ¡ria nÃ£o cadastrada" ao cadastrar usuÃ¡rios
 - **Causa:** Spread operator `...unidade` sobrescrevia `id: "unidadeOrcamentaria"`
-- **Solução:** Invertida ordem do spread (ID fixo sempre sobrescreve)
+- **SoluÃ§Ã£o:** Invertida ordem do spread (ID fixo sempre sobrescreve)
 - **Impacto:** `unidade.js` (linha ~650)
 - **Doc:** Ver `BUGFIX_ID_UNIDADE.md`
 
@@ -499,100 +499,100 @@ Para aplicar os bugfixes:
 
 ## [1.2.7] - 2025-11-04
 
-### ✨ Adicionado
+### âœ¨ Adicionado
 
-- **Inicialização Automática no VS Code** 🚀
-  - Task automática ao abrir workspace (`.vscode/tasks.json`)
+- **InicializaÃ§Ã£o AutomÃ¡tica no VS Code** ðŸš€
+  - Task automÃ¡tica ao abrir workspace (`.vscode/tasks.json`)
   - Script inteligente `iniciar-sistema.ps1`
-  - Detecta se servidor já está rodando
+  - Detecta se servidor jÃ¡ estÃ¡ rodando
   - Inicia servidor HTTP automaticamente
   - Abre navegador em `http://localhost:8000`
-  - Configurações do workspace (`.vscode/settings.json`)
-  - Documentação completa (`.vscode/README.md`)
+  - ConfiguraÃ§Ãµes do workspace (`.vscode/settings.json`)
+  - DocumentaÃ§Ã£o completa (`.vscode/README.md`)
 
-### 🔧 Modificado
+### ðŸ”§ Modificado
 
-- **Experiência do Desenvolvedor**
+- **ExperiÃªncia do Desenvolvedor**
   - Basta abrir a pasta no VS Code
-  - Sistema inicia automaticamente (após permitir)
-  - Não precisa mais executar scripts manualmente
+  - Sistema inicia automaticamente (apÃ³s permitir)
+  - NÃ£o precisa mais executar scripts manualmente
 
 ---
 
 ## [1.2.6] - 2025-11-04
 
-### ✨ Adicionado
+### âœ¨ Adicionado
 
-- **Exportação CSV**
-  - Novo módulo `js/exportCSV.js` para exportar dados
-  - Botão "📥 Exportar" no header principal
+- **ExportaÃ§Ã£o CSV**
+  - Novo mÃ³dulo `js/exportCSV.js` para exportar dados
+  - BotÃ£o "ðŸ“¥ Exportar" no header principal
   - Exporta Notas Fiscais, Empenhos e Itens
-  - Formato compatível com Excel (UTF-8 com BOM)
-  - Separador ponto-e-vírgula (;)
+  - Formato compatÃ­vel com Excel (UTF-8 com BOM)
+  - Separador ponto-e-vÃ­rgula (;)
 
-- **Toggle Modo API Demo/Produção**
-  - Controle manual de modo API no módulo Consultas
-  - Botão visível para alternar entre dados reais e mock
-  - Preferência salva em localStorage
+- **Toggle Modo API Demo/ProduÃ§Ã£o**
+  - Controle manual de modo API no mÃ³dulo Consultas
+  - BotÃ£o visÃ­vel para alternar entre dados reais e mock
+  - PreferÃªncia salva em localStorage
   - Indicador visual de modo ativo
 
-### 🔧 Modificado
+### ðŸ”§ Modificado
 
 - **Estilos CSS Refatorados**
   - Removidos 34 estilos inline de `index.html`
   - Removidos 10 estilos inline de `config/configuracoes.html`
-  - Criadas 20+ classes CSS reutilizáveis
+  - Criadas 20+ classes CSS reutilizÃ¡veis
   - Melhor manutenibilidade e performance
 
 - **Scripts PowerShell Otimizados**
-  - Corrigidos warnings de variáveis não utilizadas
-  - `$null =` antes de `Invoke-WebRequest` não usados
-  - Código mais limpo e sem alertas
+  - Corrigidos warnings de variÃ¡veis nÃ£o utilizadas
+  - `$null =` antes de `Invoke-WebRequest` nÃ£o usados
+  - CÃ³digo mais limpo e sem alertas
 
-### 🐛 Corrigido
+### ðŸ› Corrigido
 
 - Todos os erros de lint relacionados a estilos inline
 - Warnings PowerShell em `abrir-aplicacao.ps1` e `iniciar-proxy.ps1`
-- Melhor separação de responsabilidades CSS/HTML
+- Melhor separaÃ§Ã£o de responsabilidades CSS/HTML
 
 ---
 
 ## [1.2.5] - 2025-11-04
 
-### ✨ Adicionado
+### âœ¨ Adicionado
 
-- **Módulo "Consultas Diversas"** completo
-  - 7 tipos de consultas (Material, Serviço, UASG, ARP, PNCP, Licitações, Itens)
-  - Interface com cards clicáveis
-  - Formulários de filtros avançados
-  - Tabelas de resultados com paginação
+- **MÃ³dulo "Consultas Diversas"** completo
+  - 7 tipos de consultas (Material, ServiÃ§o, UASG, ARP, PNCP, LicitaÃ§Ãµes, Itens)
+  - Interface com cards clicÃ¡veis
+  - FormulÃ¡rios de filtros avanÃ§ados
+  - Tabelas de resultados com paginaÃ§Ã£o
   - Sistema de cache inteligente
 
 - **Servidor Proxy CORS** (`server/proxy-server.py`)
-  - Resolve bloqueio CORS de APIs públicas
-  - Serve arquivos estáticos
-  - Intercepta requisições `/api/*`
+  - Resolve bloqueio CORS de APIs pÃºblicas
+  - Serve arquivos estÃ¡ticos
+  - Intercepta requisiÃ§Ãµes `/api/*`
   - Redireciona para `dadosabertos.compras.gov.br`
 
-- **Modo Demonstração Automático**
+- **Modo DemonstraÃ§Ã£o AutomÃ¡tico**
   - Fallback inteligente quando API falha
   - Dados realistas de exemplo
-  - Ativa automaticamente sem intervenção
-  - Materiais (5), Serviços (3), UASG (3), ARP (2)
+  - Ativa automaticamente sem intervenÃ§Ã£o
+  - Materiais (5), ServiÃ§os (3), UASG (3), ARP (2)
 
 - **Sistema de Dados Mock** (`js/consultas/dadosMock.js`)
-  - Estrutura idêntica à API real
+  - Estrutura idÃªntica Ã  API real
   - Dados brasileiros realistas
-  - Fácil expansão
+  - FÃ¡cil expansÃ£o
 
-### 🔧 Modificado
+### ðŸ”§ Modificado
 
 - **Estrutura de pastas reorganizada**
   - Movido scripts de servidor para `server/`
   - Movido arquivos de teste para `testes/`
   - Limpeza da raiz do projeto
 
-- **Script de inicialização** (`abrir.ps1`)
+- **Script de inicializaÃ§Ã£o** (`abrir.ps1`)
   - Agora inicia servidor proxy automaticamente
   - Detecta Python instalado
   - Abre navegador automaticamente
@@ -602,50 +602,50 @@ Para aplicar os bugfixes:
   - `API_BASE` alterado de URL externa para `/api`
   - Try/catch com fallback para modo demo
 
-### 🐛 Corrigido
+### ðŸ› Corrigido
 
-- Erro de CORS ao acessar APIs públicas
-- Cache do navegador impedindo atualizações
-- Módulos ES6 não carregando em file://
-- Timeout de requisições muito curto
+- Erro de CORS ao acessar APIs pÃºblicas
+- Cache do navegador impedindo atualizaÃ§Ãµes
+- MÃ³dulos ES6 nÃ£o carregando em file://
+- Timeout de requisiÃ§Ãµes muito curto
 
-### 📚 Documentação
+### ðŸ“š DocumentaÃ§Ã£o
 
 - README.md atualizado com nova estrutura
 - CHANGELOG.md criado
-- Instruções de uso do servidor proxy
-- Guia de resolução de problemas (cache)
+- InstruÃ§Ãµes de uso do servidor proxy
+- Guia de resoluÃ§Ã£o de problemas (cache)
 
-### 🗂️ Estrutura de Arquivos
+### ðŸ—‚ï¸ Estrutura de Arquivos
 
 **Antes:**
 
 ```
-IFDESK/
-├── proxy-server.py ❌ (raiz desorganizada)
-├── teste-*.html ❌
-└── iniciar-proxy.ps1 ❌
+SINGEM/
+â”œâ”€â”€ proxy-server.py âŒ (raiz desorganizada)
+â”œâ”€â”€ teste-*.html âŒ
+â””â”€â”€ iniciar-proxy.ps1 âŒ
 ```
 
 **Depois:**
 
 ```
-IFDESK/
-├── server/
-│   ├── proxy-server.py ✅
-│   └── iniciar-proxy.ps1 ✅
-├── testes/
-│   └── teste-*.html ✅
-└── abrir.ps1 ✅
+SINGEM/
+â”œâ”€â”€ server/
+â”‚   â”œâ”€â”€ proxy-server.py âœ…
+â”‚   â””â”€â”€ iniciar-proxy.ps1 âœ…
+â”œâ”€â”€ testes/
+â”‚   â””â”€â”€ teste-*.html âœ…
+â””â”€â”€ abrir.ps1 âœ…
 ```
 
-### ⚡ Performance
+### âš¡ Performance
 
-- Sistema funciona 100% offline após carregar dados
-- Cache de consultas reduz requisições
-- Modo demo elimina dependência de internet
+- Sistema funciona 100% offline apÃ³s carregar dados
+- Cache de consultas reduz requisiÃ§Ãµes
+- Modo demo elimina dependÃªncia de internet
 
-### 🔐 Segurança
+### ðŸ” SeguranÃ§a
 
 - Servidor proxy apenas em localhost
 - Sem armazenamento de credenciais
@@ -659,20 +659,21 @@ IFDESK/
 
 - Controle de materiais
 - Parser de Notas de Empenho
-- Integração NFe
-- Sistema de validação
+- IntegraÃ§Ã£o NFe
+- Sistema de validaÃ§Ã£o
 
 ---
 
-## 📝 Formato do Changelog
+## ðŸ“ Formato do Changelog
 
 Este changelog segue o formato [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/)
 
-### Tipos de Mudanças
+### Tipos de MudanÃ§as
 
 - `Adicionado` - novos recursos
-- `Modificado` - alterações em recursos existentes
-- `Depreciado` - recursos que serão removidos
+- `Modificado` - alteraÃ§Ãµes em recursos existentes
+- `Depreciado` - recursos que serÃ£o removidos
 - `Removido` - recursos removidos
-- `Corrigido` - correções de bugs
-- `Segurança` - vulnerabilidades corrigidas
+- `Corrigido` - correÃ§Ãµes de bugs
+- `SeguranÃ§a` - vulnerabilidades corrigidas
+

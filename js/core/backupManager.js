@@ -74,7 +74,7 @@ class BackupManager {
 
       // Gerar nome do arquivo
       const timestamp = new Date().toISOString().replace(/[:.]/g, '-').substring(0, 19);
-      const filename = `IFDESK_Backup_${timestamp}.json`;
+      const filename = `SINGEM_Backup_${timestamp}.json`;
 
       // Criar blob e fazer download
       const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });

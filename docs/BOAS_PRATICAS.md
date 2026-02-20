@@ -1,17 +1,17 @@
-# 📐 Guia de Boas Práticas - IFDESK
+﻿# ðŸ“ Guia de Boas PrÃ¡ticas - SINGEM
 
-## 🎯 Objetivo
+## ðŸŽ¯ Objetivo
 
-Este documento define os padrões de qualidade de código para o projeto IFDESK.
+Este documento define os padrÃµes de qualidade de cÃ³digo para o projeto SINGEM.
 
 ---
 
-## ✅ Checklist de Desenvolvimento
+## âœ… Checklist de Desenvolvimento
 
 Antes de cada commit:
 
 ```bash
-# 1. Formatar código
+# 1. Formatar cÃ³digo
 npm run format
 
 # 2. Corrigir lint automaticamente
@@ -23,73 +23,73 @@ npm run quality
 
 ---
 
-## 📏 Padrões de Código
+## ðŸ“ PadrÃµes de CÃ³digo
 
 ### **JavaScript**
 
-#### ✅ **Usar `===` ao invés de `==`**
+#### âœ… **Usar `===` ao invÃ©s de `==`**
 
 ```javascript
-// ❌ Evitar
+// âŒ Evitar
 if (valor == null) {
 }
 
-// ✅ Preferir
+// âœ… Preferir
 if (valor === null || valor === undefined) {
 }
 ```
 
-#### ✅ **Sempre usar chaves em if/for/while**
+#### âœ… **Sempre usar chaves em if/for/while**
 
 ```javascript
-// ❌ Evitar
+// âŒ Evitar
 if (condition) doSomething();
 
-// ✅ Preferir
+// âœ… Preferir
 if (condition) {
   doSomething();
 }
 ```
 
-#### ✅ **Preferir const sobre let**
+#### âœ… **Preferir const sobre let**
 
 ```javascript
-// ❌ Evitar
+// âŒ Evitar
 let count = items.length;
 
-// ✅ Preferir
+// âœ… Preferir
 const count = items.length;
 ```
 
-#### ✅ **Nomear parâmetros não usados com `_`**
+#### âœ… **Nomear parÃ¢metros nÃ£o usados com `_`**
 
 ```javascript
-// ❌ Evitar
+// âŒ Evitar
 items.forEach((item, index) => {
-  /* não usa index */
+  /* nÃ£o usa index */
 });
 
-// ✅ Preferir
+// âœ… Preferir
 items.forEach((item, _index) => {
   /* ESLint ignora */
 });
 ```
 
-#### ✅ **Evitar métodos muito complexos (max 15)**
+#### âœ… **Evitar mÃ©todos muito complexos (max 15)**
 
 ```javascript
-// ❌ Método muito complexo
+// âŒ MÃ©todo muito complexo
 function processData(data) {
   if (...) {
     if (...) {
       if (...) {
-        // 20 níveis de profundidade
+        // 20 nÃ­veis de profundidade
       }
     }
   }
 }
 
-// ✅ Refatorar em funções menores
+// âœ… Refatorar em funÃ§Ãµes menores
 function processData(data) {
   const validated = validateData(data);
   const transformed = transformData(validated);
@@ -99,15 +99,15 @@ function processData(data) {
 
 ---
 
-## 🛡️ Segurança
+## ðŸ›¡ï¸ SeguranÃ§a
 
 ### **XSS Prevention**
 
 ```javascript
-// ❌ Nunca use innerHTML com dados do usuário
+// âŒ Nunca use innerHTML com dados do usuÃ¡rio
 element.innerHTML = userInput;
 
-// ✅ Use textContent ou sanitize
+// âœ… Use textContent ou sanitize
 element.textContent = userInput;
 // ou
 element.innerHTML = window.security.sanitize(userInput);
@@ -116,7 +116,7 @@ element.innerHTML = window.security.sanitize(userInput);
 ### **CNPJ/CPF Validation**
 
 ```javascript
-// ✅ Sempre validar antes de usar
+// âœ… Sempre validar antes de usar
 const cnpj = window.security.sanitizeCNPJ(input);
 if (validarCNPJ(cnpj)) {
   // processar
@@ -126,48 +126,48 @@ if (validarCNPJ(cnpj)) {
 ### **Object.hasOwnProperty**
 
 ```javascript
-// ❌ Acesso direto
+// âŒ Acesso direto
 if (obj.hasOwnProperty(key)) {
 }
 
-// ✅ Usar Object.prototype
+// âœ… Usar Object.prototype
 if (Object.prototype.hasOwnProperty.call(obj, key)) {
 }
 ```
 
 ---
 
-## 📊 Complexidade
+## ðŸ“Š Complexidade
 
 ### **Limites Recomendados**
 
-- **Complexity**: máximo 15 por método
-- **Max Lines**: máximo 800 por arquivo
-- **Max Depth**: máximo 4 níveis de indentação
+- **Complexity**: mÃ¡ximo 15 por mÃ©todo
+- **Max Lines**: mÃ¡ximo 800 por arquivo
+- **Max Depth**: mÃ¡ximo 4 nÃ­veis de indentaÃ§Ã£o
 
 ### **Quando Refatorar**
 
-Se um método tem **complexity > 15**:
+Se um mÃ©todo tem **complexity > 15**:
 
-1. **Extrair funções auxiliares**
+1. **Extrair funÃ§Ãµes auxiliares**
 2. **Usar Early Returns**
 3. **Simplificar condicionais**
 
 Exemplo:
 
 ```javascript
-// ❌ Complexity: 18
+// âŒ Complexity: 18
 function processItem(item) {
   if (item.type === 'A') {
     if (item.status === 'active') {
       if (item.value > 100) {
-        // ... muitas condições
+        // ... muitas condiÃ§Ãµes
       }
     }
   }
 }
 
-// ✅ Complexity: 5
+// âœ… Complexity: 5
 function processItem(item) {
   if (!isValidItem(item)) {
     return;
@@ -182,14 +182,14 @@ function processItem(item) {
 
 ---
 
-## 🧪 Testes
+## ðŸ§ª Testes
 
 ### **Prioridade de Testes**
 
-1. **Crítico**: Validações, parseadores, cálculos financeiros
-2. **Alto**: CRUD operations, relatórios
-3. **Médio**: UI helpers, formatadores
-4. **Baixo**: Utils genéricos
+1. **CrÃ­tico**: ValidaÃ§Ãµes, parseadores, cÃ¡lculos financeiros
+2. **Alto**: CRUD operations, relatÃ³rios
+3. **MÃ©dio**: UI helpers, formatadores
+4. **Baixo**: Utils genÃ©ricos
 
 ### **Estrutura de Teste**
 
@@ -216,59 +216,59 @@ describe('ModuleName', () => {
 
 ---
 
-## 📦 Estrutura de Arquivos
+## ðŸ“¦ Estrutura de Arquivos
 
 ```
 js/
-├── core/           # Módulos fundamentais (db, security, etc)
-├── ui/             # Componentes de UI (feedback, modals, etc)
-├── workers/        # Web Workers para processamento assíncrono
-├── utils/          # Utilitários genéricos
-├── consultas/      # Integração com APIs externas
-├── settings/       # Configurações e preferências
-└── app.js          # Aplicação principal
+â”œâ”€â”€ core/           # MÃ³dulos fundamentais (db, security, etc)
+â”œâ”€â”€ ui/             # Componentes de UI (feedback, modals, etc)
+â”œâ”€â”€ workers/        # Web Workers para processamento assÃ­ncrono
+â”œâ”€â”€ utils/          # UtilitÃ¡rios genÃ©ricos
+â”œâ”€â”€ consultas/      # IntegraÃ§Ã£o com APIs externas
+â”œâ”€â”€ settings/       # ConfiguraÃ§Ãµes e preferÃªncias
+â””â”€â”€ app.js          # AplicaÃ§Ã£o principal
 ```
 
-### **Regras de Importação**
+### **Regras de ImportaÃ§Ã£o**
 
-- `core/` não pode importar de `ui/` ou `app.js`
-- `utils/` não pode importar de nenhum outro módulo
-- `workers/` são isolados (não importam outros módulos)
+- `core/` nÃ£o pode importar de `ui/` ou `app.js`
+- `utils/` nÃ£o pode importar de nenhum outro mÃ³dulo
+- `workers/` sÃ£o isolados (nÃ£o importam outros mÃ³dulos)
 
 ---
 
-## 🔧 Ferramentas
+## ðŸ”§ Ferramentas
 
 ### **VS Code Tasks**
 
-Pressione `Ctrl+Shift+P` → "Tasks: Run Task":
+Pressione `Ctrl+Shift+P` â†’ "Tasks: Run Task":
 
-- **lint** - Verificar problemas de código
+- **lint** - Verificar problemas de cÃ³digo
 - **lint:fix** - Corrigir automaticamente
 - **format** - Formatar todos os arquivos
-- **format:check** - Verificar formatação
+- **format:check** - Verificar formataÃ§Ã£o
 
 ### **Scripts NPM**
 
 ```bash
 npm run lint          # Verificar lint (falha se houver warnings)
 npm run lint:fix      # Corrigir automaticamente
-npm run format        # Formatar código
-npm run format:check  # Verificar formatação
-npm run quality       # Verificação completa de qualidade
+npm run format        # Formatar cÃ³digo
+npm run format:check  # Verificar formataÃ§Ã£o
+npm run quality       # VerificaÃ§Ã£o completa de qualidade
 ```
 
 ---
 
-## 📈 Métricas de Qualidade
+## ðŸ“ˆ MÃ©tricas de Qualidade
 
 ### **Objetivos**
 
-| Métrica             | Meta  | Atual |
+| MÃ©trica             | Meta  | Atual |
 | ------------------- | ----- | ----- |
 | Lint Errors         | 0     | 62    |
 | Lint Warnings       | < 10  | 81    |
-| Código Duplicado    | < 3%  | -     |
+| CÃ³digo Duplicado    | < 3%  | -     |
 | Cobertura de Testes | > 70% | 0%    |
 
 ### **Score de Qualidade**
@@ -279,30 +279,30 @@ Score = (Checks Passados / Total de Checks) * 100
 Checks:
 - [ ] Sem erros de lint
 - [ ] Warnings < 10
-- [ ] Formatação correta
+- [ ] FormataÃ§Ã£o correta
 - [ ] Sem vulnerabilidades
 ```
 
 ---
 
-## 🚀 Workflow Recomendado
+## ðŸš€ Workflow Recomendado
 
-### **Antes de Começar**
+### **Antes de ComeÃ§ar**
 
-1. Garantir que está na branch correta
-2. `npm install` para atualizar dependências
+1. Garantir que estÃ¡ na branch correta
+2. `npm install` para atualizar dependÃªncias
 
 ### **Durante o Desenvolvimento**
 
-1. Escrever código
-2. Salvar arquivo (formatação automática ativada)
+1. Escrever cÃ³digo
+2. Salvar arquivo (formataÃ§Ã£o automÃ¡tica ativada)
 3. Ver erros de lint no painel "Problemas" do VS Code
-4. Corrigir conforme necessário
+4. Corrigir conforme necessÃ¡rio
 
 ### **Antes do Commit**
 
 ```bash
-# Executar verificação completa
+# Executar verificaÃ§Ã£o completa
 npm run quality
 
 # Se houver erros, corrigir automaticamente
@@ -315,13 +315,13 @@ npm run quality
 
 ---
 
-## ⚠️ Problemas Comuns
+## âš ï¸ Problemas Comuns
 
 ### **"Expected '===' and instead saw '=='"**
 
-**Causa**: Uso de comparação frouxa
+**Causa**: Uso de comparaÃ§Ã£o frouxa
 
-**Solução**:
+**SoluÃ§Ã£o**:
 
 ```javascript
 // Antes
@@ -335,27 +335,27 @@ if (x === null || x === undefined) {
 
 ### **"Unnecessary escape character"**
 
-**Causa**: Escape desnecessário em regex
+**Causa**: Escape desnecessÃ¡rio em regex
 
-**Solução**:
+**SoluÃ§Ã£o**:
 
 ```javascript
 // Antes
 /[.\-]/
 
 // Depois
-/[.-]/ ou /[\-.]/ (se hífen no final)
+/[.-]/ ou /[\-.]/ (se hÃ­fen no final)
 ```
 
 ### **"Method X has a complexity of Y. Maximum allowed is 15"**
 
-**Causa**: Método muito complexo
+**Causa**: MÃ©todo muito complexo
 
-**Solução**: Refatorar em funções menores (veja seção "Complexidade")
+**SoluÃ§Ã£o**: Refatorar em funÃ§Ãµes menores (veja seÃ§Ã£o "Complexidade")
 
 ---
 
-## 📚 Recursos
+## ðŸ“š Recursos
 
 - [ESLint Rules](https://eslint.org/docs/rules/)
 - [Prettier Options](https://prettier.io/docs/en/options.html)
@@ -363,17 +363,18 @@ if (x === null || x === undefined) {
 
 ---
 
-## 🎓 Para Novos Desenvolvedores
+## ðŸŽ“ Para Novos Desenvolvedores
 
 1. Ler este guia completamente
-2. Configurar VS Code com extensões recomendadas:
+2. Configurar VS Code com extensÃµes recomendadas:
    - ESLint
    - Prettier
 3. Executar `npm install`
 4. Fazer um teste: `npm run quality`
-5. Explorar o código existente seguindo os padrões
+5. Explorar o cÃ³digo existente seguindo os padrÃµes
 
 ---
 
-**Última Atualização**: 2025-11-06  
-**Versão**: 1.0.0
+**Ãšltima AtualizaÃ§Ã£o**: 2025-11-06  
+**VersÃ£o**: 1.0.0
+

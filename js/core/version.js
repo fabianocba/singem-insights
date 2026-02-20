@@ -1,16 +1,17 @@
 /**
  * ══════════════════════════════════════════════════════════════════
- * IFDESK - ARQUIVO CENTRAL DE VERSÃO (js/core/version.js)
+ * SINGEM - ARQUIVO CENTRAL DE VERSÃO (js/core/version.js)
  * ══════════════════════════════════════════════════════════════════
  *
- * REGRA GLOBAL PERMANENTE DO PROJETO:
- * - Versão (MAJOR.MINOR.PATCH) → alterar apenas em mudanças funcionais
- * - Build → gerado automaticamente a cada reload (dinâmico)
+ * FONTE CANÔNICA DE VERSÃO - Atualizada automaticamente pelo CI
  *
- * Padrão de incremento:
- * - Correção de bug → PATCH: v1.6.4 → v1.6.5
- * - Nova funcionalidade → MINOR: v1.6.4 → v1.7.0
- * - Mudança estrutural → MAJOR: v1.6.4 → v2.0.0
+ * A versão abaixo é sincronizada com js/core/version.json pelo
+ * GitHub Actions em cada push para a branch principal.
+ *
+ * Padrão SemVer: MAJOR.MINOR.PATCH
+ * - Correção de bug → PATCH: 0.0.2 → 0.0.3
+ * - Nova funcionalidade → MINOR: 0.0.2 → 0.1.0
+ * - Mudança estrutural → MAJOR: 0.0.2 → 1.0.0
  *
  * ══════════════════════════════════════════════════════════════════
  */
@@ -18,13 +19,13 @@
 // @ts-check
 
 /** Nome da aplicação */
-export const APP_NAME = 'IFDESK';
+export const APP_NAME = 'SINGEM';
 
 /**
- * Versão semântica (vMAJOR.MINOR.PATCH)
- * Incrementar manualmente apenas em mudanças funcionais reais
+ * Versão semântica (MAJOR.MINOR.PATCH)
+ * @GENERATED - Atualizada automaticamente pelo CI, não editar manualmente
  */
-export const APP_VERSION = 'v1.6.11';
+export const APP_VERSION = '0.0.2';
 
 /**
  * Gera build timestamp dinâmico (YYYY-MM-DD-HHMM)
@@ -38,7 +39,6 @@ function generateBuild() {
 
 /**
  * Build dinâmico - gerado automaticamente a cada reload
- * NÃO requer edição manual
  */
 export const APP_BUILD = generateBuild();
 
@@ -56,7 +56,7 @@ export const CACHE_BUSTER = '?v=' + APP_BUILD.replace(/-/g, '');
  */
 export const VERSION = {
   name: APP_NAME,
-  version: APP_VERSION.replace('v', ''),
+  version: APP_VERSION,
   get build() {
     return APP_BUILD;
   }
@@ -70,20 +70,20 @@ export const VERSION_INFO = {
   version: APP_VERSION,
   build: APP_BUILD,
   timestamp: BUILD_TIMESTAMP,
-  fullName: 'IFDESK - Sistema de Controle de Material',
+  fullName: 'SINGEM - Sistema de Controle de Material',
   organization: 'IF Baiano'
 };
 
 /**
- * Exibe versão no console de forma formatada (padrão obrigatório)
+ * Exibe versão no console de forma formatada
  */
 export function logVersion() {
-  console.log(`
-IFDESK
-v${APP_VERSION.replace('v', '')}
-•
-build ${APP_BUILD}
-`);
+  console.log(
+    `%c SINGEM %c v${APP_VERSION} %c build ${APP_BUILD} `,
+    'background: #1e7e34; color: white; padding: 2px 6px; border-radius: 3px 0 0 3px;',
+    'background: #28a745; color: white; padding: 2px 6px;',
+    'background: #6c757d; color: white; padding: 2px 6px; border-radius: 0 3px 3px 0;'
+  );
 }
 
 /**
@@ -98,8 +98,8 @@ export function renderVersionUI() {
 
 // Expõe globalmente para uso em scripts não-módulo
 if (typeof window !== 'undefined') {
-  window.IFDESK_VERSION = APP_VERSION;
-  window.IFDESK_BUILD = APP_BUILD;
+  window.SINGEM_VERSION = APP_VERSION;
+  window.SINGEM_BUILD = APP_BUILD;
   window.VERSION_INFO = VERSION_INFO;
   window.APP_VERSION = APP_VERSION;
 }

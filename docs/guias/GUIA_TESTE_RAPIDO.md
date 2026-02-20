@@ -1,9 +1,9 @@
-# 🧪 GUIA DE TESTE RÁPIDO - IFDESK
+﻿# ðŸ§ª GUIA DE TESTE RÃPIDO - SINGEM
 
-## 🚀 Iniciar Aplicação
+## ðŸš€ Iniciar AplicaÃ§Ã£o
 
 ```powershell
-# No terminal PowerShell, dentro de D:\IFDESK
+# No terminal PowerShell, dentro de D:\SINGEM
 .\abrir-aplicacao.ps1
 ```
 
@@ -11,14 +11,14 @@ Ou acesse diretamente: `http://localhost:3000`
 
 ---
 
-## ✅ CHECKLIST DE TESTES
+## âœ… CHECKLIST DE TESTES
 
-### 1. Verificação Inicial (Console do Navegador)
+### 1. VerificaÃ§Ã£o Inicial (Console do Navegador)
 
-Após abrir a aplicação, pressione **F12** e execute:
+ApÃ³s abrir a aplicaÃ§Ã£o, pressione **F12** e execute:
 
 ```javascript
-// Carrega script de verificação
+// Carrega script de verificaÃ§Ã£o
 const script = document.createElement('script');
 script.src = 'js/quick-check.js';
 document.head.appendChild(script);
@@ -27,73 +27,73 @@ document.head.appendChild(script);
 **Resultado esperado:**
 
 ```
-🎉 PLATAFORMA OK! (90%+ dos checks passaram)
+ðŸŽ‰ PLATAFORMA OK! (90%+ dos checks passaram)
 ```
 
 ---
 
 ### 2. Teste de Login
 
-1. ✅ Acesse `http://localhost:3000`
-2. ✅ Use credenciais: `ifdesk` / `admin@2025`
-3. ✅ Verifique se não há erros no console
-4. ✅ Dashboard deve carregar normalmente
+1. âœ… Acesse `http://localhost:3000`
+2. âœ… Use credenciais: `singem` / `admin@2025`
+3. âœ… Verifique se nÃ£o hÃ¡ erros no console
+4. âœ… Dashboard deve carregar normalmente
 
 ---
 
 ### 3. Teste do Parser Refinado
 
-#### 3.1 Preparação
+#### 3.1 PreparaÃ§Ã£o
 
-1. ✅ Faça login
-2. ✅ Vá para seção de **Cadastro de NE** ou **Cadastro de NF**
-3. ✅ Procure pelo input de upload de PDF
+1. âœ… FaÃ§a login
+2. âœ… VÃ¡ para seÃ§Ã£o de **Cadastro de NE** ou **Cadastro de NF**
+3. âœ… Procure pelo input de upload de PDF
 
 #### 3.2 Verificar Checkbox
 
-✅ **Deve aparecer abaixo do input de arquivo:**
+âœ… **Deve aparecer abaixo do input de arquivo:**
 
 ```
-☐ 🔬 Usar Parser Refinado (extração avançada com IA)
+â˜ ðŸ”¬ Usar Parser Refinado (extraÃ§Ã£o avanÃ§ada com IA)
 ```
 
-Se não aparecer:
+Se nÃ£o aparecer:
 
 - Pressione **Ctrl+Shift+R** para recarregar
 - Verifique console por erros
 
 #### 3.3 Teste com PDF de Teste
 
-1. ✅ Marque o checkbox "Usar Parser Refinado"
-2. ✅ Selecione um PDF de NE ou NF
-3. ✅ Aguarde processamento
+1. âœ… Marque o checkbox "Usar Parser Refinado"
+2. âœ… Selecione um PDF de NE ou NF
+3. âœ… Aguarde processamento
 
 **Resultado esperado:**
 
 - Modal abre automaticamente
-- Exibe estatísticas (Tipo, Confiança, Itens, Tempo)
+- Exibe estatÃ­sticas (Tipo, ConfianÃ§a, Itens, Tempo)
 - Tabs funcionam (Dados/Avisos/JSON)
 
-#### 3.4 Verificar Dados Extraídos
+#### 3.4 Verificar Dados ExtraÃ­dos
 
-No modal, tab **"Dados Extraídos"**:
+No modal, tab **"Dados ExtraÃ­dos"**:
 
-✅ **Cabeçalho deve mostrar:**
+âœ… **CabeÃ§alho deve mostrar:**
 
-- Número da nota
-- Data de emissão
-- CNPJ/CPF (se disponível)
+- NÃºmero da nota
+- Data de emissÃ£o
+- CNPJ/CPF (se disponÃ­vel)
 - Processo (para NE)
 
-✅ **Itens deve mostrar:**
+âœ… **Itens deve mostrar:**
 
-- Tabela com colunas: Seq, Descrição, Qtd, V.Unit, V.Total
-- Valores numéricos corretos
+- Tabela com colunas: Seq, DescriÃ§Ã£o, Qtd, V.Unit, V.Total
+- Valores numÃ©ricos corretos
 
-✅ **Totais deve mostrar:**
+âœ… **Totais deve mostrar:**
 
 - Valor total formatado (R$ XX.XX)
-- Outros totais se disponíveis
+- Outros totais se disponÃ­veis
 
 ---
 
@@ -102,7 +102,7 @@ No modal, tab **"Dados Extraídos"**:
 Execute no console:
 
 ```javascript
-// Simula erro não tratado
+// Simula erro nÃ£o tratado
 setTimeout(() => {
   throw new Error('Teste de error boundary');
 }, 100);
@@ -117,23 +117,23 @@ setTimeout(() => {
 
 **Resultado esperado:**
 
-- Erro é capturado
+- Erro Ã© capturado
 - Aparece em `PlatformCore.errorBoundary.getErrors()`
-- Aplicação **não** trava
+- AplicaÃ§Ã£o **nÃ£o** trava
 
 ---
 
 ### 5. Teste de Performance
 
 ```javascript
-// Simula operação pesada
+// Simula operaÃ§Ã£o pesada
 const resultado = await window.measurePerformance('teste-pesado', () => {
   let sum = 0;
   for (let i = 0; i < 10000000; i++) sum += i;
   return sum;
 });
 
-// Ver métricas
+// Ver mÃ©tricas
 const metricas = window.PlatformCore.performance.getMeasures();
 console.table(metricas);
 ```
@@ -141,7 +141,7 @@ console.table(metricas);
 **Resultado esperado:**
 
 - Console mostra: `[Performance] teste-pesado: XXXms`
-- Métrica aparece na lista
+- MÃ©trica aparece na lista
 
 ---
 
@@ -175,7 +175,7 @@ console.log('Detalhes:', detalhes);
 ### 7. Teste do Modal de Parsing (Manual)
 
 ```javascript
-// Criar resultado sintético
+// Criar resultado sintÃ©tico
 const resultadoTeste = {
   tipo: 'NE',
   confidence: 0.92,
@@ -201,43 +201,43 @@ window.showRefinedParsingResult(resultadoTeste);
 **Resultado esperado:**
 
 - Modal abre
-- Estatísticas mostram: NE, 92%, 2 itens, 1 aviso
+- EstatÃ­sticas mostram: NE, 92%, 2 itens, 1 aviso
 - Tabs funcionam
-- Botão "Copiar JSON" funciona
+- BotÃ£o "Copiar JSON" funciona
 
 ---
 
 ### 8. Teste de Compatibilidade (Parser Antigo)
 
-1. ✅ **Desmarque** o checkbox "Usar Parser Refinado"
-2. ✅ Selecione um PDF
-3. ✅ Processamento deve usar parser antigo
-4. ✅ **Nenhum** modal aparece
-5. ✅ Sistema funciona normalmente
+1. âœ… **Desmarque** o checkbox "Usar Parser Refinado"
+2. âœ… Selecione um PDF
+3. âœ… Processamento deve usar parser antigo
+4. âœ… **Nenhum** modal aparece
+5. âœ… Sistema funciona normalmente
 
-**Confirma:** Parser refinado é opcional e não quebra nada!
+**Confirma:** Parser refinado Ã© opcional e nÃ£o quebra nada!
 
 ---
 
-## 🐛 TROUBLESHOOTING
+## ðŸ› TROUBLESHOOTING
 
-### Modal não aparece
+### Modal nÃ£o aparece
 
-**Solução:**
+**SoluÃ§Ã£o:**
 
 ```javascript
 // Verificar se UI integration carregou
 console.log('UI Integration:', window.refinedParserUI);
 
-// Forçar criação do modal
+// ForÃ§ar criaÃ§Ã£o do modal
 if (window.refinedParserUI) {
   window.refinedParserUI.init();
 }
 ```
 
-### Checkbox não aparece
+### Checkbox nÃ£o aparece
 
-**Solução:**
+**SoluÃ§Ã£o:**
 
 1. Pressione **Ctrl+Shift+R**
 2. Verifique console por erros de carregamento
@@ -250,12 +250,12 @@ console.log('Parser refinado:', typeof window.parsePdfRefined);
 
 ### Erros de CORS (Tesseract.js)
 
-**Normal!** OCR só funciona se:
+**Normal!** OCR sÃ³ funciona se:
 
 - PDF for imagem pura (sem texto)
-- Você fornecer canvases via `options.pdfPagesCanvases`
+- VocÃª fornecer canvases via `options.pdfPagesCanvases`
 
-Para PDFs com texto, OCR não é necessário.
+Para PDFs com texto, OCR nÃ£o Ã© necessÃ¡rio.
 
 ### Health check falha
 
@@ -274,58 +274,58 @@ await window.PlatformCore.health.runCheck('db', async () => {
 
 ---
 
-## 📊 MÉTRICAS DE SUCESSO
+## ðŸ“Š MÃ‰TRICAS DE SUCESSO
 
-### ✅ Tudo OK se:
+### âœ… Tudo OK se:
 
 - [ ] Login funciona
 - [ ] Checkbox aparece nos uploads
-- [ ] Modal abre após parsing
-- [ ] Dados são extraídos corretamente
+- [ ] Modal abre apÃ³s parsing
+- [ ] Dados sÃ£o extraÃ­dos corretamente
 - [ ] Parser antigo continua funcionando
-- [ ] Nenhum erro crítico no console
+- [ ] Nenhum erro crÃ­tico no console
 - [ ] Health checks retornam `healthy: true`
-- [ ] Performance é monitorada
+- [ ] Performance Ã© monitorada
 
-### ⚠️ Revisar se:
+### âš ï¸ Revisar se:
 
 - Mais de 3 erros no console
-- Modal não abre
-- Dados extraídos incorretos
+- Modal nÃ£o abre
+- Dados extraÃ­dos incorretos
 - Health check falha em algum sistema
 
-### ❌ Problema crítico se:
+### âŒ Problema crÃ­tico se:
 
-- Aplicação não carrega
+- AplicaÃ§Ã£o nÃ£o carrega
 - Login falha
 - Tela branca/erro de sintaxe
-- Impossível fazer upload
+- ImpossÃ­vel fazer upload
 
-**Ação:** Pressione Ctrl+Shift+R e tente novamente. Se persistir, veja console.
-
----
-
-## 🎯 TESTE FINAL - FLUXO COMPLETO
-
-### Cenário: Cadastro de NE com Parser Refinado
-
-1. ✅ Login (`ifdesk` / `admin@2025`)
-2. ✅ Ir para "Cadastro de NE"
-3. ✅ Marcar "🔬 Usar Parser Refinado"
-4. ✅ Selecionar PDF de NE real
-5. ✅ Aguardar modal abrir
-6. ✅ Verificar confiança ≥ 85%
-7. ✅ Revisar itens extraídos
-8. ✅ Clicar "Fechar"
-9. ✅ Continuar cadastro normalmente
-
-**Se tudo funcionar:** 🎉 **SUCESSO TOTAL!**
+**AÃ§Ã£o:** Pressione Ctrl+Shift+R e tente novamente. Se persistir, veja console.
 
 ---
 
-## 💡 DICAS
+## ðŸŽ¯ TESTE FINAL - FLUXO COMPLETO
 
-### Console úteis
+### CenÃ¡rio: Cadastro de NE com Parser Refinado
+
+1. âœ… Login (`singem` / `admin@2025`)
+2. âœ… Ir para "Cadastro de NE"
+3. âœ… Marcar "ðŸ”¬ Usar Parser Refinado"
+4. âœ… Selecionar PDF de NE real
+5. âœ… Aguardar modal abrir
+6. âœ… Verificar confianÃ§a â‰¥ 85%
+7. âœ… Revisar itens extraÃ­dos
+8. âœ… Clicar "Fechar"
+9. âœ… Continuar cadastro normalmente
+
+**Se tudo funcionar:** ðŸŽ‰ **SUCESSO TOTAL!**
+
+---
+
+## ðŸ’¡ DICAS
+
+### Console Ãºteis
 
 ```javascript
 // Estado completo
@@ -341,7 +341,7 @@ console.log('Ativo?', window.refinedParserUI.isEnabled());
 // Limpar erros
 window.PlatformCore.errorBoundary.clearErrors();
 
-// Ver todas as métricas
+// Ver todas as mÃ©tricas
 console.table(window.PlatformCore.performance.getMeasures());
 ```
 
@@ -351,25 +351,26 @@ console.table(window.PlatformCore.performance.getMeasures());
 // Ativar logs verbose (se implementado)
 localStorage.setItem('debug', 'true');
 
-// Ver último parsing
+// Ver Ãºltimo parsing
 const last = window.refinedParserUI.getLastResult();
 console.log(JSON.stringify(last, null, 2));
 ```
 
 ---
 
-## 📞 SUPORTE
+## ðŸ“ž SUPORTE
 
 Se encontrar problemas:
 
 1. **Console:** Pressione F12 e copie erros
 2. **Health:** Execute `window.PlatformCore.health.getStatus()`
-3. **Métricas:** Execute `window.PlatformCore.performance.getMeasures()`
-4. **Último resultado:** `window.refinedParserUI?.getLastResult()`
+3. **MÃ©tricas:** Execute `window.PlatformCore.performance.getMeasures()`
+4. **Ãšltimo resultado:** `window.refinedParserUI?.getLastResult()`
 
 Documente e reporte com prints/logs.
 
 ---
 
-**Última atualização:** 06/11/2025  
-**Versão da plataforma:** 2.0.0
+**Ãšltima atualizaÃ§Ã£o:** 06/11/2025  
+**VersÃ£o da plataforma:** 2.0.0
+

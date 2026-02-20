@@ -1,5 +1,5 @@
 /**
- * IFDESK - Guards e Helpers de Segurança
+ * SINGEM - Guards e Helpers de Segurança
  * @module utils/guard
  *
  * Funções para proteger contra erros em operações assíncronas e I/O.

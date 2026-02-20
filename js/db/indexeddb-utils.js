@@ -1,5 +1,5 @@
 /**
- * IFDESK - IndexedDB Utilities
+ * SINGEM - IndexedDB Utilities
  * @module db/indexeddb-utils
  *
  * Utilitários para operações seguras e eficientes com IndexedDB.

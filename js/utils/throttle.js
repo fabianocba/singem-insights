@@ -1,5 +1,5 @@
 /**
- * IFDESK - Throttle e Debounce
+ * SINGEM - Throttle e Debounce
  * @module utils/throttle
  *
  * Utilitários para controlar frequência de execução.

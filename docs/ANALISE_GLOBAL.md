@@ -1,47 +1,47 @@
-# 📊 ANÁLISE GLOBAL DO PROJETO IFDESK
+﻿# ðŸ“Š ANÃLISE GLOBAL DO PROJETO SINGEM
 
 **Data:** 2025-06-13  
-**Fase:** ETAPA 1 — Análise Global  
-**Status:** ✅ Concluída
+**Fase:** ETAPA 1 â€” AnÃ¡lise Global  
+**Status:** âœ… ConcluÃ­da
 
 ---
 
-## 📁 MAPA DE ARQUIVOS JS
+## ðŸ“ MAPA DE ARQUIVOS JS
 
-### 🟢 ARQUIVOS CARREGADOS NO `index.html` (Ordem de Carregamento)
+### ðŸŸ¢ ARQUIVOS CARREGADOS NO `index.html` (Ordem de Carregamento)
 
-| #     | Arquivo                       | Tipo         | Observação              |
+| #     | Arquivo                       | Tipo         | ObservaÃ§Ã£o              |
 | ----- | ----------------------------- | ------------ | ----------------------- |
-| 1     | `js/config/version.js`        | ES Module    | Versão do sistema       |
+| 1     | `js/config/version.js`        | ES Module    | VersÃ£o do sistema       |
 | 2     | `js/versionManager.js`        | Script       | Cache busting           |
-| 3     | `js/platform-core.js`         | Script       | Detecção de ambiente    |
-| 4     | `js/config.js`                | Script defer | Configurações globais   |
+| 3     | `js/platform-core.js`         | Script       | DetecÃ§Ã£o de ambiente    |
+| 4     | `js/config.js`                | Script defer | ConfiguraÃ§Ãµes globais   |
 | 5     | `js/db.js`                    | Script defer | IndexedDB setup         |
-| 6     | `js/utils/dbSafe.js`          | Script defer | Utilitários DB          |
+| 6     | `js/utils/dbSafe.js`          | Script defer | UtilitÃ¡rios DB          |
 | 7     | `js/pdfReader.js`             | Script defer | Leitura de PDFs         |
-| 8     | `js/neParserInit.js`          | ES Module    | Inicialização neParser  |
-| 9     | `js/nfeIntegration.js`        | Script defer | Integração NF-e         |
+| 8     | `js/neParserInit.js`          | ES Module    | InicializaÃ§Ã£o neParser  |
+| 9     | `js/nfeIntegration.js`        | Script defer | IntegraÃ§Ã£o NF-e         |
 | 10    | `js/fsManager.js`             | Script defer | File System API         |
-| 11    | `js/core/protection.js`       | Script defer | Proteção de dados       |
+| 11    | `js/core/protection.js`       | Script defer | ProteÃ§Ã£o de dados       |
 | 12    | `js/core/integrity.js`        | Script defer | Integridade             |
 | 13    | `js/core/trashManager.js`     | Script defer | Lixeira                 |
 | 14    | `js/core/fsManagerLegacy.js`  | Script defer | Compatibilidade FS      |
-| 15    | `js/core/dataBackup.js`       | Script defer | Backup automático       |
+| 15    | `js/core/dataBackup.js`       | Script defer | Backup automÃ¡tico       |
 | 16    | `js/utils/formatters.js`      | ES Module    | Formatadores            |
-| 17    | `js/app.js`                   | ES Module    | **Aplicação principal** |
+| 17    | `js/app.js`                   | ES Module    | **AplicaÃ§Ã£o principal** |
 | 18    | `js/settings/index.js`        | Script defer | Settings init           |
 | 19    | `js/settings/unidade.js`      | Script defer | Config unidade          |
-| 20    | `js/settings/usuarios.js`     | Script defer | Gestão usuários         |
+| 20    | `js/settings/usuarios.js`     | Script defer | GestÃ£o usuÃ¡rios         |
 | 21    | `js/settings/rede.js`         | Script defer | Config rede             |
-| 22    | `js/settings/preferencias.js` | Script defer | Preferências            |
+| 22    | `js/settings/preferencias.js` | Script defer | PreferÃªncias            |
 | 23    | `js/settings/arquivos.js`     | Script defer | Config arquivos         |
-| 24    | `js/ui/settings/protecao.js`  | Script defer | UI proteção             |
+| 24    | `js/ui/settings/protecao.js`  | Script defer | UI proteÃ§Ã£o             |
 | 25-36 | `js/refine/*.js`              | Script defer | Pipeline de parsing     |
-| 37    | `js/softInit.js`              | ES Module    | Inicialização segura    |
-| 38    | `js/exportCSV.js`             | Script defer | Exportação CSV          |
+| 37    | `js/softInit.js`              | ES Module    | InicializaÃ§Ã£o segura    |
+| 38    | `js/exportCSV.js`             | Script defer | ExportaÃ§Ã£o CSV          |
 | 39    | `js/infrastructureInfo.js`    | Script defer | Info infraestrutura     |
 
-### 🔵 ARQUIVOS IMPORTADOS VIA ES MODULES (Cadeia de Dependências)
+### ðŸ”µ ARQUIVOS IMPORTADOS VIA ES MODULES (Cadeia de DependÃªncias)
 
 **Importados por `js/app.js`:**
 
@@ -103,51 +103,51 @@
 
 ---
 
-## 🔴 ARQUIVOS POTENCIALMENTE ÓRFÃOS
+## ðŸ”´ ARQUIVOS POTENCIALMENTE Ã“RFÃƒOS
 
-Os seguintes arquivos **existem** mas **NÃO são carregados** em nenhum HTML ou importados:
+Os seguintes arquivos **existem** mas **NÃƒO sÃ£o carregados** em nenhum HTML ou importados:
 
-| Arquivo                            | Status       | Recomendação                                    |
+| Arquivo                            | Status       | RecomendaÃ§Ã£o                                    |
 | ---------------------------------- | ------------ | ----------------------------------------------- |
-| `js/bootstrap.js`                  | ⚠️ Órfão     | Sistema de carregamento alternativo - NÃO USADO |
-| `js/cacheBuster.js`                | ⚠️ Órfão     | Funcionalidade no `versionManager.js`           |
-| `js/dbInit.js`                     | ⚠️ Órfão     | Inicialização DB duplicada                      |
-| `js/quick-check.js`                | ⚠️ Órfão     | Ferramenta de diagnóstico manual (console)      |
-| `js/neParser.examples.js`          | ⚠️ Órfão     | Exemplos para documentação                      |
-| `js/core/dbOptimizations.js`       | ⚠️ Órfão     | Carregado só via bootstrap (não usado)          |
-| `js/core/errorBoundary.js`         | ⚠️ Órfão     | Carregado só via bootstrap (não usado)          |
-| `js/core/performance.js`           | ⚠️ Órfão     | Carregado só via bootstrap (não usado)          |
-| `js/core/security.js`              | ⚠️ Órfão     | Carregado só via bootstrap (não usado)          |
-| `js/core/env.js`                   | ⚠️ Órfão     | Variáveis de ambiente não usadas                |
-| `js/core/htmlSanitizer.js`         | ⚠️ Órfão     | Import removido do app.js                       |
-| `js/core/serviceWorker.js`         | ⚠️ Órfão     | SW não registrado                               |
-| `js/refine/parserUI.js`            | ⚠️ Órfão     | Carregado só via bootstrap (não usado)          |
-| `js/refine/worker/parse.worker.js` | ⚠️ Verificar | Pode ser carregado dinamicamente                |
-| `js/consultas/loader.js`           | ⚠️ Verificar | Não importado explicitamente                    |
+| `js/bootstrap.js`                  | âš ï¸ Ã“rfÃ£o     | Sistema de carregamento alternativo - NÃƒO USADO |
+| `js/cacheBuster.js`                | âš ï¸ Ã“rfÃ£o     | Funcionalidade no `versionManager.js`           |
+| `js/dbInit.js`                     | âš ï¸ Ã“rfÃ£o     | InicializaÃ§Ã£o DB duplicada                      |
+| `js/quick-check.js`                | âš ï¸ Ã“rfÃ£o     | Ferramenta de diagnÃ³stico manual (console)      |
+| `js/neParser.examples.js`          | âš ï¸ Ã“rfÃ£o     | Exemplos para documentaÃ§Ã£o                      |
+| `js/core/dbOptimizations.js`       | âš ï¸ Ã“rfÃ£o     | Carregado sÃ³ via bootstrap (nÃ£o usado)          |
+| `js/core/errorBoundary.js`         | âš ï¸ Ã“rfÃ£o     | Carregado sÃ³ via bootstrap (nÃ£o usado)          |
+| `js/core/performance.js`           | âš ï¸ Ã“rfÃ£o     | Carregado sÃ³ via bootstrap (nÃ£o usado)          |
+| `js/core/security.js`              | âš ï¸ Ã“rfÃ£o     | Carregado sÃ³ via bootstrap (nÃ£o usado)          |
+| `js/core/env.js`                   | âš ï¸ Ã“rfÃ£o     | VariÃ¡veis de ambiente nÃ£o usadas                |
+| `js/core/htmlSanitizer.js`         | âš ï¸ Ã“rfÃ£o     | Import removido do app.js                       |
+| `js/core/serviceWorker.js`         | âš ï¸ Ã“rfÃ£o     | SW nÃ£o registrado                               |
+| `js/refine/parserUI.js`            | âš ï¸ Ã“rfÃ£o     | Carregado sÃ³ via bootstrap (nÃ£o usado)          |
+| `js/refine/worker/parse.worker.js` | âš ï¸ Verificar | Pode ser carregado dinamicamente                |
+| `js/consultas/loader.js`           | âš ï¸ Verificar | NÃ£o importado explicitamente                    |
 
 ---
 
-## 🟡 ARQUIVOS EM OUTRAS PÁGINAS HTML
+## ðŸŸ¡ ARQUIVOS EM OUTRAS PÃGINAS HTML
 
 ### `config/configuracoes.html`
 
 - `js/settings/backup.js`
 - `js/settings/diagnostico.js`
 
-### Workers (carregamento dinâmico)
+### Workers (carregamento dinÃ¢mico)
 
-- `js/workers/pdfWorker.js` → Usado via `new Worker()` em asyncQueue.js
+- `js/workers/pdfWorker.js` â†’ Usado via `new Worker()` em asyncQueue.js
 
 ---
 
-## 📊 ESTATÍSTICAS DO PROJETO
+## ðŸ“Š ESTATÃSTICAS DO PROJETO
 
 | Categoria                     | Quantidade |
 | ----------------------------- | ---------- |
 | **Arquivos JS Total**         | ~70+       |
 | **Carregados em index.html**  | 39         |
 | **Importados via ES Modules** | ~25        |
-| **Potencialmente Órfãos**     | 15         |
+| **Potencialmente Ã“rfÃ£os**     | 15         |
 | **Linhas em app.js**          | 5036       |
 | **Testes**                    | 32 passing |
 | **Lint Warnings**             | 0          |
@@ -155,36 +155,36 @@ Os seguintes arquivos **existem** mas **NÃO são carregados** em nenhum HTML ou
 
 ---
 
-## 🎯 PLANO DE AÇÃO - PRÓXIMAS ETAPAS
+## ðŸŽ¯ PLANO DE AÃ‡ÃƒO - PRÃ“XIMAS ETAPAS
 
-### ETAPA 2 — Limpeza de Arquivos
+### ETAPA 2 â€” Limpeza de Arquivos
 
-1. Mover arquivos órfãos para `_legacy/` (backup seguro)
+1. Mover arquivos Ã³rfÃ£os para `_legacy/` (backup seguro)
 2. Verificar se bootstrap.js pode ser removido completamente
-3. Confirmar workers dinâmicos
+3. Confirmar workers dinÃ¢micos
 
-### ETAPA 3 — Higiene de Código
+### ETAPA 3 â€” Higiene de CÃ³digo
 
-1. Verificar console.log em produção
-2. Padronizar comentários
-3. Remover código comentado
+1. Verificar console.log em produÃ§Ã£o
+2. Padronizar comentÃ¡rios
+3. Remover cÃ³digo comentado
 
-### ETAPA 4 — Separação de Responsabilidades
+### ETAPA 4 â€” SeparaÃ§Ã£o de Responsabilidades
 
 1. Avaliar tamanho do app.js (5036 linhas)
-2. Identificar funções candidatas a extração
+2. Identificar funÃ§Ãµes candidatas a extraÃ§Ã£o
 
-### ETAPA 5 — Performance
+### ETAPA 5 â€” Performance
 
 1. Verificar carregamento de scripts
 2. Avaliar lazy loading
 
-### ETAPA 6 — Padrão de Qualidade
+### ETAPA 6 â€” PadrÃ£o de Qualidade
 
 1. Verificar cobertura de testes
-2. Validar documentação
+2. Validar documentaÃ§Ã£o
 
-### ETAPA 7 — Validação Final
+### ETAPA 7 â€” ValidaÃ§Ã£o Final
 
 1. Executar lint
 2. Executar testes
@@ -192,18 +192,19 @@ Os seguintes arquivos **existem** mas **NÃO são carregados** em nenhum HTML ou
 
 ---
 
-## ✅ CONCLUSÃO ETAPA 1
+## âœ… CONCLUSÃƒO ETAPA 1
 
-O projeto está **estruturalmente sólido** com:
+O projeto estÃ¡ **estruturalmente sÃ³lido** com:
 
-- Separação clara entre módulos
+- SeparaÃ§Ã£o clara entre mÃ³dulos
 - Sistema de build funcional
-- Lint e formatação configurados
+- Lint e formataÃ§Ã£o configurados
 - Testes passando
 
 **Principais achados:**
 
-1. **15 arquivos órfãos** que podem ser movidos para `_legacy/`
-2. **bootstrap.js** implementa sistema de carregamento que NÃO é usado
-3. **app.js** com 5036 linhas - candidato a refatoração futura
-4. Dependências bem mapeadas via ES Modules
+1. **15 arquivos Ã³rfÃ£os** que podem ser movidos para `_legacy/`
+2. **bootstrap.js** implementa sistema de carregamento que NÃƒO Ã© usado
+3. **app.js** com 5036 linhas - candidato a refatoraÃ§Ã£o futura
+4. DependÃªncias bem mapeadas via ES Modules
+

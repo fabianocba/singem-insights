@@ -1,5 +1,5 @@
 /**
- * IFDESK - Self-Test Script
+ * SINGEM - Self-Test Script
  * Testes automatizados no navegador para IndexedDB, Cache, Storage e Performance
  */
 
@@ -413,7 +413,7 @@ function exportResults() {
 // Auto-executar ao carregar
 // ========================================
 window.addEventListener('DOMContentLoaded', () => {
-  console.log('🔍 IFDESK Self-Test carregado');
+  console.log('🔍 SINGEM Self-Test carregado');
   console.log('💡 Execute runAllTests() ou clique no botão para iniciar');
 });
 

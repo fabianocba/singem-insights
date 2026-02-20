@@ -1,5 +1,5 @@
 /* platform-core.js
- * Core de plataforma moderna para IFDESK
+ * Core de plataforma moderna para SINGEM
  * - Error Boundary global
  * - Performance monitoring
  * - Health checks

@@ -1,5 +1,5 @@
 /**
- * IFDESK - Tratamento Global de Erros
+ * SINGEM - Tratamento Global de Erros
  * @module utils/errors
  *
  * Centraliza captura e log de erros não tratados sem bloquear a aplicação.
@@ -32,7 +32,7 @@ const errorLog = {
 
     // Salva em localStorage para debug
     try {
-      localStorage.setItem('ifdesk_error_log', JSON.stringify(this.errors.slice(-10)));
+      localStorage.setItem('SINGEM_error_log', JSON.stringify(this.errors.slice(-10)));
     } catch (e) {
       // Ignora se localStorage estiver cheio
     }
@@ -44,7 +44,7 @@ const errorLog = {
 
   clear() {
     this.errors = [];
-    localStorage.removeItem('ifdesk_error_log');
+    localStorage.removeItem('SINGEM_error_log');
   }
 };
 
@@ -170,7 +170,7 @@ ${err.stack || 'N/A'}
 }
 
 // Auto-inicializa se não estiver em ambiente de testes
-if (typeof window !== 'undefined' && !window.__IFDESK_TEST_MODE__) {
+if (typeof window !== 'undefined' && !window.__SINGEM_TEST_MODE__) {
   setupGlobalErrorHandlers({
     logToConsole: true,
     onError: (_error, _context) => {

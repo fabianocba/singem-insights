@@ -1,5 +1,5 @@
 /**
- * IFDESK - Helpers de UX para melhoria de experiência do usuário
+ * SINGEM - Helpers de UX para melhoria de experiência do usuário
  * - Autocomplete de itens e unidades
  * - Formatação de campo Item Compra (3 dígitos fixos: 000-999)
  * - Validação de unidades

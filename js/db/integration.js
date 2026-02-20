@@ -1,5 +1,5 @@
 /**
- * IFDESK - IndexedDB Integration Layer
+ * SINGEM - IndexedDB Integration Layer
  * @module db/integration
  *
  * Adiciona métodos seguros ao window.dbManager EXISTENTE

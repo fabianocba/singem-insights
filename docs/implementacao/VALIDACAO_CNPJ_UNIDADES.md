@@ -1,144 +1,144 @@
-# 🏢 Validação de CNPJ e Múltiplas Unidades Orçamentárias
+﻿# ðŸ¢ ValidaÃ§Ã£o de CNPJ e MÃºltiplas Unidades OrÃ§amentÃ¡rias
 
-## 📋 Resumo das Implementações
+## ðŸ“‹ Resumo das ImplementaÃ§Ãµes
 
-Este documento descreve as melhorias implementadas no sistema de gerenciamento de Unidades Orçamentárias e validação de CNPJ em Notas de Empenho e Notas Fiscais.
+Este documento descreve as melhorias implementadas no sistema de gerenciamento de Unidades OrÃ§amentÃ¡rias e validaÃ§Ã£o de CNPJ em Notas de Empenho e Notas Fiscais.
 
 ---
 
-## ✨ Funcionalidades Implementadas
+## âœ¨ Funcionalidades Implementadas
 
-### 1. Sistema de Múltiplas Unidades
+### 1. Sistema de MÃºltiplas Unidades
 
 #### **Antes:**
 
-- Sistema permitia cadastrar apenas uma unidade orçamentária
-- Não havia lista de unidades cadastradas
-- Não era possível vincular unidades específicas aos usuários
+- Sistema permitia cadastrar apenas uma unidade orÃ§amentÃ¡ria
+- NÃ£o havia lista de unidades cadastradas
+- NÃ£o era possÃ­vel vincular unidades especÃ­ficas aos usuÃ¡rios
 
 #### **Depois:**
 
-- ✅ Sistema suporta **múltiplas unidades orçamentárias**
-- ✅ Lista todas as unidades cadastradas em tabela
-- ✅ Permite **vincular unidade específica ao usuário logado**
-- ✅ Cada usuário pode ter sua própria unidade vinculada
+- âœ… Sistema suporta **mÃºltiplas unidades orÃ§amentÃ¡rias**
+- âœ… Lista todas as unidades cadastradas em tabela
+- âœ… Permite **vincular unidade especÃ­fica ao usuÃ¡rio logado**
+- âœ… Cada usuÃ¡rio pode ter sua prÃ³pria unidade vinculada
 
-### 2. Validação Automática de CNPJ
+### 2. ValidaÃ§Ã£o AutomÃ¡tica de CNPJ
 
 #### **Removido:**
 
-- ❌ Botão "Validar CNPJ" manual removido da interface
+- âŒ BotÃ£o "Validar CNPJ" manual removido da interface
 
 #### **Implementado:**
 
-- ✅ Validação automática ao cadastrar **Nota de Empenho (NE)**
-- ✅ Validação automática ao cadastrar **Nota Fiscal (NF)**
-- ✅ **Bloqueio total** de NF com CNPJ de destinatário diferente da unidade
+- âœ… ValidaÃ§Ã£o automÃ¡tica ao cadastrar **Nota de Empenho (NE)**
+- âœ… ValidaÃ§Ã£o automÃ¡tica ao cadastrar **Nota Fiscal (NF)**
+- âœ… **Bloqueio total** de NF com CNPJ de destinatÃ¡rio diferente da unidade
 
 ---
 
-## 🔒 Regras de Validação
+## ðŸ”’ Regras de ValidaÃ§Ã£o
 
 ### Nota de Empenho (NE)
 
-**Validação do CNPJ do Fornecedor:**
+**ValidaÃ§Ã£o do CNPJ do Fornecedor:**
 
-1. ⚠️ **Alerta** se CNPJ do Fornecedor = CNPJ da Unidade
-   - Indica possível erro
-   - Permite continuar após confirmação
-   - Mensagem clara com dados da divergência
+1. âš ï¸ **Alerta** se CNPJ do Fornecedor = CNPJ da Unidade
+   - Indica possÃ­vel erro
+   - Permite continuar apÃ³s confirmaÃ§Ã£o
+   - Mensagem clara com dados da divergÃªncia
 
-2. ⚠️ **Alerta** se não há unidade configurada
+2. âš ï¸ **Alerta** se nÃ£o hÃ¡ unidade configurada
    - Recomenda cadastrar unidade
-   - Permite continuar após confirmação
+   - Permite continuar apÃ³s confirmaÃ§Ã£o
 
 ### Nota Fiscal (NF)
 
-**Validação do CNPJ do Destinatário/Beneficiário:**
+**ValidaÃ§Ã£o do CNPJ do DestinatÃ¡rio/BeneficiÃ¡rio:**
 
-1. ❌ **BLOQUEIO TOTAL** se CNPJ Destinatário ≠ CNPJ da Unidade
-   - NÃO permite cadastrar a NF
+1. âŒ **BLOQUEIO TOTAL** se CNPJ DestinatÃ¡rio â‰  CNPJ da Unidade
+   - NÃƒO permite cadastrar a NF
    - Mensagem detalhada explicando o motivo
-   - Orienta sobre próximos passos
+   - Orienta sobre prÃ³ximos passos
 
-2. ❌ **BLOQUEIO TOTAL** se não há unidade vinculada
-   - Exige configuração de unidade antes
+2. âŒ **BLOQUEIO TOTAL** se nÃ£o hÃ¡ unidade vinculada
+   - Exige configuraÃ§Ã£o de unidade antes
    - Orienta passo a passo para configurar
 
 **Mensagens de Bloqueio:**
 
 ```
-❌ CNPJ DO DESTINATÁRIO INVÁLIDO!
+âŒ CNPJ DO DESTINATÃRIO INVÃLIDO!
 
-O CNPJ do Destinatário/Beneficiário da Nota Fiscal é diferente
-do CNPJ da Unidade Orçamentária vinculada ao seu usuário.
+O CNPJ do DestinatÃ¡rio/BeneficiÃ¡rio da Nota Fiscal Ã© diferente
+do CNPJ da Unidade OrÃ§amentÃ¡ria vinculada ao seu usuÃ¡rio.
 
 CNPJ da Unidade: 10.123.456/0001-78
 Unidade: Instituto Federal Baiano - Campus Senhor do Bonfim
 
-CNPJ Destinatário NF: 10.987.654/0001-32
+CNPJ DestinatÃ¡rio NF: 10.987.654/0001-32
 
-⚠️ Notas Fiscais com CNPJ de destinatário diferente da unidade
-logada NÃO podem ser cadastradas.
+âš ï¸ Notas Fiscais com CNPJ de destinatÃ¡rio diferente da unidade
+logada NÃƒO podem ser cadastradas.
 
 Verifique:
-1. Se a NF é realmente para esta unidade
-2. Se há outra unidade cadastrada com este CNPJ
-3. Se você precisa vincular outra unidade ao seu usuário
+1. Se a NF Ã© realmente para esta unidade
+2. Se hÃ¡ outra unidade cadastrada com este CNPJ
+3. Se vocÃª precisa vincular outra unidade ao seu usuÃ¡rio
 ```
 
 ---
 
-## 📊 Nova Interface - Lista de Unidades
+## ðŸ“Š Nova Interface - Lista de Unidades
 
-### Tela: Configurações → Unidade Orçamentária
+### Tela: ConfiguraÃ§Ãµes â†’ Unidade OrÃ§amentÃ¡ria
 
-**Seção: "📋 Unidades Cadastradas"**
+**SeÃ§Ã£o: "ðŸ“‹ Unidades Cadastradas"**
 
 Tabela com colunas:
 
-- **Razão Social**: Nome completo da unidade
+- **RazÃ£o Social**: Nome completo da unidade
 - **CNPJ**: CNPJ formatado
 - **UG**: Unidade Gestora
-- **Município/UF**: Localização
-- **Ações**: Botões de ação
+- **MunicÃ­pio/UF**: LocalizaÃ§Ã£o
+- **AÃ§Ãµes**: BotÃµes de aÃ§Ã£o
 
-**Botões de Ação:**
+**BotÃµes de AÃ§Ã£o:**
 
-1. **✏️ Editar**: Carrega dados no formulário para edição
-2. **🔗 Vincular ao Usuário**: Vincula unidade ao usuário logado
-3. **🗑️ Excluir**: Remove unidade (com confirmação)
+1. **âœï¸ Editar**: Carrega dados no formulÃ¡rio para ediÃ§Ã£o
+2. **ðŸ”— Vincular ao UsuÃ¡rio**: Vincula unidade ao usuÃ¡rio logado
+3. **ðŸ—‘ï¸ Excluir**: Remove unidade (com confirmaÃ§Ã£o)
 
 ---
 
-## 🔗 Fluxo de Vinculação de Unidade
+## ðŸ”— Fluxo de VinculaÃ§Ã£o de Unidade
 
 ```
-1. Usuário acessa: Configurações → Unidade Orçamentária
-        ↓
+1. UsuÃ¡rio acessa: ConfiguraÃ§Ãµes â†’ Unidade OrÃ§amentÃ¡ria
+        â†“
 2. Visualiza lista de unidades cadastradas
-        ↓
-3. Clica em "🔗 Vincular ao Usuário" na unidade desejada
-        ↓
-4. Sistema mostra confirmação:
+        â†“
+3. Clica em "ðŸ”— Vincular ao UsuÃ¡rio" na unidade desejada
+        â†“
+4. Sistema mostra confirmaÃ§Ã£o:
    - Nome da unidade
    - CNPJ
-   - Nome do usuário logado
-        ↓
-5. Usuário confirma
-        ↓
-6. Sistema vincula unidade ao usuário
-        ↓
+   - Nome do usuÃ¡rio logado
+        â†“
+5. UsuÃ¡rio confirma
+        â†“
+6. Sistema vincula unidade ao usuÃ¡rio
+        â†“
 7. Atualiza tela de login com dados da unidade
-        ↓
-8. ✅ Todas as NE e NF serão validadas com este CNPJ!
+        â†“
+8. âœ… Todas as NE e NF serÃ£o validadas com este CNPJ!
 ```
 
 ---
 
-## 🎯 Caso de Uso: Campus com Múltiplas UGs
+## ðŸŽ¯ Caso de Uso: Campus com MÃºltiplas UGs
 
-### Cenário:
+### CenÃ¡rio:
 
 **IF Baiano - Campus Senhor do Bonfim** possui 3 Unidades Gestoras diferentes:
 
@@ -146,70 +146,70 @@ Tabela com colunas:
 2. **UG Fazenda Experimental**: 158124 - CNPJ: 10.123.456/0002-59
 3. **UG Projeto Especial**: 158125 - CNPJ: 10.123.456/0003-30
 
-### Solução:
+### SoluÃ§Ã£o:
 
-1. **Cadastrar todas as 3 unidades** na tela de Unidades Orçamentárias
-2. Cada usuário vincula a UG que gerencia:
-   - Diretor de Patrimônio → UG Principal
-   - Coordenador da Fazenda → UG Fazenda
-   - Gestor do Projeto → UG Projeto
+1. **Cadastrar todas as 3 unidades** na tela de Unidades OrÃ§amentÃ¡rias
+2. Cada usuÃ¡rio vincula a UG que gerencia:
+   - Diretor de PatrimÃ´nio â†’ UG Principal
+   - Coordenador da Fazenda â†’ UG Fazenda
+   - Gestor do Projeto â†’ UG Projeto
 
 3. **Resultado:**
-   - Cada usuário só consegue cadastrar NFs para sua UG vinculada
-   - Impossível cadastrar NF de outra unidade por engano
-   - Relatórios separados por unidade
+   - Cada usuÃ¡rio sÃ³ consegue cadastrar NFs para sua UG vinculada
+   - ImpossÃ­vel cadastrar NF de outra unidade por engano
+   - RelatÃ³rios separados por unidade
 
 ---
 
-## 🛠️ Alterações Técnicas
+## ðŸ› ï¸ AlteraÃ§Ãµes TÃ©cnicas
 
 ### Arquivos Modificados
 
 #### 1. `config/configuracoes.html`
 
-**Mudanças:**
+**MudanÃ§as:**
 
-- ❌ Removido: Botão "✓ Validar CNPJ"
-- ✅ Adicionado: Seção "📋 Unidades Cadastradas"
-- ✅ Adicionado: Tabela com lista de unidades
-- ✅ Adicionado: Botões de ação (Editar, Vincular, Excluir)
-- ✅ Atualizado: Texto de ajuda do campo CNPJ
+- âŒ Removido: BotÃ£o "âœ“ Validar CNPJ"
+- âœ… Adicionado: SeÃ§Ã£o "ðŸ“‹ Unidades Cadastradas"
+- âœ… Adicionado: Tabela com lista de unidades
+- âœ… Adicionado: BotÃµes de aÃ§Ã£o (Editar, Vincular, Excluir)
+- âœ… Atualizado: Texto de ajuda do campo CNPJ
 
 #### 2. `js/settings/unidade.js`
 
-**Mudanças:**
+**MudanÃ§as:**
 
-- ❌ Removido: Método `validarCNPJ()` (validação manual)
-- ✅ Alterado: Suporte a múltiplas unidades (array)
-- ✅ Adicionado: `renderizarLista()` - Renderiza tabela
-- ✅ Adicionado: `editarUnidade(id)` - Edita unidade
-- ✅ Adicionado: `vincularUnidadeAoUsuario(id)` - Vincula ao usuário
-- ✅ Adicionado: `excluirUnidade(id)` - Remove unidade
-- ✅ Adicionado: `getTodasUnidades()` - Busca todas as unidades
-- ✅ Adicionado: `adicionarUnidade()` - Adiciona nova unidade
-- ✅ Adicionado: `atualizarUnidade()` - Atualiza unidade
-- ✅ Adicionado: `removerUnidade()` - Remove do array
-- ✅ Adicionado: `salvarTodasUnidades()` - Salva no IndexedDB
-- ✅ Adicionado: Validação de CNPJ duplicado
+- âŒ Removido: MÃ©todo `validarCNPJ()` (validaÃ§Ã£o manual)
+- âœ… Alterado: Suporte a mÃºltiplas unidades (array)
+- âœ… Adicionado: `renderizarLista()` - Renderiza tabela
+- âœ… Adicionado: `editarUnidade(id)` - Edita unidade
+- âœ… Adicionado: `vincularUnidadeAoUsuario(id)` - Vincula ao usuÃ¡rio
+- âœ… Adicionado: `excluirUnidade(id)` - Remove unidade
+- âœ… Adicionado: `getTodasUnidades()` - Busca todas as unidades
+- âœ… Adicionado: `adicionarUnidade()` - Adiciona nova unidade
+- âœ… Adicionado: `atualizarUnidade()` - Atualiza unidade
+- âœ… Adicionado: `removerUnidade()` - Remove do array
+- âœ… Adicionado: `salvarTodasUnidades()` - Salva no IndexedDB
+- âœ… Adicionado: ValidaÃ§Ã£o de CNPJ duplicado
 
 #### 3. `js/app.js`
 
-**Mudanças em `salvarEmpenho()`:**
+**MudanÃ§as em `salvarEmpenho()`:**
 
-- ✅ Mantido: Alerta se CNPJ Fornecedor = CNPJ Unidade
-- ✅ Adicionado: Alerta se não há unidade configurada
-- ✅ Melhorado: Mensagens mais claras
+- âœ… Mantido: Alerta se CNPJ Fornecedor = CNPJ Unidade
+- âœ… Adicionado: Alerta se nÃ£o hÃ¡ unidade configurada
+- âœ… Melhorado: Mensagens mais claras
 
-**Mudanças em `salvarNotaFiscal()`:**
+**MudanÃ§as em `salvarNotaFiscal()`:**
 
-- ❌ Removido: Opção de continuar com CNPJ diferente
-- ✅ Adicionado: **BLOQUEIO TOTAL** se CNPJ Destinatário ≠ CNPJ Unidade
-- ✅ Adicionado: **BLOQUEIO TOTAL** se não há unidade vinculada
-- ✅ Adicionado: Mensagens detalhadas com orientações
+- âŒ Removido: OpÃ§Ã£o de continuar com CNPJ diferente
+- âœ… Adicionado: **BLOQUEIO TOTAL** se CNPJ DestinatÃ¡rio â‰  CNPJ Unidade
+- âœ… Adicionado: **BLOQUEIO TOTAL** se nÃ£o hÃ¡ unidade vinculada
+- âœ… Adicionado: Mensagens detalhadas com orientaÃ§Ãµes
 
 ---
 
-## 📦 Estrutura de Dados - IndexedDB
+## ðŸ“¦ Estrutura de Dados - IndexedDB
 
 ### Store: `config`
 
@@ -260,65 +260,65 @@ Tabela com colunas:
 
 ---
 
-## ⚠️ Pontos de Atenção
+## âš ï¸ Pontos de AtenÃ§Ã£o
 
 ### 1. Compatibilidade
 
-- Sistema mantém estrutura antiga (`unidadeOrcamentaria`)
-- Novo sistema de múltiplas unidades (`todasUnidades`)
+- Sistema mantÃ©m estrutura antiga (`unidadeOrcamentaria`)
+- Novo sistema de mÃºltiplas unidades (`todasUnidades`)
 - Ambos coexistem para garantir compatibilidade
 
 ### 2. Primeiro Cadastro
 
-- Se não há unidades, a primeira unidade cadastrada é automaticamente vinculada
-- Usuário pode alterar vinculação a qualquer momento
+- Se nÃ£o hÃ¡ unidades, a primeira unidade cadastrada Ã© automaticamente vinculada
+- UsuÃ¡rio pode alterar vinculaÃ§Ã£o a qualquer momento
 
-### 3. Exclusão de Unidade
+### 3. ExclusÃ£o de Unidade
 
-- Se excluir a unidade vinculada, limpa o vínculo
-- Usuário precisará vincular outra unidade antes de cadastrar NF
+- Se excluir a unidade vinculada, limpa o vÃ­nculo
+- UsuÃ¡rio precisarÃ¡ vincular outra unidade antes de cadastrar NF
 
-### 4. Validação de CNPJ
+### 4. ValidaÃ§Ã£o de CNPJ
 
-- CNPJ é validado no momento do cadastro (NE/NF)
-- Não há mais validação manual prévia
-- Algoritmo oficial da Receita Federal é utilizado
+- CNPJ Ã© validado no momento do cadastro (NE/NF)
+- NÃ£o hÃ¡ mais validaÃ§Ã£o manual prÃ©via
+- Algoritmo oficial da Receita Federal Ã© utilizado
 
 ---
 
-## 🎓 Orientações para Usuários
+## ðŸŽ“ OrientaÃ§Ãµes para UsuÃ¡rios
 
-### Como Cadastrar Múltiplas Unidades?
+### Como Cadastrar MÃºltiplas Unidades?
 
-1. Acesse: **Configurações** → **Unidade Orçamentária**
-2. Preencha o formulário com dados da primeira unidade
-3. Clique em **"💾 Salvar Unidade"**
-4. Formulário será limpo automaticamente
+1. Acesse: **ConfiguraÃ§Ãµes** â†’ **Unidade OrÃ§amentÃ¡ria**
+2. Preencha o formulÃ¡rio com dados da primeira unidade
+3. Clique em **"ðŸ’¾ Salvar Unidade"**
+4. FormulÃ¡rio serÃ¡ limpo automaticamente
 5. Preencha com dados da segunda unidade
 6. Salve novamente
 7. Repita para todas as unidades
 
-### Como Vincular Unidade ao Meu Usuário?
+### Como Vincular Unidade ao Meu UsuÃ¡rio?
 
-1. Na lista de **"📋 Unidades Cadastradas"**
-2. Localize a unidade que você gerencia
-3. Clique no botão **"🔗 Vincular ao Usuário"**
-4. Confirme a vinculação
-5. ✅ Pronto! Todas as NE e NF serão validadas com este CNPJ
+1. Na lista de **"ðŸ“‹ Unidades Cadastradas"**
+2. Localize a unidade que vocÃª gerencia
+3. Clique no botÃ£o **"ðŸ”— Vincular ao UsuÃ¡rio"**
+4. Confirme a vinculaÃ§Ã£o
+5. âœ… Pronto! Todas as NE e NF serÃ£o validadas com este CNPJ
 
 ### O que fazer se NF for Rejeitada?
 
-**Cenário:** NF não está sendo aceita por CNPJ diferente
+**CenÃ¡rio:** NF nÃ£o estÃ¡ sendo aceita por CNPJ diferente
 
-**Soluções:**
+**SoluÃ§Ãµes:**
 
-1. **Verifique se a NF é realmente para sua unidade**
-   - Confira o CNPJ do destinatário no PDF
+1. **Verifique se a NF Ã© realmente para sua unidade**
+   - Confira o CNPJ do destinatÃ¡rio no PDF
    - Compare com o CNPJ da sua unidade
 
 2. **Se a NF for de outra unidade do campus:**
-   - Cadastre a outra unidade em: Configurações → Unidade Orçamentária
-   - Vincule a nova unidade ao seu usuário
+   - Cadastre a outra unidade em: ConfiguraÃ§Ãµes â†’ Unidade OrÃ§amentÃ¡ria
+   - Vincule a nova unidade ao seu usuÃ¡rio
    - Tente cadastrar a NF novamente
 
 3. **Se a NF estiver errada:**
@@ -327,46 +327,47 @@ Tabela com colunas:
 
 ---
 
-## 📈 Benefícios das Mudanças
+## ðŸ“ˆ BenefÃ­cios das MudanÃ§as
 
-### 🎯 Precisão
+### ðŸŽ¯ PrecisÃ£o
 
-- ✅ Elimina erros de cadastro de NF errada
-- ✅ Garante que NF seja para a unidade correta
-- ✅ Validação automática e transparente
+- âœ… Elimina erros de cadastro de NF errada
+- âœ… Garante que NF seja para a unidade correta
+- âœ… ValidaÃ§Ã£o automÃ¡tica e transparente
 
-### 🔒 Segurança
+### ðŸ”’ SeguranÃ§a
 
-- ✅ Impossível cadastrar NF de outra unidade
-- ✅ Rastreamento claro de qual unidade cada documento pertence
-- ✅ Controle por usuário
+- âœ… ImpossÃ­vel cadastrar NF de outra unidade
+- âœ… Rastreamento claro de qual unidade cada documento pertence
+- âœ… Controle por usuÃ¡rio
 
-### 📊 Organização
+### ðŸ“Š OrganizaÃ§Ã£o
 
-- ✅ Visão clara de todas as unidades cadastradas
-- ✅ Fácil identificação da unidade vinculada
-- ✅ Gestão centralizada
+- âœ… VisÃ£o clara de todas as unidades cadastradas
+- âœ… FÃ¡cil identificaÃ§Ã£o da unidade vinculada
+- âœ… GestÃ£o centralizada
 
-### ⚡ Eficiência
+### âš¡ EficiÃªncia
 
-- ✅ Não precisa validar CNPJ manualmente
-- ✅ Validação acontece automaticamente
-- ✅ Menos cliques, mais produtividade
+- âœ… NÃ£o precisa validar CNPJ manualmente
+- âœ… ValidaÃ§Ã£o acontece automaticamente
+- âœ… Menos cliques, mais produtividade
 
 ---
 
-## 🔄 Migração de Dados
+## ðŸ”„ MigraÃ§Ã£o de Dados
 
-**Para instalações existentes:**
+**Para instalaÃ§Ãµes existentes:**
 
-1. Unidade orçamentária antiga será preservada
-2. Na primeira edição, será migrada para o novo sistema
-3. Usuários existentes manterão sua unidade vinculada
+1. Unidade orÃ§amentÃ¡ria antiga serÃ¡ preservada
+2. Na primeira ediÃ§Ã£o, serÃ¡ migrada para o novo sistema
+3. UsuÃ¡rios existentes manterÃ£o sua unidade vinculada
 4. Compatibilidade total garantida
 
 ---
 
-**Versão:** 1.2.3  
+**VersÃ£o:** 1.2.3  
 **Data:** 03/11/2025  
-**Autor:** Sistema IFDESK  
-**Status:** ✅ Implementado e Testado
+**Autor:** Sistema SINGEM  
+**Status:** âœ… Implementado e Testado
+

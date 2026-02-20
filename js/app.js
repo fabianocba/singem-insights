@@ -16,6 +16,7 @@ import * as authRemember from './core/authRemember.js';
 import * as FormatUtils from './core/format.js';
 import * as NaturezaSubelementos from './data/naturezaSubelementos.js';
 import * as RelatoriosEmpenhos from './relatoriosEmpenhos.js';
+import { initInfrastructureInfo } from './infrastructureInfo.js';
 
 console.log('[App] 📦 Versão:', APP_VERSION, 'Build:', APP_BUILD);
 console.log('[App] 🔍 Repository importado:', typeof repository);
@@ -86,7 +87,7 @@ class ControleMaterialApp {
    */
   async init() {
     try {
-      console.log('🚀 Iniciando aplicação IFDESK...');
+      console.log('🚀 Iniciando aplicação SINGEM...');
 
       // Inicializa o banco de dados
       await window.dbManager.init();
@@ -8190,7 +8191,7 @@ function logBootstrapReport() {
 // Inicializa a aplicação quando o DOM estiver carregado
 document.addEventListener('DOMContentLoaded', async () => {
   try {
-    console.log('[Bootstrap] 🚀 Iniciando aplicação IFDESK...');
+    console.log('[Bootstrap] 🚀 Iniciando aplicação SINGEM...');
 
     // Aguarda repository estar pronto (com retry)
     await waitForRepository();
@@ -8228,15 +8229,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     // =========================================================================
     // BOOTSTRAP COMPLETO - Sinaliza para outros módulos
     // =========================================================================
-    window.__IFDESK_BOOTSTRAP_DONE__ = true;
+    window.__SINGEM_BOOTSTRAP_DONE__ = true;
     window.dispatchEvent(
-      new CustomEvent('ifdesk:bootstrap:done', {
+      new CustomEvent('SINGEM:bootstrap:done', {
         detail: { ts: Date.now(), version: APP_VERSION, build: APP_BUILD }
       })
     );
 
     // Exibe versão formatada no console
     logVersion();
+
+    // Exibe info da infraestrutura (controlado, apenas em debug/localhost)
+    initInfrastructureInfo();
 
     console.log('[Bootstrap] ✅ Aplicação inicializada com sucesso!');
   } catch (error) {

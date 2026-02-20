@@ -1,124 +1,124 @@
-# 🚀 GUIA RÁPIDO - LOGIN NO IFDESK
+﻿# ðŸš€ GUIA RÃPIDO - LOGIN NO SINGEM
 
-**Versão:** 1.3.2  
+**VersÃ£o:** 1.3.2  
 **Atualizado em:** 05/11/2025
 
 ---
 
-## 🎯 COMO FAZER LOGIN
+## ðŸŽ¯ COMO FAZER LOGIN
 
 ### **PRIMEIRO ACESSO** (Administrador)
 
-1. **Abra a aplicação:**
+1. **Abra a aplicaÃ§Ã£o:**
    - Duplo-clique em `ABRIR_APLICACAO.bat`
    - Ou execute: `.\ABRIR_APLICACAO.ps1`
 
 2. **Use as credenciais mestras:**
 
    ```
-   👤 Usuário: ifdesk
-   🔑 Senha: admin@2025
+   ðŸ‘¤ UsuÃ¡rio: singem
+   ðŸ”‘ Senha: admin@2025
    ```
 
-3. **Sistema irá redirecionar você automaticamente** para cadastro de usuário
+3. **Sistema irÃ¡ redirecionar vocÃª automaticamente** para cadastro de usuÃ¡rio
 
-4. **Cadastre seu usuário pessoal:**
+4. **Cadastre seu usuÃ¡rio pessoal:**
    - Nome: Seu nome completo
-   - Login: Escolha um nome de usuário (ex: `joao.silva`)
-   - Senha: Mínimo 6 caracteres (use letras e números)
+   - Login: Escolha um nome de usuÃ¡rio (ex: `joao.silva`)
+   - Senha: MÃ­nimo 6 caracteres (use letras e nÃºmeros)
    - Perfil: Selecione **Administrador**
-   - Clique em **Adicionar Usuário**
+   - Clique em **Adicionar UsuÃ¡rio**
 
-5. **Faça LOGOUT** (botão 🚪 Sair no canto superior direito)
+5. **FaÃ§a LOGOUT** (botÃ£o ðŸšª Sair no canto superior direito)
 
-6. **Faça LOGIN com seu novo usuário**
+6. **FaÃ§a LOGIN com seu novo usuÃ¡rio**
 
 ---
 
-### **ACESSO NORMAL** (Após cadastro)
+### **ACESSO NORMAL** (ApÃ³s cadastro)
 
-1. **Abra a aplicação**
+1. **Abra a aplicaÃ§Ã£o**
 
 2. **Digite suas credenciais:**
-   - Usuário: O login que você cadastrou
-   - Senha: A senha que você definiu
+   - UsuÃ¡rio: O login que vocÃª cadastrou
+   - Senha: A senha que vocÃª definiu
 
-3. **Clique em 🔐 Entrar**
+3. **Clique em ðŸ” Entrar**
 
-4. **Pronto!** Você será redirecionado para a tela principal
+4. **Pronto!** VocÃª serÃ¡ redirecionado para a tela principal
 
 ---
 
-## ✅ INDICADORES VISUAIS
+## âœ… INDICADORES VISUAIS
 
 ### **Durante o Login:**
 
 ```
-🔐 Entrar  →  🔄 Autenticando...  →  ✅ Logado!
+ðŸ” Entrar  â†’  ðŸ”„ Autenticando...  â†’  âœ… Logado!
 ```
 
-### **Após Login Bem-Sucedido:**
+### **ApÃ³s Login Bem-Sucedido:**
 
 Aparece uma mensagem no canto superior direito:
 
 ```
-┌──────────────────────────────────┐
-│ ✅ Bem-vindo(a), Seu Nome!       │
-│ Login realizado com sucesso      │
-└──────────────────────────────────┘
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚ âœ… Bem-vindo(a), Seu Nome!       â”‚
+â”‚ Login realizado com sucesso      â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
 ```
 
 ### **Se Houver Erro:**
 
 - Campo de erro aparece em vermelho
-- Mensagem: "Usuário ou senha inválidos"
-- Botão volta ao estado normal
-- Você pode tentar novamente
+- Mensagem: "UsuÃ¡rio ou senha invÃ¡lidos"
+- BotÃ£o volta ao estado normal
+- VocÃª pode tentar novamente
 
 ---
 
-## ❌ PROBLEMAS COMUNS
+## âŒ PROBLEMAS COMUNS
 
-### **1. "Usuário ou senha inválidos"**
+### **1. "UsuÃ¡rio ou senha invÃ¡lidos"**
 
 **Causas:**
 
 - Login digitado errado
 - Senha digitada errada
-- Usuário não existe
-- Usuário está inativo
+- UsuÃ¡rio nÃ£o existe
+- UsuÃ¡rio estÃ¡ inativo
 
-**Solução:**
+**SoluÃ§Ã£o:**
 
 - Verifique se digitou corretamente
-- Caps Lock está desligado?
+- Caps Lock estÃ¡ desligado?
 - Use credenciais mestras se esqueceu a senha
 
 ---
 
 ### **2. Esqueci minha senha**
 
-**Solução:**
+**SoluÃ§Ã£o:**
 
-1. Faça login com credenciais mestras:
-   - Usuário: `ifdesk`
+1. FaÃ§a login com credenciais mestras:
+   - UsuÃ¡rio: `singem`
    - Senha: `admin@2025`
 
-2. Vá em: **Configurações** → **Usuários**
+2. VÃ¡ em: **ConfiguraÃ§Ãµes** â†’ **UsuÃ¡rios**
 
-3. Clique em **✏️ Editar** no seu usuário
+3. Clique em **âœï¸ Editar** no seu usuÃ¡rio
 
 4. Digite uma **nova senha**
 
 5. Clique em **Salvar**
 
-6. Faça **logout** e login com a nova senha
+6. FaÃ§a **logout** e login com a nova senha
 
 ---
 
-### **3. Não consigo fazer login de jeito nenhum**
+### **3. NÃ£o consigo fazer login de jeito nenhum**
 
-**Diagnóstico:**
+**DiagnÃ³stico:**
 
 1. Abra o navegador e pressione **F12** (abre console)
 
@@ -127,23 +127,23 @@ Aparece uma mensagem no canto superior direito:
 3. Veja os logs no console:
 
    ```
-   🔐 Tentando autenticar: seu_usuario
-   👥 Usuários no banco: 0  ← PROBLEMA AQUI!
+   ðŸ” Tentando autenticar: seu_usuario
+   ðŸ‘¥ UsuÃ¡rios no banco: 0  â† PROBLEMA AQUI!
    ```
 
-4. Se aparecer `Usuários no banco: 0`, significa que não há usuários cadastrados
+4. Se aparecer `UsuÃ¡rios no banco: 0`, significa que nÃ£o hÃ¡ usuÃ¡rios cadastrados
 
-**Solução:**
+**SoluÃ§Ã£o:**
 
 - Use credenciais mestras
-- Cadastre um novo usuário
+- Cadastre um novo usuÃ¡rio
 - Tente novamente
 
 ---
 
-### **4. Tela de login não carrega**
+### **4. Tela de login nÃ£o carrega**
 
-**Solução:**
+**SoluÃ§Ã£o:**
 
 1. **Limpe o cache:**
    - Pressione: **Ctrl + Shift + R**
@@ -153,56 +153,56 @@ Aparece uma mensagem no canto superior direito:
    - Deve estar rodando na porta 8000
    - Execute: `python -m http.server 8000`
 
-3. **Abra o console (F12)** e veja se há erros
+3. **Abra o console (F12)** e veja se hÃ¡ erros
 
 ---
 
-## 🔐 SEGURANÇA
+## ðŸ” SEGURANÃ‡A
 
-### **Sua senha é segura!**
+### **Sua senha Ã© segura!**
 
-- ✅ Armazenada com hash PBKDF2
-- ✅ 100.000 iterações SHA-256
-- ✅ Salt aleatório único
-- ✅ Impossível recuperar senha original
-- ✅ Mesmo administradores não veem sua senha
+- âœ… Armazenada com hash PBKDF2
+- âœ… 100.000 iteraÃ§Ãµes SHA-256
+- âœ… Salt aleatÃ³rio Ãºnico
+- âœ… ImpossÃ­vel recuperar senha original
+- âœ… Mesmo administradores nÃ£o veem sua senha
 
 ### **Dicas de Senha Forte:**
 
 ```
-❌ FRACA:    123456
-❌ FRACA:    senha
-❌ FRACA:    ifbaiano
+âŒ FRACA:    123456
+âŒ FRACA:    senha
+âŒ FRACA:    ifbaiano
 
-✅ MÉDIA:    senha123
-✅ FORTE:    Senh@123
-✅ MUITO FORTE: MinhaSenha@2025!
+âœ… MÃ‰DIA:    senha123
+âœ… FORTE:    Senh@123
+âœ… MUITO FORTE: MinhaSenha@2025!
 ```
 
-**Recomendações:**
+**RecomendaÃ§Ãµes:**
 
-- Mínimo 8 caracteres
-- Use letras maiúsculas e minúsculas
-- Adicione números
+- MÃ­nimo 8 caracteres
+- Use letras maiÃºsculas e minÃºsculas
+- Adicione nÃºmeros
 - Use caracteres especiais (@, !, #, $)
 
 ---
 
-## 📱 ATALHOS ÚTEIS
+## ðŸ“± ATALHOS ÃšTEIS
 
-| Ação            | Atalho                                 |
+| AÃ§Ã£o            | Atalho                                 |
 | --------------- | -------------------------------------- |
 | Login           | `Enter` no campo de senha              |
-| Logout          | Botão 🚪 Sair (canto superior direito) |
+| Logout          | BotÃ£o ðŸšª Sair (canto superior direito) |
 | Limpar cache    | `Ctrl + Shift + R`                     |
 | Console         | `F12`                                  |
-| Voltar ao login | Faça logout                            |
+| Voltar ao login | FaÃ§a logout                            |
 
 ---
 
-## 🆘 PRECISA DE AJUDA?
+## ðŸ†˜ PRECISA DE AJUDA?
 
-### **Opção 1: Diagnóstico Automático**
+### **OpÃ§Ã£o 1: DiagnÃ³stico AutomÃ¡tico**
 
 Abra no navegador:
 
@@ -210,27 +210,27 @@ Abra no navegador:
 http://localhost:8000/verificar-db.html
 ```
 
-Esta página mostra:
+Esta pÃ¡gina mostra:
 
-- ✅ Status do banco de dados
-- ✅ Unidade orçamentária cadastrada
-- ✅ Usuários cadastrados
-- ✅ Informações de debug
+- âœ… Status do banco de dados
+- âœ… Unidade orÃ§amentÃ¡ria cadastrada
+- âœ… UsuÃ¡rios cadastrados
+- âœ… InformaÃ§Ãµes de debug
 
-### **Opção 2: Console do Navegador**
+### **OpÃ§Ã£o 2: Console do Navegador**
 
 1. Pressione `F12`
-2. Vá na aba "Console"
+2. VÃ¡ na aba "Console"
 3. Veja os logs coloridos
 4. Identifique o problema
 
-### **Opção 3: Contate o Suporte**
+### **OpÃ§Ã£o 3: Contate o Suporte**
 
-Tire um print do console (F12) e envie para o suporte técnico.
+Tire um print do console (F12) e envie para o suporte tÃ©cnico.
 
 ---
 
-## 🎓 VÍDEO TUTORIAL
+## ðŸŽ“ VÃDEO TUTORIAL
 
 _[EM BREVE]_
 
@@ -238,19 +238,20 @@ Enquanto isso, siga este guia passo a passo!
 
 ---
 
-## ✅ CHECKLIST DE PRIMEIRO ACESSO
+## âœ… CHECKLIST DE PRIMEIRO ACESSO
 
-- [ ] Abri a aplicação com `ABRIR_APLICACAO.bat`
-- [ ] Fiz login com `ifdesk` / `admin@2025`
-- [ ] Cadastrei meu usuário pessoal
+- [ ] Abri a aplicaÃ§Ã£o com `ABRIR_APLICACAO.bat`
+- [ ] Fiz login com `singem` / `admin@2025`
+- [ ] Cadastrei meu usuÃ¡rio pessoal
 - [ ] Defini uma senha forte
 - [ ] Anotei minhas credenciais em local seguro
 - [ ] Fiz logout
-- [ ] Fiz login com meu novo usuário
-- [ ] Sistema funcionando! ✅
+- [ ] Fiz login com meu novo usuÃ¡rio
+- [ ] Sistema funcionando! âœ…
 
 ---
 
 **Desenvolvido para IF Baiano - Campus**  
-**Sistema IFDESK - Controle de Material**  
-**Versão 1.3.2 - Novembro 2025**
+**Sistema SINGEM - Controle de Material**  
+**VersÃ£o 1.3.2 - Novembro 2025**
+

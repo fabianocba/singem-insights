@@ -276,7 +276,7 @@ function renderSystemInfo(containerId) {
   }
 
   const info = {
-    'Versão IFDESK': localStorage.getItem('ifdesk_app_version') || 'Não definida',
+    'Versão SINGEM': localStorage.getItem('SINGEM_app_version') || 'Não definida',
     'User Agent': navigator.userAgent,
     Plataforma: navigator.platform,
     Idioma: navigator.language,

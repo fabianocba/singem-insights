@@ -1,5 +1,5 @@
 /**
- * IFDESK - Auditoria Automática do Projeto
+ * SINGEM - Auditoria Automática do Projeto
  *
  * Este script realiza auditoria completa SEM modificar código existente.
  * Sempre sai com código 0 (não falha build), apenas reporta problemas.
@@ -515,7 +515,7 @@ function generateReports() {
 function generateMarkdown() {
   const lines = [];
 
-  lines.push('# 🔍 IFDESK - Relatório de Auditoria Automática\n');
+  lines.push('# 🔍 SINGEM - Relatório de Auditoria Automática\n');
   lines.push(`**Data:** ${REPORT.metadata.date}  `);
   lines.push(`**Versão App:** ${REPORT.metadata.appVersion || 'N/A'}  `);
   lines.push(`**Node:** ${REPORT.metadata.nodeVersion}  `);
@@ -624,7 +624,7 @@ function generateMarkdown() {
   }
 
   lines.push('---\n');
-  lines.push('_Gerado automaticamente por IFDESK Audit em ' + REPORT.metadata.date + '_\n');
+  lines.push('_Gerado automaticamente por SINGEM Audit em ' + REPORT.metadata.date + '_\n');
 
   return lines.join('\n');
 }
@@ -634,7 +634,7 @@ function generateMarkdown() {
 // ========================================
 async function main() {
   console.log('\n🔍 ========================================');
-  console.log('   IFDESK - Auditoria Automática');
+  console.log('   SINGEM - Auditoria Automática');
   console.log('========================================\n');
 
   try {

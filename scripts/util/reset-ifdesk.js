@@ -1,5 +1,5 @@
 /**
- * SCRIPT DE RESET DO IFDESK
+ * SCRIPT DE RESET DO SINGEM
  *
  * Use este script se não conseguir fazer login
  *
@@ -10,7 +10,7 @@
  * 4. Recarregue a página (F5)
  */
 
-console.log('🔧 Iniciando reset do IFDESK...');
+console.log('🔧 Iniciando reset do SINGEM...');
 
 // Limpa localStorage
 localStorage.clear();
@@ -28,4 +28,4 @@ console.log('✅ Cookies limpos');
 
 console.log('✅ Reset completo!');
 console.log('📝 Agora recarregue a página (F5) e tente fazer login novamente');
-console.log('🔑 Credenciais: ifdesk / admin@2025');
+console.log('🔑 Credenciais: SINGEM / admin@2025');

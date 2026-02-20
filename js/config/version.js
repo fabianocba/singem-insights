@@ -1,16 +1,16 @@
 ﻿/**
- * ══════════════════════════════════════════════════════════════════
- * IFDESK - ARQUIVO DE VERSÃO (COMPAT. LEGADO)
- * ══════════════════════════════════════════════════════════════════
+ * ------------------------------------------------------------------
+ * SINGEM - ARQUIVO DE VERSAO (COMPAT. LEGADO)
+ * ------------------------------------------------------------------
  *
- * ⚠️  ARQUIVO LEGADO - Use js/core/version.js como fonte canônica
+ *  ARQUIVO LEGADO - Use js/core/version.js como fonte canonica
  *
  * Este arquivo re-exporta de js/core/version.js para compatibilidade.
  *
- * ══════════════════════════════════════════════════════════════════
+ * ------------------------------------------------------------------
  */
 
-// Importa tudo de js/core/version.js (fonte canônica)
+// Importa tudo de js/core/version.js (fonte canonica)
 import {
   APP_NAME,
   APP_VERSION,
@@ -26,45 +26,45 @@ import {
 export { APP_NAME, APP_VERSION, APP_BUILD, BUILD_TIMESTAMP, VERSION_DISPLAY, CACHE_BUSTER, VERSION_INFO, logVersion };
 
 /**
- * Exibe banner de versão no console
+ * Exibe banner de versao no console
  */
 export function showVersionBanner() {
   console.log(
     '\n' +
-      '╔═══════════════════════════════════════════════════════════════╗\n' +
-      '║                         IFDESK                                 ║\n' +
-      '║               Sistema de Controle de Material                  ║\n' +
-      '╠═══════════════════════════════════════════════════════════════╣\n' +
-      '║  Versão: ' +
-      APP_VERSION.padEnd(10) +
-      '                                        ║\n' +
-      '║  Build:  ' +
+      '+---------------------------------------------------------------+\n' +
+      '|                         SINGEM                                |\n' +
+      '|               Sistema de Controle de Material                 |\n' +
+      '|---------------------------------------------------------------|\n' +
+      '|  Versao: v' +
+      APP_VERSION.padEnd(9) +
+      '                                        |\n' +
+      '|  Build:  ' +
       APP_BUILD.padEnd(20) +
-      '                             ║\n' +
-      '╚═══════════════════════════════════════════════════════════════╝\n'
+      '                             |\n' +
+      '+---------------------------------------------------------------+\n'
   );
 }
 
 /**
- * Cria e insere o rodapé de versão na página
+ * Cria e insere o rodape de versao na pagina
  */
 export function renderVersionFooter() {
-  // Remove rodapé anterior se existir
-  const existing = document.getElementById('ifdesk-version-footer');
+  // Remove rodape anterior se existir
+  const existing = document.getElementById('SINGEM-version-footer');
   if (existing) {
     existing.remove();
   }
 
   const footer = document.createElement('div');
-  footer.id = 'ifdesk-version-footer';
+  footer.id = 'SINGEM-version-footer';
   footer.innerHTML =
     '<span class="v-name">' +
     APP_NAME +
     '</span> ' +
-    '<span class="v-version">' +
+    '<span class="v-version">v' +
     APP_VERSION +
     '</span> ' +
-    '<span class="v-sep">•</span> ' +
+    '<span class="v-sep">|</span> ' +
     '<span class="v-build">build ' +
     APP_BUILD +
     '</span>';
@@ -94,28 +94,28 @@ export function renderVersionFooter() {
   // Adiciona estilos para elementos internos
   const style = document.createElement('style');
   style.textContent =
-    '#ifdesk-version-footer .v-version { color: #4fc3f7; font-weight: 600; }' +
-    '#ifdesk-version-footer .v-build { color: #81c784; }' +
-    '#ifdesk-version-footer .v-sep { color: #555; }' +
-    '#ifdesk-version-footer:hover { background: linear-gradient(135deg, #1f1f3a 0%, #1a2744 100%); }';
+    '#SINGEM-version-footer .v-version { color: #4fc3f7; font-weight: 600; }' +
+    '#SINGEM-version-footer .v-build { color: #81c784; }' +
+    '#SINGEM-version-footer .v-sep { color: #555; }' +
+    '#SINGEM-version-footer:hover { background: linear-gradient(135deg, #1f1f3a 0%, #1a2744 100%); }';
   document.head.appendChild(style);
 }
 
 /**
- * Verifica se versão mudou e limpa cache
+ * Verifica se versao mudou e limpa cache
  */
 function checkVersionChange() {
-  const STORAGE_KEY = 'ifdesk-version-build';
+  const STORAGE_KEY = 'SINGEM-version-build';
   const stored = localStorage.getItem(STORAGE_KEY);
   const current = APP_VERSION + '-' + APP_BUILD;
 
   if (stored !== current) {
     if (stored) {
-      console.log('🔄 Versão atualizada: ' + stored + ' → ' + current);
+      console.log('Versao atualizada: ' + stored + ' -> ' + current);
     }
     localStorage.setItem(STORAGE_KEY, current);
 
-    // Atualiza Service Workers se disponível
+    // Atualiza Service Workers se disponivel
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker
         .getRegistrations()
@@ -129,22 +129,22 @@ function checkVersionChange() {
   }
 }
 
-// ══════════════════════════════════════════════════════════════════
-// INICIALIZAÇÃO AUTOMÁTICA
-// ══════════════════════════════════════════════════════════════════
+// ------------------------------------------------------------------
+// INICIALIZACAO AUTOMATICA
+// ------------------------------------------------------------------
 if (typeof window !== 'undefined') {
-  // Expõe globalmente
-  window.IFDESK_VERSION = APP_VERSION;
-  window.IFDESK_BUILD = APP_BUILD;
-  window.IFDESK_VERSION_INFO = VERSION_INFO;
+  // Expoe globalmente
+  window.SINGEM_VERSION = APP_VERSION;
+  window.SINGEM_BUILD = APP_BUILD;
+  window.SINGEM_VERSION_INFO = VERSION_INFO;
 
   // Mostra banner no console
   showVersionBanner();
 
-  // Verifica mudança de versão
+  // Verifica mudanca de versao
   checkVersionChange();
 
-  // Renderiza rodapé quando DOM estiver pronto
+  // Renderiza rodape quando DOM estiver pronto
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', renderVersionFooter);
   } else {

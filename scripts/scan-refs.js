@@ -1,5 +1,5 @@
 /**
- * IFDESK - Script de Análise de Referências
+ * SINGEM - Script de Análise de Referências
  *
  * Escaneia o projeto para encontrar arquivos órfãos
  * (não referenciados em nenhum import ou script tag)
@@ -98,7 +98,7 @@ function resolveReferencePath(ref, fromFile) {
  * Análise principal
  */
 function analyzeProject() {
-  console.log('🔍 Escaneando projeto IFDESK...\n');
+  console.log('🔍 Escaneando projeto SINGEM...\n');
 
   const allFiles = getAllFiles(ROOT_DIR);
   const referenced = new Set();
@@ -205,7 +205,7 @@ function analyzeProject() {
   // Salva relatório
   const reportPath = path.join(ROOT_DIR, 'SCAN_REPORT.txt');
   const reportContent = [
-    'IFDESK - Relatório de Análise de Referências',
+    'SINGEM - Relatório de Análise de Referências',
     '='.repeat(60),
     `Data: ${new Date().toLocaleString('pt-BR')}`,
     '',

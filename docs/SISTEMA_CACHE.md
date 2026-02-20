@@ -1,12 +1,12 @@
-# 🔄 Sistema de Controle de Cache - IFDESK
+﻿# ðŸ”„ Sistema de Controle de Cache - SINGEM
 
-## 📋 Visão Geral
+## ðŸ“‹ VisÃ£o Geral
 
-O IFDESK implementa um **sistema robusto de controle de cache** que garante que os usuários sempre tenham a versão mais recente da aplicação, sem precisar limpar cache manualmente.
+O SINGEM implementa um **sistema robusto de controle de cache** que garante que os usuÃ¡rios sempre tenham a versÃ£o mais recente da aplicaÃ§Ã£o, sem precisar limpar cache manualmente.
 
 ---
 
-## 🎯 Componentes do Sistema
+## ðŸŽ¯ Componentes do Sistema
 
 ### 1. **Meta Tags HTTP** (Todos os HTMLs)
 
@@ -16,7 +16,7 @@ O IFDESK implementa um **sistema robusto de controle de cache** que garante que 
 <meta http-equiv="Expires" content="0" />
 ```
 
-**O que faz:** Instrui o navegador a **não armazenar cache** das páginas HTML.
+**O que faz:** Instrui o navegador a **nÃ£o armazenar cache** das pÃ¡ginas HTML.
 
 **Arquivos afetados:**
 
@@ -28,20 +28,20 @@ O IFDESK implementa um **sistema robusto de controle de cache** que garante que 
 
 ### 2. **Service Worker** (`sw.js`)
 
-**Estratégia:** Network First (Cache como fallback)
+**EstratÃ©gia:** Network First (Cache como fallback)
 
 **Como funciona:**
 
 1. Sempre tenta buscar da **rede primeiro**
-2. Se conseguir, atualiza o cache com a versão mais recente
-3. Se a rede falhar (offline), usa a versão em cache
-4. Limpa caches antigos automaticamente quando há atualização
+2. Se conseguir, atualiza o cache com a versÃ£o mais recente
+3. Se a rede falhar (offline), usa a versÃ£o em cache
+4. Limpa caches antigos automaticamente quando hÃ¡ atualizaÃ§Ã£o
 
 **Vantagens:**
 
-- ✅ Usuário sempre tem a versão mais recente quando online
-- ✅ Aplicação funciona offline se já foi carregada antes
-- ✅ Caches antigos são removidos automaticamente
+- âœ… UsuÃ¡rio sempre tem a versÃ£o mais recente quando online
+- âœ… AplicaÃ§Ã£o funciona offline se jÃ¡ foi carregada antes
+- âœ… Caches antigos sÃ£o removidos automaticamente
 
 **Registro:**
 
@@ -59,40 +59,40 @@ navigator.serviceWorker.register('/sw.js', {
 
 **Responsabilidades:**
 
-- Gerencia versão atual da aplicação
+- Gerencia versÃ£o atual da aplicaÃ§Ã£o
 - Registra e monitora Service Worker
-- Detecta quando há uma nova versão
-- Notifica usuário sobre atualizações disponíveis
-- Limpa cache quando necessário
+- Detecta quando hÃ¡ uma nova versÃ£o
+- Notifica usuÃ¡rio sobre atualizaÃ§Ãµes disponÃ­veis
+- Limpa cache quando necessÃ¡rio
 
-**Versão Atual:**
+**VersÃ£o Atual:**
 
 ```javascript
 this.currentVersion = '1.2.7-20251105';
 this.buildTimestamp = '2025-11-05T17:00:00Z';
 ```
 
-**Detecção de Atualização:**
+**DetecÃ§Ã£o de AtualizaÃ§Ã£o:**
 
-- Compara versão armazenada no `localStorage` com a versão atual
-- Se diferente, limpa cache e notifica usuário
+- Compara versÃ£o armazenada no `localStorage` com a versÃ£o atual
+- Se diferente, limpa cache e notifica usuÃ¡rio
 - Verifica a cada 5 minutos
 
-**Notificação ao Usuário:**
+**NotificaÃ§Ã£o ao UsuÃ¡rio:**
 
 ```
-╔═══════════════════════════════════════╗
-║  🎉 Nova versão disponível!           ║
-║  Atualizado de 1.2.6 para 1.2.7       ║
-║  [🔄 Recarregar Agora] [Depois]       ║
-╚═══════════════════════════════════════╝
+â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
+â•‘  ðŸŽ‰ Nova versÃ£o disponÃ­vel!           â•‘
+â•‘  Atualizado de 1.2.6 para 1.2.7       â•‘
+â•‘  [ðŸ”„ Recarregar Agora] [Depois]       â•‘
+â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 ```
 
 ---
 
 ### 4. **Cache Buster** (`js/cacheBuster.js`)
 
-**O que faz:** Adiciona query strings com versão e timestamp a URLs de assets.
+**O que faz:** Adiciona query strings com versÃ£o e timestamp a URLs de assets.
 
 **Exemplo:**
 
@@ -100,11 +100,11 @@ this.buildTimestamp = '2025-11-05T17:00:00Z';
 // Antes
 <script src="js/app.js"></script>
 
-// Depois (automático)
+// Depois (automÃ¡tico)
 <script src="js/app.js?v=1.2.7-20251105&t=1730826000000"></script>
 ```
 
-**Métodos:**
+**MÃ©todos:**
 
 ```javascript
 // Carregar script com cache-busting
@@ -119,55 +119,55 @@ const url = window.cacheBuster.addCacheBusting('/api/data');
 
 ---
 
-## 🔧 Como Funciona na Prática
+## ðŸ”§ Como Funciona na PrÃ¡tica
 
-### Cenário 1: Primeira Visita
+### CenÃ¡rio 1: Primeira Visita
 
-1. Usuário acessa pela primeira vez
-2. Service Worker é registrado
-3. Assets são baixados da rede
-4. Cache é populado para uso offline
-5. Versão é armazenada no localStorage
+1. UsuÃ¡rio acessa pela primeira vez
+2. Service Worker Ã© registrado
+3. Assets sÃ£o baixados da rede
+4. Cache Ã© populado para uso offline
+5. VersÃ£o Ã© armazenada no localStorage
 
-### Cenário 2: Visita Subsequente (Mesma Versão)
+### CenÃ¡rio 2: Visita Subsequente (Mesma VersÃ£o)
 
-1. Service Worker intercepta requisições
+1. Service Worker intercepta requisiÃ§Ãµes
 2. Busca da rede primeiro
 3. Se conseguir, atualiza cache
 4. Se falhar (offline), usa cache
-5. Usuário vê conteúdo mais recente
+5. UsuÃ¡rio vÃª conteÃºdo mais recente
 
-### Cenário 3: Nova Versão Disponível
+### CenÃ¡rio 3: Nova VersÃ£o DisponÃ­vel
 
-1. Usuário acessa a aplicação
-2. VersionManager detecta versão diferente
-3. Cache do Service Worker é limpo
-4. Notificação aparece na tela
-5. Usuário clica "Recarregar Agora"
-6. Página é recarregada com nova versão
+1. UsuÃ¡rio acessa a aplicaÃ§Ã£o
+2. VersionManager detecta versÃ£o diferente
+3. Cache do Service Worker Ã© limpo
+4. NotificaÃ§Ã£o aparece na tela
+5. UsuÃ¡rio clica "Recarregar Agora"
+6. PÃ¡gina Ã© recarregada com nova versÃ£o
 
-### Cenário 4: Atualização do Service Worker
+### CenÃ¡rio 4: AtualizaÃ§Ã£o do Service Worker
 
-1. Nova versão do SW é detectada
+1. Nova versÃ£o do SW Ã© detectada
 2. Service Worker entra em estado "waiting"
-3. Notificação aparece: "Nova versão disponível"
-4. Usuário clica "Atualizar Agora"
-5. Novo SW é ativado
-6. Página recarrega automaticamente
+3. NotificaÃ§Ã£o aparece: "Nova versÃ£o disponÃ­vel"
+4. UsuÃ¡rio clica "Atualizar Agora"
+5. Novo SW Ã© ativado
+6. PÃ¡gina recarrega automaticamente
 
 ---
 
-## 📦 Como Atualizar a Versão
+## ðŸ“¦ Como Atualizar a VersÃ£o
 
-### Passo 1: Atualizar Número de Versão
+### Passo 1: Atualizar NÃºmero de VersÃ£o
 
 Edite `js/versionManager.js`:
 
 ```javascript
 class VersionManager {
   constructor() {
-    this.currentVersion = '1.2.8-20251106'; // ← ATUALIZE AQUI
-    this.buildTimestamp = '2025-11-06T10:00:00Z'; // ← ATUALIZE AQUI
+    this.currentVersion = '1.2.8-20251106'; // â† ATUALIZE AQUI
+    this.buildTimestamp = '2025-11-06T10:00:00Z'; // â† ATUALIZE AQUI
     // ...
   }
 }
@@ -178,7 +178,7 @@ class VersionManager {
 Edite `sw.js`:
 
 ```javascript
-const CACHE_VERSION = 'ifdesk-v1.2.8-20251106'; // ← ATUALIZE AQUI
+const CACHE_VERSION = 'singem-v1.2.8-20251106'; // â† ATUALIZE AQUI
 ```
 
 ### Passo 3: Atualizar Cache Buster (opcional)
@@ -188,7 +188,7 @@ Edite `js/cacheBuster.js`:
 ```javascript
 class CacheBuster {
   constructor() {
-    this.version = '1.2.8-20251106'; // ← ATUALIZE AQUI
+    this.version = '1.2.8-20251106'; // â† ATUALIZE AQUI
     // ...
   }
 }
@@ -197,23 +197,23 @@ class CacheBuster {
 ### Passo 4: Testar
 
 1. Limpe cache do navegador (CTRL+SHIFT+DELETE)
-2. Acesse a aplicação
+2. Acesse a aplicaÃ§Ã£o
 3. Verifique no console:
    ```
-   📦 IFDESK v1.2.8-20251106 (2025-11-06T10:00:00Z)
+   ðŸ“¦ SINGEM v1.2.8-20251106 (2025-11-06T10:00:00Z)
    ```
 
 ---
 
-## 🧪 Testes
+## ðŸ§ª Testes
 
-### Teste 1: Verificar Versão
+### Teste 1: Verificar VersÃ£o
 
 ```javascript
 console.log(window.versionManager.getVersionInfo());
 ```
 
-**Saída esperada:**
+**SaÃ­da esperada:**
 
 ```json
 {
@@ -225,32 +225,32 @@ console.log(window.versionManager.getVersionInfo());
 }
 ```
 
-### Teste 2: Forçar Limpeza de Cache
+### Teste 2: ForÃ§ar Limpeza de Cache
 
 ```javascript
 // Limpar cache do Service Worker
 window.versionManager.clearServiceWorkerCache();
 
-// Recarregar aplicação
+// Recarregar aplicaÃ§Ã£o
 window.versionManager.reloadApp();
 ```
 
-### Teste 3: Simular Nova Versão
+### Teste 3: Simular Nova VersÃ£o
 
-1. Abra DevTools → Application → Storage → Local Storage
-2. Altere o valor de `ifdesk_version` para `1.2.6`
-3. Recarregue a página
-4. Deve aparecer notificação de atualização
+1. Abra DevTools â†’ Application â†’ Storage â†’ Local Storage
+2. Altere o valor de `singem_version` para `1.2.6`
+3. Recarregue a pÃ¡gina
+4. Deve aparecer notificaÃ§Ã£o de atualizaÃ§Ã£o
 
 ---
 
-## 🔍 Diagnóstico de Problemas
+## ðŸ” DiagnÃ³stico de Problemas
 
-### Problema: Cache não está sendo limpo
+### Problema: Cache nÃ£o estÃ¡ sendo limpo
 
-**Solução:**
+**SoluÃ§Ã£o:**
 
-1. Verifique se Service Worker está registrado:
+1. Verifique se Service Worker estÃ¡ registrado:
 
    ```javascript
    navigator.serviceWorker.getRegistrations().then((regs) => console.log('SW registrados:', regs));
@@ -269,27 +269,27 @@ window.versionManager.reloadApp();
    navigator.serviceWorker.getRegistrations().then((regs) => regs.forEach((reg) => reg.unregister()));
    ```
 
-### Problema: Versão não está atualizando
+### Problema: VersÃ£o nÃ£o estÃ¡ atualizando
 
-**Solução:**
+**SoluÃ§Ã£o:**
 
 1. Verifique localStorage:
 
    ```javascript
-   console.log(localStorage.getItem('ifdesk_version'));
+   console.log(localStorage.getItem('singem_version'));
    ```
 
-2. Force atualização:
+2. Force atualizaÃ§Ã£o:
    ```javascript
-   localStorage.setItem('ifdesk_version', '0.0.0');
+   localStorage.setItem('singem_version', '0.0.0');
    location.reload();
    ```
 
-### Problema: Service Worker não está carregando
+### Problema: Service Worker nÃ£o estÃ¡ carregando
 
 **Verificar:**
 
-1. HTTPS ou localhost (Service Worker só funciona nesses contextos)
+1. HTTPS ou localhost (Service Worker sÃ³ funciona nesses contextos)
 2. Arquivo `sw.js` existe na raiz do projeto
 3. Sem erros de sintaxe no `sw.js`
 
@@ -303,53 +303,53 @@ navigator.serviceWorker.ready
 
 ---
 
-## 📊 Monitoramento
+## ðŸ“Š Monitoramento
 
-### DevTools → Application → Service Workers
+### DevTools â†’ Application â†’ Service Workers
 
-- Status: ✅ Activated and running
+- Status: âœ… Activated and running
 - Source: `/sw.js`
 - Scope: `/`
 
-### DevTools → Application → Cache Storage
+### DevTools â†’ Application â†’ Cache Storage
 
-- Deve ter: `ifdesk-v1.2.7-20251105-cache`
-- Conteúdo: Arquivos HTML, JS, CSS
+- Deve ter: `singem-v1.2.7-20251105-cache`
+- ConteÃºdo: Arquivos HTML, JS, CSS
 
-### DevTools → Console
+### DevTools â†’ Console
 
 ```
-📦 IFDESK v1.2.7-20251105 (2025-11-05T17:00:00Z)
-✅ Service Worker registrado
-✅ VersionManager carregado
-✅ CacheBuster carregado
+ðŸ“¦ SINGEM v1.2.7-20251105 (2025-11-05T17:00:00Z)
+âœ… Service Worker registrado
+âœ… VersionManager carregado
+âœ… CacheBuster carregado
 ```
 
 ---
 
-## 🚀 Melhores Práticas
+## ðŸš€ Melhores PrÃ¡ticas
 
-1. **Sempre atualize a versão** ao fazer mudanças importantes
+1. **Sempre atualize a versÃ£o** ao fazer mudanÃ§as importantes
 2. **Use semver** para versionamento (MAJOR.MINOR.PATCH)
 3. **Teste em modo privado** antes de publicar
 4. **Monitore Service Worker** no DevTools
-5. **Mantenha changelog** das versões
+5. **Mantenha changelog** das versÃµes
 
 ---
 
-## 📝 Changelog
+## ðŸ“ Changelog
 
 ### v1.2.7-20251105
 
-- ✅ Implementado sistema de controle de cache
-- ✅ Service Worker com estratégia network-first
-- ✅ Version Manager com detecção automática de atualizações
-- ✅ Meta tags HTTP para desabilitar cache de HTML
-- ✅ Notificações de atualização para usuário
+- âœ… Implementado sistema de controle de cache
+- âœ… Service Worker com estratÃ©gia network-first
+- âœ… Version Manager com detecÃ§Ã£o automÃ¡tica de atualizaÃ§Ãµes
+- âœ… Meta tags HTTP para desabilitar cache de HTML
+- âœ… NotificaÃ§Ãµes de atualizaÃ§Ã£o para usuÃ¡rio
 
 ---
 
-## 🔗 Referências
+## ðŸ”— ReferÃªncias
 
 - [MDN - Service Worker API](https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API)
 - [MDN - Cache API](https://developer.mozilla.org/en-US/docs/Web/API/Cache)
@@ -358,9 +358,9 @@ navigator.serviceWorker.ready
 
 ---
 
-## ✅ Checklist de Deploy
+## âœ… Checklist de Deploy
 
-Antes de fazer deploy de uma nova versão:
+Antes de fazer deploy de uma nova versÃ£o:
 
 - [ ] Atualizar `versionManager.js` (currentVersion e buildTimestamp)
 - [ ] Atualizar `sw.js` (CACHE_VERSION)
@@ -368,12 +368,13 @@ Antes de fazer deploy de uma nova versão:
 - [ ] Testar em modo privado
 - [ ] Verificar console sem erros
 - [ ] Verificar Service Worker registrado
-- [ ] Testar detecção de atualização
-- [ ] Atualizar documentação (este arquivo)
+- [ ] Testar detecÃ§Ã£o de atualizaÃ§Ã£o
+- [ ] Atualizar documentaÃ§Ã£o (este arquivo)
 - [ ] Commit com mensagem descritiva
-- [ ] Tag da versão no git
+- [ ] Tag da versÃ£o no git
 
 ---
 
-**Última atualização:** 05/11/2025  
-**Versão do documento:** 1.0
+**Ãšltima atualizaÃ§Ã£o:** 05/11/2025  
+**VersÃ£o do documento:** 1.0
+

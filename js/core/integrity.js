@@ -167,7 +167,7 @@ class IntegrityManager {
         appId: this.APP_ID,
         version: this.APP_VERSION,
         createdAt: new Date().toISOString(),
-        message: 'Esta pasta é gerenciada pelo IFDESK. Não altere ou remova arquivos manualmente.'
+        message: 'Esta pasta é gerenciada pelo SINGEM. Não altere ou remova arquivos manualmente.'
       };
 
       const lockHandle = await folderHandle.getFileHandle('.irlock.json', { create: true });

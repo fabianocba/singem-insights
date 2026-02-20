@@ -1,57 +1,57 @@
-# Sistema de Importação de NF-e - IFDESK
+﻿# Sistema de ImportaÃ§Ã£o de NF-e - SINGEM
 
-## Visão Geral
+## VisÃ£o Geral
 
-O módulo de importação de NF-e permite importar Notas Fiscais Eletrônicas para o sistema IFDESK de duas formas:
+O mÃ³dulo de importaÃ§Ã£o de NF-e permite importar Notas Fiscais EletrÃ´nicas para o sistema SINGEM de duas formas:
 
-1. **Upload Manual de XML** - Importação de arquivos XML da NF-e
-2. **Consulta SEFAZ (DF-e)** - Importação automática via WebService SEFAZ (requer certificado digital)
+1. **Upload Manual de XML** - ImportaÃ§Ã£o de arquivos XML da NF-e
+2. **Consulta SEFAZ (DF-e)** - ImportaÃ§Ã£o automÃ¡tica via WebService SEFAZ (requer certificado digital)
 
 ---
 
 ## Arquitetura
 
 ```
-┌─────────────────────────────────────────────────────────────────────┐
-│                           FRONTEND                                   │
-│   ┌─────────────────────┐    ┌──────────────────────────────┐       │
-│   │  importar-nfe.html  │────│    nfeImportClient.js        │       │
-│   │    (Interface)      │    │  (Cliente HTTP/Comunicação)  │       │
-│   └─────────────────────┘    └──────────────────────────────┘       │
-└─────────────────────────────────────────────────────────────────────┘
-                                        │
-                                        │ HTTP REST API
-                                        ▼
-┌─────────────────────────────────────────────────────────────────────┐
-│                           BACKEND                                    │
-│   ┌─────────────────────┐                                           │
-│   │  server/index.js    │ ──── Express Server (porta 3000)          │
-│   └─────────────────────┘                                           │
-│            │                                                         │
-│            ▼                                                         │
-│   ┌─────────────────────────────┐                                   │
-│   │  routes/nfe.routes.js       │ ──── Endpoints da API             │
-│   └─────────────────────────────┘                                   │
-│            │                                                         │
-│            ▼                                                         │
-│   ┌─────────────────────────────┐                                   │
-│   │  services/NfeImportService  │ ──── Orquestração                 │
-│   └─────────────────────────────┘                                   │
-│            │                                                         │
-│     ┌──────┴──────┬──────────────────┐                              │
-│     ▼             ▼                  ▼                               │
-│  ┌────────────┐ ┌──────────────┐ ┌───────────────┐                  │
-│  │ DfeClient  │ │ xmlParser.js │ │ danfeGenerator│                  │
-│  │ (SEFAZ)    │ │ (XML→JSON)   │ │ (PDF)         │                  │
-│  └────────────┘ └──────────────┘ └───────────────┘                  │
-└─────────────────────────────────────────────────────────────────────┘
-                                        │
-                                        ▼
-                              ┌─────────────────┐
-                              │  storage/nfe/   │
-                              │  ├── xml/       │
-                              │  └── pdf/       │
-                              └─────────────────┘
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚                           FRONTEND                                   â”‚
+â”‚   â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”    â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”       â”‚
+â”‚   â”‚  importar-nfe.html  â”‚â”€â”€â”€â”€â”‚    nfeImportClient.js        â”‚       â”‚
+â”‚   â”‚    (Interface)      â”‚    â”‚  (Cliente HTTP/ComunicaÃ§Ã£o)  â”‚       â”‚
+â”‚   â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜    â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜       â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                                        â”‚
+                                        â”‚ HTTP REST API
+                                        â–¼
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚                           BACKEND                                    â”‚
+â”‚   â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”                                           â”‚
+â”‚   â”‚  server/index.js    â”‚ â”€â”€â”€â”€ Express Server (porta 3000)          â”‚
+â”‚   â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜                                           â”‚
+â”‚            â”‚                                                         â”‚
+â”‚            â–¼                                                         â”‚
+â”‚   â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”                                   â”‚
+â”‚   â”‚  routes/nfe.routes.js       â”‚ â”€â”€â”€â”€ Endpoints da API             â”‚
+â”‚   â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜                                   â”‚
+â”‚            â”‚                                                         â”‚
+â”‚            â–¼                                                         â”‚
+â”‚   â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”                                   â”‚
+â”‚   â”‚  services/NfeImportService  â”‚ â”€â”€â”€â”€ OrquestraÃ§Ã£o                 â”‚
+â”‚   â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜                                   â”‚
+â”‚            â”‚                                                         â”‚
+â”‚     â”Œâ”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”                              â”‚
+â”‚     â–¼             â–¼                  â–¼                               â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â” â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â” â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”                  â”‚
+â”‚  â”‚ DfeClient  â”‚ â”‚ xmlParser.js â”‚ â”‚ danfeGeneratorâ”‚                  â”‚
+â”‚  â”‚ (SEFAZ)    â”‚ â”‚ (XMLâ†’JSON)   â”‚ â”‚ (PDF)         â”‚                  â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜ â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜ â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜                  â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                                        â”‚
+                                        â–¼
+                              â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+                              â”‚  storage/nfe/   â”‚
+                              â”‚  â”œâ”€â”€ xml/       â”‚
+                              â”‚  â””â”€â”€ pdf/       â”‚
+                              â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
 ```
 
 ---
@@ -60,37 +60,37 @@ O módulo de importação de NF-e permite importar Notas Fiscais Eletrônicas pa
 
 ```
 server/
-├── index.js                         # Express server (porta 3000)
-├── package.json                     # Dependências backend
-├── routes/
-│   └── nfe.routes.js               # Endpoints REST da API
-├── services/
-│   └── NfeImportService.js         # Serviço de orquestração
-├── integrations/
-│   └── sefaz/
-│       └── DfeClient.js            # Cliente SOAP SEFAZ DF-e
-└── utils/
-    ├── xmlParser.js                # Parser de XML NF-e
-    └── danfeGenerator.js           # Gerador de PDF DANFE
+â”œâ”€â”€ index.js                         # Express server (porta 3000)
+â”œâ”€â”€ package.json                     # DependÃªncias backend
+â”œâ”€â”€ routes/
+â”‚   â””â”€â”€ nfe.routes.js               # Endpoints REST da API
+â”œâ”€â”€ services/
+â”‚   â””â”€â”€ NfeImportService.js         # ServiÃ§o de orquestraÃ§Ã£o
+â”œâ”€â”€ integrations/
+â”‚   â””â”€â”€ sefaz/
+â”‚       â””â”€â”€ DfeClient.js            # Cliente SOAP SEFAZ DF-e
+â””â”€â”€ utils/
+    â”œâ”€â”€ xmlParser.js                # Parser de XML NF-e
+    â””â”€â”€ danfeGenerator.js           # Gerador de PDF DANFE
 
 js/
-└── nfeImportClient.js              # Cliente frontend (ES Module)
+â””â”€â”€ nfeImportClient.js              # Cliente frontend (ES Module)
 
 config/
-└── importar-nfe.html               # Interface de importação
+â””â”€â”€ importar-nfe.html               # Interface de importaÃ§Ã£o
 
 storage/nfe/
-├── xml/                            # XMLs importados ({chave}.xml)
-└── pdf/                            # DANFEs gerados ({chave}.pdf)
+â”œâ”€â”€ xml/                            # XMLs importados ({chave}.xml)
+â””â”€â”€ pdf/                            # DANFEs gerados ({chave}.pdf)
 ```
 
 ---
 
 ## API REST
 
-### Endpoints Disponíveis
+### Endpoints DisponÃ­veis
 
-| Método | Endpoint                | Descrição               |
+| MÃ©todo | Endpoint                | DescriÃ§Ã£o               |
 | ------ | ----------------------- | ----------------------- |
 | `POST` | `/api/nfe/importar`     | Importar NF-e via SEFAZ |
 | `POST` | `/api/nfe/upload`       | Upload de arquivo XML   |
@@ -98,7 +98,7 @@ storage/nfe/
 | `GET`  | `/api/nfe/danfe/:chave` | Obter PDF do DANFE      |
 | `GET`  | `/api/nfe/xml/:chave`   | Obter XML da NF-e       |
 | `GET`  | `/api/nfe/listar`       | Listar NF-e importadas  |
-| `GET`  | `/api/nfe/status`       | Status do serviço       |
+| `GET`  | `/api/nfe/status`       | Status do serviÃ§o       |
 
 ### Exemplos de Uso
 
@@ -126,16 +126,16 @@ curl http://localhost:3000/api/nfe/danfe/352309123456789012345500100000012311234
 
 ---
 
-## Configuração
+## ConfiguraÃ§Ã£o
 
-### 1. Instalar Dependências
+### 1. Instalar DependÃªncias
 
 ```bash
 cd server
 npm install
 ```
 
-### 2. Variáveis de Ambiente
+### 2. VariÃ¡veis de Ambiente
 
 Para habilitar consulta via SEFAZ, configure:
 
@@ -158,7 +158,7 @@ cd server
 npm start
 ```
 
-O servidor estará disponível em `http://localhost:3000`.
+O servidor estarÃ¡ disponÃ­vel em `http://localhost:3000`.
 
 ---
 
@@ -191,7 +191,7 @@ nfeImportClient.abrirDanfe('35230912345678901234550010000001231123456789');
 
 ### Eventos Emitidos
 
-O cliente emite eventos via `eventBus` quando uma NF-e é importada:
+O cliente emite eventos via `eventBus` quando uma NF-e Ã© importada:
 
 ```javascript
 import { on } from './core/eventBus.js';
@@ -210,9 +210,9 @@ on('nfe.importada', ({ chaveAcesso, origem }) => {
 - Formato: `.pfx` ou `.p12`
 - Tipo: A1 (armazenado em arquivo)
 - Validade: Dentro do prazo
-- Emissão: ICP-Brasil (CA válida)
+- EmissÃ£o: ICP-Brasil (CA vÃ¡lida)
 
-### Conexão de Rede
+### ConexÃ£o de Rede
 
 - Acesso aos WebServices da SEFAZ
 - Porta 443 (HTTPS) liberada
@@ -222,14 +222,14 @@ on('nfe.importada', ({ chaveAcesso, origem }) => {
 
 ---
 
-## Limitações
+## LimitaÃ§Ãµes
 
-1. **SEFAZ via Browser**: Não é possível consultar SEFAZ diretamente do navegador devido a:
-   - Restrições de CORS
+1. **SEFAZ via Browser**: NÃ£o Ã© possÃ­vel consultar SEFAZ diretamente do navegador devido a:
+   - RestriÃ§Ãµes de CORS
    - Impossibilidade de usar certificados digitais
-   - Protocolo SOAP não suportado nativamente
+   - Protocolo SOAP nÃ£o suportado nativamente
 
-2. **Backend Obrigatório**: Para consulta SEFAZ, o servidor Node.js deve estar rodando.
+2. **Backend ObrigatÃ³rio**: Para consulta SEFAZ, o servidor Node.js deve estar rodando.
 
 3. **Upload Manual**: Sempre funciona, independente do certificado.
 
@@ -237,33 +237,33 @@ on('nfe.importada', ({ chaveAcesso, origem }) => {
 
 ## Troubleshooting
 
-### Servidor não inicia
+### Servidor nÃ£o inicia
 
 ```bash
 cd server
-npm install  # Reinstala dependências
+npm install  # Reinstala dependÃªncias
 npm start
 ```
 
 ### Erro de certificado
 
-- Verifique se o caminho do certificado está correto
-- Verifique se a senha está correta
-- Certifique-se que o certificado é do tipo A1
+- Verifique se o caminho do certificado estÃ¡ correto
+- Verifique se a senha estÃ¡ correta
+- Certifique-se que o certificado Ã© do tipo A1
 
-### DANFE não gera
+### DANFE nÃ£o gera
 
-- Verifique se a dependência `pdfkit` está instalada
-- Verifique permissões de escrita em `storage/nfe/pdf/`
+- Verifique se a dependÃªncia `pdfkit` estÃ¡ instalada
+- Verifique permissÃµes de escrita em `storage/nfe/pdf/`
 
-### XML não é reconhecido
+### XML nÃ£o Ã© reconhecido
 
 - O XML deve ser de NF-e autorizada (com `nfeProc`)
 - Deve conter a tag `<infNFe>` com todos os dados
 
 ---
 
-## Dependências do Backend
+## DependÃªncias do Backend
 
 ```json
 {
@@ -284,8 +284,9 @@ npm start
 
 ### v1.0.0 (2024)
 
-- Implementação inicial
+- ImplementaÃ§Ã£o inicial
 - Upload de XML manual
-- Integração SEFAZ DF-e
-- Geração de DANFE em PDF
-- Interface de importação
+- IntegraÃ§Ã£o SEFAZ DF-e
+- GeraÃ§Ã£o de DANFE em PDF
+- Interface de importaÃ§Ã£o
+

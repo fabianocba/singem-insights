@@ -1,32 +1,32 @@
-# 🔒 Sistema de Proteção de Pastas - Implementação
+﻿# ðŸ”’ Sistema de ProteÃ§Ã£o de Pastas - ImplementaÃ§Ã£o
 
-## 📋 Resumo
+## ðŸ“‹ Resumo
 
-Sistema completo de proteção de arquivos e pastas implementado no IFDESK com:
+Sistema completo de proteÃ§Ã£o de arquivos e pastas implementado no SINGEM com:
 
-- Senha obrigatória para exclusões
+- Senha obrigatÃ³ria para exclusÃµes
 - Lixeira com soft-delete
 - Manifesto de integridade
-- Estrutura automática por ano
+- Estrutura automÃ¡tica por ano
 
-## 🎯 Arquivos Criados
+## ðŸŽ¯ Arquivos Criados
 
 ### 1. Core Modules
 
 #### `/js/core/protection.js` (464 linhas)
 
 - `ProtectionManager` class
-- Hash PBKDF2 (100k iterações) para senhas
-- Token de sessão (5 minutos)
-- Métodos principais:
+- Hash PBKDF2 (100k iteraÃ§Ãµes) para senhas
+- Token de sessÃ£o (5 minutos)
+- MÃ©todos principais:
   - `setPassword(password)` - Define senha inicial
   - `changePassword(oldPass, newPass)` - Troca senha
   - `verifyPassword(password)` - Verifica senha
   - `requirePassword(action)` - Modal UI para pedir senha
   - `softDelete(type, year, fileName)` - Move para lixeira
-  - `hardDelete(year, fileName)` - Exclusão permanente
+  - `hardDelete(year, fileName)` - ExclusÃ£o permanente
   - `restore(year, fileName, targetType)` - Restaura da lixeira
-  - `updatePolicy(policy)` - Atualiza políticas
+  - `updatePolicy(policy)` - Atualiza polÃ­ticas
   - `logAction(action, details)` - Log de auditoria
   - `exportLogs()` - Exporta CSV
 
@@ -35,14 +35,14 @@ Sistema completo de proteção de arquivos e pastas implementado no IFDESK com:
 - `IntegrityManager` class
 - Hash SHA-256 em chunks para arquivos grandes
 - Manifesto `.irmeta.json` por pasta
-- Métodos principais:
+- MÃ©todos principais:
   - `calculateFileHash(file)` - Hash SHA-256
   - `updateManifest(folderHandle, fileName)` - Atualiza manifesto
   - `scanFolder(folderHandle)` - Varre pasta e compara
-  - `reconcile(year)` - Reconciliação completa do ano
-  - `rebuildManifest(folderHandle)` - Reconstrói manifesto
-  - `generateHTMLReport(report)` - Relatório HTML visual
-  - `exportReport(report)` - Exporta relatório
+  - `reconcile(year)` - ReconciliaÃ§Ã£o completa do ano
+  - `rebuildManifest(folderHandle)` - ReconstrÃ³i manifesto
+  - `generateHTMLReport(report)` - RelatÃ³rio HTML visual
+  - `exportReport(report)` - Exporta relatÃ³rio
   - `createLockFile(folderHandle)` - Cria `.irlock.json`
 
 #### `/js/core/trashManager.js` (331 linhas)
@@ -50,33 +50,33 @@ Sistema completo de proteção de arquivos e pastas implementado no IFDESK com:
 - `TrashManager` class
 - Gerenciamento completo da lixeira
 - Metadados em IndexedDB
-- Métodos principais:
+- MÃ©todos principais:
   - `moveToTrash(type, year, fileName)` - Move para lixeira
-  - `hardDeleteFromTrash(year, trashFileName)` - Exclusão permanente
+  - `hardDeleteFromTrash(year, trashFileName)` - ExclusÃ£o permanente
   - `restoreFromTrash(year, trashFileName, targetType)` - Restaura
   - `listTrashItems(year)` - Lista itens da lixeira
   - `saveTrashMetadata()` - Salva metadados no IndexedDB
-  - `getTrashMetadata()` - Obtém metadados
+  - `getTrashMetadata()` - ObtÃ©m metadados
   - `removeTrashMetadata()` - Remove metadados
 
 #### `/js/core/fsManagerLegacy.js` (91 linhas)
 
-- Funções legadas do FSManager
+- FunÃ§Ãµes legadas do FSManager
 - `openFolderLegacy()` - Abre pasta no explorador (fallback)
-- `showFolderInstructionsLegacy()` - Instruções para usuário
-- `getStorageStatsLegacy()` - Estatísticas de armazenamento
+- `showFolderInstructionsLegacy()` - InstruÃ§Ãµes para usuÃ¡rio
+- `getStorageStatsLegacy()` - EstatÃ­sticas de armazenamento
 
 ### 2. UI & Settings
 
 #### `/js/ui/settings/protecao.js` (418 linhas)
 
 - `ProtecaoUI` class
-- Interface completa de proteção
-- Métodos principais:
+- Interface completa de proteÃ§Ã£o
+- MÃ©todos principais:
   - `render(containerId)` - Renderiza tela
   - `handleSetPassword()` - Define senha
   - `handleChangePassword()` - Altera senha
-  - `handleSavePolicy()` - Salva políticas de retenção
+  - `handleSavePolicy()` - Salva polÃ­ticas de retenÃ§Ã£o
   - `handleViewTrash()` - Visualiza lixeira
   - `handleEmptyTrash()` - Esvazia lixeira
   - `handleVerifyIntegrity()` - Verifica integridade
@@ -88,70 +88,70 @@ Sistema completo de proteção de arquivos e pastas implementado no IFDESK com:
 
 - Estilos completos para:
   - Modal de senha
-  - Tela de configurações
+  - Tela de configuraÃ§Ãµes
   - Tabela de lixeira
-  - Botões e mensagens
+  - BotÃµes e mensagens
   - Responsividade
 
-### 3. Atualizações no FSManager
+### 3. AtualizaÃ§Ãµes no FSManager
 
 #### `/js/fsManager.js` (atualizado)
 
-- Novos métodos adicionados:
-  - `selectRootOnce()` - Seleciona root com persistência
+- Novos mÃ©todos adicionados:
+  - `selectRootOnce()` - Seleciona root com persistÃªncia
   - `ensureYearFolders(year)` - Garante pastas do ano (Empenhos, NotasFiscais, Relatorios, Lixeira)
-  - `getFolderHandle(type, year)` - Obtém handle de pasta
+  - `getFolderHandle(type, year)` - ObtÃ©m handle de pasta
   - `savePdf(type, year, file, fileName)` - Salva PDF + atualiza manifesto
   - `moveToTrash()` - Delegado ao TrashManager
   - `hardDeleteFromTrash()` - Delegado ao TrashManager
   - `restoreFromTrash()` - Delegado ao TrashManager
   - `listTrashItems()` - Delegado ao TrashManager
-  - `listYears()` - Lista anos disponíveis
+  - `listYears()` - Lista anos disponÃ­veis
   - `sanitizeFileName()` - Sanitiza nomes de arquivos
 
-## 📁 Estrutura de Pastas Criada
+## ðŸ“ Estrutura de Pastas Criada
 
 ```
 [RAIZ_ESCOLHIDA]/
-├── 2024/
-│   ├── Empenhos/
-│   │   ├── .irmeta.json      (manifesto de integridade)
-│   │   ├── .irlock.json       (lock file)
-│   │   └── *.pdf              (arquivos de empenhos)
-│   ├── NotasFiscais/
-│   │   ├── .irmeta.json
-│   │   ├── .irlock.json
-│   │   └── *.pdf
-│   ├── Relatorios/
-│   │   ├── .irmeta.json
-│   │   ├── .irlock.json
-│   │   └── *.pdf
-│   └── Lixeira/
-│       ├── .irmeta.json
-│       ├── .irlock.json
-│       └── [timestamp]_[arquivo_original].pdf
-├── 2025/
-│   └── ... (mesma estrutura)
-└── ...
+â”œâ”€â”€ 2024/
+â”‚   â”œâ”€â”€ Empenhos/
+â”‚   â”‚   â”œâ”€â”€ .irmeta.json      (manifesto de integridade)
+â”‚   â”‚   â”œâ”€â”€ .irlock.json       (lock file)
+â”‚   â”‚   â””â”€â”€ *.pdf              (arquivos de empenhos)
+â”‚   â”œâ”€â”€ NotasFiscais/
+â”‚   â”‚   â”œâ”€â”€ .irmeta.json
+â”‚   â”‚   â”œâ”€â”€ .irlock.json
+â”‚   â”‚   â””â”€â”€ *.pdf
+â”‚   â”œâ”€â”€ Relatorios/
+â”‚   â”‚   â”œâ”€â”€ .irmeta.json
+â”‚   â”‚   â”œâ”€â”€ .irlock.json
+â”‚   â”‚   â””â”€â”€ *.pdf
+â”‚   â””â”€â”€ Lixeira/
+â”‚       â”œâ”€â”€ .irmeta.json
+â”‚       â”œâ”€â”€ .irlock.json
+â”‚       â””â”€â”€ [timestamp]_[arquivo_original].pdf
+â”œâ”€â”€ 2025/
+â”‚   â””â”€â”€ ... (mesma estrutura)
+â””â”€â”€ ...
 ```
 
-## 🔐 Fluxo de Proteção
+## ðŸ” Fluxo de ProteÃ§Ã£o
 
-### 1. Primeira Configuração
+### 1. Primeira ConfiguraÃ§Ã£o
 
-1. Usuário acessa Configurações → Proteção de Pastas
+1. UsuÃ¡rio acessa ConfiguraÃ§Ãµes â†’ ProteÃ§Ã£o de Pastas
 2. Clica em "Definir Senha"
-3. Digita senha (mínimo 6 caracteres)
-4. Sistema gera hash PBKDF2 (100k iterações) + salt
+3. Digita senha (mÃ­nimo 6 caracteres)
+4. Sistema gera hash PBKDF2 (100k iteraÃ§Ãµes) + salt
 5. Salva em IndexedDB (`config.protecaoPastas`)
-6. Define políticas padrão:
-   - Retenção: 7 dias
-   - Confirmação dupla: sim
-   - Auto-purge: não
+6. Define polÃ­ticas padrÃ£o:
+   - RetenÃ§Ã£o: 7 dias
+   - ConfirmaÃ§Ã£o dupla: sim
+   - Auto-purge: nÃ£o
 
 ### 2. Salvamento de Arquivo
 
-1. Usuário faz upload de NE/NF
+1. UsuÃ¡rio faz upload de NE/NF
 2. Sistema chama `fsManager.savePdf(type, year, file, fileName)`
 3. FSManager:
    - Garante pastas do ano: `ensureYearFolders(year)`
@@ -162,14 +162,14 @@ Sistema completo de proteção de arquivos e pastas implementado no IFDESK com:
    - Atualiza `.irmeta.json` da pasta
    - Adiciona entrada: `{name, hash, size, lastModified}`
 
-### 3. Exclusão de Arquivo (Soft Delete)
+### 3. ExclusÃ£o de Arquivo (Soft Delete)
 
-1. Usuário clica em "Excluir" em qualquer tela
+1. UsuÃ¡rio clica em "Excluir" em qualquer tela
 2. Sistema chama `protectionManager.softDelete(type, year, fileName)`
 3. ProtectionManager:
    - Exibe modal pedindo senha
    - Verifica senha com hash PBKDF2
-   - Cria token de sessão (5 min)
+   - Cria token de sessÃ£o (5 min)
 4. TrashManager:
    - Copia arquivo para `Lixeira/{year}/`
    - Nome: `[timestamp]_[original].pdf`
@@ -187,15 +187,15 @@ Sistema completo de proteção de arquivos e pastas implementado no IFDESK com:
    - Remove entrada do manifesto da pasta origem
    - Adiciona entrada no manifesto da Lixeira
 
-### 4. Restauração de Arquivo
+### 4. RestauraÃ§Ã£o de Arquivo
 
-1. Usuário acessa Lixeira
+1. UsuÃ¡rio acessa Lixeira
 2. Clica em "Restaurar" no arquivo
-3. Sistema pede senha (ou usa token se válido)
+3. Sistema pede senha (ou usa token se vÃ¡lido)
 4. TrashManager:
-   - Lê arquivo da Lixeira
-   - Obtém metadados (nome original, tipo original)
-   - Verifica se arquivo já existe no destino
+   - LÃª arquivo da Lixeira
+   - ObtÃ©m metadados (nome original, tipo original)
+   - Verifica se arquivo jÃ¡ existe no destino
    - Se existir, adiciona sufixo " (1)", " (2)", etc.
    - Copia de volta para pasta original
    - Remove da Lixeira
@@ -203,12 +203,12 @@ Sistema completo de proteção de arquivos e pastas implementado no IFDESK com:
    - Atualiza manifesto do destino
    - Remove do manifesto da Lixeira
 
-### 5. Exclusão Permanente
+### 5. ExclusÃ£o Permanente
 
-1. Usuário acessa Lixeira
+1. UsuÃ¡rio acessa Lixeira
 2. Clica em "Excluir Definitivo"
 3. Sistema pede senha
-4. Se `confirmarDuplo` ativo, pede confirmação adicional
+4. Se `confirmarDuplo` ativo, pede confirmaÃ§Ã£o adicional
 5. TrashManager:
    - Remove arquivo da pasta Lixeira
    - Remove metadados do IndexedDB
@@ -225,55 +225,55 @@ Sistema completo de proteção de arquivos e pastas implementado no IFDESK com:
      }
      ```
 
-### 6. Verificação de Integridade
+### 6. VerificaÃ§Ã£o de Integridade
 
-1. Usuário clica em "Verificar Integridade"
+1. UsuÃ¡rio clica em "Verificar Integridade"
 2. IntegrityManager:
    - Varre todas as pastas do ano
    - Para cada pasta:
-     - Lê manifesto `.irmeta.json`
+     - LÃª manifesto `.irmeta.json`
      - Lista arquivos atuais
      - Calcula hash de cada arquivo
      - Compara com manifesto
    - Identifica:
-     - **Faltantes**: No manifesto mas não existe
-     - **Novos**: Existe mas não está no manifesto
+     - **Faltantes**: No manifesto mas nÃ£o existe
+     - **Novos**: Existe mas nÃ£o estÃ¡ no manifesto
      - **Modificados**: Hash diferente
-     - **Íntegros**: Tudo ok
-3. Gera relatório HTML visual
+     - **Ãntegros**: Tudo ok
+3. Gera relatÃ³rio HTML visual
 4. Exporta arquivo `relatorio-integridade-{year}-{timestamp}.html`
 5. Mostra resumo na tela:
 
    ```
-   ✅ Verificação concluída!
+   âœ… VerificaÃ§Ã£o concluÃ­da!
 
    Pastas verificadas: 4
    Sem problemas: 3
    Com problemas: 1
-   Total de inconsistências: 2
+   Total de inconsistÃªncias: 2
    ```
 
-## 🔧 Integrações Necessárias
+## ðŸ”§ IntegraÃ§Ãµes NecessÃ¡rias
 
 ### Atualizar HTML (index.html)
 
 Adicionar antes de `</body>`:
 
 ```html
-<!-- Proteção e Integridade -->
+<!-- ProteÃ§Ã£o e Integridade -->
 <script src="js/core/protection.js"></script>
 <script src="js/core/integrity.js"></script>
 <script src="js/core/trashManager.js"></script>
 <script src="js/core/fsManagerLegacy.js"></script>
 
-<!-- UI Proteção -->
+<!-- UI ProteÃ§Ã£o -->
 <script src="js/ui/settings/protecao.js"></script>
 <link rel="stylesheet" href="css/protecao.css" />
 ```
 
-### Atualizar Módulos Existentes
+### Atualizar MÃ³dulos Existentes
 
-#### 1. Em telas de NE/NF (onde há botão "Salvar PDF"):
+#### 1. Em telas de NE/NF (onde hÃ¡ botÃ£o "Salvar PDF"):
 
 ```javascript
 // Antes
@@ -285,7 +285,7 @@ const fileName = gerarNomePadrao(metadados); // ex: "NE 039 CGSM COMERCIO.pdf"
 await fsManager.savePdf('Empenhos', year, file, fileName);
 ```
 
-#### 2. Em telas de listagem (onde há botão "Excluir"):
+#### 2. Em telas de listagem (onde hÃ¡ botÃ£o "Excluir"):
 
 ```javascript
 // Antes
@@ -306,15 +306,15 @@ btnExcluir.addEventListener('click', async () => {
 });
 ```
 
-#### 3. No menu Configurações (adicionar link):
+#### 3. No menu ConfiguraÃ§Ãµes (adicionar link):
 
 ```html
 <li>
-  <a href="#" onclick="protecaoUI.render('conteudoPrincipal'); return false;"> 🔒 Proteção de Pastas </a>
+  <a href="#" onclick="protecaoUI.render('conteudoPrincipal'); return false;"> ðŸ”’ ProteÃ§Ã£o de Pastas </a>
 </li>
 ```
 
-## 📊 Dados Armazenados
+## ðŸ“Š Dados Armazenados
 
 ### IndexedDB - Store: `config`
 
@@ -404,27 +404,27 @@ btnExcluir.addEventListener('click', async () => {
   "appId": "ControleMaterialIFBaiano",
   "version": "1.0.0",
   "createdAt": "2025-11-07T...",
-  "message": "Esta pasta é gerenciada pelo IFDESK. Não altere ou remova arquivos manualmente."
+  "message": "Esta pasta Ã© gerenciada pelo SINGEM. NÃ£o altere ou remova arquivos manualmente."
 }
 ```
 
-## ✅ Critérios de Aceite
+## âœ… CritÃ©rios de Aceite
 
 - [x] Pastas criadas automaticamente ao salvar (estrutura por ano)
 - [x] Root handle persistido (File System Access API)
-- [x] Senha obrigatória para exclusões (PBKDF2 hash)
+- [x] Senha obrigatÃ³ria para exclusÃµes (PBKDF2 hash)
 - [x] Lixeira funcional com soft-delete
-- [x] Exclusão permanente apenas via Lixeira com confirmação
+- [x] ExclusÃ£o permanente apenas via Lixeira com confirmaÃ§Ã£o
 - [x] Manifesto de integridade (.irmeta.json) mantido
-- [x] Reconciliação detecta alterações externas
-- [x] Tela "Proteção de Pastas" completa
+- [x] ReconciliaÃ§Ã£o detecta alteraÃ§Ãµes externas
+- [x] Tela "ProteÃ§Ã£o de Pastas" completa
 - [x] Nenhuma funcionalidade quebrada
-- [x] Sem arquivos de demonstração
+- [x] Sem arquivos de demonstraÃ§Ã£o
 
-## 🚀 Próximos Passos
+## ðŸš€ PrÃ³ximos Passos
 
-1. **Adicionar scripts no index.html** (conforme seção "Integrações Necessárias")
-2. **Atualizar módulos existentes** para usar novo sistema
+1. **Adicionar scripts no index.html** (conforme seÃ§Ã£o "IntegraÃ§Ãµes NecessÃ¡rias")
+2. **Atualizar mÃ³dulos existentes** para usar novo sistema
 3. **Testar fluxo completo**:
    - Definir senha
    - Salvar PDF
@@ -434,34 +434,35 @@ btnExcluir.addEventListener('click', async () => {
    - Restaurar arquivo
    - Excluir permanentemente
    - Verificar integridade
-4. **Documentar no README principal** (seção "Proteção de Pastas")
+4. **Documentar no README principal** (seÃ§Ã£o "ProteÃ§Ã£o de Pastas")
 
-## ⚠️ Limitações do Navegador
+## âš ï¸ LimitaÃ§Ãµes do Navegador
 
-**IMPORTANTE**: O navegador **NÃO pode impedir** que o usuário apague pastas/arquivos diretamente pelo SO.
+**IMPORTANTE**: O navegador **NÃƒO pode impedir** que o usuÃ¡rio apague pastas/arquivos diretamente pelo SO.
 
-**Mitigações implementadas**:
+**MitigaÃ§Ãµes implementadas**:
 
-1. ✅ **Proteção aplicacional**: Senha obrigatória para exclusão via app
-2. ✅ **Lixeira**: Soft delete com retenção configurável
-3. ✅ **Verificação de integridade**: Manifesto detecta exclusões externas
-4. ✅ **Lock files**: `.irlock.json` com mensagem de aviso
-5. ✅ **Log de auditoria**: Rastreabilidade de todas as ações
+1. âœ… **ProteÃ§Ã£o aplicacional**: Senha obrigatÃ³ria para exclusÃ£o via app
+2. âœ… **Lixeira**: Soft delete com retenÃ§Ã£o configurÃ¡vel
+3. âœ… **VerificaÃ§Ã£o de integridade**: Manifesto detecta exclusÃµes externas
+4. âœ… **Lock files**: `.irlock.json` com mensagem de aviso
+5. âœ… **Log de auditoria**: Rastreabilidade de todas as aÃ§Ãµes
 
-**Recomendações adicionais** (opcional):
+**RecomendaÃ§Ãµes adicionais** (opcional):
 
-- Backup periódico automático
-- Sincronização com cloud storage
-- Modo servidor com permissões de SO (read-only)
+- Backup periÃ³dico automÃ¡tico
+- SincronizaÃ§Ã£o com cloud storage
+- Modo servidor com permissÃµes de SO (read-only)
 
-## 📝 Documentação Gerada
+## ðŸ“ DocumentaÃ§Ã£o Gerada
 
 - `IMPLEMENTACAO_PROTECAO_PASTAS.md` (este arquivo)
-- Relatórios HTML de integridade (exportados sob demanda)
+- RelatÃ³rios HTML de integridade (exportados sob demanda)
 - Logs CSV de auditoria (exportados sob demanda)
 
 ---
 
 **Data**: 07/11/2025  
-**Versão**: 1.0  
-**Status**: ✅ Implementação Concluída (aguardando integração)
+**VersÃ£o**: 1.0  
+**Status**: âœ… ImplementaÃ§Ã£o ConcluÃ­da (aguardando integraÃ§Ã£o)
+

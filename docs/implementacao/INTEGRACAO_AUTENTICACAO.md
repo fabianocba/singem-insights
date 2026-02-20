@@ -1,25 +1,25 @@
-# ✅ SISTEMA DE AUTENTICAÇÃO - INTEGRADO
+﻿# âœ… SISTEMA DE AUTENTICAÃ‡ÃƒO - INTEGRADO
 
 **Data:** 05/11/2025  
-**Status:** ✅ TOTALMENTE INTEGRADO E FUNCIONAL
+**Status:** âœ… TOTALMENTE INTEGRADO E FUNCIONAL
 
 ---
 
-## 🎯 RESUMO
+## ðŸŽ¯ RESUMO
 
-O sistema de autenticação de usuários foi **totalmente integrado** ao arquivo HTML principal (`index.html`) através do módulo `app.js`. O login agora é 100% funcional com persistência no IndexedDB.
+O sistema de autenticaÃ§Ã£o de usuÃ¡rios foi **totalmente integrado** ao arquivo HTML principal (`index.html`) atravÃ©s do mÃ³dulo `app.js`. O login agora Ã© 100% funcional com persistÃªncia no IndexedDB.
 
 ---
 
-## 🔄 FLUXO DE AUTENTICAÇÃO
+## ðŸ”„ FLUXO DE AUTENTICAÃ‡ÃƒO
 
-### 1. **Inicialização da Aplicação**
+### 1. **InicializaÃ§Ã£o da AplicaÃ§Ã£o**
 
 ```javascript
 // js/app.js - init()
 1. Inicializa IndexedDB
-2. Carrega dados da unidade orçamentária
-3. Verifica usuários cadastrados
+2. Carrega dados da unidade orÃ§amentÃ¡ria
+3. Verifica usuÃ¡rios cadastrados
 4. Mostra/esconde dica de credenciais mestras
 5. Exibe tela de login
 ```
@@ -28,52 +28,52 @@ O sistema de autenticação de usuários foi **totalmente integrado** ao arquivo
 
 **Elementos:**
 
-- Campo de usuário (`#loginUsuario`)
+- Campo de usuÃ¡rio (`#loginUsuario`)
 - Campo de senha (`#loginSenha`)
-- Botão de login (`#btnLogin`)
-- Área de erro (`#loginError`)
+- BotÃ£o de login (`#btnLogin`)
+- Ãrea de erro (`#loginError`)
 - Dica de primeiro acesso (credenciais mestras)
 
 **Comportamento:**
 
-- Se **não há usuários**: mostra credenciais mestras automaticamente
-- Se **há usuários**: esconde credenciais mestras
+- Se **nÃ£o hÃ¡ usuÃ¡rios**: mostra credenciais mestras automaticamente
+- Se **hÃ¡ usuÃ¡rios**: esconde credenciais mestras
 
 ### 3. **Processo de Login**
 
 ```javascript
 // js/app.js - realizarLogin()
-┌─────────────────────────────────────┐
-│ Usuário preenche login e senha      │
-└────────────┬────────────────────────┘
-             │
-             ▼
-┌─────────────────────────────────────┐
-│ Verifica credenciais mestras?       │
-│ (ifdesk / admin@2025)               │
-└────┬────────────────────────────┬───┘
-     │ SIM                        │ NÃO
-     ▼                            ▼
-┌─────────────────────┐  ┌──────────────────────────┐
-│ Login como ADMIN    │  │ Autentica com IndexedDB  │
-│ Primeiro acesso     │  │ settingsUsuarios.        │
-│ Redireciona para    │  │ autenticar()             │
-│ cadastro de usuário │  └────────┬─────────────────┘
-└─────────────────────┘           │
-                                  ▼
-                        ┌──────────────────────┐
-                        │ Senha válida?        │
-                        └───┬──────────────┬───┘
-                            │ SIM          │ NÃO
-                            ▼              ▼
-                  ┌─────────────────┐  ┌────────────┐
-                  │ Login OK        │  │ Erro       │
-                  │ Carrega dados   │  │ Tenta      │
-                  │ Vai para home   │  │ novamente  │
-                  └─────────────────┘  └────────────┘
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚ UsuÃ¡rio preenche login e senha      â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+             â”‚
+             â–¼
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚ Verifica credenciais mestras?       â”‚
+â”‚ (singem / admin@2025)               â”‚
+â””â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”˜
+     â”‚ SIM                        â”‚ NÃƒO
+     â–¼                            â–¼
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚ Login como ADMIN    â”‚  â”‚ Autentica com IndexedDB  â”‚
+â”‚ Primeiro acesso     â”‚  â”‚ settingsUsuarios.        â”‚
+â”‚ Redireciona para    â”‚  â”‚ autenticar()             â”‚
+â”‚ cadastro de usuÃ¡rio â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜           â”‚
+                                  â–¼
+                        â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+                        â”‚ Senha vÃ¡lida?        â”‚
+                        â””â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”˜
+                            â”‚ SIM          â”‚ NÃƒO
+                            â–¼              â–¼
+                  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+                  â”‚ Login OK        â”‚  â”‚ Erro       â”‚
+                  â”‚ Carrega dados   â”‚  â”‚ Tenta      â”‚
+                  â”‚ Vai para home   â”‚  â”‚ novamente  â”‚
+                  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
 ```
 
-### 4. **Autenticação no IndexedDB**
+### 4. **AutenticaÃ§Ã£o no IndexedDB**
 
 ```javascript
 // js/settings/usuarios.js - autenticar()
@@ -81,10 +81,10 @@ async autenticar(login, senha) {
   // 1. Garante DB pronto
   await this.ensureDBReady();
 
-  // 2. Carrega usuários do banco
+  // 2. Carrega usuÃ¡rios do banco
   const usuariosDB = await this.getUsuarios();
 
-  // 3. Busca usuário
+  // 3. Busca usuÃ¡rio
   const usuario = usuariosDB.find(u => u.login === login && u.ativo);
 
   // 4. Valida senha com PBKDF2
@@ -97,37 +97,37 @@ async autenticar(login, senha) {
 
 ---
 
-## 🎨 MELHORIAS VISUAIS IMPLEMENTADAS
+## ðŸŽ¨ MELHORIAS VISUAIS IMPLEMENTADAS
 
 ### 1. **Feedback Durante Login**
 
 **Antes:**
 
-- Botão estático
+- BotÃ£o estÃ¡tico
 - Sem feedback visual
-- Usuário não sabe se está processando
+- UsuÃ¡rio nÃ£o sabe se estÃ¡ processando
 
 **Depois:**
 
-- Botão desabilitado durante autenticação
-- Texto muda: "🔄 Autenticando..."
-- Botão verde com "✅ Logado!" em caso de sucesso
-- Animação de shake em caso de erro
+- BotÃ£o desabilitado durante autenticaÃ§Ã£o
+- Texto muda: "ðŸ”„ Autenticando..."
+- BotÃ£o verde com "âœ… Logado!" em caso de sucesso
+- AnimaÃ§Ã£o de shake em caso de erro
 
 ### 2. **Mensagem de Boas-Vindas**
 
-Após login bem-sucedido:
+ApÃ³s login bem-sucedido:
 
 ```
-┌─────────────────────────────────────┐
-│ ✅ Bem-vindo(a), João Silva!        │
-│ Login realizado com sucesso         │
-└─────────────────────────────────────┘
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚ âœ… Bem-vindo(a), JoÃ£o Silva!        â”‚
+â”‚ Login realizado com sucesso         â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
 ```
 
 - Aparece no canto superior direito
-- Animação slideInRight
-- Desaparece após 3 segundos
+- AnimaÃ§Ã£o slideInRight
+- Desaparece apÃ³s 3 segundos
 - slideOutRight ao sair
 
 ### 3. **Logs no Console**
@@ -135,34 +135,34 @@ Após login bem-sucedido:
 Console do navegador (F12) agora mostra:
 
 ```
-🚀 Iniciando aplicação IFDESK...
-✅ Banco de dados inicializado
-✅ Dados da unidade carregados
-✅ 1 usuário(s) cadastrado(s)
-✅ Event listeners configurados
-✅ Aplicação iniciada com sucesso!
-🔐 Tentando fazer login com usuário: joao
-👤 Autenticando usuário cadastrado...
-🔐 Tentando autenticar: joao
-👥 Usuários no banco: 1
-✅ Autenticado: João Silva
-✅ Login realizado com sucesso!
-👤 Usuário: João Silva
-🔑 Perfil: admin
+ðŸš€ Iniciando aplicaÃ§Ã£o SINGEM...
+âœ… Banco de dados inicializado
+âœ… Dados da unidade carregados
+âœ… 1 usuÃ¡rio(s) cadastrado(s)
+âœ… Event listeners configurados
+âœ… AplicaÃ§Ã£o iniciada com sucesso!
+ðŸ” Tentando fazer login com usuÃ¡rio: joao
+ðŸ‘¤ Autenticando usuÃ¡rio cadastrado...
+ðŸ” Tentando autenticar: joao
+ðŸ‘¥ UsuÃ¡rios no banco: 1
+âœ… Autenticado: JoÃ£o Silva
+âœ… Login realizado com sucesso!
+ðŸ‘¤ UsuÃ¡rio: JoÃ£o Silva
+ðŸ”‘ Perfil: admin
 ```
 
-### 4. **Detecção Automática de Usuários**
+### 4. **DetecÃ§Ã£o AutomÃ¡tica de UsuÃ¡rios**
 
-**Se não há usuários cadastrados:**
+**Se nÃ£o hÃ¡ usuÃ¡rios cadastrados:**
 
 ```html
 <details class="login-help" open>
-  <summary>💡 Primeiro acesso do administrador?</summary>
+  <summary>ðŸ’¡ Primeiro acesso do administrador?</summary>
   <!-- Mostra credenciais mestras -->
 </details>
 ```
 
-**Se há usuários cadastrados:**
+**Se hÃ¡ usuÃ¡rios cadastrados:**
 
 ```html
 <details class="login-help" style="display: none">
@@ -172,26 +172,26 @@ Console do navegador (F12) agora mostra:
 
 ---
 
-## 🔐 CREDENCIAIS E SEGURANÇA
+## ðŸ” CREDENCIAIS E SEGURANÃ‡A
 
 ### **Credenciais Mestras** (Primeiro Acesso)
 
 ```
-Usuário: ifdesk
+UsuÃ¡rio: singem
 Senha: admin@2025
 ```
 
 **Uso:**
 
 - Apenas para primeiro acesso
-- Redireciona automaticamente para cadastro de usuário
-- Deve ser substituída por usuário pessoal
+- Redireciona automaticamente para cadastro de usuÃ¡rio
+- Deve ser substituÃ­da por usuÃ¡rio pessoal
 
-### **Usuários Cadastrados**
+### **UsuÃ¡rios Cadastrados**
 
 **Armazenamento:**
 
-- IndexedDB → Store: `config` → Key: `usuarios`
+- IndexedDB â†’ Store: `config` â†’ Key: `usuarios`
 - Estrutura:
 
 ```json
@@ -200,7 +200,7 @@ Senha: admin@2025
   "usuarios": [
     {
       "id": "user_1699294512345_abc123xyz",
-      "nome": "João Silva",
+      "nome": "JoÃ£o Silva",
       "login": "joao",
       "senhaHash": "salt:hash",
       "perfil": "admin",
@@ -213,14 +213,14 @@ Senha: admin@2025
 
 **Hash de Senha:**
 
-- Algoritmo: PBKDF2 (100.000 iterações)
+- Algoritmo: PBKDF2 (100.000 iteraÃ§Ãµes)
 - Hash: SHA-256
-- Salt: Aleatório de 16 bytes
+- Salt: AleatÃ³rio de 16 bytes
 - Formato: `saltHex:hashHex`
 
 ---
 
-## 📂 ARQUIVOS ENVOLVIDOS
+## ðŸ“‚ ARQUIVOS ENVOLVIDOS
 
 ### **HTML**
 
@@ -229,8 +229,8 @@ Senha: admin@2025
 ### **JavaScript**
 
 - `js/app.js`:
-  - `init()` - Inicialização
-  - `verificarUsuariosCadastrados()` - Verifica usuários (NOVO)
+  - `init()` - InicializaÃ§Ã£o
+  - `verificarUsuariosCadastrados()` - Verifica usuÃ¡rios (NOVO)
   - `realizarLogin()` - Processo de login (MELHORADO)
   - `realizarLogout()` - Logout
 - `js/settings/usuarios.js`:
@@ -242,49 +242,49 @@ Senha: admin@2025
 ### **CSS**
 
 - `css/style.css` (linhas 1653-1706):
-  - Animações `slideInRight`, `slideOutRight`
-  - Animação `shake` para erros
-  - Estilos para botão de login
+  - AnimaÃ§Ãµes `slideInRight`, `slideOutRight`
+  - AnimaÃ§Ã£o `shake` para erros
+  - Estilos para botÃ£o de login
   - Feedback visual
 
 ---
 
-## 🎯 CASOS DE USO
+## ðŸŽ¯ CASOS DE USO
 
-### **Caso 1: Primeiro Acesso (Sem Usuários)**
+### **Caso 1: Primeiro Acesso (Sem UsuÃ¡rios)**
 
-1. Abre aplicação
-2. Vê credenciais mestras abertas automaticamente
-3. Login: `ifdesk` / Senha: `admin@2025`
-4. Sistema redireciona para Configurações → Usuários
-5. Cadastra novo usuário administrador
+1. Abre aplicaÃ§Ã£o
+2. VÃª credenciais mestras abertas automaticamente
+3. Login: `singem` / Senha: `admin@2025`
+4. Sistema redireciona para ConfiguraÃ§Ãµes â†’ UsuÃ¡rios
+5. Cadastra novo usuÃ¡rio administrador
 6. Faz logout
-7. Login com novo usuário
+7. Login com novo usuÃ¡rio
 
-### **Caso 2: Login Normal (Com Usuários)**
+### **Caso 2: Login Normal (Com UsuÃ¡rios)**
 
-1. Abre aplicação
-2. Credenciais mestras estão escondidas
+1. Abre aplicaÃ§Ã£o
+2. Credenciais mestras estÃ£o escondidas
 3. Digita login e senha
-4. Botão muda para "🔄 Autenticando..."
+4. BotÃ£o muda para "ðŸ”„ Autenticando..."
 5. Sistema valida no IndexedDB
-6. Sucesso: botão verde "✅ Logado!"
+6. Sucesso: botÃ£o verde "âœ… Logado!"
 7. Mensagem de boas-vindas aparece
 8. Redirecionado para tela principal
 
 ### **Caso 3: Erro de Login**
 
 1. Digita login/senha incorretos
-2. Botão muda para "🔄 Autenticando..."
+2. BotÃ£o muda para "ðŸ”„ Autenticando..."
 3. Sistema valida e falha
-4. Botão volta ao normal
+4. BotÃ£o volta ao normal
 5. Mensagem de erro aparece com shake
 6. Console mostra log do erro
-7. Usuário pode tentar novamente
+7. UsuÃ¡rio pode tentar novamente
 
 ### **Caso 4: Logout**
 
-1. Usuário logado clica em "🚪 Sair"
+1. UsuÃ¡rio logado clica em "ðŸšª Sair"
 2. Sistema limpa `this.usuarioLogado`
 3. Limpa campos de login
 4. Volta para tela de login
@@ -292,34 +292,34 @@ Senha: admin@2025
 
 ---
 
-## ✅ CHECKLIST DE FUNCIONALIDADES
+## âœ… CHECKLIST DE FUNCIONALIDADES
 
 - [x] Login com credenciais mestras
-- [x] Login com usuários cadastrados
-- [x] Validação de senha com PBKDF2
-- [x] Persistência no IndexedDB
-- [x] Detecção automática de usuários
+- [x] Login com usuÃ¡rios cadastrados
+- [x] ValidaÃ§Ã£o de senha com PBKDF2
+- [x] PersistÃªncia no IndexedDB
+- [x] DetecÃ§Ã£o automÃ¡tica de usuÃ¡rios
 - [x] Feedback visual durante login
 - [x] Mensagem de boas-vindas
 - [x] Mensagens de erro
 - [x] Logs informativos no console
-- [x] Animações CSS
+- [x] AnimaÃ§Ãµes CSS
 - [x] Logout funcional
-- [x] Limpeza de campos após login
+- [x] Limpeza de campos apÃ³s login
 - [x] Redirecionamento correto
-- [x] Cache-busting automático
+- [x] Cache-busting automÃ¡tico
 
 ---
 
-## 🐛 BUGS CORRIGIDOS RELACIONADOS
+## ðŸ› BUGS CORRIGIDOS RELACIONADOS
 
-1. **Bug #3**: Usuário não salvava → `saveUsuarios()` corrigido
-2. **Bug #4**: Autenticação falhava → `getUsuarios()` antes de autenticar
-3. **Integração**: `window.settingsUsuarios.autenticar()` já integrado
+1. **Bug #3**: UsuÃ¡rio nÃ£o salvava â†’ `saveUsuarios()` corrigido
+2. **Bug #4**: AutenticaÃ§Ã£o falhava â†’ `getUsuarios()` antes de autenticar
+3. **IntegraÃ§Ã£o**: `window.settingsUsuarios.autenticar()` jÃ¡ integrado
 
 ---
 
-## 🚀 COMO USAR
+## ðŸš€ COMO USAR
 
 ### **Para o Administrador:**
 
@@ -329,9 +329,9 @@ Senha: admin@2025
    .\ABRIR_APLICACAO.bat
    ```
 
-   - Use: `ifdesk` / `admin@2025`
-   - Cadastre seu usuário
-   - Faça logout e login com novo usuário
+   - Use: `singem` / `admin@2025`
+   - Cadastre seu usuÃ¡rio
+   - FaÃ§a logout e login com novo usuÃ¡rio
 
 2. **Acesso Normal:**
 
@@ -344,7 +344,7 @@ Senha: admin@2025
 
 ### **Para o Desenvolvedor:**
 
-**Testar autenticação:**
+**Testar autenticaÃ§Ã£o:**
 
 ```javascript
 // No console (F12)
@@ -353,7 +353,7 @@ console.log(resultado);
 // { sucesso: true, usuario: {...} }
 ```
 
-**Verificar usuários:**
+**Verificar usuÃ¡rios:**
 
 ```javascript
 const usuarios = await window.settingsUsuarios.getUsuarios();
@@ -363,61 +363,62 @@ console.log(usuarios);
 **Verificar IndexedDB:**
 
 ```
-F12 → Application → IndexedDB → IFDESK → config → usuarios
+F12 â†’ Application â†’ IndexedDB â†’ SINGEM â†’ config â†’ usuarios
 ```
 
 ---
 
-## 📊 ESTATÍSTICAS
+## ðŸ“Š ESTATÃSTICAS
 
-**Linhas de Código:**
+**Linhas de CÃ³digo:**
 
 - `app.js`: +120 linhas (melhorias)
 - `usuarios.js`: 579 linhas (completo)
-- `style.css`: +54 linhas (animações)
+- `style.css`: +54 linhas (animaÃ§Ãµes)
 
 **Funcionalidades:**
 
-- 2 métodos de autenticação (mestras + cadastrados)
-- 5 animações CSS
+- 2 mÃ©todos de autenticaÃ§Ã£o (mestras + cadastrados)
+- 5 animaÃ§Ãµes CSS
 - 10+ logs informativos
-- 4 validações de segurança
+- 4 validaÃ§Ãµes de seguranÃ§a
 
 **Performance:**
 
 - Login: ~100-300ms (PBKDF2)
-- Carregamento: Instantâneo (IndexedDB)
-- Feedback: Imediato (animações CSS)
+- Carregamento: InstantÃ¢neo (IndexedDB)
+- Feedback: Imediato (animaÃ§Ãµes CSS)
 
 ---
 
-## 🎓 PRÓXIMOS PASSOS (OPCIONAIS)
+## ðŸŽ“ PRÃ“XIMOS PASSOS (OPCIONAIS)
 
-- [ ] Recuperação de senha
-- [ ] Bloqueio após X tentativas
-- [ ] Sessão com timeout automático
+- [ ] RecuperaÃ§Ã£o de senha
+- [ ] Bloqueio apÃ³s X tentativas
+- [ ] SessÃ£o com timeout automÃ¡tico
 - [ ] Auditoria de acessos (quem logou quando)
-- [ ] Permissões por perfil (admin vs usuário)
-- [ ] 2FA (autenticação de dois fatores)
+- [ ] PermissÃµes por perfil (admin vs usuÃ¡rio)
+- [ ] 2FA (autenticaÃ§Ã£o de dois fatores)
 
 ---
 
-## 📞 SUPORTE
+## ðŸ“ž SUPORTE
 
 **Problemas com login?**
 
 1. Abra console (F12) e veja os logs
-2. Verifique IndexedDB: Application → IndexedDB → IFDESK
-3. Use `verificar-db.html` para diagnóstico
+2. Verifique IndexedDB: Application â†’ IndexedDB â†’ SINGEM
+3. Use `verificar-db.html` para diagnÃ³stico
 4. Limpe cache: Ctrl+Shift+R
 
 **Esqueceu a senha?**
 
-- Use credenciais mestras: `ifdesk` / `admin@2025`
-- Vá em Configurações → Usuários
-- Edite o usuário e defina nova senha
+- Use credenciais mestras: `singem` / `admin@2025`
+- VÃ¡ em ConfiguraÃ§Ãµes â†’ UsuÃ¡rios
+- Edite o usuÃ¡rio e defina nova senha
 
 ---
 
-**Sistema 100% integrado e funcional!** ✅  
-**Última atualização:** 05/11/2025 às 15:00
+**Sistema 100% integrado e funcional!** âœ…  
+**Ãšltima atualizaÃ§Ã£o:** 05/11/2025 Ã s 15:00
+

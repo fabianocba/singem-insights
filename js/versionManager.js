@@ -1,5 +1,5 @@
 /**
- * Sistema de Versionamento e Atualização - IFDESK
+ * Sistema de Versionamento e Atualização - SINGEM
  *
  * Gerencia versões, registra Service Worker e detecta atualizações.
  *
@@ -9,10 +9,10 @@
 
 class VersionManager {
   constructor() {
-    // Usa valores globais definidos por version.js
-    this.currentVersion = window.IFDESK_VERSION || 'v1.6.2';
-    this.currentBuild = window.IFDESK_BUILD || '2026-02-10-1526';
-    this.versionKey = 'ifdesk_version';
+    // Valores serão atualizados em init() quando os módulos ES já tiverem executado
+    this.currentVersion = 'v0.0.0';
+    this.currentBuild = 'unknown';
+    this.versionKey = 'SINGEM_version';
     this.updateCheckInterval = 5 * 60 * 1000; // 5 minutos
     this.swRegistration = null;
   }
@@ -21,7 +21,11 @@ class VersionManager {
    * Inicializa o sistema de versionamento
    */
   async init() {
-    console.log(`📦 IFDESK ${this.currentVersion} (build ${this.currentBuild})`);
+    // Atualiza valores agora que os módulos ES já executaram
+    this.currentVersion = window.SINGEM_VERSION || 'v0.0.0';
+    this.currentBuild = window.SINGEM_BUILD || 'unknown';
+
+    console.log(`📦 SINGEM ${this.currentVersion} (build ${this.currentBuild})`);
 
     // Verifica se há atualização
     this.checkForUpdates();

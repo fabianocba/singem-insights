@@ -9,7 +9,7 @@
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
 
-    <title>Configurações - IFDESK</title>
+    <title>Configurações - SINGEM</title>
     <link rel="stylesheet" href="../css/style.css" />
     <style>
       .settings-container {
@@ -1223,6 +1223,8 @@
     </div>
 
     <!-- Sistema de versionamento -->
+
+    <script type="module" src="../js/config/version.js"></script>
     <script src="../js/versionManager.js"></script>
 
     <!-- Scripts principais -->
@@ -1295,6 +1297,22 @@
             })
           );
           console.log("🚀 Evento 'dbReady' disparado!");
+
+          // =========================================================================
+          // BOOTSTRAP COMPLETO - Sinaliza para módulos de settings
+          // Aguarda brevemente para garantir que window.repository foi exposto pelo módulo ES
+          // =========================================================================
+          setTimeout(() => {
+            if (!window.__SINGEM_BOOTSTRAP_DONE__) {
+              window.__SINGEM_BOOTSTRAP_DONE__ = true;
+              window.dispatchEvent(
+                new CustomEvent('SINGEM:bootstrap:done', {
+                  detail: { ts: Date.now(), page: 'configuracoes' }
+                })
+              );
+              console.log("🚀 Evento 'SINGEM:bootstrap:done' disparado!");
+            }
+          }, 150);
         } catch (error) {
           console.error('❌ ERRO ao inicializar banco:', error);
           console.error('   - Stack:', error.stack);

@@ -36,7 +36,7 @@ function unit10(v) {
   return Math.round((Number(v) || 0) * 1e10) / 1e10;
 }
 
-const xmlPath = 'd:\\IFDESK\\02_NOTAS_FISCAIS\\2026\\29260251561070000150550010000004851300001174.xml';
+const xmlPath = 'd:\\SINGEM\\02_NOTAS_FISCAIS\\2026\\29260251561070000150550010000004851300001174.xml';
 const xmlText = fs.readFileSync(xmlPath, 'utf8');
 const parser = new DOMParser();
 const doc = parser.parseFromString(xmlText, 'application/xml');

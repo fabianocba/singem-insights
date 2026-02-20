@@ -1,12 +1,12 @@
-{
-  "name": "ifdesk",
+﻿{
+  "name": "singem",
   "version": "0.1.1",
-  "description": "IFDESK - Sistema de Controle de Material (IF Baiano)",
+  "description": "SINGEM - Sistema de Controle de Material (IF Baiano)",
   "main": "index.html",
   "type": "module",
   "scripts": {
     "audit:node": "node ./scripts/audit.js",
-    "audit:selftest": "echo \"▶ Abra /audit/selftest.html no navegador para testes locais\"",
+    "audit:selftest": "echo \"â–¶ Abra /audit/selftest.html no navegador para testes locais\"",
     "audit:all": "npm run audit:node && npm run audit:selftest",
     "scan:orphans": "node ./scripts/scan-refs.js",
     "serve": "python -m http.server 8000",
@@ -44,3 +44,4 @@
     "node": ">=14.0.0"
   }
 }
+

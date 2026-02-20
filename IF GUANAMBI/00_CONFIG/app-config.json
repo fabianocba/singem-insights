@@ -1,7 +1,7 @@
-{
+﻿{
   "versao": "1.0.0",
   "dataCriacao": "2026-02-09T16:56:32.542Z",
-  "app": "IFDESK",
+  "app": "SINGEM",
   "estrutura": "v2",
   "configuracoes": {
     "autoBackup": true,
@@ -9,3 +9,4 @@
     "manterHistorico": 30
   }
 }
+

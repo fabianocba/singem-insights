@@ -1,5 +1,5 @@
 /**
- * IFDESK - DOM Batch Operations
+ * SINGEM - DOM Batch Operations
  * @module utils/domBatch
  *
  * Agrupa operações DOM para evitar layout thrashing.

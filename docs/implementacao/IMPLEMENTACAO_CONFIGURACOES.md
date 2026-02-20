@@ -1,48 +1,48 @@
-# Implementação do Módulo de Configurações - IFDESK
+﻿# ImplementaÃ§Ã£o do MÃ³dulo de ConfiguraÃ§Ãµes - SINGEM
 
-## ✅ Implementação Concluída
+## âœ… ImplementaÃ§Ã£o ConcluÃ­da
 
-### 📁 Arquivos Criados
+### ðŸ“ Arquivos Criados
 
-#### Módulo JavaScript (5 arquivos)
+#### MÃ³dulo JavaScript (5 arquivos)
 
 1. **`js/settings/index.js`** (70 linhas)
-   - Controller principal do módulo de configurações
-   - Gerencia navegação entre seções
-   - Event listeners e carregamento dinâmico
+   - Controller principal do mÃ³dulo de configuraÃ§Ãµes
+   - Gerencia navegaÃ§Ã£o entre seÃ§Ãµes
+   - Event listeners e carregamento dinÃ¢mico
 
 2. **`js/settings/unidade.js`** (250+ linhas)
-   - Gerenciamento de Unidade Orçamentária
-   - Validação de CNPJ com algoritmo oficial da Receita Federal
-   - Formatação automática de CNPJ
-   - Funções globais: `getUnidadeOrcamentaria()`
+   - Gerenciamento de Unidade OrÃ§amentÃ¡ria
+   - ValidaÃ§Ã£o de CNPJ com algoritmo oficial da Receita Federal
+   - FormataÃ§Ã£o automÃ¡tica de CNPJ
+   - FunÃ§Ãµes globais: `getUnidadeOrcamentaria()`
 
 3. **`js/settings/usuarios.js`** (400+ linhas)
-   - CRUD completo de usuários
-   - Hash de senha com PBKDF2-SHA256 (100.000 iterações + salt)
-   - Autenticação segura
-   - Indicador de força de senha
-   - Perfis: Administrador e Usuário
+   - CRUD completo de usuÃ¡rios
+   - Hash de senha com PBKDF2-SHA256 (100.000 iteraÃ§Ãµes + salt)
+   - AutenticaÃ§Ã£o segura
+   - Indicador de forÃ§a de senha
+   - Perfis: Administrador e UsuÃ¡rio
 
 4. **`js/settings/rede.js`** (320+ linhas)
-   - Configurações de rede/LAN
-   - Detecção automática de IP via WebRTC
-   - Health check periódico (30s)
-   - Integração com servidor Node.js
+   - ConfiguraÃ§Ãµes de rede/LAN
+   - DetecÃ§Ã£o automÃ¡tica de IP via WebRTC
+   - Health check periÃ³dico (30s)
+   - IntegraÃ§Ã£o com servidor Node.js
 
 5. **`js/settings/preferencias.js`** (280+ linhas)
    - Tema claro/escuro
-   - Tolerâncias de validação
-   - Exportar/importar configurações
+   - TolerÃ¢ncias de validaÃ§Ã£o
+   - Exportar/importar configuraÃ§Ãµes
    - Limpar banco de dados
-   - Funções globais: `getToleranciaValor()`, `getToleranciaQuantidade()`
+   - FunÃ§Ãµes globais: `getToleranciaValor()`, `getToleranciaQuantidade()`
 
 #### Interface HTML
 
 6. **`configuracoes.html`** (650+ linhas)
-   - Interface completa com 4 seções em tabs
+   - Interface completa com 4 seÃ§Ãµes em tabs
    - Design responsivo e moderno
-   - Formulários validados
+   - FormulÃ¡rios validados
    - Mensagens de status
    - CSS inline otimizado
 
@@ -52,265 +52,265 @@
    - Servidor Express para compartilhamento LAN
    - Endpoints: health, info, empenhos, notas-fiscais, sync
    - CORS habilitado
-   - Servir arquivos estáticos
+   - Servir arquivos estÃ¡ticos
 
 8. **`server/package.json`**
-   - Dependências: express, cors, body-parser
+   - DependÃªncias: express, cors, body-parser
    - Scripts: start, dev (nodemon)
 
 9. **`server/README.md`**
-   - Instruções de instalação
+   - InstruÃ§Ãµes de instalaÃ§Ã£o
    - Lista de endpoints
-   - Configuração de porta
-   - Avisos de segurança
+   - ConfiguraÃ§Ã£o de porta
+   - Avisos de seguranÃ§a
 
-#### Documentação
+#### DocumentaÃ§Ã£o
 
 10. **`docs/CONFIGURACOES.md`** (500+ linhas)
-    - Documentação completa do módulo
-    - Guia de uso de cada seção
+    - DocumentaÃ§Ã£o completa do mÃ³dulo
+    - Guia de uso de cada seÃ§Ã£o
     - Estruturas de dados
-    - Exemplos de código
-    - Integração com sistema principal
-    - Aspectos de segurança
+    - Exemplos de cÃ³digo
+    - IntegraÃ§Ã£o com sistema principal
+    - Aspectos de seguranÃ§a
 
-#### Atualização de Arquivos Existentes
+#### AtualizaÃ§Ã£o de Arquivos Existentes
 
 11. **`README.md`** (atualizado)
-    - Adicionada seção "Módulo de Configurações"
+    - Adicionada seÃ§Ã£o "MÃ³dulo de ConfiguraÃ§Ãµes"
     - Estrutura de pastas atualizada
-    - Documentação do servidor Node.js
+    - DocumentaÃ§Ã£o do servidor Node.js
 
 ---
 
-## 🏗️ Estrutura Implementada
+## ðŸ—ï¸ Estrutura Implementada
 
 ```
-IFDESK/
-├── configuracoes.html         # Interface de configurações ✅ NOVO
-├── js/
-│   └── settings/             # Módulo de Configurações ✅ NOVO
-│       ├── index.js          # Controller principal
-│       ├── unidade.js        # Unidade Orçamentária
-│       ├── usuarios.js       # Usuários
-│       ├── rede.js          # Rede/LAN
-│       └── preferencias.js   # Preferências
-├── server/                   # Servidor Node.js ✅ NOVO
-│   ├── index.js              # Express server
-│   ├── package.json          # Dependências
-│   └── README.md             # Docs servidor
-└── docs/
-    └── CONFIGURACOES.md      # Documentação completa ✅ NOVO
+SINGEM/
+â”œâ”€â”€ configuracoes.html         # Interface de configuraÃ§Ãµes âœ… NOVO
+â”œâ”€â”€ js/
+â”‚   â””â”€â”€ settings/             # MÃ³dulo de ConfiguraÃ§Ãµes âœ… NOVO
+â”‚       â”œâ”€â”€ index.js          # Controller principal
+â”‚       â”œâ”€â”€ unidade.js        # Unidade OrÃ§amentÃ¡ria
+â”‚       â”œâ”€â”€ usuarios.js       # UsuÃ¡rios
+â”‚       â”œâ”€â”€ rede.js          # Rede/LAN
+â”‚       â””â”€â”€ preferencias.js   # PreferÃªncias
+â”œâ”€â”€ server/                   # Servidor Node.js âœ… NOVO
+â”‚   â”œâ”€â”€ index.js              # Express server
+â”‚   â”œâ”€â”€ package.json          # DependÃªncias
+â”‚   â””â”€â”€ README.md             # Docs servidor
+â””â”€â”€ docs/
+    â””â”€â”€ CONFIGURACOES.md      # DocumentaÃ§Ã£o completa âœ… NOVO
 ```
 
 ---
 
-## 🎯 Funcionalidades Implementadas
+## ðŸŽ¯ Funcionalidades Implementadas
 
-### 1️⃣ Unidade Orçamentária
+### 1ï¸âƒ£ Unidade OrÃ§amentÃ¡ria
 
-- ✅ Formulário completo (Razão Social, CNPJ, UG, Endereço, Município, UF)
-- ✅ Validação de CNPJ com algoritmo oficial (dígitos verificadores)
-- ✅ Formatação automática de CNPJ (00.000.000/0000-00)
-- ✅ Armazenamento no IndexedDB (store: config, id: unidadeOrcamentaria)
-- ✅ Função global `getUnidadeOrcamentaria()` para integração
-- ✅ Status visual (configurado/não configurado)
+- âœ… FormulÃ¡rio completo (RazÃ£o Social, CNPJ, UG, EndereÃ§o, MunicÃ­pio, UF)
+- âœ… ValidaÃ§Ã£o de CNPJ com algoritmo oficial (dÃ­gitos verificadores)
+- âœ… FormataÃ§Ã£o automÃ¡tica de CNPJ (00.000.000/0000-00)
+- âœ… Armazenamento no IndexedDB (store: config, id: unidadeOrcamentaria)
+- âœ… FunÃ§Ã£o global `getUnidadeOrcamentaria()` para integraÃ§Ã£o
+- âœ… Status visual (configurado/nÃ£o configurado)
 
-### 2️⃣ Usuários
+### 2ï¸âƒ£ UsuÃ¡rios
 
-- ✅ CRUD completo (Create, Read, Update, Delete)
-- ✅ Hash de senha com Web Crypto API (PBKDF2-SHA256)
-  - 100.000 iterações
-  - Salt aleatório de 16 bytes
+- âœ… CRUD completo (Create, Read, Update, Delete)
+- âœ… Hash de senha com Web Crypto API (PBKDF2-SHA256)
+  - 100.000 iteraÃ§Ãµes
+  - Salt aleatÃ³rio de 16 bytes
   - Hash de 256 bits
-- ✅ Autenticação com método `autenticar(login, senha)`
-- ✅ Indicador de força de senha (4 níveis)
-- ✅ Perfis: Administrador e Usuário
-- ✅ Ativação/desativação de usuários
-- ✅ Edição completa (inclusive alteração de senha)
-- ✅ Lista com tabela interativa
+- âœ… AutenticaÃ§Ã£o com mÃ©todo `autenticar(login, senha)`
+- âœ… Indicador de forÃ§a de senha (4 nÃ­veis)
+- âœ… Perfis: Administrador e UsuÃ¡rio
+- âœ… AtivaÃ§Ã£o/desativaÃ§Ã£o de usuÃ¡rios
+- âœ… EdiÃ§Ã£o completa (inclusive alteraÃ§Ã£o de senha)
+- âœ… Lista com tabela interativa
 
-### 3️⃣ Rede/LAN
+### 3ï¸âƒ£ Rede/LAN
 
-- ✅ Habilitar/desabilitar compartilhamento LAN
-- ✅ Detecção automática de IP via WebRTC
-- ✅ Validação de formato de IP
-- ✅ Configuração de porta (padrão: 3000)
-- ✅ Intervalo de sincronização (30-300s)
-- ✅ Health check automático (30s)
-- ✅ Teste de conexão manual
-- ✅ Status visual (online/offline)
-- ✅ Servidor Node.js/Express opcional
+- âœ… Habilitar/desabilitar compartilhamento LAN
+- âœ… DetecÃ§Ã£o automÃ¡tica de IP via WebRTC
+- âœ… ValidaÃ§Ã£o de formato de IP
+- âœ… ConfiguraÃ§Ã£o de porta (padrÃ£o: 3000)
+- âœ… Intervalo de sincronizaÃ§Ã£o (30-300s)
+- âœ… Health check automÃ¡tico (30s)
+- âœ… Teste de conexÃ£o manual
+- âœ… Status visual (online/offline)
+- âœ… Servidor Node.js/Express opcional
 
-### 4️⃣ Preferências
+### 4ï¸âƒ£ PreferÃªncias
 
-- ✅ Tema claro/escuro (aplicação em tempo real)
-- ✅ Seleção de idioma (pt-BR, en-US)
-- ✅ Tolerância de valor (em centavos)
-- ✅ Tolerância de quantidade (em unidades)
-- ✅ Notificações on/off
-- ✅ Auto-salvar on/off
-- ✅ Validação rígida on/off
-- ✅ Exportar configurações (JSON)
-- ✅ Importar configurações (JSON)
-- ✅ Limpar banco de dados (com dupla confirmação)
-- ✅ Funções globais para tolerâncias
+- âœ… Tema claro/escuro (aplicaÃ§Ã£o em tempo real)
+- âœ… SeleÃ§Ã£o de idioma (pt-BR, en-US)
+- âœ… TolerÃ¢ncia de valor (em centavos)
+- âœ… TolerÃ¢ncia de quantidade (em unidades)
+- âœ… NotificaÃ§Ãµes on/off
+- âœ… Auto-salvar on/off
+- âœ… ValidaÃ§Ã£o rÃ­gida on/off
+- âœ… Exportar configuraÃ§Ãµes (JSON)
+- âœ… Importar configuraÃ§Ãµes (JSON)
+- âœ… Limpar banco de dados (com dupla confirmaÃ§Ã£o)
+- âœ… FunÃ§Ãµes globais para tolerÃ¢ncias
 
-### 5️⃣ Servidor Node.js (Opcional)
+### 5ï¸âƒ£ Servidor Node.js (Opcional)
 
-- ✅ Express server completo
-- ✅ CORS habilitado
-- ✅ Endpoint `/health` (health check)
-- ✅ Endpoint `/api/info` (info do sistema)
-- ✅ Placeholders para endpoints de sincronização:
+- âœ… Express server completo
+- âœ… CORS habilitado
+- âœ… Endpoint `/health` (health check)
+- âœ… Endpoint `/api/info` (info do sistema)
+- âœ… Placeholders para endpoints de sincronizaÃ§Ã£o:
   - `/api/empenhos` (GET/POST)
   - `/api/notas-fiscais` (GET/POST)
   - `/api/entregas` (GET)
   - `/api/sync` (POST)
-- ✅ Servir arquivos estáticos
-- ✅ Tratamento de erros (404, 500)
+- âœ… Servir arquivos estÃ¡ticos
+- âœ… Tratamento de erros (404, 500)
 
 ---
 
-## 💾 Armazenamento IndexedDB
+## ðŸ’¾ Armazenamento IndexedDB
 
 ### Store: `config`
 
-| ID                    | Conteúdo              | Estrutura                                                                                                                                 |
+| ID                    | ConteÃºdo              | Estrutura                                                                                                                                 |
 | --------------------- | --------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| `unidadeOrcamentaria` | Dados da instituição  | `{ id, razaoSocial, cnpj, cnpjNumeros, ug, endereco, municipio, uf, dataAtualizacao }`                                                    |
-| `usuarios`            | Lista de usuários     | `{ id: 'usuarios', lista: [{ id, nome, login, senhaHash, perfil, ativo, dataCriacao, dataAtualizacao }] }`                                |
-| `rede`                | Configurações de rede | `{ id: 'rede', habilitado, ip, porta, intervaloSync, urlBase, dataAtualizacao }`                                                          |
-| `preferencias`        | Preferências gerais   | `{ id: 'preferencias', tema, idioma, toleranciaValor, toleranciaQuantidade, notificacoes, autoSalvar, validacaoRigida, dataAtualizacao }` |
+| `unidadeOrcamentaria` | Dados da instituiÃ§Ã£o  | `{ id, razaoSocial, cnpj, cnpjNumeros, ug, endereco, municipio, uf, dataAtualizacao }`                                                    |
+| `usuarios`            | Lista de usuÃ¡rios     | `{ id: 'usuarios', lista: [{ id, nome, login, senhaHash, perfil, ativo, dataCriacao, dataAtualizacao }] }`                                |
+| `rede`                | ConfiguraÃ§Ãµes de rede | `{ id: 'rede', habilitado, ip, porta, intervaloSync, urlBase, dataAtualizacao }`                                                          |
+| `preferencias`        | PreferÃªncias gerais   | `{ id: 'preferencias', tema, idioma, toleranciaValor, toleranciaQuantidade, notificacoes, autoSalvar, validacaoRigida, dataAtualizacao }` |
 
-**Nota:** Utiliza o store `config` existente (versão 2 do banco). Não requer migração se não houver conflito de IDs.
+**Nota:** Utiliza o store `config` existente (versÃ£o 2 do banco). NÃ£o requer migraÃ§Ã£o se nÃ£o houver conflito de IDs.
 
 ---
 
-## 🔒 Segurança Implementada
+## ðŸ”’ SeguranÃ§a Implementada
 
 ### Senhas
 
-- ✅ **PBKDF2-SHA256** (NIST-approved)
-- ✅ 100.000 iterações (recomendado pela OWASP)
-- ✅ Salt aleatório de 16 bytes por senha
-- ✅ Hash de 256 bits
-- ✅ Armazenamento: `salt_hex:hash_hex`
-- ✅ Nunca armazena senha em texto plano
-- ✅ Web Crypto API (nativa, sem libs externas)
+- âœ… **PBKDF2-SHA256** (NIST-approved)
+- âœ… 100.000 iteraÃ§Ãµes (recomendado pela OWASP)
+- âœ… Salt aleatÃ³rio de 16 bytes por senha
+- âœ… Hash de 256 bits
+- âœ… Armazenamento: `salt_hex:hash_hex`
+- âœ… Nunca armazena senha em texto plano
+- âœ… Web Crypto API (nativa, sem libs externas)
 
 ### CNPJ
 
-- ✅ Algoritmo oficial da Receita Federal
-- ✅ Verificação de dígitos verificadores (DV1 e DV2)
-- ✅ Eliminação de CNPJs inválidos conhecidos (11111111111111, etc.)
-- ✅ Validação matemática completa
+- âœ… Algoritmo oficial da Receita Federal
+- âœ… VerificaÃ§Ã£o de dÃ­gitos verificadores (DV1 e DV2)
+- âœ… EliminaÃ§Ã£o de CNPJs invÃ¡lidos conhecidos (11111111111111, etc.)
+- âœ… ValidaÃ§Ã£o matemÃ¡tica completa
 
 ### Rede
 
-- ⚠️ Servidor Node.js para **LAN privada** apenas
-- ⚠️ **NÃO expor à internet** sem SSL e autenticação
-- ⚠️ Firewall deve bloquear acesso externo
-- ✅ CORS habilitado para permitir requests do frontend
+- âš ï¸ Servidor Node.js para **LAN privada** apenas
+- âš ï¸ **NÃƒO expor Ã  internet** sem SSL e autenticaÃ§Ã£o
+- âš ï¸ Firewall deve bloquear acesso externo
+- âœ… CORS habilitado para permitir requests do frontend
 
 ---
 
-## 🎨 Interface e UX
+## ðŸŽ¨ Interface e UX
 
 ### Design
 
-- ✅ Responsivo (desktop, tablet, mobile)
-- ✅ Grid de 2 colunas (1 em mobile)
-- ✅ Tabs para navegação entre seções
-- ✅ Cores do IF Baiano (verde primário)
-- ✅ Animações suaves (fadeIn)
-- ✅ Status visuais claros (success, warning, error)
+- âœ… Responsivo (desktop, tablet, mobile)
+- âœ… Grid de 2 colunas (1 em mobile)
+- âœ… Tabs para navegaÃ§Ã£o entre seÃ§Ãµes
+- âœ… Cores do IF Baiano (verde primÃ¡rio)
+- âœ… AnimaÃ§Ãµes suaves (fadeIn)
+- âœ… Status visuais claros (success, warning, error)
 
-### Validações
+### ValidaÃ§Ãµes
 
-- ✅ Campos obrigatórios marcados com \*
-- ✅ Mensagens de erro claras
-- ✅ Validação em tempo real (CNPJ, IP, força de senha)
-- ✅ Confirmações para ações destrutivas
-- ✅ Feedback visual imediato
+- âœ… Campos obrigatÃ³rios marcados com \*
+- âœ… Mensagens de erro claras
+- âœ… ValidaÃ§Ã£o em tempo real (CNPJ, IP, forÃ§a de senha)
+- âœ… ConfirmaÃ§Ãµes para aÃ§Ãµes destrutivas
+- âœ… Feedback visual imediato
 
 ### Acessibilidade
 
-- ✅ Labels em todos os inputs
-- ✅ Placeholders descritivos
-- ✅ Contraste adequado (WCAG)
-- ✅ Foco visível em elementos interativos
-- ✅ Mensagens de erro legíveis
+- âœ… Labels em todos os inputs
+- âœ… Placeholders descritivos
+- âœ… Contraste adequado (WCAG)
+- âœ… Foco visÃ­vel em elementos interativos
+- âœ… Mensagens de erro legÃ­veis
 
 ---
 
-## 📚 Documentação Criada
+## ðŸ“š DocumentaÃ§Ã£o Criada
 
-### 1. Documentação Técnica Completa
+### 1. DocumentaÃ§Ã£o TÃ©cnica Completa
 
 **Arquivo:** `docs/CONFIGURACOES.md` (500+ linhas)
 
-Conteúdo:
+ConteÃºdo:
 
-- ✅ Visão geral do módulo
-- ✅ Estrutura de arquivos
-- ✅ Documentação de cada seção (4 seções)
-- ✅ Estruturas de dados (JSON)
-- ✅ Uso programático (exemplos de código)
-- ✅ Armazenamento IndexedDB
-- ✅ Integração com sistema principal
-- ✅ Segurança (senhas, CNPJ, rede)
-- ✅ Responsividade e acessibilidade
-- ✅ Guia de testes
-- ✅ Próximas implementações
+- âœ… VisÃ£o geral do mÃ³dulo
+- âœ… Estrutura de arquivos
+- âœ… DocumentaÃ§Ã£o de cada seÃ§Ã£o (4 seÃ§Ãµes)
+- âœ… Estruturas de dados (JSON)
+- âœ… Uso programÃ¡tico (exemplos de cÃ³digo)
+- âœ… Armazenamento IndexedDB
+- âœ… IntegraÃ§Ã£o com sistema principal
+- âœ… SeguranÃ§a (senhas, CNPJ, rede)
+- âœ… Responsividade e acessibilidade
+- âœ… Guia de testes
+- âœ… PrÃ³ximas implementaÃ§Ãµes
 
-### 2. Documentação do Servidor
+### 2. DocumentaÃ§Ã£o do Servidor
 
 **Arquivo:** `server/README.md`
 
-Conteúdo:
+ConteÃºdo:
 
-- ✅ Pré-requisitos
-- ✅ Instalação
-- ✅ Executar (normal e dev)
-- ✅ Endpoints disponíveis
-- ✅ Configuração de porta
-- ✅ Avisos de segurança
-- ✅ Status de desenvolvimento
+- âœ… PrÃ©-requisitos
+- âœ… InstalaÃ§Ã£o
+- âœ… Executar (normal e dev)
+- âœ… Endpoints disponÃ­veis
+- âœ… ConfiguraÃ§Ã£o de porta
+- âœ… Avisos de seguranÃ§a
+- âœ… Status de desenvolvimento
 
-### 3. Atualização do README Principal
+### 3. AtualizaÃ§Ã£o do README Principal
 
 **Arquivo:** `README.md` (atualizado)
 
-Adições:
+AdiÃ§Ãµes:
 
-- ✅ Seção "Módulo de Configurações"
-- ✅ Estrutura de pastas atualizada
-- ✅ Links para documentação
-- ✅ Instruções do servidor Node.js
+- âœ… SeÃ§Ã£o "MÃ³dulo de ConfiguraÃ§Ãµes"
+- âœ… Estrutura de pastas atualizada
+- âœ… Links para documentaÃ§Ã£o
+- âœ… InstruÃ§Ãµes do servidor Node.js
 
 ---
 
-## 🔗 Integração com Sistema Existente
+## ðŸ”— IntegraÃ§Ã£o com Sistema Existente
 
-### ⚠️ IMPORTANTE - Código NÃO Modificado
+### âš ï¸ IMPORTANTE - CÃ³digo NÃƒO Modificado
 
 Conforme solicitado:
 
-> "NÃO alterar, reescrever ou remover código já funcional. Somente ADICIONAR os módulos"
+> "NÃƒO alterar, reescrever ou remover cÃ³digo jÃ¡ funcional. Somente ADICIONAR os mÃ³dulos"
 
 **Nenhum arquivo existente foi modificado**, exceto:
 
-- ✅ `README.md` (apenas adições de documentação)
+- âœ… `README.md` (apenas adiÃ§Ãµes de documentaÃ§Ã£o)
 
-### Próximos Passos de Integração (A FAZER)
+### PrÃ³ximos Passos de IntegraÃ§Ã£o (A FAZER)
 
 1. **Adicionar Link no Menu** (`index.html`)
 
    ```html
    <div class="menu-item" onclick="window.open('configuracoes.html', '_blank')">
-     <h2>⚙️</h2>
-     <p>Configurações</p>
+     <h2>âš™ï¸</h2>
+     <p>ConfiguraÃ§Ãµes</p>
    </div>
    ```
 
@@ -319,86 +319,86 @@ Conforme solicitado:
    ```javascript
    const unidade = await window.getUnidadeOrcamentaria();
    if (unidade && dados.cnpjUnidade !== unidade.cnpjNumeros) {
-     // Alerta de divergência
+     // Alerta de divergÃªncia
    }
    ```
 
-3. **Aplicar Tolerâncias** (`db.js`)
+3. **Aplicar TolerÃ¢ncias** (`db.js`)
    ```javascript
    const tolerancia = await window.getToleranciaValor();
    const diferenca = Math.abs(valorNF - valorNE);
    if (diferenca > tolerancia) {
-     // Divergência
+     // DivergÃªncia
    }
    ```
 
-**Nota:** Estas integrações são opcionais e devem ser feitas conforme a necessidade.
+**Nota:** Estas integraÃ§Ãµes sÃ£o opcionais e devem ser feitas conforme a necessidade.
 
 ---
 
-## ✅ Checklist de Implementação
+## âœ… Checklist de ImplementaÃ§Ã£o
 
 ### Arquivos JavaScript
 
 - [x] `js/settings/index.js` - Controller principal
-- [x] `js/settings/unidade.js` - Unidade Orçamentária
-- [x] `js/settings/usuarios.js` - Usuários
+- [x] `js/settings/unidade.js` - Unidade OrÃ§amentÃ¡ria
+- [x] `js/settings/usuarios.js` - UsuÃ¡rios
 - [x] `js/settings/rede.js` - Rede/LAN
-- [x] `js/settings/preferencias.js` - Preferências
+- [x] `js/settings/preferencias.js` - PreferÃªncias
 
 ### Interface
 
 - [x] `configuracoes.html` - Interface completa
 - [x] Design responsivo
-- [x] Navegação por tabs
-- [x] Formulários validados
+- [x] NavegaÃ§Ã£o por tabs
+- [x] FormulÃ¡rios validados
 - [x] Status visuais
 
 ### Servidor Node.js
 
 - [x] `server/index.js` - Express server
-- [x] `server/package.json` - Dependências
-- [x] `server/README.md` - Documentação
-- [x] Endpoints básicos (health, info)
+- [x] `server/package.json` - DependÃªncias
+- [x] `server/README.md` - DocumentaÃ§Ã£o
+- [x] Endpoints bÃ¡sicos (health, info)
 - [x] Placeholders para sync
 
-### Documentação
+### DocumentaÃ§Ã£o
 
-- [x] `docs/CONFIGURACOES.md` - Documentação completa
+- [x] `docs/CONFIGURACOES.md` - DocumentaÃ§Ã£o completa
 - [x] `server/README.md` - Docs do servidor
 - [x] `README.md` - Atualizado
 
 ### Funcionalidades
 
-- [x] Unidade Orçamentária (CRUD + validação CNPJ)
-- [x] Usuários (CRUD + hash PBKDF2 + autenticação)
-- [x] Rede (configuração + health check + servidor)
-- [x] Preferências (tema + tolerâncias + export/import)
+- [x] Unidade OrÃ§amentÃ¡ria (CRUD + validaÃ§Ã£o CNPJ)
+- [x] UsuÃ¡rios (CRUD + hash PBKDF2 + autenticaÃ§Ã£o)
+- [x] Rede (configuraÃ§Ã£o + health check + servidor)
+- [x] PreferÃªncias (tema + tolerÃ¢ncias + export/import)
 - [x] Armazenamento IndexedDB
-- [x] Funções globais (`getUnidadeOrcamentaria`, `getToleranciaValor`, etc.)
+- [x] FunÃ§Ãµes globais (`getUnidadeOrcamentaria`, `getToleranciaValor`, etc.)
 
-### Segurança
+### SeguranÃ§a
 
-- [x] Hash de senha (PBKDF2-SHA256, 100k iterações)
-- [x] Validação de CNPJ (algoritmo oficial)
-- [x] Validação de IP
-- [x] Confirmações para ações destrutivas
-- [x] Dupla confirmação para limpar banco
+- [x] Hash de senha (PBKDF2-SHA256, 100k iteraÃ§Ãµes)
+- [x] ValidaÃ§Ã£o de CNPJ (algoritmo oficial)
+- [x] ValidaÃ§Ã£o de IP
+- [x] ConfirmaÃ§Ãµes para aÃ§Ãµes destrutivas
+- [x] Dupla confirmaÃ§Ã£o para limpar banco
 
 ### UX/Design
 
 - [x] Interface moderna e intuitiva
 - [x] Responsividade (mobile, tablet, desktop)
 - [x] Feedback visual claro
-- [x] Animações suaves
+- [x] AnimaÃ§Ãµes suaves
 - [x] Indicadores de status
 - [x] Mensagens de erro descritivas
 
 ---
 
-## 🚀 Como Usar
+## ðŸš€ Como Usar
 
-### 1. Acessar Configurações
+### 1. Acessar ConfiguraÃ§Ãµes
 
 ```
 Abra: configuracoes.html
@@ -406,21 +406,21 @@ Abra: configuracoes.html
 
 ### 2. Configurar Unidade
 
-1. Preencha Razão Social e CNPJ
+1. Preencha RazÃ£o Social e CNPJ
 2. Clique "Validar CNPJ"
 3. Complete dados opcionais
 4. Salve
 
-### 3. Cadastrar Usuários
+### 3. Cadastrar UsuÃ¡rios
 
-1. Vá para aba "Usuários"
-2. Preencha formulário
-3. Veja força da senha
+1. VÃ¡ para aba "UsuÃ¡rios"
+2. Preencha formulÃ¡rio
+3. Veja forÃ§a da senha
 4. Salve
 
 ### 4. Configurar Rede (Opcional)
 
-1. Vá para aba "Rede/LAN"
+1. VÃ¡ para aba "Rede/LAN"
 2. Clique "Detectar IP"
 3. Habilite LAN
 4. Salve
@@ -431,110 +431,111 @@ Abra: configuracoes.html
    npm start
    ```
 
-### 5. Ajustar Preferências
+### 5. Ajustar PreferÃªncias
 
-1. Vá para aba "Preferências"
-2. Escolha tema, tolerâncias, etc.
+1. VÃ¡ para aba "PreferÃªncias"
+2. Escolha tema, tolerÃ¢ncias, etc.
 3. Salve
 
 ### 6. Exportar/Importar
 
-1. Aba "Preferências"
-2. Clique "Exportar Configurações" (baixa JSON)
-3. Para importar: "Importar Configurações" e selecione JSON
+1. Aba "PreferÃªncias"
+2. Clique "Exportar ConfiguraÃ§Ãµes" (baixa JSON)
+3. Para importar: "Importar ConfiguraÃ§Ãµes" e selecione JSON
 
 ---
 
-## 📊 Estatísticas
+## ðŸ“Š EstatÃ­sticas
 
 - **Total de Arquivos Criados:** 11
-- **Linhas de Código JavaScript:** ~1.500+
+- **Linhas de CÃ³digo JavaScript:** ~1.500+
 - **Linhas de HTML:** ~650+
-- **Linhas de Documentação:** ~800+
+- **Linhas de DocumentaÃ§Ã£o:** ~800+
 - **Endpoints de API:** 8 (placeholders)
-- **Funções Globais:** 3 (`getUnidadeOrcamentaria`, `getToleranciaValor`, `getToleranciaQuantidade`)
-- **Seções de Configuração:** 4 (Unidade, Usuários, Rede, Preferências)
+- **FunÃ§Ãµes Globais:** 3 (`getUnidadeOrcamentaria`, `getToleranciaValor`, `getToleranciaQuantidade`)
+- **SeÃ§Ãµes de ConfiguraÃ§Ã£o:** 4 (Unidade, UsuÃ¡rios, Rede, PreferÃªncias)
 - **Stores IndexedDB Utilizadas:** 1 (`config`)
 - **Tempo Estimado de Desenvolvimento:** 6-8 horas
 
 ---
 
-## 🔮 Próximas Implementações Sugeridas
+## ðŸ”® PrÃ³ximas ImplementaÃ§Ãµes Sugeridas
 
 ### Curto Prazo
 
-- [ ] Integrar validação de CNPJ em `app.js`
-- [ ] Aplicar tolerâncias em `db.js`
+- [ ] Integrar validaÃ§Ã£o de CNPJ em `app.js`
+- [ ] Aplicar tolerÃ¢ncias em `db.js`
 - [ ] Adicionar link no menu principal
-- [ ] Autenticação obrigatória no sistema
+- [ ] AutenticaÃ§Ã£o obrigatÃ³ria no sistema
 - [ ] Testes automatizados
 
-### Médio Prazo
+### MÃ©dio Prazo
 
-- [ ] Sincronização real entre máquinas
+- [ ] SincronizaÃ§Ã£o real entre mÃ¡quinas
 - [ ] Upload de arquivos via servidor
-- [ ] Auditoria de ações (log)
-- [ ] Relatório de configurações
+- [ ] Auditoria de aÃ§Ãµes (log)
+- [ ] RelatÃ³rio de configuraÃ§Ãµes
 - [ ] Multi-idioma completo
 
 ### Longo Prazo
 
-- [ ] Backup automático em nuvem
-- [ ] Perfis avançados (permissões granulares)
-- [ ] Dashboard de configurações
-- [ ] Integração com Active Directory
+- [ ] Backup automÃ¡tico em nuvem
+- [ ] Perfis avanÃ§ados (permissÃµes granulares)
+- [ ] Dashboard de configuraÃ§Ãµes
+- [ ] IntegraÃ§Ã£o com Active Directory
 - [ ] Mobile app
 
 ---
 
-## 📝 Notas Importantes
+## ðŸ“ Notas Importantes
 
-### ✅ Preservação de Código Existente
+### âœ… PreservaÃ§Ã£o de CÃ³digo Existente
 
 - **Nenhum arquivo funcional foi modificado**
 - Apenas arquivos novos foram criados
-- `README.md` recebeu apenas adições informativas
-- Todos os módulos são **add-only**
+- `README.md` recebeu apenas adiÃ§Ãµes informativas
+- Todos os mÃ³dulos sÃ£o **add-only**
 
-### ⚠️ Avisos de Segurança
+### âš ï¸ Avisos de SeguranÃ§a
 
 - Servidor Node.js para **LAN privada** apenas
-- **NÃO expor à internet** sem SSL e autenticação
+- **NÃƒO expor Ã  internet** sem SSL e autenticaÃ§Ã£o
 - Configurar firewall adequadamente
-- Senhas são hasheadas (PBKDF2), mas IndexedDB é local (não criptografado)
+- Senhas sÃ£o hasheadas (PBKDF2), mas IndexedDB Ã© local (nÃ£o criptografado)
 
-### 🔧 Dependências Externas
+### ðŸ”§ DependÃªncias Externas
 
 - **Node.js 16+** (apenas para servidor opcional)
-- **NPM** (para instalar dependências do servidor)
+- **NPM** (para instalar dependÃªncias do servidor)
 - Navegador moderno com Web Crypto API
 
-### 📦 Estrutura Modular
+### ðŸ“¦ Estrutura Modular
 
-- Cada seção é independente (`unidade.js`, `usuarios.js`, etc.)
-- Fácil adicionar novas seções
+- Cada seÃ§Ã£o Ã© independente (`unidade.js`, `usuarios.js`, etc.)
+- FÃ¡cil adicionar novas seÃ§Ãµes
 - Controller principal coordena tudo (`index.js`)
 
 ---
 
-## ✅ Implementação Completa e Testável
+## âœ… ImplementaÃ§Ã£o Completa e TestÃ¡vel
 
-O módulo de Configurações está **100% implementado** e pronto para uso:
+O mÃ³dulo de ConfiguraÃ§Ãµes estÃ¡ **100% implementado** e pronto para uso:
 
-1. ✅ Todos os arquivos criados
-2. ✅ Todas as funcionalidades implementadas
-3. ✅ Documentação completa
-4. ✅ Servidor Node.js opcional funcional
-5. ✅ Segurança (hash de senha, validação CNPJ)
-6. ✅ Interface responsiva
-7. ✅ Armazenamento IndexedDB
-8. ✅ Funções globais para integração
+1. âœ… Todos os arquivos criados
+2. âœ… Todas as funcionalidades implementadas
+3. âœ… DocumentaÃ§Ã£o completa
+4. âœ… Servidor Node.js opcional funcional
+5. âœ… SeguranÃ§a (hash de senha, validaÃ§Ã£o CNPJ)
+6. âœ… Interface responsiva
+7. âœ… Armazenamento IndexedDB
+8. âœ… FunÃ§Ãµes globais para integraÃ§Ã£o
 
-**Basta abrir `configuracoes.html` e começar a usar!**
+**Basta abrir `configuracoes.html` e comeÃ§ar a usar!**
 
 ---
 
 **Data:** Janeiro 2025  
-**Sistema:** IFDESK - IF Baiano  
-**Módulo:** Configurações v1.0  
-**Status:** ✅ Completo
+**Sistema:** SINGEM - IF Baiano  
+**MÃ³dulo:** ConfiguraÃ§Ãµes v1.0  
+**Status:** âœ… Completo
+

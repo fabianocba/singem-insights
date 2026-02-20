@@ -1,40 +1,40 @@
-# 🔧 Correção Final - Repository Import e Bootstrap Robusto
+﻿# ðŸ”§ CorreÃ§Ã£o Final - Repository Import e Bootstrap Robusto
 
-## 📋 Resumo Executivo
+## ðŸ“‹ Resumo Executivo
 
 **Data:** 2025-11-07  
-**Versão:** 1.3.1-20251107  
-**Status:** ✅ CORRIGIDO
+**VersÃ£o:** 1.3.1-20251107  
+**Status:** âœ… CORRIGIDO
 
-Correção completa do erro "Módulo de repositório não carregado" através de:
+CorreÃ§Ã£o completa do erro "MÃ³dulo de repositÃ³rio nÃ£o carregado" atravÃ©s de:
 
-1. Correção de imports ES6 no repository.js
+1. CorreÃ§Ã£o de imports ES6 no repository.js
 2. Bootstrap robusto com retry e backoff
-3. Cache-busting automático
+3. Cache-busting automÃ¡tico
 4. Logs detalhados para troubleshooting
 
 ---
 
-## 🐛 Problema Identificado
+## ðŸ› Problema Identificado
 
 ### Erro Original
 
 ```
-❌ Erro: Módulo de repositório não carregado! Recarregue a página.
+âŒ Erro: MÃ³dulo de repositÃ³rio nÃ£o carregado! Recarregue a pÃ¡gina.
 ```
 
 ### Causa Raiz (RCA)
 
-**PROBLEMA CRÍTICO ENCONTRADO:**
+**PROBLEMA CRÃTICO ENCONTRADO:**
 
 ```javascript
-// ❌ ERRADO - repository.js linha 235
+// âŒ ERRADO - repository.js linha 235
 // import no MEIO do arquivo!
 
-// Código normal...
+// CÃ³digo normal...
 // 200 linhas...
 
-import { withTx } from './dbTx.js';  // ← AQUI!
+import { withTx } from './dbTx.js';  // â† AQUI!
 
 export async function saveUnidade(unidade) {
   return withTx(...);
@@ -43,23 +43,23 @@ export async function saveUnidade(unidade) {
 
 **Por que isso causava o erro:**
 
-- ES6 modules são hoisted, mas imports no meio do arquivo confundem o parser
-- Pode causar importação circular não detectada
-- Browser pode falhar silenciosamente ao resolver dependências
+- ES6 modules sÃ£o hoisted, mas imports no meio do arquivo confundem o parser
+- Pode causar importaÃ§Ã£o circular nÃ£o detectada
+- Browser pode falhar silenciosamente ao resolver dependÃªncias
 - Resultado: `repository` fica `undefined` ou incompleto
 
-### Problemas Secundários
+### Problemas SecundÃ¡rios
 
 1. **Falta de retry**: Se dbManager demorasse a inicializar, falhava imediatamente
-2. **Cache antigo**: Service Workers podiam servir código antigo após correções
-3. **Logs insuficientes**: Difícil diagnosticar onde falhou
-4. **Bootstrap frágil**: Sem tratamento de erros ou tentativas de recuperação
+2. **Cache antigo**: Service Workers podiam servir cÃ³digo antigo apÃ³s correÃ§Ãµes
+3. **Logs insuficientes**: DifÃ­cil diagnosticar onde falhou
+4. **Bootstrap frÃ¡gil**: Sem tratamento de erros ou tentativas de recuperaÃ§Ã£o
 
 ---
 
-## ✅ Soluções Implementadas
+## âœ… SoluÃ§Ãµes Implementadas
 
-### 1. Correção de Imports (repository.js)
+### 1. CorreÃ§Ã£o de Imports (repository.js)
 
 **ANTES:**
 
@@ -68,9 +68,9 @@ export async function saveUnidade(unidade) {
 import { emit } from './eventBus.js';
 import { validateEmpenho, validateNotaFiscal } from './validators/required.js';
 
-// ... 200 linhas de código ...
+// ... 200 linhas de cÃ³digo ...
 
-// ❌ Import no meio do arquivo (linha 235)
+// âŒ Import no meio do arquivo (linha 235)
 import { withTx } from './dbTx.js';
 
 export async function saveUnidade(unidade) {
@@ -84,59 +84,59 @@ export async function saveUnidade(unidade) {
 // repository.js - CORRETO
 import { emit } from './eventBus.js';
 import { validateEmpenho, validateNotaFiscal } from './validators/required.js';
-import { withTx } from './dbTx.js';  // ✅ Topo do arquivo
+import { withTx } from './dbTx.js';  // âœ… Topo do arquivo
 
-console.log('[Repository] 🔄 Inicializando camada de dados...');
+console.log('[Repository] ðŸ”„ Inicializando camada de dados...');
 console.log('[Repository] withTx importado:', typeof withTx);
 
-// ... código ...
+// ... cÃ³digo ...
 
 export async function saveUnidade(unidade) {
   return withTx(...);
 }
 ```
 
-**Benefícios:**
+**BenefÃ­cios:**
 
-- ✅ Todos os imports no topo (padrão ES6)
-- ✅ Parser resolve dependências corretamente
-- ✅ Logs confirmam que withTx foi importado
-- ✅ Sem ambiguidade na ordem de execução
+- âœ… Todos os imports no topo (padrÃ£o ES6)
+- âœ… Parser resolve dependÃªncias corretamente
+- âœ… Logs confirmam que withTx foi importado
+- âœ… Sem ambiguidade na ordem de execuÃ§Ã£o
 
 ### 2. Bootstrap Robusto com Retry (app.js)
 
-**Nova função `waitForRepository()`:**
+**Nova funÃ§Ã£o `waitForRepository()`:**
 
 ```javascript
 async function waitForRepository(maxRetries = 3, baseDelay = 300) {
-  console.log('[Bootstrap] 🔄 Aguardando repository...');
+  console.log('[Bootstrap] ðŸ”„ Aguardando repository...');
 
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
       // Verifica repository
       if (!repository) {
-        throw new Error('repository não foi importado');
+        throw new Error('repository nÃ£o foi importado');
       }
 
       if (typeof repository.saveUnidade !== 'function') {
-        throw new Error('saveUnidade não encontrado');
+        throw new Error('saveUnidade nÃ£o encontrado');
       }
 
       // Verifica dbManager (pode demorar a inicializar)
       if (!window.dbManager) {
-        console.warn(`[Bootstrap] Tentativa ${attempt}/${maxRetries}: dbManager não disponível`);
+        console.warn(`[Bootstrap] Tentativa ${attempt}/${maxRetries}: dbManager nÃ£o disponÃ­vel`);
 
         if (attempt < maxRetries) {
           const delay = baseDelay * attempt; // Backoff exponencial
           await new Promise((resolve) => setTimeout(resolve, delay));
           continue;
         } else {
-          throw new Error('dbManager não inicializado');
+          throw new Error('dbManager nÃ£o inicializado');
         }
       }
 
       // Sucesso!
-      console.log('[Bootstrap] ✅ Repository pronto para uso');
+      console.log('[Bootstrap] âœ… Repository pronto para uso');
       return true;
     } catch (error) {
       console.error(`[Bootstrap] Tentativa ${attempt}/${maxRetries} falhou:`, error);
@@ -147,52 +147,52 @@ async function waitForRepository(maxRetries = 3, baseDelay = 300) {
 
       // Backoff exponencial: 300ms, 600ms, 900ms
       const delay = baseDelay * attempt;
-      console.log(`[Bootstrap] ⏳ Aguardando ${delay}ms antes de retry...`);
+      console.log(`[Bootstrap] â³ Aguardando ${delay}ms antes de retry...`);
       await new Promise((resolve) => setTimeout(resolve, delay));
     }
   }
 }
 ```
 
-**Características:**
+**CaracterÃ­sticas:**
 
-- ✅ 3 tentativas com backoff exponencial (300ms → 600ms → 900ms)
-- ✅ Verifica repository E dbManager
-- ✅ Logs detalhados de cada tentativa
-- ✅ Lança erro claro após todas as tentativas falharem
+- âœ… 3 tentativas com backoff exponencial (300ms â†’ 600ms â†’ 900ms)
+- âœ… Verifica repository E dbManager
+- âœ… Logs detalhados de cada tentativa
+- âœ… LanÃ§a erro claro apÃ³s todas as tentativas falharem
 
-### 3. Relatório de Inicialização
+### 3. RelatÃ³rio de InicializaÃ§Ã£o
 
-**Nova função `logBootstrapReport()`:**
+**Nova funÃ§Ã£o `logBootstrapReport()`:**
 
 ```javascript
 function logBootstrapReport() {
-  console.log('\n╔════════════════════════════════════════╗');
-  console.log('║   📊 RELATÓRIO DE INICIALIZAÇÃO       ║');
-  console.log('╚════════════════════════════════════════╝');
-  console.log('📦 Versão:', APP_VERSION);
-  console.log('🏗️  Build:', new Date(APP_BUILD).toLocaleString('pt-BR'));
-  console.log('🗄️  DB:', window.dbManager?.db?.name || 'N/A');
-  console.log('📊 DB Versão:', window.dbManager?.db?.version || 'N/A');
-  console.log('✅ Repository:', typeof repository);
-  console.log('✅ Repository.saveUnidade:', typeof repository?.saveUnidade);
-  console.log('✅ Repository.saveUsuario:', typeof repository?.saveUsuario);
-  console.log('✅ Repository.saveEmpenho:', typeof repository?.saveEmpenho);
-  console.log('✅ window.repository:', typeof window.repository);
-  console.log('✅ window.dbManager:', typeof window.dbManager);
-  console.log('✅ window.app:', typeof window.app);
-  console.log('════════════════════════════════════════\n');
+  console.log('\nâ•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—');
+  console.log('â•‘   ðŸ“Š RELATÃ“RIO DE INICIALIZAÃ‡ÃƒO       â•‘');
+  console.log('â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•');
+  console.log('ðŸ“¦ VersÃ£o:', APP_VERSION);
+  console.log('ðŸ—ï¸  Build:', new Date(APP_BUILD).toLocaleString('pt-BR'));
+  console.log('ðŸ—„ï¸  DB:', window.dbManager?.db?.name || 'N/A');
+  console.log('ðŸ“Š DB VersÃ£o:', window.dbManager?.db?.version || 'N/A');
+  console.log('âœ… Repository:', typeof repository);
+  console.log('âœ… Repository.saveUnidade:', typeof repository?.saveUnidade);
+  console.log('âœ… Repository.saveUsuario:', typeof repository?.saveUsuario);
+  console.log('âœ… Repository.saveEmpenho:', typeof repository?.saveEmpenho);
+  console.log('âœ… window.repository:', typeof window.repository);
+  console.log('âœ… window.dbManager:', typeof window.dbManager);
+  console.log('âœ… window.app:', typeof window.app);
+  console.log('â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•\n');
 }
 ```
 
-**Informações fornecidas:**
+**InformaÃ§Ãµes fornecidas:**
 
-- Versão e build timestamp
-- Nome e versão do IndexedDB
-- Disponibilidade de todos os métodos do repository
+- VersÃ£o e build timestamp
+- Nome e versÃ£o do IndexedDB
+- Disponibilidade de todos os mÃ©todos do repository
 - Status de window.repository, window.dbManager, window.app
 
-### 4. Cache-Busting Automático
+### 4. Cache-Busting AutomÃ¡tico
 
 **version.js atualizado:**
 
@@ -200,44 +200,44 @@ function logBootstrapReport() {
 export const APP_VERSION = '1.3.1-20251107';
 export const APP_BUILD = Date.now();
 
-// Expõe globalmente
-window.IFDESK_VERSION = APP_VERSION;
-window.IFDESK_BUILD = APP_BUILD;
+// ExpÃµe globalmente
+window.SINGEM_VERSION = APP_VERSION;
+window.SINGEM_BUILD = APP_BUILD;
 
 // Cache busting
-const STORAGE_KEY = 'ifdesk_app_version';
+const STORAGE_KEY = 'singem_app_version';
 const lastVersion = localStorage.getItem(STORAGE_KEY);
 
 if (lastVersion !== APP_VERSION) {
-  console.log(`🔄 Nova versão detectada: ${lastVersion || 'N/A'} → ${APP_VERSION}`);
+  console.log(`ðŸ”„ Nova versÃ£o detectada: ${lastVersion || 'N/A'} â†’ ${APP_VERSION}`);
 
   localStorage.setItem(STORAGE_KEY, APP_VERSION);
 
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.getRegistrations().then((registrations) => {
-      console.log(`🔄 Atualizando ${registrations.length} service worker(s)...`);
+      console.log(`ðŸ”„ Atualizando ${registrations.length} service worker(s)...`);
       registrations.forEach((registration) => {
         registration.update().catch((err) => {
-          console.warn('⚠️ Falha ao atualizar SW:', err);
+          console.warn('âš ï¸ Falha ao atualizar SW:', err);
         });
       });
     });
   }
 
-  console.log('✅ Cache invalidado para nova versão');
+  console.log('âœ… Cache invalidado para nova versÃ£o');
 }
 ```
 
 **Funcionalidades:**
 
-- ✅ Detecta mudança de versão via localStorage
-- ✅ Atualiza todos os Service Workers registrados
-- ✅ Logs informativos do processo
-- ✅ Tratamento de erros gracioso
+- âœ… Detecta mudanÃ§a de versÃ£o via localStorage
+- âœ… Atualiza todos os Service Workers registrados
+- âœ… Logs informativos do processo
+- âœ… Tratamento de erros gracioso
 
-### 5. Retry em Operações de UI (unidade.js)
+### 5. Retry em OperaÃ§Ãµes de UI (unidade.js)
 
-**Método `salvar()` atualizado:**
+**MÃ©todo `salvar()` atualizado:**
 
 ```javascript
 // Salvar com retry
@@ -253,7 +253,7 @@ try {
       this.unidades = await window.repository.listUnidades();
 
       saved = true;
-      console.log('[SAVE_UNIDADE] ✅ Unidade salva com sucesso');
+      console.log('[SAVE_UNIDADE] âœ… Unidade salva com sucesso');
       break;
     } catch (error) {
       console.error(`[SAVE_UNIDADE] Tentativa ${attempt} falhou:`, error);
@@ -262,94 +262,94 @@ try {
         throw error;
       }
 
-      // Backoff: 300ms → 600ms → 900ms
+      // Backoff: 300ms â†’ 600ms â†’ 900ms
       const delay = 300 * attempt;
-      console.log(`[SAVE_UNIDADE] ⏳ Aguardando ${delay}ms antes de retry...`);
+      console.log(`[SAVE_UNIDADE] â³ Aguardando ${delay}ms antes de retry...`);
       await new Promise((resolve) => setTimeout(resolve, delay));
     }
   }
 
   if (saved) {
     const acao = this.editandoId ? 'atualizada' : 'cadastrada';
-    alert(`✅ Unidade ${acao} com sucesso!`);
+    alert(`âœ… Unidade ${acao} com sucesso!`);
   }
 } catch (error) {
-  console.error('[SAVE_UNIDADE] ❌ Erro final:', error);
+  console.error('[SAVE_UNIDADE] âŒ Erro final:', error);
   throw new Error(`Falha ao salvar. ${error.message}`);
 }
 ```
 
 **Melhorias:**
 
-- ✅ 3 tentativas antes de falhar
-- ✅ Backoff exponencial
-- ✅ Logs prefixados `[SAVE_UNIDADE]`
-- ✅ Mensagem final clara ao usuário
+- âœ… 3 tentativas antes de falhar
+- âœ… Backoff exponencial
+- âœ… Logs prefixados `[SAVE_UNIDADE]`
+- âœ… Mensagem final clara ao usuÃ¡rio
 
 ### 6. Logs Detalhados em Todos os Pontos
 
 **Prefixos padronizados:**
 
-- `[Repository]` - Inicialização e importações
-- `[App]` - Importações e verificações no app.js
-- `[Bootstrap]` - Processo de inicialização
-- `[SAVE_UNIDADE]` - Operações de salvamento
+- `[Repository]` - InicializaÃ§Ã£o e importaÃ§Ãµes
+- `[App]` - ImportaÃ§Ãµes e verificaÃ§Ãµes no app.js
+- `[Bootstrap]` - Processo de inicializaÃ§Ã£o
+- `[SAVE_UNIDADE]` - OperaÃ§Ãµes de salvamento
 
-**Exemplo de saída esperada:**
+**Exemplo de saÃ­da esperada:**
 
 ```
-📦 IFDESK v1.3.1-20251107 (build 1699364800000)
-[Repository] 🔄 Inicializando camada de dados...
+ðŸ“¦ SINGEM v1.3.1-20251107 (build 1699364800000)
+[Repository] ðŸ”„ Inicializando camada de dados...
 [Repository] withTx importado: function
-[App] 📦 Versão: 1.3.1-20251107 Build: 1699364800000
-[App] 🔍 Repository importado: object
-[App] 🔍 Repository.saveUnidade: function
-[Bootstrap] 🚀 Iniciando aplicação IFDESK...
-[Bootstrap] 🔄 Aguardando repository...
-[Bootstrap] ✅ Repository pronto para uso
-[Bootstrap] 🔧 Expondo módulos globalmente...
+[App] ðŸ“¦ VersÃ£o: 1.3.1-20251107 Build: 1699364800000
+[App] ðŸ” Repository importado: object
+[App] ðŸ” Repository.saveUnidade: function
+[Bootstrap] ðŸš€ Iniciando aplicaÃ§Ã£o SINGEM...
+[Bootstrap] ðŸ”„ Aguardando repository...
+[Bootstrap] âœ… Repository pronto para uso
+[Bootstrap] ðŸ”§ Expondo mÃ³dulos globalmente...
 
-╔════════════════════════════════════════╗
-║   📊 RELATÓRIO DE INICIALIZAÇÃO       ║
-╚════════════════════════════════════════╝
-📦 Versão: 1.3.1-20251107
-🏗️  Build: 07/11/2025, 10:00:00
-🗄️  DB: ControleMaterialDB
-📊 DB Versão: 8
-✅ Repository: object
-✅ Repository.saveUnidade: function
-✅ Repository.saveUsuario: function
-✅ Repository.saveEmpenho: function
-✅ window.repository: object
-✅ window.dbManager: object
-✅ window.app: object
-════════════════════════════════════════
+â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
+â•‘   ðŸ“Š RELATÃ“RIO DE INICIALIZAÃ‡ÃƒO       â•‘
+â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+ðŸ“¦ VersÃ£o: 1.3.1-20251107
+ðŸ—ï¸  Build: 07/11/2025, 10:00:00
+ðŸ—„ï¸  DB: ControleMaterialDB
+ðŸ“Š DB VersÃ£o: 8
+âœ… Repository: object
+âœ… Repository.saveUnidade: function
+âœ… Repository.saveUsuario: function
+âœ… Repository.saveEmpenho: function
+âœ… window.repository: object
+âœ… window.dbManager: object
+âœ… window.app: object
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
-[Bootstrap] ✅ Aplicação inicializada com sucesso!
+[Bootstrap] âœ… AplicaÃ§Ã£o inicializada com sucesso!
 ```
 
 ---
 
-## 📊 Arquivos Modificados
+## ðŸ“Š Arquivos Modificados
 
 ### 1. `js/core/repository.js`
 
-**Mudanças:**
+**MudanÃ§as:**
 
 - Movido `import { withTx } from './dbTx.js'` da linha 235 para linha 8
-- Adicionados logs de inicialização
+- Adicionados logs de inicializaÃ§Ã£o
 - Removido import duplicado
 
 **Linhas afetadas:** 1-10, 235 (removido)
 
 ### 2. `js/app.js`
 
-**Mudanças:**
+**MudanÃ§as:**
 
 - Importado `APP_VERSION` e `APP_BUILD` de `version.js`
-- Adicionados logs detalhados após imports
-- Criada função `waitForRepository()` com retry
-- Criada função `logBootstrapReport()`
+- Adicionados logs detalhados apÃ³s imports
+- Criada funÃ§Ã£o `waitForRepository()` com retry
+- Criada funÃ§Ã£o `logBootstrapReport()`
 - Bootstrap atualizado para usar async/await e retry
 - Tratamento de erro visual para falhas fatais
 
@@ -357,9 +357,9 @@ try {
 
 ### 3. `js/settings/unidade.js`
 
-**Mudanças:**
+**MudanÃ§as:**
 
-- Método `salvar()` com retry e backoff
+- MÃ©todo `salvar()` com retry e backoff
 - Logs prefixados `[SAVE_UNIDADE]`
 - Melhor tratamento de erros
 
@@ -367,17 +367,17 @@ try {
 
 ### 4. `js/version.js`
 
-**Mudanças:**
+**MudanÃ§as:**
 
 - Exporta `APP_VERSION` e `APP_BUILD` como ES6 modules
-- Cache-busting automático ao mudar versão
-- Atualização de Service Workers
+- Cache-busting automÃ¡tico ao mudar versÃ£o
+- AtualizaÃ§Ã£o de Service Workers
 
 **Linhas afetadas:** 1-50 (reescrito)
 
 ### 5. `js/config/version.js`
 
-**Mudanças:**
+**MudanÃ§as:**
 
 - Atualizado para v1.3.1-20251107
 - Adicionado `APP_BUILD` timestamp
@@ -388,110 +388,110 @@ try {
 
 ---
 
-## 🧪 Testes de Validação
+## ðŸ§ª Testes de ValidaÃ§Ã£o
 
-### Teste 1: Verificação de Imports
+### Teste 1: VerificaÃ§Ã£o de Imports
 
-**Ação:** Recarregar página com Ctrl+Shift+R  
+**AÃ§Ã£o:** Recarregar pÃ¡gina com Ctrl+Shift+R  
 **Esperado:**
 
 ```
-[Repository] 🔄 Inicializando camada de dados...
+[Repository] ðŸ”„ Inicializando camada de dados...
 [Repository] withTx importado: function
-[App] 🔍 Repository.saveUnidade: function
+[App] ðŸ” Repository.saveUnidade: function
 ```
 
-**Status:** ✅ Deve passar
+**Status:** âœ… Deve passar
 
 ### Teste 2: Bootstrap com Retry
 
-**Ação:** Simular delay no dbManager  
+**AÃ§Ã£o:** Simular delay no dbManager  
 **Esperado:**
 
 ```
-[Bootstrap] 🔄 Aguardando repository...
-[Bootstrap] Tentativa 1/3: dbManager não disponível
-[Bootstrap] ⏳ Aguardando 300ms antes de retry...
-[Bootstrap] ✅ Repository pronto para uso
+[Bootstrap] ðŸ”„ Aguardando repository...
+[Bootstrap] Tentativa 1/3: dbManager nÃ£o disponÃ­vel
+[Bootstrap] â³ Aguardando 300ms antes de retry...
+[Bootstrap] âœ… Repository pronto para uso
 ```
 
-**Status:** ✅ Deve passar
+**Status:** âœ… Deve passar
 
 ### Teste 3: Salvamento de Unidade
 
-**Ação:** Cadastrar unidade nas configurações  
+**AÃ§Ã£o:** Cadastrar unidade nas configuraÃ§Ãµes  
 **Esperado:**
 
 ```
 [SAVE_UNIDADE] Tentativa 1/3...
-[SAVE_UNIDADE] ✅ Unidade salva com sucesso
-✅ Unidade cadastrada com sucesso!
+[SAVE_UNIDADE] âœ… Unidade salva com sucesso
+âœ… Unidade cadastrada com sucesso!
 ```
 
-**Status:** ✅ Deve passar
+**Status:** âœ… Deve passar
 
-### Teste 4: Relatório de Inicialização
+### Teste 4: RelatÃ³rio de InicializaÃ§Ã£o
 
-**Ação:** Abrir console após carregar página  
-**Esperado:** Ver relatório completo com todos os ✅  
-**Status:** ✅ Deve passar
+**AÃ§Ã£o:** Abrir console apÃ³s carregar pÃ¡gina  
+**Esperado:** Ver relatÃ³rio completo com todos os âœ…  
+**Status:** âœ… Deve passar
 
 ### Teste 5: Cache-Busting
 
-**Ação:** Mudar versão e recarregar  
+**AÃ§Ã£o:** Mudar versÃ£o e recarregar  
 **Esperado:**
 
 ```
-🔄 Nova versão detectada: 1.3.0 → 1.3.1
-🔄 Atualizando 1 service worker(s)...
-✅ Cache invalidado para nova versão
+ðŸ”„ Nova versÃ£o detectada: 1.3.0 â†’ 1.3.1
+ðŸ”„ Atualizando 1 service worker(s)...
+âœ… Cache invalidado para nova versÃ£o
 ```
 
-**Status:** ✅ Deve passar
+**Status:** âœ… Deve passar
 
 ---
 
-## ✅ Critérios de Aceite
+## âœ… CritÃ©rios de Aceite
 
 ### Funcionalidades
 
-- [x] ✅ Repository carrega sem erros
-- [x] ✅ `window.repository.saveUnidade` é uma função
-- [x] ✅ Bootstrap aguarda inicialização com retry
-- [x] ✅ Salvamento de unidade funciona
-- [x] ✅ Cache limpo ao mudar versão
-- [x] ✅ Logs detalhados em todos os pontos
+- [x] âœ… Repository carrega sem erros
+- [x] âœ… `window.repository.saveUnidade` Ã© uma funÃ§Ã£o
+- [x] âœ… Bootstrap aguarda inicializaÃ§Ã£o com retry
+- [x] âœ… Salvamento de unidade funciona
+- [x] âœ… Cache limpo ao mudar versÃ£o
+- [x] âœ… Logs detalhados em todos os pontos
 
-### Resiliência
+### ResiliÃªncia
 
-- [x] ✅ Retry em caso de falha temporária (3x com backoff)
-- [x] ✅ Mensagens claras em caso de erro fatal
-- [x] ✅ Não quebra código existente
+- [x] âœ… Retry em caso de falha temporÃ¡ria (3x com backoff)
+- [x] âœ… Mensagens claras em caso de erro fatal
+- [x] âœ… NÃ£o quebra cÃ³digo existente
 
 ### Debugging
 
-- [x] ✅ Prefixos consistentes nos logs
-- [x] ✅ Relatório de inicialização completo
-- [x] ✅ Stack traces em erros críticos
+- [x] âœ… Prefixos consistentes nos logs
+- [x] âœ… RelatÃ³rio de inicializaÃ§Ã£o completo
+- [x] âœ… Stack traces em erros crÃ­ticos
 
 ---
 
-## 🎓 Lições Aprendidas
+## ðŸŽ“ LiÃ§Ãµes Aprendidas
 
 ### 1. **Imports ES6 SEMPRE no topo**
 
-❌ **NUNCA FAZER:**
+âŒ **NUNCA FAZER:**
 
 ```javascript
-// código...
+// cÃ³digo...
 import { something } from './file.js';
 ```
 
-✅ **SEMPRE FAZER:**
+âœ… **SEMPRE FAZER:**
 
 ```javascript
 import { something } from './file.js';
-// código...
+// cÃ³digo...
 ```
 
 ### 2. **Bootstrap Robusto**
@@ -501,13 +501,13 @@ Sempre implementar:
 - Retry com backoff exponencial
 - Logs detalhados de cada etapa
 - Tratamento gracioso de erros
-- Mensagens claras ao usuário
+- Mensagens claras ao usuÃ¡rio
 
 ### 3. **Cache-Busting**
 
-Em aplicações SPA com Service Workers:
+Em aplicaÃ§Ãµes SPA com Service Workers:
 
-- Versionar sempre que mudar código
+- Versionar sempre que mudar cÃ³digo
 - Invalidar cache automaticamente
 - Atualizar SWs programaticamente
 
@@ -516,49 +516,49 @@ Em aplicações SPA com Service Workers:
 Usar prefixos consistentes:
 
 - `[ModuleName]` para identificar origem
-- Emojis para visibilidade (🔄 ✅ ❌)
-- Níveis apropriados (log, warn, error)
+- Emojis para visibilidade (ðŸ”„ âœ… âŒ)
+- NÃ­veis apropriados (log, warn, error)
 
 ---
 
-## 🔄 Rollback (se necessário)
+## ðŸ”„ Rollback (se necessÃ¡rio)
 
-Se algo der errado, reverter para versão anterior:
+Se algo der errado, reverter para versÃ£o anterior:
 
 ```bash
 git log --oneline
 git revert <commit-hash>
 ```
 
-Ou restaurar arquivos específicos:
+Ou restaurar arquivos especÃ­ficos:
 
 - `js/core/repository.js` - Reverter linha 8 (import)
-- `js/app.js` - Remover funções waitForRepository e logBootstrapReport
+- `js/app.js` - Remover funÃ§Ãµes waitForRepository e logBootstrapReport
 - `js/settings/unidade.js` - Remover retry do salvar()
 - `js/version.js` - Voltar para v1.3.0
 
 ---
 
-## 📞 Suporte
+## ðŸ“ž Suporte
 
 **Se o erro persistir:**
 
 1. **Limpar TUDO:**
    - Ctrl+Shift+R (hard reload)
-   - F12 → Application → Clear Storage → Clear site data
+   - F12 â†’ Application â†’ Clear Storage â†’ Clear site data
    - Fechar e reabrir navegador
 
 2. **Verificar logs:**
-   - Copiar TODA saída do console
-   - Incluir relatório de inicialização
+   - Copiar TODA saÃ­da do console
+   - Incluir relatÃ³rio de inicializaÃ§Ã£o
    - Incluir stack traces de erros
 
-3. **Testar em modo anônimo:**
+3. **Testar em modo anÃ´nimo:**
    - Ctrl+Shift+N (Chrome)
-   - Sem extensões ou cache
+   - Sem extensÃµes ou cache
 
-4. **Informações necessárias:**
-   - Navegador e versão
+4. **InformaÃ§Ãµes necessÃ¡rias:**
+   - Navegador e versÃ£o
    - Sistema operacional
    - Logs completos do console
    - Passos para reproduzir
@@ -566,5 +566,6 @@ Ou restaurar arquivos específicos:
 ---
 
 **Data do Documento:** 2025-11-07  
-**Versão do Sistema:** 1.3.1-20251107  
-**Status:** ✅ PRONTO PARA TESTE
+**VersÃ£o do Sistema:** 1.3.1-20251107  
+**Status:** âœ… PRONTO PARA TESTE
+

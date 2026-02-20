@@ -320,7 +320,7 @@ class SettingsPreferencias {
 
   /**
    * Handler para exportar backup - VERSÃO COMPLETA
-   * Salva automaticamente na pasta IFDESK/04_BACKUPS/manual/ se configurada
+   * Salva automaticamente na pasta SINGEM/04_BACKUPS/manual/ se configurada
    */
   async _handleExportarBackup() {
     const statusEl = document.getElementById('backupStatusPref');
@@ -368,7 +368,7 @@ class SettingsPreferencias {
       }
 
       const message = savedToFolder
-        ? `✅ Backup salvo em: IFDESK/04_BACKUPS/manual/${filename}`
+        ? `✅ Backup salvo em: SINGEM/04_BACKUPS/manual/${filename}`
         : `✅ Backup baixado: ${filename}`;
 
       this._showStatus(statusEl, 'success', message);
@@ -413,12 +413,12 @@ class SettingsPreferencias {
         }
       }
 
-      // Criar/acessar estrutura: IFDESK/04_BACKUPS/manual/
+      // Criar/acessar estrutura: SINGEM/04_BACKUPS/manual/
       let currentHandle = rootHandle;
 
-      // Se a pasta raiz não é IFDESK, criar IFDESK dentro
-      if (rootHandle.name !== 'IFDESK') {
-        currentHandle = await rootHandle.getDirectoryHandle('IFDESK', { create: true });
+      // Se a pasta raiz não é SINGEM, criar SINGEM dentro
+      if (rootHandle.name !== 'SINGEM') {
+        currentHandle = await rootHandle.getDirectoryHandle('SINGEM', { create: true });
       }
 
       // Verificar se há unidade ativa para criar subpasta
@@ -602,7 +602,7 @@ class SettingsPreferencias {
               alert(
                 '📁 Configuração de Pasta Detectada\n\n' +
                   'O backup continha configuração de pasta de armazenamento.\n\n' +
-                  `Pasta: ${result.storage.rootFolderName || 'IFDESK'}\n` +
+                  `Pasta: ${result.storage.rootFolderName || 'SINGEM'}\n` +
                   `Unidade: ${result.storage.unidade || 'Não definida'}\n\n` +
                   'Para restaurar o acesso à pasta, vá em:\n' +
                   'Configurações → Arquivos → Configurar Pasta'
@@ -776,7 +776,7 @@ class SettingsPreferencias {
       const exportData = {
         versao: '1.0',
         dataExportacao: new Date().toISOString(),
-        sistema: 'IFDESK',
+        sistema: 'SINGEM',
         configuracoes: {
           unidadeOrcamentaria: unidade,
           usuarios: usuarios,
@@ -793,7 +793,7 @@ class SettingsPreferencias {
 
       const a = document.createElement('a');
       a.href = url;
-      a.download = `ifdesk-config-${new Date().toISOString().split('T')[0]}.json`;
+      a.download = `SINGEM-config-${new Date().toISOString().split('T')[0]}.json`;
       a.click();
 
       URL.revokeObjectURL(url);
@@ -835,8 +835,8 @@ class SettingsPreferencias {
       const data = JSON.parse(text);
 
       // Validações
-      if (!data.sistema || data.sistema !== 'IFDESK') {
-        alert('❌ Arquivo inválido! Este não é um arquivo de configuração do IFDESK.');
+      if (!data.sistema || data.sistema !== 'SINGEM') {
+        alert('❌ Arquivo inválido! Este não é um arquivo de configuração do SINGEM.');
         return;
       }
 

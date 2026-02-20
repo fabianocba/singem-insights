@@ -1,5 +1,5 @@
 /**
- * IFDESK - Validadores Utilitários
+ * SINGEM - Validadores Utilitários
  * @module utils/validate
  *
  * Funções de validação reutilizáveis.

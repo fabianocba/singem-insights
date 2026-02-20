@@ -1,12 +1,12 @@
 /**
- * IFDESK Service Worker
+ * SINGEM Service Worker
  * Estratégia: Network First (Cache como fallback)
  *
  * Garante que o usuário sempre tenha a versão mais recente,
  * mas mantém funcionalidade offline quando necessário.
  */
 
-const CACHE_VERSION = 'ifdesk-v1.6.2-20260210';
+const CACHE_VERSION = 'SINGEM-v1.6.2-20260210';
 const CACHE_NAME = `${CACHE_VERSION}-cache`;
 
 // Instalação do Service Worker

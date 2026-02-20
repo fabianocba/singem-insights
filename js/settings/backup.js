@@ -1,6 +1,6 @@
 /**
  * ============================================================================
- * IFDESK - Módulo de Backup e Restauração
+ * SINGEM - Módulo de Backup e Restauração
  * ============================================================================
  *
  * Funcionalidades:
@@ -10,7 +10,7 @@
  * - Resetar dados (DEV only)
  *
  * @version 1.0.0
- * @author IFDESK Team
+ * @author SINGEM Team
  */
 
 // Versão dos dados para compatibilidade futura
@@ -32,7 +32,7 @@ class BackupManager {
   _checkDevMode() {
     // Considera DEV se: localhost, 127.0.0.1, ou flag localStorage
     const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-    const devFlag = localStorage.getItem('IFDESK_DEV_MODE') === 'true';
+    const devFlag = localStorage.getItem('SINGEM_DEV_MODE') === 'true';
     return isLocal || devFlag;
   }
 
@@ -347,7 +347,7 @@ class BackupManager {
 
       // Nome do arquivo com timestamp
       const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
-      const filename = `IFDESK_backup_${timestamp}.json`;
+      const filename = `SINGEM_backup_${timestamp}.json`;
 
       // Download
       const url = URL.createObjectURL(blob);
@@ -1581,7 +1581,7 @@ class BackupManager {
       const keysToRemove = [];
       for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
-        if (key.startsWith('IFDESK_') || key.startsWith('ifdesk_')) {
+        if (key.startsWith('SINGEM_') || key.startsWith('SINGEM_')) {
           keysToRemove.push(key);
         }
       }

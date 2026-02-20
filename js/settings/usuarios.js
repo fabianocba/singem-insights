@@ -26,33 +26,78 @@ class SettingsUsuarios {
 
   /**
    * Aguarda o bootstrap da aplicação completar
-   * Usa evento 'ifdesk:bootstrap:done' ou flag window.__IFDESK_BOOTSTRAP_DONE__
+   * Usa evento 'SINGEM:bootstrap:done' ou flag window.__SINGEM_BOOTSTRAP_DONE__
+   * Fallback: considera pronto se window.repository e window.dbManager.db já existirem
    * @param {number} timeoutMs - Timeout em milissegundos (padrão: 20000)
    * @returns {Promise<boolean>}
    */
   async waitForBootstrap(timeoutMs = 20000) {
     // Se já completou, retorna imediatamente
-    if (window.__IFDESK_BOOTSTRAP_DONE__) {
+    if (window.__SINGEM_BOOTSTRAP_DONE__) {
       console.log('[SettingsUsuarios] ✅ Bootstrap já completo');
+      return true;
+    }
+
+    // Fallback: se repository e db já existem, considera pronto
+    if (window.repository && window.dbManager?.db) {
+      console.log('[SettingsUsuarios] ✅ Bootstrap pronto (fallback: repository + db disponíveis)');
+      window.__SINGEM_BOOTSTRAP_DONE__ = true;
       return true;
     }
 
     console.log('[SettingsUsuarios] ⏳ Aguardando bootstrap...');
 
     return new Promise((resolve, reject) => {
+      let resolved = false;
+
       const timer = setTimeout(() => {
-        reject(new Error('Timeout: Bootstrap não completou dentro do tempo esperado.'));
+        if (resolved) {
+          return;
+        }
+        // Última tentativa de fallback antes de falhar
+        if (window.repository && window.dbManager?.db) {
+          resolved = true;
+          console.log('[SettingsUsuarios] ✅ Bootstrap pronto (fallback no timeout)');
+          window.__SINGEM_BOOTSTRAP_DONE__ = true;
+          resolve(true);
+          return;
+        }
+        reject(
+          new Error(
+            'Timeout: Bootstrap não completou. repository=' + !!window.repository + ', db=' + !!window.dbManager?.db
+          )
+        );
       }, timeoutMs);
 
       window.addEventListener(
-        'ifdesk:bootstrap:done',
+        'SINGEM:bootstrap:done',
         () => {
+          if (resolved) {
+            return;
+          }
+          resolved = true;
           clearTimeout(timer);
           console.log('[SettingsUsuarios] ✅ Bootstrap completo (via evento)');
           resolve(true);
         },
         { once: true }
       );
+
+      // Polling de fallback a cada 500ms
+      const pollInterval = setInterval(() => {
+        if (resolved) {
+          clearInterval(pollInterval);
+          return;
+        }
+        if (window.repository && window.dbManager?.db) {
+          resolved = true;
+          clearTimeout(timer);
+          clearInterval(pollInterval);
+          console.log('[SettingsUsuarios] ✅ Bootstrap pronto (via polling)');
+          window.__SINGEM_BOOTSTRAP_DONE__ = true;
+          resolve(true);
+        }
+      }, 500);
     });
   }
 

@@ -1,156 +1,87 @@
 /**
- * Inicialização da Nova Infraestrutura Enterprise
- * Exibe no console informações sobre os módulos implementados
+ * Inicializacao da Nova Infraestrutura Enterprise
+ * Exibe no console informacoes sobre os modulos implementados
+ *
+ * MODULO CONTROLADO - Nao executa automaticamente
+ * Deve ser chamado explicitamente via initInfrastructureInfo()
  */
 
 import { VERSION, renderVersionUI } from './core/version.js';
 
-// Aguardar carregamento completo
-window.addEventListener('DOMContentLoaded', () => {
-  // Aguardar um pouco para garantir que tudo foi carregado
-  setTimeout(() => {
-    // Exibe versão formatada (padrão obrigatório)
-    console.log(`
-╔══════════════════════════════════════════════════════════════╗
-║                                                              ║
-║  🚀 ${VERSION.name} v${VERSION.version}                                      ║
-║  • build ${VERSION.build}                                    ║
-║                                                              ║
-╚══════════════════════════════════════════════════════════════╝
-`);
+/**
+ * Exibe informacoes da infraestrutura no console
+ * So executa se window.DEBUG === true ou em modo desenvolvimento
+ * @param {Object} options - Opcoes de configuracao
+ * @param {boolean} options.verbose - Se true, exibe banner completo
+ * @param {boolean} options.force - Se true, ignora verificacao de DEBUG
+ */
+export function initInfrastructureInfo(options = {}) {
+  const { verbose = false, force = false } = options;
 
-    // Atualiza UI (se elemento existir)
-    renderVersionUI();
+  // Verifica se deve executar
+  const isDebug = window.DEBUG === true || window.location.hostname === 'localhost';
+  if (!isDebug && !force) {
+    return;
+  }
 
-    console.log(`
-╔══════════════════════════════════════════════════════════════╗
-║                                                              ║
-║  🚀 IFDESK - INFRAESTRUTURA ENTERPRISE IMPLEMENTADA          ║
-║                                                              ║
-╠══════════════════════════════════════════════════════════════╣
-║                                                              ║
-║  📦 ARQUIVOS CRIADOS:                                        ║
-║                                                              ║
-║  ✅ js/core/eventBus.js                                      ║
-║     → Sistema pub/sub para mensageria interna               ║
-║     → Desacopla módulos via eventos                         ║
-║                                                              ║
-║  ✅ js/ui/feedback.js                                        ║
-║     → Loading overlay para operações longas                 ║
-║     → Toast notifications (success/error/warning/info)      ║
-║                                                              ║
-║  ✅ js/workers/pdfWorker.js                                  ║
-║     → Web Worker para parse assíncrono de PDFs              ║
-║     → Usa PDF.js + fallback Tesseract OCR                   ║
-║     → Não trava a UI durante processamento                  ║
-║                                                              ║
-║  ✅ js/core/asyncQueue.js                                    ║
-║     → Fila persistente em IndexedDB                         ║
-║     → Processa tarefas sequencialmente                      ║
-║     → Retoma após reload da página                          ║
-║                                                              ║
-║  ✅ js/core/repository.js                                    ║
-║     → Camada centralizada de acesso a dados                 ║
-║     → Valida campos obrigatórios antes de salvar            ║
-║     → Emite eventos após operações bem-sucedidas            ║
-║                                                              ║
-║  ✅ js/core/validators/required.js                           ║
-║     → Validação de campos obrigatórios                      ║
-║     → Mensagens amigáveis de erro                           ║
-║     → Suporta campos aninhados                              ║
-║                                                              ║
-╠══════════════════════════════════════════════════════════════╣
-║                                                              ║
-║  🔌 INTEGRADO EM:                                            ║
-║                                                              ║
-║  → js/app.js                                                 ║
-║    • Imports dos módulos no topo                            ║
-║    • setupEventListeners() com 20+ listeners                ║
-║    • Conecta eventos com UI (feedback visual)               ║
-║    • Inicializa fila assíncrona no boot                     ║
-║                                                              ║
-║  → index.html                                                ║
-║    • <script type="module"> para suporte a ES6 imports      ║
-║                                                              ║
-╠══════════════════════════════════════════════════════════════╣
-║                                                              ║
-║  📡 EVENTOS DISPONÍVEIS:                                     ║
-║                                                              ║
-║  🔹 Salvamento de Dados:                                     ║
-║     • ne.salva              → Empenho salvo                 ║
-║     • nf.salva              → Nota Fiscal salva             ║
-║     • saldo.atualizado      → Saldo atualizado              ║
-║                                                              ║
-║  🔹 Processamento de PDF:                                    ║
-║     • pdf.parse:start       → Iniciando parse               ║
-║     • pdf.parse:done        → Parse concluído               ║
-║     • pdf.parse:error       → Erro no parse                 ║
-║                                                              ║
-║  🔹 Geração de Relatórios:                                   ║
-║     • relatorio.gerar:start → Iniciando relatório           ║
-║     • relatorio.gerar:done  → Relatório concluído           ║
-║     • relatorio.gerar:error → Erro no relatório             ║
-║                                                              ║
-║  🔹 Fila Assíncrona:                                         ║
-║     • queue.task:added      → Tarefa adicionada à fila      ║
-║     • queue.task:start      → Iniciando tarefa              ║
-║     • queue.task:done       → Tarefa concluída              ║
-║     • queue.task:error      → Erro na tarefa                ║
-║                                                              ║
-╠══════════════════════════════════════════════════════════════╣
-║                                                              ║
-║  🎯 COMO USAR:                                               ║
-║                                                              ║
-║  // Importar módulos (já feito em app.js)                   ║
-║  import * as eventBus from './core/eventBus.js';            ║
-║  import * as feedback from './ui/feedback.js';              ║
-║  import repository from './core/repository.js';             ║
-║                                                              ║
-║  // Emitir eventos                                           ║
-║  eventBus.emit('ne.salva', { id: 123, numero: '039' });    ║
-║                                                              ║
-║  // Escutar eventos                                          ║
-║  eventBus.on('pdf.parse:done', (e) => {                     ║
-║    console.log('PDF processado:', e.detail);                ║
-║  });                                                         ║
-║                                                              ║
-║  // Exibir feedback                                          ║
-║  feedback.showLoading('Processando...');                    ║
-║  feedback.notifySuccess('Operação concluída!');             ║
-║                                                              ║
-║  // Salvar com validação                                     ║
-║  const id = await repository.saveEmpenho(empenho);          ║
-║                                                              ║
-╠══════════════════════════════════════════════════════════════╣
-║                                                              ║
-║  ⚠️  REGRAS SEGUIDAS:                                        ║
-║                                                              ║
-║  ✓ NÃO quebrou funcionalidades existentes                   ║
-║  ✓ NÃO criou arquivos de demonstração                       ║
-║  ✓ Integrado no fluxo REAL da aplicação                     ║
-║  ✓ Código limpo, modular e documentado                      ║
-║  ✓ Event-driven architecture implementada                   ║
-║  ✓ Processamento assíncrono com Workers                     ║
-║  ✓ Fila persistente para confiabilidade                     ║
-║  ✓ Repository pattern para organização                      ║
-║  ✓ Validation layer para integridade                        ║
-║                                                              ║
-╠══════════════════════════════════════════════════════════════╣
-║                                                              ║
-║  📝 PRÓXIMOS PASSOS SUGERIDOS:                               ║
-║                                                              ║
-║  1. Substituir chamadas diretas a dbManager por repository  ║
-║  2. Usar PDF Worker no lugar de parse síncrono              ║
-║  3. Adicionar tarefas de relatório na asyncQueue            ║
-║  4. Expandir validações conforme necessário                 ║
-║  5. Monitorar eventos no console durante operações          ║
-║                                                              ║
-║  💡 Dica: Abra o DevTools Console para ver logs detalhados  ║
-║     de todas as operações e eventos do sistema!             ║
-║                                                              ║
-╚══════════════════════════════════════════════════════════════╝
-    `);
+  // Verifica bootstrap
+  if (!window.__SINGEM_BOOTSTRAP_DONE__) {
+    console.warn('[InfrastructureInfo] Aguardando bootstrap...');
+    window.addEventListener('SINGEM:bootstrap:done', () => initInfrastructureInfo(options), { once: true });
+    return;
+  }
 
-    console.log('%c✨ Sistema pronto para uso!', 'color: #00ff00; font-size: 16px; font-weight: bold;');
-  }, 2000); // 2 segundos após DOMContentLoaded
-});
+  // Versao compacta (padrao)
+  console.log(
+    `%c SINGEM %c ${VERSION.name} v${VERSION.version} (build ${VERSION.build}) `,
+    'background: #1e7e34; color: white; padding: 2px 6px; border-radius: 3px 0 0 3px;',
+    'background: #28a745; color: white; padding: 2px 6px; border-radius: 0 3px 3px 0;'
+  );
+
+  // Atualiza UI (se elemento existir)
+  renderVersionUI();
+
+  // Banner completo apenas em modo verbose
+  if (verbose) {
+    showFullBanner();
+  }
+}
+
+/**
+ * Exibe o banner completo da infraestrutura
+ * Uso interno - chamado apenas em modo verbose
+ */
+function showFullBanner() {
+  console.log(`
++--------------------------------------------------------------+
+|  SINGEM - INFRAESTRUTURA ENTERPRISE                          |
++--------------------------------------------------------------+
+|  Modulos:                                                     |
+|   - js/core/eventBus.js      (pub/sub messaging)             |
+|   - js/ui/feedback.js        (loading + toasts)              |
+|   - js/workers/pdfWorker.js  (async PDF parsing)             |
+|   - js/core/asyncQueue.js    (persistent queue)              |
+|   - js/core/repository.js    (data layer + validation)       |
++--------------------------------------------------------------+
+|  Eventos: ne.salva, nf.salva, pdf.parse:done, queue.task:*   |
++--------------------------------------------------------------+
+  `);
+}
+
+/**
+ * Verifica status da infraestrutura
+ * @returns {Object} Status dos modulos
+ */
+export function getInfrastructureStatus() {
+  return {
+    version: VERSION,
+    bootstrapDone: !!window.__SINGEM_BOOTSTRAP_DONE__,
+    repository: !!window.repository,
+    dbManager: !!window.dbManager?.db,
+    eventBus: typeof window.eventBus !== 'undefined',
+    timestamp: new Date().toISOString()
+  };
+}
+
+// Exporta VERSION para compatibilidade
+export { VERSION };

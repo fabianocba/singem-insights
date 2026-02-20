@@ -1,74 +1,74 @@
-# IFDESK - Instruções para Agentes de Codificação
+﻿# SINGEM - InstruÃ§Ãµes para Agentes de CodificaÃ§Ã£o
 
-## Visão Geral do Sistema
+## VisÃ£o Geral do Sistema
 
-IFDESK é um sistema **offline-first** para controle de materiais do IF Baiano. Aplicação 100% client-side que roda em browser com **IndexedDB** como banco de dados. Sem backend tradicional - todo processamento ocorre no navegador.
+SINGEM Ã© um sistema **offline-first** para controle de materiais do IF Baiano. AplicaÃ§Ã£o 100% client-side que roda em browser com **IndexedDB** como banco de dados. Sem backend tradicional - todo processamento ocorre no navegador.
 
 ## Arquitetura Core
 
-### Padrões Enterprise Implementados
+### PadrÃµes Enterprise Implementados
 
-- **Event-Driven Architecture** via [js/core/eventBus.js](js/core/eventBus.js) - use `emit()`, `on()`, `off()` para comunicação entre módulos
-- **Repository Pattern** em [js/core/repository.js](js/core/repository.js) - camada única de acesso a dados com validação
+- **Event-Driven Architecture** via [js/core/eventBus.js](js/core/eventBus.js) - use `emit()`, `on()`, `off()` para comunicaÃ§Ã£o entre mÃ³dulos
+- **Repository Pattern** em [js/core/repository.js](js/core/repository.js) - camada Ãºnica de acesso a dados com validaÃ§Ã£o
 - **Web Workers** para processamento pesado (PDFs) em [js/workers/](js/workers/) - nunca trave a UI
 - **Async Queue** persistente em [js/core/asyncQueue.js](js/core/asyncQueue.js) - tarefas sobrevivem a reloads
 
 ### Fluxo de Dados
 
 ```
-User Input → InputValidator → Repository (validação) → dbManager (IndexedDB) → eventBus (notifica)
+User Input â†’ InputValidator â†’ Repository (validaÃ§Ã£o) â†’ dbManager (IndexedDB) â†’ eventBus (notifica)
 ```
 
-### Arquivos Críticos
+### Arquivos CrÃ­ticos
 
 | Arquivo                                        | Responsabilidade                                                  |
 | ---------------------------------------------- | ----------------------------------------------------------------- |
-| [js/app.js](js/app.js)                         | Aplicação principal (~7000 linhas) - classe `ControleMaterialApp` |
-| [js/db.js](js/db.js)                           | `window.dbManager` - operações IndexedDB                          |
-| [js/neParser.js](js/neParser.js)               | Parser de PDFs de Notas de Empenho (padrão IF Baiano)             |
-| [js/core/repository.js](js/core/repository.js) | Validação + persistência centralizada                             |
+| [js/app.js](js/app.js)                         | AplicaÃ§Ã£o principal (~7000 linhas) - classe `ControleMaterialApp` |
+| [js/db.js](js/db.js)                           | `window.dbManager` - operaÃ§Ãµes IndexedDB                          |
+| [js/neParser.js](js/neParser.js)               | Parser de PDFs de Notas de Empenho (padrÃ£o IF Baiano)             |
+| [js/core/repository.js](js/core/repository.js) | ValidaÃ§Ã£o + persistÃªncia centralizada                             |
 
-## Convenções do Projeto
+## ConvenÃ§Ãµes do Projeto
 
 ### Imports - Sempre ES Modules
 
 ```javascript
-// ✅ Correto - named imports
+// âœ… Correto - named imports
 import { emit, on } from './core/eventBus.js';
 import repository from './core/repository.js';
 
-// ❌ Evitar CommonJS
+// âŒ Evitar CommonJS
 const x = require('./module');
 ```
 
-### Validação - Use os validadores existentes
+### ValidaÃ§Ã£o - Use os validadores existentes
 
 ```javascript
-// ✅ Preferir
+// âœ… Preferir
 import InputValidator from './core/inputValidator.js';
 import { validateCNPJ } from './utils/validate.js';
 
-// Para sanitização XSS
+// Para sanitizaÃ§Ã£o XSS
 import { escapeHTML, safeHTML } from './utils/sanitize.js';
 ```
 
 ### Eventos - Nomenclatura
 
 ```javascript
-// Padrão: entidade.acao ou entidade.acao:estado
+// PadrÃ£o: entidade.acao ou entidade.acao:estado
 emit('ne.salva', { id, numero });
 emit('pdf.parse:done', { dados });
 emit('pdf.parse:error', { error });
 ```
 
-### Persistência - Sempre via Repository
+### PersistÃªncia - Sempre via Repository
 
 ```javascript
-// ✅ Correto
+// âœ… Correto
 await repository.saveEmpenho(empenho);
 await repository.saveNotaFiscal(nf);
 
-// ❌ Evitar acesso direto
+// âŒ Evitar acesso direto
 await window.dbManager.salvarEmpenho(empenho);
 ```
 
@@ -78,9 +78,9 @@ await window.dbManager.salvarEmpenho(empenho);
 import { showLoading, hideLoading, notifySuccess, notifyError } from './ui/feedback.js';
 
 showLoading('Processando PDF...');
-// ... operação
+// ... operaÃ§Ã£o
 hideLoading();
-notifySuccess('✅ Operação concluída!');
+notifySuccess('âœ… OperaÃ§Ã£o concluÃ­da!');
 ```
 
 ## Comandos de Desenvolvimento
@@ -89,51 +89,52 @@ notifySuccess('✅ Operação concluída!');
 # Servidor de desenvolvimento
 npm run serve:dev          # http://localhost:8000
 
-# Qualidade de código (EXECUTAR ANTES DE COMMITS)
+# Qualidade de cÃ³digo (EXECUTAR ANTES DE COMMITS)
 npm run lint:fix           # Corrige problemas de lint
-npm run format             # Formata código com Prettier
+npm run format             # Formata cÃ³digo com Prettier
 
 # Testes
-npm test                   # Vitest - testes unitários
-npm run test:coverage      # Cobertura mínima: 70%
-npm run test:security      # Testes de segurança (inputValidator)
+npm test                   # Vitest - testes unitÃ¡rios
+npm run test:coverage      # Cobertura mÃ­nima: 70%
+npm run test:security      # Testes de seguranÃ§a (inputValidator)
 
-# Diagnóstico
-npm run scan:orphans       # Encontra arquivos não referenciados
-npm run audit:node         # Auditoria de código
+# DiagnÃ³stico
+npm run scan:orphans       # Encontra arquivos nÃ£o referenciados
+npm run audit:node         # Auditoria de cÃ³digo
 ```
 
 ## Estrutura de Pastas Relevante
 
 ```
 js/
-├── core/           # Infraestrutura (eventBus, repository, validators)
-├── utils/          # Utilitários (sanitize, validate, guard, throttle)
-├── ui/             # Componentes UI (feedback.js)
-├── workers/        # Web Workers para processamento assíncrono
-├── data/           # Dados estáticos (naturezaSubelementos.js)
-└── settings/       # Módulo de configurações
+â”œâ”€â”€ core/           # Infraestrutura (eventBus, repository, validators)
+â”œâ”€â”€ utils/          # UtilitÃ¡rios (sanitize, validate, guard, throttle)
+â”œâ”€â”€ ui/             # Componentes UI (feedback.js)
+â”œâ”€â”€ workers/        # Web Workers para processamento assÃ­ncrono
+â”œâ”€â”€ data/           # Dados estÃ¡ticos (naturezaSubelementos.js)
+â””â”€â”€ settings/       # MÃ³dulo de configuraÃ§Ãµes
 
-docs/               # Documentação técnica detalhada
+docs/               # DocumentaÃ§Ã£o tÃ©cnica detalhada
 tests/              # Testes Vitest (setup.js configura mocks)
 testes/             # Testes manuais HTML
 ```
 
 ## Peculiaridades Importantes
 
-1. **IndexedDB é a única fonte de dados** - versão 6, stores: `empenhos`, `notasFiscais`, `entregas`, `configuracoes`, `arquivos`
+1. **IndexedDB Ã© a Ãºnica fonte de dados** - versÃ£o 6, stores: `empenhos`, `notasFiscais`, `entregas`, `configuracoes`, `arquivos`
 
-2. **Estado do empenho em `empenhoDraft`** - objeto canônico em [js/app.js](js/app.js#L44-L69) - nunca crie estados paralelos
+2. **Estado do empenho em `empenhoDraft`** - objeto canÃ´nico em [js/app.js](js/app.js#L44-L69) - nunca crie estados paralelos
 
-3. **Status de validação** - empenhos usam `statusValidacao`: `'rascunho'` | `'validado'`. Notas fiscais só vinculam a empenhos validados
+3. **Status de validaÃ§Ã£o** - empenhos usam `statusValidacao`: `'rascunho'` | `'validado'`. Notas fiscais sÃ³ vinculam a empenhos validados
 
-4. **CNPJ sempre como dígitos puros** - armazene apenas números (14 dígitos), formate na exibição
+4. **CNPJ sempre como dÃ­gitos puros** - armazene apenas nÃºmeros (14 dÃ­gitos), formate na exibiÃ§Ã£o
 
-5. **Tolerância a erros de linting** - máximo 60 warnings permitidos (`--max-warnings 60`)
+5. **TolerÃ¢ncia a erros de linting** - mÃ¡ximo 60 warnings permitidos (`--max-warnings 60`)
 
-## Documentação Adicional
+## DocumentaÃ§Ã£o Adicional
 
 - Arquitetura Enterprise: [docs/INFRAESTRUTURA_ENTERPRISE.md](docs/INFRAESTRUTURA_ENTERPRISE.md)
-- Padrões de código: [docs/BOAS_PRATICAS.md](docs/BOAS_PRATICAS.md)
+- PadrÃµes de cÃ³digo: [docs/BOAS_PRATICAS.md](docs/BOAS_PRATICAS.md)
 - Parser de NE: [docs/NE_PARSER.md](docs/NE_PARSER.md)
 - Sistema de cache: [docs/SISTEMA_CACHE.md](docs/SISTEMA_CACHE.md)
+

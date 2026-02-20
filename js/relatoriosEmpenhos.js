@@ -1,5 +1,5 @@
 /**
- * IFDESK - Módulo de Relatórios de Empenhos
+ * SINGEM - Módulo de Relatórios de Empenhos
  * Gerencia diferentes tipos de relatórios e visualizações de empenhos
  * @version 1.0.0
  */

@@ -1,5 +1,5 @@
 /**
- * IFDESK - Sanitização de HTML
+ * SINGEM - Sanitização de HTML
  * @module utils/sanitize
  *
  * Funções para prevenir XSS e sanitizar conteúdo HTML.

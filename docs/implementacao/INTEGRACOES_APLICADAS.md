@@ -1,37 +1,37 @@
-# Integrações do Módulo de Configurações - IFDESK
+﻿# IntegraÃ§Ãµes do MÃ³dulo de ConfiguraÃ§Ãµes - SINGEM
 
-## ✅ Integrações Aplicadas ao Sistema Principal
+## âœ… IntegraÃ§Ãµes Aplicadas ao Sistema Principal
 
 Data: 03/11/2025
 
 ---
 
-## 📋 Resumo das Alterações
+## ðŸ“‹ Resumo das AlteraÃ§Ãµes
 
-Conforme solicitado, todas as implementações foram **aplicadas diretamente ao sistema principal** (`index.html` e arquivos JavaScript), não em arquivos separados.
+Conforme solicitado, todas as implementaÃ§Ãµes foram **aplicadas diretamente ao sistema principal** (`index.html` e arquivos JavaScript), nÃ£o em arquivos separados.
 
 ---
 
-## 🔧 Arquivos Modificados
+## ðŸ”§ Arquivos Modificados
 
 ### 1. `index.html` - Interface Principal
 
-**Alterações:**
+**AlteraÃ§Ãµes:**
 
-- ✅ Adicionado item "Configurações" no menu principal
-- ✅ Carregados scripts do módulo de configurações
+- âœ… Adicionado item "ConfiguraÃ§Ãµes" no menu principal
+- âœ… Carregados scripts do mÃ³dulo de configuraÃ§Ãµes
 
-**Código adicionado:**
+**CÃ³digo adicionado:**
 
 ```html
 <!-- MENU PRINCIPAL -->
 <div class="menu-item" id="menuConfiguracoes">
-  <div class="menu-icon">⚙️</div>
-  <h3>Configurações</h3>
-  <p>Gerencie unidade, usuários, rede e preferências</p>
+  <div class="menu-icon">âš™ï¸</div>
+  <h3>ConfiguraÃ§Ãµes</h3>
+  <p>Gerencie unidade, usuÃ¡rios, rede e preferÃªncias</p>
 </div>
 
-<!-- SCRIPTS DE CONFIGURAÇÕES -->
+<!-- SCRIPTS DE CONFIGURAÃ‡Ã•ES -->
 <script src="js/settings/index.js"></script>
 <script src="js/settings/unidade.js"></script>
 <script src="js/settings/usuarios.js"></script>
@@ -41,22 +41,22 @@ Conforme solicitado, todas as implementações foram **aplicadas diretamente ao 
 
 **Resultado:**
 
-- Menu principal agora tem 5 opções (Empenho, Entrega, NF, Relatórios, **Configurações**)
-- Ao clicar em "Configurações", abre `configuracoes.html` em nova aba
-- Todos os scripts de configurações carregam automaticamente
+- Menu principal agora tem 5 opÃ§Ãµes (Empenho, Entrega, NF, RelatÃ³rios, **ConfiguraÃ§Ãµes**)
+- Ao clicar em "ConfiguraÃ§Ãµes", abre `configuracoes.html` em nova aba
+- Todos os scripts de configuraÃ§Ãµes carregam automaticamente
 
 ---
 
-### 2. `js/app.js` - Aplicação Principal
+### 2. `js/app.js` - AplicaÃ§Ã£o Principal
 
-#### 2.1. Navegação para Configurações
+#### 2.1. NavegaÃ§Ã£o para ConfiguraÃ§Ãµes
 
 **Linha aproximada:** 88-96
 
-**Código adicionado:**
+**CÃ³digo adicionado:**
 
 ```javascript
-// Navegação do header
+// NavegaÃ§Ã£o do header
 document.getElementById('btnHome')?.addEventListener('click', () => {
   this.showScreen('homeScreen');
 });
@@ -65,7 +65,7 @@ document.getElementById('btnConfig')?.addEventListener('click', () => {
   window.open('configuracoes.html', '_blank');
 });
 
-// Menu item Configurações
+// Menu item ConfiguraÃ§Ãµes
 document.getElementById('menuConfiguracoes')?.addEventListener('click', () => {
   window.open('configuracoes.html', '_blank');
 });
@@ -73,17 +73,17 @@ document.getElementById('menuConfiguracoes')?.addEventListener('click', () => {
 
 **Resultado:**
 
-- Botão "⚙️ Configurações" no header funciona
-- Item "Configurações" no menu funciona
+- BotÃ£o "âš™ï¸ ConfiguraÃ§Ãµes" no header funciona
+- Item "ConfiguraÃ§Ãµes" no menu funciona
 - Ambos abrem `configuracoes.html` em nova aba
 
 ---
 
-#### 2.2. Validação de CNPJ ao Salvar Empenho
+#### 2.2. ValidaÃ§Ã£o de CNPJ ao Salvar Empenho
 
 **Linha aproximada:** 1446-1482
 
-**Código adicionado:**
+**CÃ³digo adicionado:**
 
 ```javascript
 async salvarEmpenho() {
@@ -95,7 +95,7 @@ async salvarEmpenho() {
 
     const cnpjFornecedor = formData.get("cnpjFornecedor");
 
-    // Validação: Verifica CNPJ da Unidade Orçamentária configurada
+    // ValidaÃ§Ã£o: Verifica CNPJ da Unidade OrÃ§amentÃ¡ria configurada
     if (typeof window.getUnidadeOrcamentaria === 'function') {
       const unidade = await window.getUnidadeOrcamentaria();
 
@@ -105,8 +105,8 @@ async salvarEmpenho() {
         // Se o CNPJ do fornecedor for igual ao da unidade, alerta
         if (cnpjFornecedorLimpo === unidade.cnpjNumeros) {
           const continuar = confirm(
-            '⚠️ ATENÇÃO!\n\n' +
-            'O CNPJ do Fornecedor é igual ao CNPJ da Unidade Orçamentária cadastrada:\n\n' +
+            'âš ï¸ ATENÃ‡ÃƒO!\n\n' +
+            'O CNPJ do Fornecedor Ã© igual ao CNPJ da Unidade OrÃ§amentÃ¡ria cadastrada:\n\n' +
             `CNPJ: ${unidade.cnpj}\n` +
             `Unidade: ${unidade.razaoSocial}\n\n` +
             'Isso pode indicar um erro. Deseja continuar mesmo assim?'
@@ -120,32 +120,32 @@ async salvarEmpenho() {
       }
     }
 
-    // ... resto do código de salvamento
+    // ... resto do cÃ³digo de salvamento
   }
 }
 ```
 
 **Resultado:**
 
-- **ANTES:** Salvava empenho sem validação de CNPJ
-- **AGORA:** Verifica se CNPJ do fornecedor é igual ao da unidade configurada
-- Se for igual (erro comum), mostra alerta e pede confirmação
-- Se não houver unidade configurada, funciona normalmente (backward compatible)
+- **ANTES:** Salvava empenho sem validaÃ§Ã£o de CNPJ
+- **AGORA:** Verifica se CNPJ do fornecedor Ã© igual ao da unidade configurada
+- Se for igual (erro comum), mostra alerta e pede confirmaÃ§Ã£o
+- Se nÃ£o houver unidade configurada, funciona normalmente (backward compatible)
 
-**Cenário de uso:**
+**CenÃ¡rio de uso:**
 
-1. Usuário configura CNPJ da unidade: `12.345.678/0001-90`
+1. UsuÃ¡rio configura CNPJ da unidade: `12.345.678/0001-90`
 2. Cadastra empenho com fornecedor CNPJ: `12.345.678/0001-90` (mesmo CNPJ!)
-3. Sistema alerta: "⚠️ CNPJ do Fornecedor igual ao da Unidade!"
-4. Usuário percebe o erro e corrige
+3. Sistema alerta: "âš ï¸ CNPJ do Fornecedor igual ao da Unidade!"
+4. UsuÃ¡rio percebe o erro e corrige
 
 ---
 
-#### 2.3. Validação de CNPJ ao Salvar Nota Fiscal
+#### 2.3. ValidaÃ§Ã£o de CNPJ ao Salvar Nota Fiscal
 
 **Linha aproximada:** 1550-1609
 
-**Código adicionado:**
+**CÃ³digo adicionado:**
 
 ```javascript
 async salvarNotaFiscal() {
@@ -157,22 +157,22 @@ async salvarNotaFiscal() {
 
     const cnpjDestinatario = formData.get("cnpjDestinatario");
 
-    // Validação: Verifica CNPJ do Destinatário contra Unidade Orçamentária
+    // ValidaÃ§Ã£o: Verifica CNPJ do DestinatÃ¡rio contra Unidade OrÃ§amentÃ¡ria
     if (typeof window.getUnidadeOrcamentaria === 'function') {
       const unidade = await window.getUnidadeOrcamentaria();
 
       if (unidade && unidade.cnpjNumeros && cnpjDestinatario) {
         const cnpjDestinatarioLimpo = cnpjDestinatario.replace(/\D/g, '');
 
-        // Se o CNPJ do destinatário for DIFERENTE da unidade, alerta
+        // Se o CNPJ do destinatÃ¡rio for DIFERENTE da unidade, alerta
         if (cnpjDestinatarioLimpo !== unidade.cnpjNumeros) {
           const continuar = confirm(
-            '⚠️ DIVERGÊNCIA DE CNPJ!\n\n' +
-            'O CNPJ do Destinatário da NF é diferente do CNPJ da Unidade Orçamentária:\n\n' +
+            'âš ï¸ DIVERGÃŠNCIA DE CNPJ!\n\n' +
+            'O CNPJ do DestinatÃ¡rio da NF Ã© diferente do CNPJ da Unidade OrÃ§amentÃ¡ria:\n\n' +
             `CNPJ Unidade: ${unidade.cnpj}\n` +
             `Unidade: ${unidade.razaoSocial}\n\n` +
-            `CNPJ Destinatário NF: ${cnpjDestinatario}\n\n` +
-            'Isso pode indicar que a NF não é para esta unidade.\n\n' +
+            `CNPJ DestinatÃ¡rio NF: ${cnpjDestinatario}\n\n` +
+            'Isso pode indicar que a NF nÃ£o Ã© para esta unidade.\n\n' +
             'Deseja continuar mesmo assim?'
           );
 
@@ -184,34 +184,34 @@ async salvarNotaFiscal() {
       }
     }
 
-    // ... resto do código de salvamento
+    // ... resto do cÃ³digo de salvamento
   }
 }
 ```
 
 **Resultado:**
 
-- **ANTES:** Salvava NF sem validação de CNPJ do destinatário
-- **AGORA:** Verifica se CNPJ do destinatário é igual ao da unidade
+- **ANTES:** Salvava NF sem validaÃ§Ã£o de CNPJ do destinatÃ¡rio
+- **AGORA:** Verifica se CNPJ do destinatÃ¡rio Ã© igual ao da unidade
 - Se for diferente (NF de outra unidade), mostra alerta
-- Se não houver unidade configurada, funciona normalmente
+- Se nÃ£o houver unidade configurada, funciona normalmente
 
-**Cenário de uso:**
+**CenÃ¡rio de uso:**
 
-1. Usuário configura CNPJ da unidade: `12.345.678/0001-90` (IF Baiano - Campus X)
-2. Recebe NF com destinatário: `98.765.432/0001-10` (outro campus!)
-3. Sistema alerta: "⚠️ CNPJ Destinatário diferente da Unidade!"
-4. Usuário percebe que a NF é de outro campus
+1. UsuÃ¡rio configura CNPJ da unidade: `12.345.678/0001-90` (IF Baiano - Campus X)
+2. Recebe NF com destinatÃ¡rio: `98.765.432/0001-10` (outro campus!)
+3. Sistema alerta: "âš ï¸ CNPJ DestinatÃ¡rio diferente da Unidade!"
+4. UsuÃ¡rio percebe que a NF Ã© de outro campus
 
 ---
 
 ### 3. `js/db.js` - Banco de Dados
 
-#### 3.1. Tolerâncias na Comparação NF x Empenho
+#### 3.1. TolerÃ¢ncias na ComparaÃ§Ã£o NF x Empenho
 
 **Linha aproximada:** 338-424
 
-**Código modificado:**
+**CÃ³digo modificado:**
 
 ```javascript
 async compararNotaFiscalComEmpenho(notaFiscal, empenhoId) {
@@ -222,20 +222,20 @@ async compararNotaFiscalComEmpenho(notaFiscal, empenhoId) {
     divergencias.push({
       tipo: "erro",
       campo: "empenho",
-      mensagem: "Empenho não encontrado",
+      mensagem: "Empenho nÃ£o encontrado",
     });
     return divergencias;
   }
 
-  // Obtém tolerâncias configuradas
-  let toleranciaValor = 0.01; // Padrão: 1 centavo
-  let toleranciaQuantidade = 0; // Padrão: exato
+  // ObtÃ©m tolerÃ¢ncias configuradas
+  let toleranciaValor = 0.01; // PadrÃ£o: 1 centavo
+  let toleranciaQuantidade = 0; // PadrÃ£o: exato
 
   if (typeof window.getToleranciaValor === 'function') {
     try {
       toleranciaValor = await window.getToleranciaValor();
     } catch (e) {
-      console.warn('Erro ao obter tolerância de valor, usando padrão:', e);
+      console.warn('Erro ao obter tolerÃ¢ncia de valor, usando padrÃ£o:', e);
     }
   }
 
@@ -243,18 +243,18 @@ async compararNotaFiscalComEmpenho(notaFiscal, empenhoId) {
     try {
       toleranciaQuantidade = await window.getToleranciaQuantidade();
     } catch (e) {
-      console.warn('Erro ao obter tolerância de quantidade, usando padrão:', e);
+      console.warn('Erro ao obter tolerÃ¢ncia de quantidade, usando padrÃ£o:', e);
     }
   }
 
-  // ... validações de CNPJ ...
+  // ... validaÃ§Ãµes de CNPJ ...
 
   // Compara itens
   notaFiscal.itens.forEach((itemNF) => {
     const itemEmpenho = itensEmpenho.get(itemNF.codigo);
 
     if (itemEmpenho) {
-      // Verifica valor unitário com tolerância configurada
+      // Verifica valor unitÃ¡rio com tolerÃ¢ncia configurada
       const valorNF = parseFloat(itemNF.valorUnitario) || 0;
       const valorEmpenho = parseFloat(itemEmpenho.valorUnitario) || 0;
       const diferencaValor = Math.abs(valorNF - valorEmpenho);
@@ -263,7 +263,7 @@ async compararNotaFiscalComEmpenho(notaFiscal, empenhoId) {
         divergencias.push({
           tipo: "valor_divergente",
           campo: "valorUnitario",
-          mensagem: `Valor unitário divergente para item ${itemNF.codigo} (tolerância: R$ ${toleranciaValor.toFixed(2)})`,
+          mensagem: `Valor unitÃ¡rio divergente para item ${itemNF.codigo} (tolerÃ¢ncia: R$ ${toleranciaValor.toFixed(2)})`,
           valorNF: valorNF,
           valorEmpenho: valorEmpenho,
           diferenca: diferencaValor,
@@ -271,7 +271,7 @@ async compararNotaFiscalComEmpenho(notaFiscal, empenhoId) {
         });
       }
 
-      // Verifica quantidade com tolerância configurada
+      // Verifica quantidade com tolerÃ¢ncia configurada
       const qtdNF = parseFloat(itemNF.quantidade) || 0;
       const qtdEmpenho = parseFloat(itemEmpenho.quantidade) || 0;
       const diferencaQtd = Math.abs(qtdNF - qtdEmpenho);
@@ -280,7 +280,7 @@ async compararNotaFiscalComEmpenho(notaFiscal, empenhoId) {
         divergencias.push({
           tipo: "quantidade_divergente",
           campo: "quantidade",
-          mensagem: `Quantidade divergente para item ${itemNF.codigo} (tolerância: ${toleranciaQuantidade})`,
+          mensagem: `Quantidade divergente para item ${itemNF.codigo} (tolerÃ¢ncia: ${toleranciaQuantidade})`,
           valorNF: qtdNF,
           valorEmpenho: qtdEmpenho,
           diferenca: diferencaQtd,
@@ -288,7 +288,7 @@ async compararNotaFiscalComEmpenho(notaFiscal, empenhoId) {
         });
       }
 
-      // ... validação de descrição ...
+      // ... validaÃ§Ã£o de descriÃ§Ã£o ...
     }
   });
 
@@ -300,138 +300,138 @@ async compararNotaFiscalComEmpenho(notaFiscal, empenhoId) {
 
 **ANTES:**
 
-- Tolerância de valor: **fixa em R$ 0,01**
-- Tolerância de quantidade: **não havia**
-- Mensagem genérica de divergência
+- TolerÃ¢ncia de valor: **fixa em R$ 0,01**
+- TolerÃ¢ncia de quantidade: **nÃ£o havia**
+- Mensagem genÃ©rica de divergÃªncia
 
 **AGORA:**
 
-- Tolerância de valor: **configurável** (padrão R$ 0,01)
-- Tolerância de quantidade: **configurável** (padrão 0 = exato)
-- Mensagem mostra a tolerância aplicada
-- Inclui campo `diferenca` para análise
+- TolerÃ¢ncia de valor: **configurÃ¡vel** (padrÃ£o R$ 0,01)
+- TolerÃ¢ncia de quantidade: **configurÃ¡vel** (padrÃ£o 0 = exato)
+- Mensagem mostra a tolerÃ¢ncia aplicada
+- Inclui campo `diferenca` para anÃ¡lise
 
 **Exemplos de uso:**
 
-**Cenário 1: Tolerância padrão (R$ 0,01)**
+**CenÃ¡rio 1: TolerÃ¢ncia padrÃ£o (R$ 0,01)**
 
 ```
 Empenho: Item X - R$ 100,00
 NF:      Item X - R$ 100,01
-Resultado: ✅ Aceito (diferença R$ 0,01 = tolerância)
+Resultado: âœ… Aceito (diferenÃ§a R$ 0,01 = tolerÃ¢ncia)
 ```
 
-**Cenário 2: Tolerância aumentada (R$ 0,10)**
+**CenÃ¡rio 2: TolerÃ¢ncia aumentada (R$ 0,10)**
 
 ```
-Usuário configura tolerância: R$ 0,10
+UsuÃ¡rio configura tolerÃ¢ncia: R$ 0,10
 
 Empenho: Item Y - R$ 100,00
 NF:      Item Y - R$ 100,08
-Resultado: ✅ Aceito (diferença R$ 0,08 < R$ 0,10)
+Resultado: âœ… Aceito (diferenÃ§a R$ 0,08 < R$ 0,10)
 
 Empenho: Item Z - R$ 100,00
 NF:      Item Z - R$ 100,15
-Resultado: ❌ Divergente (diferença R$ 0,15 > R$ 0,10)
+Resultado: âŒ Divergente (diferenÃ§a R$ 0,15 > R$ 0,10)
 ```
 
-**Cenário 3: Tolerância de quantidade**
+**CenÃ¡rio 3: TolerÃ¢ncia de quantidade**
 
 ```
-Usuário configura tolerância qtd: 1 unidade
+UsuÃ¡rio configura tolerÃ¢ncia qtd: 1 unidade
 
 Empenho: Item A - 100 unidades
 NF:      Item A - 101 unidades
-Resultado: ✅ Aceito (diferença 1 = tolerância)
+Resultado: âœ… Aceito (diferenÃ§a 1 = tolerÃ¢ncia)
 
 Empenho: Item B - 100 unidades
 NF:      Item B - 103 unidades
-Resultado: ❌ Divergente (diferença 3 > 1)
+Resultado: âŒ Divergente (diferenÃ§a 3 > 1)
 ```
 
 ---
 
-## 🎯 Funcionalidades Integradas
+## ðŸŽ¯ Funcionalidades Integradas
 
-### ✅ 1. Acesso às Configurações
+### âœ… 1. Acesso Ã s ConfiguraÃ§Ãµes
 
-- Menu principal tem card "⚙️ Configurações"
-- Header tem botão "⚙️ Configurações"
+- Menu principal tem card "âš™ï¸ ConfiguraÃ§Ãµes"
+- Header tem botÃ£o "âš™ï¸ ConfiguraÃ§Ãµes"
 - Clique abre `configuracoes.html` em nova aba
-- **Onde testar:** `index.html` → Menu ou Header
+- **Onde testar:** `index.html` â†’ Menu ou Header
 
-### ✅ 2. Validação de CNPJ da Unidade (Empenho)
+### âœ… 2. ValidaÃ§Ã£o de CNPJ da Unidade (Empenho)
 
-- Ao salvar empenho, verifica se CNPJ do fornecedor é igual ao da unidade
-- Se for igual (erro comum), alerta e pede confirmação
+- Ao salvar empenho, verifica se CNPJ do fornecedor Ã© igual ao da unidade
+- Se for igual (erro comum), alerta e pede confirmaÃ§Ã£o
 - **Onde testar:**
   1. Configure unidade em `configuracoes.html`
   2. Volte para `index.html`
   3. Cadastre empenho com CNPJ igual ao da unidade
   4. Sistema deve alertar
 
-### ✅ 3. Validação de CNPJ da Unidade (Nota Fiscal)
+### âœ… 3. ValidaÃ§Ã£o de CNPJ da Unidade (Nota Fiscal)
 
-- Ao salvar NF, verifica se CNPJ do destinatário é igual ao da unidade
+- Ao salvar NF, verifica se CNPJ do destinatÃ¡rio Ã© igual ao da unidade
 - Se for diferente, alerta (NF pode ser de outra unidade)
 - **Onde testar:**
   1. Configure unidade em `configuracoes.html`
   2. Volte para `index.html`
-  3. Cadastre NF com CNPJ destinatário diferente
+  3. Cadastre NF com CNPJ destinatÃ¡rio diferente
   4. Sistema deve alertar
 
-### ✅ 4. Tolerâncias Configuráveis
+### âœ… 4. TolerÃ¢ncias ConfigurÃ¡veis
 
-- Comparação NF x Empenho respeita tolerâncias configuradas
-- Tolerância de valor (centavos)
-- Tolerância de quantidade (unidades)
+- ComparaÃ§Ã£o NF x Empenho respeita tolerÃ¢ncias configuradas
+- TolerÃ¢ncia de valor (centavos)
+- TolerÃ¢ncia de quantidade (unidades)
 - **Onde testar:**
-  1. Configure tolerâncias em `configuracoes.html` → Preferências
+  1. Configure tolerÃ¢ncias em `configuracoes.html` â†’ PreferÃªncias
   2. Volte para `index.html`
   3. Cadastre NF com valores/quantidades ligeiramente diferentes
-  4. Sistema deve aceitar se dentro da tolerância
+  4. Sistema deve aceitar se dentro da tolerÃ¢ncia
 
 ---
 
-## 🔄 Compatibilidade
+## ðŸ”„ Compatibilidade
 
 ### Backward Compatible
 
-Todas as integrações são **não-destrutivas** e **backward compatible**:
+Todas as integraÃ§Ãµes sÃ£o **nÃ£o-destrutivas** e **backward compatible**:
 
-✅ **Se NÃO houver configurações:**
+âœ… **Se NÃƒO houver configuraÃ§Ãµes:**
 
 - Sistema funciona normalmente (como antes)
-- Validações de CNPJ são ignoradas
-- Tolerâncias usam valores padrão (R$ 0,01 e 0)
+- ValidaÃ§Ãµes de CNPJ sÃ£o ignoradas
+- TolerÃ¢ncias usam valores padrÃ£o (R$ 0,01 e 0)
 
-✅ **Se HOUVER configurações:**
+âœ… **Se HOUVER configuraÃ§Ãµes:**
 
-- Validações de CNPJ são aplicadas
-- Tolerâncias configuradas são usadas
-- Usuário recebe alertas informativos
+- ValidaÃ§Ãµes de CNPJ sÃ£o aplicadas
+- TolerÃ¢ncias configuradas sÃ£o usadas
+- UsuÃ¡rio recebe alertas informativos
 
-### Checagem de Funções
+### Checagem de FunÃ§Ãµes
 
-O código verifica se as funções globais existem antes de usar:
+O cÃ³digo verifica se as funÃ§Ãµes globais existem antes de usar:
 
 ```javascript
 if (typeof window.getUnidadeOrcamentaria === 'function') {
-  // Usa a função
+  // Usa a funÃ§Ã£o
 }
 ```
 
 Isso garante que:
 
-- Não quebra se scripts de configurações não carregarem
-- Não quebra se usuário não configurou nada
+- NÃ£o quebra se scripts de configuraÃ§Ãµes nÃ£o carregarem
+- NÃ£o quebra se usuÃ¡rio nÃ£o configurou nada
 - Sistema continua funcionando normalmente
 
 ---
 
-## 📊 Testes Recomendados
+## ðŸ“Š Testes Recomendados
 
-### Teste 1: Sem Configurações
+### Teste 1: Sem ConfiguraÃ§Ãµes
 
 1. Limpe IndexedDB
 2. Use sistema normalmente
@@ -441,71 +441,71 @@ Isso garante que:
 
 1. Configure unidade em `configuracoes.html`
 2. Cadastre empenho com CNPJ igual ao da unidade
-3. **Resultado esperado:** Alerta de divergência
+3. **Resultado esperado:** Alerta de divergÃªncia
 
-### Teste 3: Com Tolerâncias
+### Teste 3: Com TolerÃ¢ncias
 
-1. Configure tolerância de valor: R$ 0,10
+1. Configure tolerÃ¢ncia de valor: R$ 0,10
 2. Cadastre empenho: Item X - R$ 100,00
 3. Cadastre NF: Item X - R$ 100,05
-4. **Resultado esperado:** Aceito (dentro da tolerância)
+4. **Resultado esperado:** Aceito (dentro da tolerÃ¢ncia)
 
 ### Teste 4: NF de Outra Unidade
 
 1. Configure unidade: CNPJ `12.345.678/0001-90`
-2. Cadastre NF com destinatário: CNPJ `98.765.432/0001-10`
-3. **Resultado esperado:** Alerta de divergência
+2. Cadastre NF com destinatÃ¡rio: CNPJ `98.765.432/0001-10`
+3. **Resultado esperado:** Alerta de divergÃªncia
 
 ---
 
-## 📝 Observações Importantes
+## ðŸ“ ObservaÃ§Ãµes Importantes
 
-### 1. Arquivos Não Modificados
+### 1. Arquivos NÃ£o Modificados
 
-Os seguintes arquivos **NÃO foram alterados**:
+Os seguintes arquivos **NÃƒO foram alterados**:
 
-- ✅ `js/config.js`
-- ✅ `js/pdfReader.js`
-- ✅ `js/neParser.js`
-- ✅ `js/nfeIntegration.js`
-- ✅ `js/fsManager.js`
-- ✅ `css/style.css`
+- âœ… `js/config.js`
+- âœ… `js/pdfReader.js`
+- âœ… `js/neParser.js`
+- âœ… `js/nfeIntegration.js`
+- âœ… `js/fsManager.js`
+- âœ… `css/style.css`
 
-### 2. Funções Globais Disponíveis
+### 2. FunÃ§Ãµes Globais DisponÃ­veis
 
-Após carregar scripts de configurações, estas funções ficam disponíveis:
+ApÃ³s carregar scripts de configuraÃ§Ãµes, estas funÃ§Ãµes ficam disponÃ­veis:
 
 ```javascript
-// Obter unidade orçamentária
+// Obter unidade orÃ§amentÃ¡ria
 const unidade = await window.getUnidadeOrcamentaria();
 
-// Obter tolerância de valor
+// Obter tolerÃ¢ncia de valor
 const tolValor = await window.getToleranciaValor();
 
-// Obter tolerância de quantidade
+// Obter tolerÃ¢ncia de quantidade
 const tolQtd = await window.getToleranciaQuantidade();
 
-// Autenticar usuário
+// Autenticar usuÃ¡rio
 const resultado = await window.settingsUsuarios.autenticar('login', 'senha');
 ```
 
 ### 3. IndexedDB Store Utilizada
 
-Configurações são salvas no store `config`:
+ConfiguraÃ§Ãµes sÃ£o salvas no store `config`:
 
-- `config.get('unidadeOrcamentaria')` → Dados da unidade
-- `config.get('preferencias')` → Tolerâncias e tema
-- `config.get('usuarios')` → Lista de usuários
-- `config.get('rede')` → Configurações de rede
+- `config.get('unidadeOrcamentaria')` â†’ Dados da unidade
+- `config.get('preferencias')` â†’ TolerÃ¢ncias e tema
+- `config.get('usuarios')` â†’ Lista de usuÃ¡rios
+- `config.get('rede')` â†’ ConfiguraÃ§Ãµes de rede
 
 ---
 
-## ✅ Checklist de Validação
+## âœ… Checklist de ValidaÃ§Ã£o
 
 ### Interface
 
-- [x] Card "Configurações" aparece no menu principal
-- [x] Botão "⚙️ Configurações" aparece no header
+- [x] Card "ConfiguraÃ§Ãµes" aparece no menu principal
+- [x] BotÃ£o "âš™ï¸ ConfiguraÃ§Ãµes" aparece no header
 - [x] Clique abre `configuracoes.html` em nova aba
 
 ### Scripts Carregados
@@ -516,14 +516,14 @@ Configurações são salvas no store `config`:
 - [x] `js/settings/rede.js`
 - [x] `js/settings/preferencias.js`
 
-### Validações
+### ValidaÃ§Ãµes
 
 - [x] CNPJ fornecedor vs unidade (empenho)
-- [x] CNPJ destinatário vs unidade (NF)
-- [x] Tolerância de valor aplicada
-- [x] Tolerância de quantidade aplicada
+- [x] CNPJ destinatÃ¡rio vs unidade (NF)
+- [x] TolerÃ¢ncia de valor aplicada
+- [x] TolerÃ¢ncia de quantidade aplicada
 
-### Funções Globais
+### FunÃ§Ãµes Globais
 
 - [x] `window.getUnidadeOrcamentaria()`
 - [x] `window.getToleranciaValor()`
@@ -532,7 +532,7 @@ Configurações são salvas no store `config`:
 
 ---
 
-## 🚀 Como Testar Agora
+## ðŸš€ Como Testar Agora
 
 1. **Abra o sistema:**
 
@@ -540,13 +540,13 @@ Configurações são salvas no store `config`:
    http://localhost:8000/index.html
    ```
 
-2. **Veja o novo card "Configurações" no menu**
+2. **Veja o novo card "ConfiguraÃ§Ãµes" no menu**
 
-3. **Clique em "Configurações":**
+3. **Clique em "ConfiguraÃ§Ãµes":**
    - Abre `configuracoes.html` em nova aba
 
 4. **Configure a unidade:**
-   - Preencha Razão Social e CNPJ
+   - Preencha RazÃ£o Social e CNPJ
    - Salve
 
 5. **Volte para `index.html`**
@@ -558,26 +558,27 @@ Configurações são salvas no store `config`:
 
 7. **Teste NF:**
    - Cadastre NF
-   - Use CNPJ destinatário diferente
+   - Use CNPJ destinatÃ¡rio diferente
    - Sistema deve alertar
 
-8. **Teste tolerâncias:**
-   - Configure tolerância R$ 0,10
-   - Cadastre NF com valores próximos
+8. **Teste tolerÃ¢ncias:**
+   - Configure tolerÃ¢ncia R$ 0,10
+   - Cadastre NF com valores prÃ³ximos
    - Sistema deve aceitar
 
 ---
 
-## 📞 Resumo
+## ðŸ“ž Resumo
 
-✅ **Módulo de Configurações 100% integrado ao sistema principal**
-✅ **Todas as validações aplicadas em `index.html` e `app.js`**
-✅ **Testes sempre feitos no arquivo principal**
-✅ **Backward compatible - não quebra funcionalidade existente**
-✅ **Pronto para uso em produção**
+âœ… **MÃ³dulo de ConfiguraÃ§Ãµes 100% integrado ao sistema principal**
+âœ… **Todas as validaÃ§Ãµes aplicadas em `index.html` e `app.js`**
+âœ… **Testes sempre feitos no arquivo principal**
+âœ… **Backward compatible - nÃ£o quebra funcionalidade existente**
+âœ… **Pronto para uso em produÃ§Ã£o**
 
 ---
 
 **Data:** 03/11/2025  
-**Sistema:** IFDESK - IF Baiano  
-**Versão:** 1.1 (com Configurações integradas)
+**Sistema:** SINGEM - IF Baiano  
+**VersÃ£o:** 1.1 (com ConfiguraÃ§Ãµes integradas)
+

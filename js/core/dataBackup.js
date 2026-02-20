@@ -5,7 +5,7 @@
 
 class DataBackupManager {
   constructor() {
-    this.DB_NAME = 'IFDeskDB';
+    this.DB_NAME = 'SINGEMDB';
     this.BACKUP_STORE = 'backups';
     this.CHANGELOG_STORE = 'changelog';
     this.VERSION = 3; // Incrementar quando houver mudanças estruturais
@@ -225,7 +225,7 @@ class DataBackupManager {
 
       const a = document.createElement('a');
       a.href = url;
-      a.download = `ifdesk-backup-${new Date().toISOString().split('T')[0]}.json`;
+      a.download = `SINGEM-backup-${new Date().toISOString().split('T')[0]}.json`;
       a.click();
 
       URL.revokeObjectURL(url);

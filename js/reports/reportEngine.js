@@ -1,5 +1,5 @@
 /**
- * IFDESK - Report Engine
+ * SINGEM - Report Engine
  * Motor de relatórios com definições, filtros e agregações
  * @version 1.0.0
  */

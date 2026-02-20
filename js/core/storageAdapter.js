@@ -14,7 +14,7 @@ export const DATA_VERSION = '1.0.0';
 
 class StorageAdapter {
   constructor() {
-    this.DATA_VERSION_KEY = 'ifdesk_data_version';
+    this.DATA_VERSION_KEY = 'SINGEM_data_version';
   }
 
   // ==========================================================================
@@ -141,26 +141,26 @@ class StorageAdapter {
         appVersion: window.APP_VERSION || '1.0.0',
         dataVersion: DATA_VERSION,
         exportedAt: new Date().toISOString(),
-        source: 'IFDESK Storage Adapter'
+        source: 'SINGEM Storage Adapter'
       },
       localStorage: {},
       indexedDB: {}
     };
 
     // =======================================================================
-    // 1. Exportar LocalStorage (apenas chaves do IFDESK)
+    // 1. Exportar LocalStorage (apenas chaves do SINGEM)
     // =======================================================================
-    const ifdeskKeys = [
+    const SINGEMKeys = [
       'session',
-      'ifdesk_app_version',
-      'ifdesk_data_version',
-      'ifdesk_logs',
-      'ifdesk_auth_flags',
-      'ifdesk_auth_login'
-      // NÃO exportar ifdesk_auth_pass (senha)
+      'SINGEM_app_version',
+      'SINGEM_data_version',
+      'SINGEM_logs',
+      'SINGEM_auth_flags',
+      'SINGEM_auth_login'
+      // NÃO exportar SINGEM_auth_pass (senha)
     ];
 
-    for (const key of ifdeskKeys) {
+    for (const key of SINGEMKeys) {
       const value = localStorage.getItem(key);
       if (value !== null) {
         try {
@@ -554,11 +554,11 @@ class StorageAdapter {
       indexedDB: {}
     };
 
-    // Limpar localStorage (apenas chaves IFDESK)
+    // Limpar localStorage (apenas chaves SINGEM)
     const keysToRemove = [];
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
-      if (key?.startsWith('ifdesk_') || key === 'session') {
+      if (key?.startsWith('SINGEM_') || key === 'session') {
         keysToRemove.push(key);
       }
     }

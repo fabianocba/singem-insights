@@ -1,5 +1,5 @@
 /**
- * IFDESK - Report UI
+ * SINGEM - Report UI
  * Interface de usuário para relatórios dinâmicos
  * @version 1.0.0
  */
@@ -438,7 +438,7 @@ function exportCSV() {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `IFDESK_relatorio_${meta.reportId}_${formatFileDate()}.csv`;
+  a.download = `SINGEM_relatorio_${meta.reportId}_${formatFileDate()}.csv`;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
@@ -466,7 +466,7 @@ function printReport() {
     <html>
     <head>
       <meta charset="UTF-8">
-      <title>${meta.title} - IFDESK</title>
+      <title>${meta.title} - SINGEM</title>
       <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: Arial, sans-serif; font-size: 11px; padding: 20px; }
@@ -488,7 +488,7 @@ function printReport() {
     </head>
     <body>
       <h1>${meta.title}</h1>
-      <p class="meta">IFDESK - Gerado em ${formatDateTime(meta.geradoEm)} | ${rows.length} registros</p>
+      <p class="meta">SINGEM - Gerado em ${formatDateTime(meta.geradoEm)} | ${rows.length} registros</p>
       ${tableHtml}
     </body>
     </html>

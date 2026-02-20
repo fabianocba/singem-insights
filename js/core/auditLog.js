@@ -1,5 +1,5 @@
 /**
- * 📝 Sistema de Audit Log - IFDESK
+ * 📝 Sistema de Audit Log - SINGEM
  *
  * Registra todas as ações sensíveis de autenticação e segurança.
  * Logs são armazenados localmente no IndexedDB.
@@ -41,7 +41,7 @@ export const AUDIT_EVENT_TYPES = {
  */
 class AuditLogger {
   constructor() {
-    this.dbName = 'ifdeskDB';
+    this.dbName = 'SINGEMDB';
     this.storeName = 'auditLogs';
     this.maxLogs = 10000; // Máximo de logs armazenados
   }

@@ -196,7 +196,7 @@
                 <div
                   class="menu-item-consulta"
                   data-consulta="materiais"
-                  onclick="window.abrirConsulta('materiais');"
+                  onclick="window.abrirConsulta('materiais')"
                 >
                   <div class="menu-icon-consulta">📦</div>
                   <h4>Catálogo de Material</h4>
@@ -336,7 +336,14 @@
                 </p>
               </div>
               <button
-                onclick="window.fsManager?.selectMainDirectory().then(ok => ok && (document.getElementById('fs-config-message').style.display = 'none'))"
+                onclick="
+                  window.fsManager
+                    ?.selectMainDirectory()
+                    .then(
+                      (ok) =>
+                        ok && (document.getElementById('fs-config-message').style.display = 'none')
+                    )
+                "
                 style="
                   background: #28a745;
                   color: white;
@@ -361,14 +368,21 @@
             <!-- ✅ BOTÃO PARA SELECIONAR PASTA PRINCIPAL -->
             <button
               id="btnSelectMainDir"
-              onclick="window.fsManager?.selectMainDirectory().then(ok => {
-                if (ok) {
-                  alert('✅ Pasta configurada com sucesso!\n\n🧪 Teste de escrita realizado automaticamente.\n\nVerifique o arquivo ifdesk_test.txt na pasta selecionada.\n\nOs próximos arquivos serão salvos automaticamente.');
-                  document.getElementById('fs-config-message').style.display = 'none';
-                }
-              }).catch(err => {
-                alert('❌ Erro ao configurar pasta:\n\n' + err.message);
-              })"
+              onclick="
+                window.fsManager
+                  ?.selectMainDirectory()
+                  .then((ok) => {
+                    if (ok) {
+                      alert(
+                        '✅ Pasta configurada com sucesso!\n\n🧪 Teste de escrita realizado automaticamente.\n\nVerifique o arquivo SINGEM_test.txt na pasta selecionada.\n\nOs próximos arquivos serão salvos automaticamente.'
+                      );
+                      document.getElementById('fs-config-message').style.display = 'none';
+                    }
+                  })
+                  .catch((err) => {
+                    alert('❌ Erro ao configurar pasta:\n\n' + err.message);
+                  })
+              "
               style="
                 margin-left: auto;
                 background: linear-gradient(135deg, #1976d2, #1565c0);
@@ -390,11 +404,22 @@
             <!-- ✅ BOTÃO PARA TESTAR PASTA (opcional) -->
             <button
               id="btnTestDir"
-              onclick="window.fsManager?.testWriteAccess().then(() => {
-                alert('✅ Teste bem-sucedido!\n\nA pasta está configurada corretamente.\nArquivo de teste criado: ifdesk_test.txt');
-              }).catch(err => {
-                alert('❌ Erro no teste:\n\n' + err.message + '\n\nClique em Selecionar Pasta Principal primeiro.');
-              })"
+              onclick="
+                window.fsManager
+                  ?.testWriteAccess()
+                  .then(() => {
+                    alert(
+                      '✅ Teste bem-sucedido!\n\nA pasta está configurada corretamente.\nArquivo de teste criado: SINGEM_test.txt'
+                    );
+                  })
+                  .catch((err) => {
+                    alert(
+                      '❌ Erro no teste:\n\n' +
+                        err.message +
+                        '\n\nClique em Selecionar Pasta Principal primeiro.'
+                    );
+                  })
+              "
               style="
                 background: #6c757d;
                 color: white;
@@ -1538,7 +1563,7 @@
     <!-- ========================================== -->
     <script src="js/settings/index.js" defer></script>
     <script src="js/settings/unidade.js" defer></script>
-    <script src="js/settings/usuarios.js" defer></script>
+    <script type="module" src="js/settings/usuarios.js"></script>
     <script src="js/settings/rede.js" defer></script>
     <script src="js/settings/preferencias.js" defer></script>
     <script src="js/settings/arquivos.js" defer></script>
@@ -1791,14 +1816,12 @@
     </script>
 
     <!-- ========================================== -->
-    <!-- IFDESK Soft Init - Carrega melhorias de forma segura -->
+    <!-- SINGEM Soft Init - Carrega melhorias de forma segura -->
     <!-- NÃO quebra nada se falhar -->
     <!-- ========================================== -->
     <script type="module" src="js/softInit.js"></script>
 
     <!-- Módulo de Exportação CSV -->
     <script src="js/exportCSV.js" defer></script>
-    <!-- Informações da infraestrutura (exibe nota no console) -->
-    <script src="js/infrastructureInfo.js" defer></script>
   </body>
 </html>

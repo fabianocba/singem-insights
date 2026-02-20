@@ -1,53 +1,53 @@
-# 🔒 Sistema de Backup e Restauração - IFDESK
+﻿# ðŸ”’ Sistema de Backup e RestauraÃ§Ã£o - SINGEM
 
-## 📌 Visão Geral
+## ðŸ“Œ VisÃ£o Geral
 
-O **Sistema de Backup Automático** do IFDESK garante que **nenhum dado seja perdido** e mantém um **histórico completo** de todas as alterações feitas na aplicação.
-
----
-
-## ✨ Funcionalidades
-
-### 1️⃣ **Backup Automático**
-
-- ✅ Backup criado automaticamente **antes e depois** de cada operação crítica
-- ✅ Backup ao carregar a aplicação
-- ✅ Backup antes de salvar/editar usuários
-- ✅ Backup antes de restaurar dados
-
-### 2️⃣ **Histórico de Alterações (Changelog)**
-
-- ✅ Registro detalhado de **todas** as operações realizadas
-- ✅ Timestamp preciso de cada ação
-- ✅ Informações sobre usuário/unidade modificados
-- ✅ Tipo de operação (salvar, editar, excluir, restaurar)
-
-### 3️⃣ **Restauração de Dados**
-
-- ✅ Restaurar qualquer backup com 1 clique
-- ✅ Backup de segurança criado **antes** da restauração
-- ✅ Lista de backups ordenados por data (mais recente primeiro)
-
-### 4️⃣ **Importação/Exportação**
-
-- ✅ Exportar backup para arquivo JSON
-- ✅ Importar backup de arquivo externo
-- ✅ Transferir dados entre navegadores/computadores
+O **Sistema de Backup AutomÃ¡tico** do SINGEM garante que **nenhum dado seja perdido** e mantÃ©m um **histÃ³rico completo** de todas as alteraÃ§Ãµes feitas na aplicaÃ§Ã£o.
 
 ---
 
-## 🚀 Como Usar
+## âœ¨ Funcionalidades
 
-### **Acesso Rápido**
+### 1ï¸âƒ£ **Backup AutomÃ¡tico**
+
+- âœ… Backup criado automaticamente **antes e depois** de cada operaÃ§Ã£o crÃ­tica
+- âœ… Backup ao carregar a aplicaÃ§Ã£o
+- âœ… Backup antes de salvar/editar usuÃ¡rios
+- âœ… Backup antes de restaurar dados
+
+### 2ï¸âƒ£ **HistÃ³rico de AlteraÃ§Ãµes (Changelog)**
+
+- âœ… Registro detalhado de **todas** as operaÃ§Ãµes realizadas
+- âœ… Timestamp preciso de cada aÃ§Ã£o
+- âœ… InformaÃ§Ãµes sobre usuÃ¡rio/unidade modificados
+- âœ… Tipo de operaÃ§Ã£o (salvar, editar, excluir, restaurar)
+
+### 3ï¸âƒ£ **RestauraÃ§Ã£o de Dados**
+
+- âœ… Restaurar qualquer backup com 1 clique
+- âœ… Backup de seguranÃ§a criado **antes** da restauraÃ§Ã£o
+- âœ… Lista de backups ordenados por data (mais recente primeiro)
+
+### 4ï¸âƒ£ **ImportaÃ§Ã£o/ExportaÃ§Ã£o**
+
+- âœ… Exportar backup para arquivo JSON
+- âœ… Importar backup de arquivo externo
+- âœ… Transferir dados entre navegadores/computadores
+
+---
+
+## ðŸš€ Como Usar
+
+### **Acesso RÃ¡pido**
 
 1. Acesse: **http://localhost:8080/config/gerenciar-backups.html**
-2. Ou clique no menu: **Configurações → Gerenciar Backups**
+2. Ou clique no menu: **ConfiguraÃ§Ãµes â†’ Gerenciar Backups**
 
 ### **Criar Backup Manual**
 
 ```
-1. Clique em "💾 Criar Backup Agora"
-2. Aguarde confirmação
+1. Clique em "ðŸ’¾ Criar Backup Agora"
+2. Aguarde confirmaÃ§Ã£o
 3. O backup aparece no topo da lista
 ```
 
@@ -55,68 +55,68 @@ O **Sistema de Backup Automático** do IFDESK garante que **nenhum dado seja per
 
 ```
 1. Localize o backup desejado na lista
-2. Clique em "↩️ Restaurar"
-3. Confirme a operação (⚠️ CUIDADO: sobrescreve dados atuais)
-4. Aguarde e recarregue a página
+2. Clique em "â†©ï¸ Restaurar"
+3. Confirme a operaÃ§Ã£o (âš ï¸ CUIDADO: sobrescreve dados atuais)
+4. Aguarde e recarregue a pÃ¡gina
 ```
 
 ### **Exportar Backup**
 
 ```
-1. Clique em "📤 Exportar" no backup desejado
+1. Clique em "ðŸ“¤ Exportar" no backup desejado
 2. Salve o arquivo JSON em local seguro
-3. Use para backup externo ou transferência
+3. Use para backup externo ou transferÃªncia
 ```
 
 ### **Importar Backup**
 
 ```
-1. Clique em "📥 Importar Backup"
+1. Clique em "ðŸ“¥ Importar Backup"
 2. Selecione o arquivo JSON
-3. O backup será adicionado à lista
+3. O backup serÃ¡ adicionado Ã  lista
 ```
 
 ---
 
-## 🔍 Informações dos Backups
+## ðŸ” InformaÃ§Ãµes dos Backups
 
 Cada backup mostra:
 
-- **ID**: Identificador único
+- **ID**: Identificador Ãºnico
 - **Tipo**:
-  - 🤖 **Automático** - Criado pelo sistema
-  - 👤 **Manual** - Criado pelo usuário
-  - 📥 **Importado** - Vindo de arquivo externo
-  - 🔄 **Restauração** - Criado antes de restaurar
+  - ðŸ¤– **AutomÃ¡tico** - Criado pelo sistema
+  - ðŸ‘¤ **Manual** - Criado pelo usuÃ¡rio
+  - ðŸ“¥ **Importado** - Vindo de arquivo externo
+  - ðŸ”„ **RestauraÃ§Ã£o** - Criado antes de restaurar
 - **Data/Hora**: Timestamp preciso
-- **Usuários**: Quantidade de usuários salvos
+- **UsuÃ¡rios**: Quantidade de usuÃ¡rios salvos
 - **Unidades**: Quantidade de unidades salvas
 - **Tamanho**: Tamanho do backup em KB/MB
 
 ---
 
-## 📝 Histórico de Alterações (Changelog)
+## ðŸ“ HistÃ³rico de AlteraÃ§Ãµes (Changelog)
 
-O changelog registra **todas** as operações:
+O changelog registra **todas** as operaÃ§Ãµes:
 
-### Tipos de Ações
+### Tipos de AÃ§Ãµes
 
-- 💾 **Usuário Salvo** - Criação ou edição de usuário
-- 🗑️ **Usuário Excluído** - Remoção de usuário
-- 🏢 **Unidade Salva** - Criação ou edição de unidade
-- ↩️ **Backup Restaurado** - Restauração de dados
-- 📥 **Backup Importado** - Importação de backup
+- ðŸ’¾ **UsuÃ¡rio Salvo** - CriaÃ§Ã£o ou ediÃ§Ã£o de usuÃ¡rio
+- ðŸ—‘ï¸ **UsuÃ¡rio ExcluÃ­do** - RemoÃ§Ã£o de usuÃ¡rio
+- ðŸ¢ **Unidade Salva** - CriaÃ§Ã£o ou ediÃ§Ã£o de unidade
+- â†©ï¸ **Backup Restaurado** - RestauraÃ§Ã£o de dados
+- ðŸ“¥ **Backup Importado** - ImportaÃ§Ã£o de backup
 
 ### Detalhes Registrados
 
-- Login do usuário
-- Nome do usuário
-- ID do backup (em restaurações)
+- Login do usuÃ¡rio
+- Nome do usuÃ¡rio
+- ID do backup (em restauraÃ§Ãµes)
 - Timestamp preciso
 
 ---
 
-## 🔧 Técnico
+## ðŸ”§ TÃ©cnico
 
 ### **Armazenamento**
 
@@ -139,7 +139,7 @@ O changelog registra **todas** as operações:
 }
 ```
 
-### **Integração Automática**
+### **IntegraÃ§Ã£o AutomÃ¡tica**
 
 ```javascript
 // Em repository.js - saveUsuario()
@@ -154,14 +154,14 @@ if (window.dataBackupManager) {
     nome: usuario.nome
   });
 
-  // ... operação de salvamento ...
+  // ... operaÃ§Ã£o de salvamento ...
 
   // Backup DEPOIS de salvar (sucesso)
   await window.dataBackupManager.createAutoBackup('post-save-usuario');
 }
 ```
 
-### **API Disponível**
+### **API DisponÃ­vel**
 
 ```javascript
 // Criar backup
@@ -182,7 +182,7 @@ await window.dataBackupManager.importBackup(file);
 // Obter changelog
 const changes = await window.dataBackupManager.getChangelog(50);
 
-// Registrar mudança
+// Registrar mudanÃ§a
 await window.dataBackupManager.logChange('custom_action', {
   key: 'value'
 });
@@ -190,145 +190,146 @@ await window.dataBackupManager.logChange('custom_action', {
 
 ---
 
-## ⚠️ Avisos Importantes
+## âš ï¸ Avisos Importantes
 
 ### **Ao Restaurar Backup**
 
-1. ⚠️ **TODOS** os dados atuais serão **substituídos**
-2. ✅ Um backup de segurança é criado **antes** da restauração
-3. 🔄 É necessário **recarregar a página** após restaurar
-4. ❌ A operação **NÃO pode ser desfeita** (exceto restaurando outro backup)
+1. âš ï¸ **TODOS** os dados atuais serÃ£o **substituÃ­dos**
+2. âœ… Um backup de seguranÃ§a Ã© criado **antes** da restauraÃ§Ã£o
+3. ðŸ”„ Ã‰ necessÃ¡rio **recarregar a pÃ¡gina** apÃ³s restaurar
+4. âŒ A operaÃ§Ã£o **NÃƒO pode ser desfeita** (exceto restaurando outro backup)
 
-### **Limpeza Automática**
+### **Limpeza AutomÃ¡tica**
 
-- 🗑️ Apenas os **últimos 10 backups** são mantidos
-- ⏰ Backups mais antigos são **removidos automaticamente**
-- 💾 Exporte backups importantes para **arquivo externo**
+- ðŸ—‘ï¸ Apenas os **Ãºltimos 10 backups** sÃ£o mantidos
+- â° Backups mais antigos sÃ£o **removidos automaticamente**
+- ðŸ’¾ Exporte backups importantes para **arquivo externo**
 
 ### **Backup Externo**
 
-- 💡 Recomendado: **exportar backups semanalmente**
-- 📁 Salvar em: nuvem, pendrive, outro computador
-- 🔒 Proteção contra: falha do HD, reinstalação do Windows, corrupção do navegador
+- ðŸ’¡ Recomendado: **exportar backups semanalmente**
+- ðŸ“ Salvar em: nuvem, pendrive, outro computador
+- ðŸ”’ ProteÃ§Ã£o contra: falha do HD, reinstalaÃ§Ã£o do Windows, corrupÃ§Ã£o do navegador
 
 ---
 
-## 🐛 Solução de Problemas
+## ðŸ› SoluÃ§Ã£o de Problemas
 
 ### **"Nenhum backup encontrado"**
 
 ```
-Solução: Crie o primeiro backup manualmente
-Clique em "💾 Criar Backup Agora"
+SoluÃ§Ã£o: Crie o primeiro backup manualmente
+Clique em "ðŸ’¾ Criar Backup Agora"
 ```
 
 ### **"Erro ao restaurar backup"**
 
 ```
-1. Verifique se o backup está na lista
-2. Tente recarregar a página (F5)
+1. Verifique se o backup estÃ¡ na lista
+2. Tente recarregar a pÃ¡gina (F5)
 3. Abra Console (F12) para ver erros
-4. Importe backup externo se necessário
+4. Importe backup externo se necessÃ¡rio
 ```
 
 ### **"Preciso recuperar dados antigos"**
 
 ```
 1. Localize o backup com a data desejada
-2. Verifique quantidade de usuários/unidades
-3. Clique em "↩️ Restaurar"
-4. Confirme a operação
+2. Verifique quantidade de usuÃ¡rios/unidades
+3. Clique em "â†©ï¸ Restaurar"
+4. Confirme a operaÃ§Ã£o
 ```
 
-### **"Perdi tudo após limpar navegador"**
+### **"Perdi tudo apÃ³s limpar navegador"**
 
 ```
-❌ Se não houver backup externo, dados perdidos
-✅ Sempre exporte backups importantes!
-📥 Importe o backup externo se tiver
+âŒ Se nÃ£o houver backup externo, dados perdidos
+âœ… Sempre exporte backups importantes!
+ðŸ“¥ Importe o backup externo se tiver
 ```
 
 ---
 
-## 📊 Exemplo de Uso
+## ðŸ“Š Exemplo de Uso
 
-### **Cenário: Edição Acidental**
+### **CenÃ¡rio: EdiÃ§Ã£o Acidental**
 
 ```
-1. Usuário edita dados incorretamente
-2. Salva as alterações
+1. UsuÃ¡rio edita dados incorretamente
+2. Salva as alteraÃ§Ãµes
 3. Percebe o erro
 
-✅ SOLUÇÃO:
+âœ… SOLUÃ‡ÃƒO:
 - Acesse "Gerenciar Backups"
-- Localize backup ANTES da edição (timestamp)
-- Clique em "↩️ Restaurar"
+- Localize backup ANTES da ediÃ§Ã£o (timestamp)
+- Clique em "â†©ï¸ Restaurar"
 - Dados voltam ao estado anterior
 ```
 
-### **Cenário: Transferir Entre Computadores**
+### **CenÃ¡rio: Transferir Entre Computadores**
 
 ```
 1. Computador A: Acesse "Gerenciar Backups"
-2. Computador A: Clique "📤 Exportar" no backup desejado
+2. Computador A: Clique "ðŸ“¤ Exportar" no backup desejado
 3. Transferir arquivo JSON via pendrive/email/nuvem
 4. Computador B: Acesse "Gerenciar Backups"
-5. Computador B: Clique "📥 Importar Backup"
+5. Computador B: Clique "ðŸ“¥ Importar Backup"
 6. Computador B: Selecione o arquivo JSON
-7. Computador B: Clique "↩️ Restaurar" no backup importado
+7. Computador B: Clique "â†©ï¸ Restaurar" no backup importado
 ```
 
-### **Cenário: Auditoria de Alterações**
+### **CenÃ¡rio: Auditoria de AlteraÃ§Ãµes**
 
 ```
-1. Acesse seção "📝 Histórico de Alterações"
-2. Veja TODAS as operações realizadas
-3. Identifique: quem, quando, o quê
+1. Acesse seÃ§Ã£o "ðŸ“ HistÃ³rico de AlteraÃ§Ãµes"
+2. Veja TODAS as operaÃ§Ãµes realizadas
+3. Identifique: quem, quando, o quÃª
 4. Use para: auditoria, compliance, debugging
 ```
 
 ---
 
-## 🎯 Benefícios
+## ðŸŽ¯ BenefÃ­cios
 
-### **Para Usuários**
+### **Para UsuÃ¡rios**
 
-- ✅ **Segurança total**: dados nunca são perdidos
-- ✅ **Reversão fácil**: desfazer alterações com 1 clique
-- ✅ **Auditoria completa**: histórico de todas as ações
-- ✅ **Transferência simples**: backup portátil via JSON
+- âœ… **SeguranÃ§a total**: dados nunca sÃ£o perdidos
+- âœ… **ReversÃ£o fÃ¡cil**: desfazer alteraÃ§Ãµes com 1 clique
+- âœ… **Auditoria completa**: histÃ³rico de todas as aÃ§Ãµes
+- âœ… **TransferÃªncia simples**: backup portÃ¡til via JSON
 
 ### **Para Desenvolvedores**
 
-- ✅ **Debugging**: ver estado dos dados em qualquer momento
-- ✅ **Testes seguros**: restaurar dados após testes
-- ✅ **Migração**: transferir dados entre ambientes
-- ✅ **Compliance**: registro de todas as operações
+- âœ… **Debugging**: ver estado dos dados em qualquer momento
+- âœ… **Testes seguros**: restaurar dados apÃ³s testes
+- âœ… **MigraÃ§Ã£o**: transferir dados entre ambientes
+- âœ… **Compliance**: registro de todas as operaÃ§Ãµes
 
 ### **Para Administradores**
 
-- ✅ **Conformidade LGPD**: auditoria de acesso a dados
-- ✅ **Disaster Recovery**: recuperação rápida de dados
-- ✅ **Governança**: controle total sobre alterações
-- ✅ **Backup redundante**: exportação automática
+- âœ… **Conformidade LGPD**: auditoria de acesso a dados
+- âœ… **Disaster Recovery**: recuperaÃ§Ã£o rÃ¡pida de dados
+- âœ… **GovernanÃ§a**: controle total sobre alteraÃ§Ãµes
+- âœ… **Backup redundante**: exportaÃ§Ã£o automÃ¡tica
 
 ---
 
-## 📚 Documentação Técnica Completa
+## ðŸ“š DocumentaÃ§Ã£o TÃ©cnica Completa
 
-- **Código-fonte**: `js/core/dataBackup.js`
+- **CÃ³digo-fonte**: `js/core/dataBackup.js`
 - **Interface**: `config/gerenciar-backups.html`
-- **Integração**: `js/core/repository.js` (saveUsuario)
+- **IntegraÃ§Ã£o**: `js/core/repository.js` (saveUsuario)
 - **API**: Classe `DataBackupManager`
 
 ---
 
-## 🆘 Suporte
+## ðŸ†˜ Suporte
 
 - **Console (F12)**: Logs detalhados com prefixo `[BACKUP]`
-- **GitHub Issues**: Reportar bugs/sugestões
-- **Documentação**: Este arquivo (SISTEMA_BACKUP.md)
+- **GitHub Issues**: Reportar bugs/sugestÃµes
+- **DocumentaÃ§Ã£o**: Este arquivo (SISTEMA_BACKUP.md)
 
 ---
 
-**✅ Com este sistema, você NUNCA mais perderá dados no IFDESK! 🎉**
+**âœ… Com este sistema, vocÃª NUNCA mais perderÃ¡ dados no SINGEM! ðŸŽ‰**
+

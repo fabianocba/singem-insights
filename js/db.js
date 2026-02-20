@@ -1809,7 +1809,7 @@ class DatabaseManager {
 
     const backup = {
       meta: {
-        appName: 'IFDESK',
+        appName: 'SINGEM',
         appVersion: window.APP_VERSION || '1.4.0',
         dataVersion: this.dbVersion,
         exportedAt: new Date().toISOString(),
@@ -1879,7 +1879,7 @@ class DatabaseManager {
   async _getStorageConfig() {
     const storage = {
       type: 'indexeddb',
-      rootFolderName: 'IFDESK',
+      rootFolderName: 'SINGEM',
       baseHint: null,
       unidade: null,
       paths: {
@@ -1940,7 +1940,7 @@ class DatabaseManager {
     const now = new Date();
     const timestamp = now.toISOString().replace(/[:.]/g, '-').substring(0, 16);
     const unidade = this._sanitizeFilename(window.unidadeAtiva?.nome || 'GERAL');
-    return `BKUP_IFDESK_${unidade}_${timestamp}_v${this.dbVersion}.json`;
+    return `BKUP_SINGEM_${unidade}_${timestamp}_v${this.dbVersion}.json`;
   }
 
   /**

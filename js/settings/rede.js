@@ -204,7 +204,7 @@ class SettingsRede {
         const data = await response.json();
         this.servidorAtivo = true;
         this.atualizarStatus(true, data);
-        alert(`✅ CONEXÃO OK!\n\nServidor: ${data.version || 'IFDESK Server'}\nStatus: ${data.status}`);
+        alert(`✅ CONEXÃO OK!\n\nServidor: ${data.version || 'SINGEM Server'}\nStatus: ${data.status}`);
       } else {
         this.servidorAtivo = false;
         this.atualizarStatus(false);

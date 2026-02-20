@@ -1,57 +1,58 @@
-# 📄 Exemplos de PDFs - IFDESK
+﻿# ðŸ“„ Exemplos de PDFs - SINGEM
 
-Esta pasta contém exemplos reais de Notas Fiscais para referência e desenvolvimento.
+Esta pasta contÃ©m exemplos reais de Notas Fiscais para referÃªncia e desenvolvimento.
 
 ---
 
-## 📋 Lista de Exemplos
+## ðŸ“‹ Lista de Exemplos
 
-Os arquivos PDF nesta pasta são exemplos reais (dados sensíveis removidos ou anonimizados) utilizados durante o desenvolvimento e testes do sistema.
+Os arquivos PDF nesta pasta sÃ£o exemplos reais (dados sensÃ­veis removidos ou anonimizados) utilizados durante o desenvolvimento e testes do sistema.
 
 ### Uso
 
-- **Desenvolvimento:** Testar parsers e validações
-- **Documentação:** Exemplos visuais para usuários
+- **Desenvolvimento:** Testar parsers e validaÃ§Ãµes
+- **DocumentaÃ§Ã£o:** Exemplos visuais para usuÃ¡rios
 - **Treinamento:** Material de apoio
-- **Debug:** Identificar padrões e melhorias
+- **Debug:** Identificar padrÃµes e melhorias
 
 ---
 
-## ⚠️ Importante
+## âš ï¸ Importante
 
-- ✅ Todos os dados sensíveis foram removidos ou anonimizados
-- ✅ PDFs são apenas para fins educacionais e de desenvolvimento
-- ✅ Não contêm informações financeiras ou pessoais reais
-- ✅ Seguem o padrão IF Baiano de Nota Fiscal
+- âœ… Todos os dados sensÃ­veis foram removidos ou anonimizados
+- âœ… PDFs sÃ£o apenas para fins educacionais e de desenvolvimento
+- âœ… NÃ£o contÃªm informaÃ§Ãµes financeiras ou pessoais reais
+- âœ… Seguem o padrÃ£o IF Baiano de Nota Fiscal
 
 ---
 
-## 🔒 Privacidade
+## ðŸ”’ Privacidade
 
-Se você adicionar novos exemplos:
+Se vocÃª adicionar novos exemplos:
 
-1. Remova dados pessoais (CPF, endereços, telefones)
-2. Anonimize valores sensíveis se necessário
+1. Remova dados pessoais (CPF, endereÃ§os, telefones)
+2. Anonimize valores sensÃ­veis se necessÃ¡rio
 3. Mantenha apenas estrutura e formato do documento
-4. Documente o padrão/variação que o PDF representa
+4. Documente o padrÃ£o/variaÃ§Ã£o que o PDF representa
 
 ---
 
-## 📊 Categorias
+## ðŸ“Š Categorias
 
-### Notas Fiscais Eletrônicas (NF-e)
+### Notas Fiscais EletrÃ´nicas (NF-e)
 
 Exemplos de diferentes fornecedores e formatos de layout
 
-### Padrões Identificados
+### PadrÃµes Identificados
 
-- Layout padrão DANFE
-- Variações de formatação
+- Layout padrÃ£o DANFE
+- VariaÃ§Ãµes de formataÃ§Ã£o
 - Diferentes emissores
 - Casos especiais (valores, quantidades, unidades)
 
 ---
 
-**Última atualização:** 03/11/2025  
-**Total de exemplos:** Vários PDFs de NF  
+**Ãšltima atualizaÃ§Ã£o:** 03/11/2025  
+**Total de exemplos:** VÃ¡rios PDFs de NF  
 **Uso:** Apenas desenvolvimento e testes
+

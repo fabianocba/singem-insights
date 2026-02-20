@@ -11,16 +11,16 @@
 const KNOWN_KEYS = {
   localStorage: [
     'session',
-    'ifdesk_app_version',
-    'ifdesk_logs',
+    'SINGEM_app_version',
+    'SINGEM_logs',
     'tempAuditLogs',
-    'ifdesk_auth_flags',
-    'ifdesk_auth_login',
-    'ifdesk_auth_pass',
-    'ifdesk_ultimo_boot'
+    'SINGEM_auth_flags',
+    'SINGEM_auth_login',
+    'SINGEM_auth_pass',
+    'SINGEM_ultimo_boot'
   ],
   indexedDB: {
-    databases: ['ControleMaterialDB', 'IFDESK_Backup'],
+    databases: ['ControleMaterialDB', 'SINGEM_Backup'],
     stores: {
       ControleMaterialDB: [
         'empenhos',
@@ -32,7 +32,7 @@ const KNOWN_KEYS = {
         'saldosEmpenhos',
         'auditLogs'
       ],
-      IFDESK_Backup: ['backups', 'changelog']
+      SINGEM_Backup: ['backups', 'changelog']
     }
   }
 };
@@ -101,7 +101,7 @@ async function detectLocalStorage() {
       result.totalSize += size;
 
       // Classificar como conhecido ou desconhecido
-      if (KNOWN_KEYS.localStorage.includes(key) || key.startsWith('ifdesk_')) {
+      if (KNOWN_KEYS.localStorage.includes(key) || key.startsWith('SINGEM_')) {
         result.knownKeys.push(key);
       } else {
         result.unknownKeys.push(key);
@@ -197,14 +197,14 @@ async function detectIndexedDB() {
       }
     }
 
-    // Verificar banco de backup (IFDESK_Backup)
+    // Verificar banco de backup (SINGEM_Backup)
     try {
-      const backupDB = await openDatabase('IFDESK_Backup', 1);
+      const backupDB = await openDatabase('SINGEM_Backup', 1);
       if (backupDB) {
         const storeNames = Array.from(backupDB.objectStoreNames);
-        result.databases.push('IFDESK_Backup');
-        result.stores['IFDESK_Backup'] = storeNames;
-        result.details['IFDESK_Backup'] = {
+        result.databases.push('SINGEM_Backup');
+        result.stores['SINGEM_Backup'] = storeNames;
+        result.details['SINGEM_Backup'] = {
           version: backupDB.version,
           stores: {}
         };
@@ -212,9 +212,9 @@ async function detectIndexedDB() {
         for (const storeName of storeNames) {
           try {
             const count = await countRecordsInStore(backupDB, storeName);
-            result.details['IFDESK_Backup'].stores[storeName] = { count };
+            result.details['SINGEM_Backup'].stores[storeName] = { count };
           } catch (e) {
-            result.details['IFDESK_Backup'].stores[storeName] = { error: e.message };
+            result.details['SINGEM_Backup'].stores[storeName] = { error: e.message };
           }
         }
         backupDB.close();
@@ -337,7 +337,7 @@ function detectValueType(value) {
  * Imprime relatório completo de armazenamento no console
  */
 export async function printStorageReport() {
-  console.group('🗄️ IFDESK - Relatório de Armazenamento');
+  console.group('🗄️ SINGEM - Relatório de Armazenamento');
   console.log('═'.repeat(60));
 
   try {

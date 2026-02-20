@@ -1,6 +1,6 @@
 /**
  * ============================================================================
- * IFDESK - Configuração Centralizada de Menus
+ * SINGEM - Configuração Centralizada de Menus
  * ============================================================================
  *
  * Este arquivo define a estrutura de menus do sistema e aliases de ações
@@ -321,7 +321,7 @@ function auditMenuStructure() {
     return;
   }
 
-  console.group('📋 AUDITORIA DE MENUS - IFDESK');
+  console.group('📋 AUDITORIA DE MENUS - SINGEM');
 
   // Header
   console.group('🔝 Header Navigation');

@@ -1,5 +1,5 @@
 /**
- * IFDESK - Módulo de Validação de Nota Fiscal
+ * SINGEM - Módulo de Validação de Nota Fiscal
  * Validação cruzada NF ↔ Empenho (sem alterar dados)
  *
  * @version 1.0.0

@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Cadastro de Nota Fiscal - IFDESK</title>
+    <title>Cadastro de Nota Fiscal - SINGEM</title>
     <link rel="stylesheet" href="../css/style.css" />
     <link rel="icon" href="../html/favicon.svg" type="image/svg+xml" />
     <!-- Carregar validador de NF -->
@@ -991,7 +991,7 @@
 
     <script>
       // ==================================================
-      // CADASTRO MANUAL DE NOTA FISCAL - IFDESK
+      // CADASTRO MANUAL DE NOTA FISCAL - SINGEM
       // Módulo ERP com validação cruzada NF × Empenho
       // Versão 2.1.0 - Modal Modernizado
       // ==================================================
@@ -1095,7 +1095,7 @@
       // ==================================================
       function abrirBanco() {
         return new Promise((resolve, reject) => {
-          const req = indexedDB.open('IFDeskDB', 6);
+          const req = indexedDB.open('SINGEMDB', 6);
           req.onerror = () => reject(new Error('Erro ao abrir banco de dados'));
           req.onsuccess = () => resolve(req.result);
         });

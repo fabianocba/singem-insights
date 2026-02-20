@@ -1,6 +1,6 @@
 /**
  * ============================================================================
- * IFDESK - Módulo: Anexar PDF da NE
+ * SINGEM - Módulo: Anexar PDF da NE
  * ============================================================================
  *
  * Permite anexar um PDF de Nota de Empenho ao cadastro atual.
@@ -532,7 +532,7 @@ function initAnexarPdfNE() {
     console.log('Arquivo do formulário de empenho: index.html (empenhoScreen > tabCadastro)');
     console.log('Função que salva empenho: app.js → salvarEmpenho()');
     console.log('Função que obtém pasta de empenhos: fsManager.js → getOrCreateSubfolder("empenhos", ano)');
-    console.log('Padrão de pasta: IFDESK/[UNIDADE]/01_EMPENHOS/[ANO]/ ou legado');
+    console.log('Padrão de pasta: SINGEM/[UNIDADE]/01_EMPENHOS/[ANO]/ ou legado');
     console.log('Store de arquivos IndexedDB: "arquivos"');
     console.log('fsManager.mainDirectoryHandle:', window.fsManager?.mainDirectoryHandle?.name || 'NÃO CONFIGURADO');
     console.groupEnd();

@@ -1,5 +1,5 @@
 /* ui-integration.js
- * Integração do parser refinado na UI existente do IFDESK
+ * Integração do parser refinado na UI existente do SINGEM
  * - Adiciona checkbox "Usar Parser Refinado" nos uploads
  * - Modal "Ver Parsing" para visualizar resultado detalhado
  * - Integra com fluxo de upload de NE/NF sem quebrar o existente

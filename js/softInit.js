@@ -1,5 +1,5 @@
 /**
- * IFDESK - Inicializador Suave (Soft Init)
+ * SINGEM - Inicializador Suave (Soft Init)
  *
  * Este script carrega os novos utilitários de forma OPCIONAL e SEGURA.
  * Se algo falhar, o sistema continua funcionando normalmente.
@@ -8,7 +8,7 @@
  */
 
 (async function () {
-  console.info('🚀 IFDESK Soft Init - Carregando melhorias...');
+  console.info('🚀 SINGEM Soft Init - Carregando melhorias...');
 
   const loadedModules = {
     utils: false,
@@ -46,11 +46,11 @@
   console.table(loadedModules);
 
   if (loadedModules.utils) {
-    console.info('💡 Use window.IFDeskUtils para acessar utilitários');
+    console.info('💡 Use window.SINGEMUtils para acessar utilitários');
     console.info('📖 Exemplos:');
-    console.info('   - window.IFDeskUtils.validate.validateCNPJ("12.345.678/0001-90")');
-    console.info('   - window.IFDeskUtils.sanitize.escapeHTML(userInput)');
-    console.info('   - window.IFDeskUtils.logger.info("Mensagem de log")');
+    console.info('   - window.SINGEMUtils.validate.validateCNPJ("12.345.678/0001-90")');
+    console.info('   - window.SINGEMUtils.sanitize.escapeHTML(userInput)');
+    console.info('   - window.SINGEMUtils.logger.info("Mensagem de log")');
   }
 
   if (loadedModules.dbIntegration) {
@@ -63,10 +63,10 @@
 
   // Dispara evento customizado
   window.dispatchEvent(
-    new CustomEvent('ifdeskUtilsReady', {
+    new CustomEvent('SINGEMUtilsReady', {
       detail: loadedModules
     })
   );
 
-  console.info('🎉 IFDESK Soft Init concluído!');
+  console.info('🎉 SINGEM Soft Init concluído!');
 })();

@@ -1,12 +1,12 @@
-# Análise de Segurança - IFDESK
+﻿# AnÃ¡lise de SeguranÃ§a - SINGEM
 
-## ✅ Correções XSS Implementadas
+## âœ… CorreÃ§Ãµes XSS Implementadas
 
-### Riscos Críticos Corrigidos
+### Riscos CrÃ­ticos Corrigidos
 
 #### 1. **Imagens de Logomarca (Linhas 142, 156)**
 
-**Antes (Vulnerável a XSS):**
+**Antes (VulnerÃ¡vel a XSS):**
 
 ```javascript
 loginLogo.innerHTML = `<img src="${unidade.logomarca}" alt="Logo">`;
@@ -23,13 +23,13 @@ loginLogo.innerHTML = '';
 loginLogo.appendChild(img);
 ```
 
-**Impacto:** Previne injeção de código via URLs malformadas em logomarcas.
+**Impacto:** Previne injeÃ§Ã£o de cÃ³digo via URLs malformadas em logomarcas.
 
 ---
 
 #### 2. **Mensagens de Erro (Linha 494)**
 
-**Antes (Vulnerável a XSS):**
+**Antes (VulnerÃ¡vel a XSS):**
 
 ```javascript
 container.innerHTML = `<div class="alert alert-danger">Erro: ${error.message}</div>`;
@@ -49,9 +49,9 @@ container.appendChild(errorDiv);
 
 ---
 
-#### 3. **Nome de Usuário no Header (Linha 823)**
+#### 3. **Nome de UsuÃ¡rio no Header (Linha 823)**
 
-**Antes (Vulnerável a XSS):**
+**Antes (VulnerÃ¡vel a XSS):**
 
 ```javascript
 usuarioNome.innerHTML = `${perfil} <strong>${this.usuarioLogado.nome}</strong>`;
@@ -64,27 +64,27 @@ const nomeExibicao = this.usuarioLogado.nome || this.usuarioLogado.login;
 usuarioNome.textContent = `${perfil} ${nomeExibicao}`;
 ```
 
-**Impacto:** Previne XSS caso usuário insira código HTML em seu nome.
+**Impacto:** Previne XSS caso usuÃ¡rio insira cÃ³digo HTML em seu nome.
 
 ---
 
-## 🛠️ Módulos de Segurança Criados
+## ðŸ› ï¸ MÃ³dulos de SeguranÃ§a Criados
 
 ### 1. **InputValidator** (`js/core/inputValidator.js`)
 
-Validação robusta de todos os dados de entrada:
+ValidaÃ§Ã£o robusta de todos os dados de entrada:
 
 ```javascript
 // Validar empenho completo
 const { valid, errors } = InputValidator.validateEmpenho(empenho);
 if (!valid) {
-  console.error('Erros de validação:', errors);
+  console.error('Erros de validaÃ§Ã£o:', errors);
   return;
 }
 
 // Validar CNPJ
 if (!InputValidator.isValidCNPJ('12.345.678/0001-90')) {
-  alert('CNPJ inválido');
+  alert('CNPJ invÃ¡lido');
 }
 
 // Validar arquivo PDF
@@ -99,19 +99,19 @@ const cleanText = InputValidator.sanitizeString(userInput);
 
 **Funcionalidades:**
 
-- ✅ Validação completa de empenhos e notas fiscais
-- ✅ Validação de itens (quantidade, valores, consistência)
-- ✅ Validação de CNPJ (com dígitos verificadores)
-- ✅ Validação de datas (formatos ISO e BR)
-- ✅ Validação de arquivos PDF (tipo e tamanho)
-- ✅ Validação de credenciais de login
-- ✅ Sanitização de strings (remove HTML e caracteres de controle)
+- âœ… ValidaÃ§Ã£o completa de empenhos e notas fiscais
+- âœ… ValidaÃ§Ã£o de itens (quantidade, valores, consistÃªncia)
+- âœ… ValidaÃ§Ã£o de CNPJ (com dÃ­gitos verificadores)
+- âœ… ValidaÃ§Ã£o de datas (formatos ISO e BR)
+- âœ… ValidaÃ§Ã£o de arquivos PDF (tipo e tamanho)
+- âœ… ValidaÃ§Ã£o de credenciais de login
+- âœ… SanitizaÃ§Ã£o de strings (remove HTML e caracteres de controle)
 
 ---
 
 ### 2. **HTMLSanitizer** (`js/core/htmlSanitizer.js`)
 
-Prevenção de XSS em inserções de HTML:
+PrevenÃ§Ã£o de XSS em inserÃ§Ãµes de HTML:
 
 ```javascript
 // Sanitizar HTML (remove scripts e elementos perigosos)
@@ -120,10 +120,10 @@ const cleanHTML = HTMLSanitizer.sanitize(userGeneratedHTML);
 // Escapar texto puro (converte < > & " ')
 const escaped = HTMLSanitizer.escape(userText);
 
-// Inserção segura de texto
+// InserÃ§Ã£o segura de texto
 HTMLSanitizer.setText(element, userInput);
 
-// Inserção segura de HTML sanitizado
+// InserÃ§Ã£o segura de HTML sanitizado
 HTMLSanitizer.setHTML(element, '<p>Texto <strong>seguro</strong></p>');
 
 // Criar elementos seguros
@@ -135,33 +135,33 @@ const link = HTMLSanitizer.createElement('a', 'Clique aqui', {
 
 **Funcionalidades:**
 
-- ✅ Whitelist de tags permitidas (p, strong, div, table, etc)
-- ✅ Whitelist de atributos por tag (href, src, alt, class)
-- ✅ Validação de protocolos em URLs (http, https, mailto)
-- ✅ Remoção automática de event handlers (onclick, onerror)
-- ✅ Remoção de javascript: e data: URIs
-- ✅ Helpers para inserção segura (setText, setHTML, createElement)
+- âœ… Whitelist de tags permitidas (p, strong, div, table, etc)
+- âœ… Whitelist de atributos por tag (href, src, alt, class)
+- âœ… ValidaÃ§Ã£o de protocolos em URLs (http, https, mailto)
+- âœ… RemoÃ§Ã£o automÃ¡tica de event handlers (onclick, onerror)
+- âœ… RemoÃ§Ã£o de javascript: e data: URIs
+- âœ… Helpers para inserÃ§Ã£o segura (setText, setHTML, createElement)
 
 ---
 
-## 📊 Métricas de Segurança
+## ðŸ“Š MÃ©tricas de SeguranÃ§a
 
 ### Vulnerabilidades Corrigidas
 
-- **XSS Critical**: 3 ocorrências corrigidas
-- **XSS Medium**: 0 (restantes são de baixo risco)
+- **XSS Critical**: 3 ocorrÃªncias corrigidas
+- **XSS Medium**: 0 (restantes sÃ£o de baixo risco)
 - **Prototype Pollution**: 2 corrigidas (hasOwnProperty)
 
-### Cobertura de Proteção
+### Cobertura de ProteÃ§Ã£o
 
-- ✅ **Inputs de usuário**: 100% validados com InputValidator
-- ✅ **Outputs HTML**: 100% protegidos em pontos críticos
-- ✅ **Uploads de arquivo**: Validação de tipo e tamanho
-- ✅ **Credenciais**: Validação de formato
+- âœ… **Inputs de usuÃ¡rio**: 100% validados com InputValidator
+- âœ… **Outputs HTML**: 100% protegidos em pontos crÃ­ticos
+- âœ… **Uploads de arquivo**: ValidaÃ§Ã£o de tipo e tamanho
+- âœ… **Credenciais**: ValidaÃ§Ã£o de formato
 
 ---
 
-## 🔍 Análise de Riscos Restantes
+## ðŸ” AnÃ¡lise de Riscos Restantes
 
 ### Baixo Risco (innerHTML em contextos controlados)
 
@@ -171,7 +171,7 @@ const link = HTMLSanitizer.createElement('a', 'Clique aqui', {
 select.innerHTML = '<option value="">Selecione...</option>';
 ```
 
-**Status:** ✅ Seguro - strings estáticas sem dados de usuário.
+**Status:** âœ… Seguro - strings estÃ¡ticas sem dados de usuÃ¡rio.
 
 #### 2. **Clear de Containers (Linhas 1742, 391)**
 
@@ -179,7 +179,7 @@ select.innerHTML = '<option value="">Selecione...</option>';
 container.innerHTML = '';
 ```
 
-**Status:** ✅ Seguro - apenas limpeza, sem inserção de dados.
+**Status:** âœ… Seguro - apenas limpeza, sem inserÃ§Ã£o de dados.
 
 #### 3. **Templates de Tabela (Linhas 331, 383, 472)**
 
@@ -187,67 +187,67 @@ container.innerHTML = '';
 container.innerHTML = `<table>...</table>`;
 ```
 
-**Status:** ⚠️ **Verificar** - se dados vêm de banco local (sem input externo), é seguro. Recomenda-se usar `textContent` para células de dados.
+**Status:** âš ï¸ **Verificar** - se dados vÃªm de banco local (sem input externo), Ã© seguro. Recomenda-se usar `textContent` para cÃ©lulas de dados.
 
 ---
 
-## 📝 Recomendações de Uso
+## ðŸ“ RecomendaÃ§Ãµes de Uso
 
 ### Para Desenvolvedores
 
-#### ✅ Sempre use `textContent` para texto puro
+#### âœ… Sempre use `textContent` para texto puro
 
 ```javascript
-// ✅ CORRETO
+// âœ… CORRETO
 element.textContent = userInput;
 
-// ❌ ERRADO
+// âŒ ERRADO
 element.innerHTML = userInput;
 ```
 
-#### ✅ Use InputValidator antes de salvar dados
+#### âœ… Use InputValidator antes de salvar dados
 
 ```javascript
-// ✅ CORRETO
+// âœ… CORRETO
 const { valid, errors } = InputValidator.validateEmpenho(dados);
 if (!valid) {
-  alert('Dados inválidos: ' + errors.join(', '));
+  alert('Dados invÃ¡lidos: ' + errors.join(', '));
   return;
 }
 await dbManager.salvarEmpenho(dados);
 ```
 
-#### ✅ Use HTMLSanitizer para HTML dinâmico
+#### âœ… Use HTMLSanitizer para HTML dinÃ¢mico
 
 ```javascript
-// ✅ CORRETO
+// âœ… CORRETO
 HTMLSanitizer.setHTML(container, richTextContent);
 
-// ❌ ERRADO
+// âŒ ERRADO
 container.innerHTML = richTextContent;
 ```
 
-#### ✅ Crie elementos dinamicamente
+#### âœ… Crie elementos dinamicamente
 
 ```javascript
-// ✅ CORRETO
+// âœ… CORRETO
 const img = document.createElement('img');
 img.src = url;
 img.alt = description;
 container.appendChild(img);
 
-// ❌ ERRADO
+// âŒ ERRADO
 container.innerHTML = `<img src="${url}" alt="${description}">`;
 ```
 
 ---
 
-## 🧪 Testes de Segurança Sugeridos
+## ðŸ§ª Testes de SeguranÃ§a Sugeridos
 
 ### Payloads XSS para Testar
 
 ```javascript
-// 1. Testar input de nome de usuário
+// 1. Testar input de nome de usuÃ¡rio
 const xssPayloads = [
   '<script>alert("XSS")</script>',
   '<img src=x onerror=alert("XSS")>',
@@ -259,7 +259,7 @@ const xssPayloads = [
 // 2. Testar CNPJ com caracteres especiais
 InputValidator.isValidCNPJ('<script>alert(1)</script>'); // deve retornar false
 
-// 3. Testar sanitização de HTML
+// 3. Testar sanitizaÃ§Ã£o de HTML
 const dirty = '<script>alert("XSS")</script><p>Texto limpo</p>';
 const clean = HTMLSanitizer.sanitize(dirty);
 console.assert(clean === '<p>Texto limpo</p>');
@@ -267,35 +267,35 @@ console.assert(clean === '<p>Texto limpo</p>');
 
 ---
 
-## ⚡ Próximos Passos (Fase 2 - Continuação)
+## âš¡ PrÃ³ximos Passos (Fase 2 - ContinuaÃ§Ã£o)
 
-### 1. ✅ Implementado
+### 1. âœ… Implementado
 
-- [x] Correção XSS críticas (logomarca, error.message, usuário.nome)
-- [x] Módulo InputValidator completo
-- [x] Módulo HTMLSanitizer completo
-- [x] Documentação de segurança
+- [x] CorreÃ§Ã£o XSS crÃ­ticas (logomarca, error.message, usuÃ¡rio.nome)
+- [x] MÃ³dulo InputValidator completo
+- [x] MÃ³dulo HTMLSanitizer completo
+- [x] DocumentaÃ§Ã£o de seguranÃ§a
 
-### 2. ⏳ Pendente
+### 2. â³ Pendente
 
-- [ ] Aplicar InputValidator em todos os formulários
-- [ ] Substituir innerHTML restantes por HTMLSanitizer onde necessário
+- [ ] Aplicar InputValidator em todos os formulÃ¡rios
+- [ ] Substituir innerHTML restantes por HTMLSanitizer onde necessÃ¡rio
 - [ ] Implementar CSRF tokens (se houver backend)
 - [ ] Auditoria de SQL Injection (verificar IndexedDB queries)
 - [ ] Rate limiting para login (prevenir brute force)
 - [ ] Content Security Policy (CSP) headers
 - [ ] Subresource Integrity (SRI) para CDNs
 
-### 3. 🔄 Refatoração de Complexidade
+### 3. ðŸ”„ RefatoraÃ§Ã£o de Complexidade
 
-- [ ] Dividir `processarEmpenhoUpload` (complexity: 33 → <15)
-- [ ] Dividir `salvarNotaFiscal` (complexity: 21 → <15)
-- [ ] Dividir `salvarEmpenho` (complexity: 17 → <15)
-- [ ] Dividir app.js (2886 linhas → módulos <800 linhas)
+- [ ] Dividir `processarEmpenhoUpload` (complexity: 33 â†’ <15)
+- [ ] Dividir `salvarNotaFiscal` (complexity: 21 â†’ <15)
+- [ ] Dividir `salvarEmpenho` (complexity: 17 â†’ <15)
+- [ ] Dividir app.js (2886 linhas â†’ mÃ³dulos <800 linhas)
 
 ---
 
-## 📚 Recursos e Referências
+## ðŸ“š Recursos e ReferÃªncias
 
 - **OWASP Top 10**: https://owasp.org/www-project-top-ten/
 - **XSS Prevention Cheat Sheet**: https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html
@@ -304,13 +304,14 @@ console.assert(clean === '<p>Texto limpo</p>');
 
 ---
 
-**Status da Fase 2 (Segurança)**: 🟡 **40% Completo**
+**Status da Fase 2 (SeguranÃ§a)**: ðŸŸ¡ **40% Completo**
 
-- ✅ XSS Prevention: 80% (críticos corrigidos)
-- ✅ Input Validation: 100% (módulo completo)
-- ⏳ CSRF Protection: 0%
-- ⏳ Rate Limiting: 0%
-- ⏳ CSP/SRI: 0%
+- âœ… XSS Prevention: 80% (crÃ­ticos corrigidos)
+- âœ… Input Validation: 100% (mÃ³dulo completo)
+- â³ CSRF Protection: 0%
+- â³ Rate Limiting: 0%
+- â³ CSP/SRI: 0%
 
 **Data:** 2025-06-12  
-**Revisor:** GitHub Copilot (Análise Sênior de Segurança)
+**Revisor:** GitHub Copilot (AnÃ¡lise SÃªnior de SeguranÃ§a)
+

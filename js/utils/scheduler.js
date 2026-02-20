@@ -1,5 +1,5 @@
 /**
- * IFDESK - Utilitários de Agendamento
+ * SINGEM - Utilitários de Agendamento
  * @module utils/scheduler
  *
  * Funções para agendar tarefas de forma otimizada.

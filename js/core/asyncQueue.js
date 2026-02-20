@@ -5,7 +5,7 @@
 
 import { emit } from './eventBus.js';
 
-const DB_NAME = 'IFDESK_DB';
+const DB_NAME = 'SINGEM_DB';
 const STORE_NAME = 'async_queue';
 const DB_VERSION = 1;
 

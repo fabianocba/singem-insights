@@ -1,5 +1,5 @@
 /**
- * IFDESK - Report Repository
+ * SINGEM - Report Repository
  * Camada de acesso a dados otimizada para relatórios
  * @version 1.0.0
  */
