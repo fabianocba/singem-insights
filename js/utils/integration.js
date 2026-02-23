@@ -127,12 +127,30 @@ export function enhanceDBManager() {
     return;
   }
 
+  // Em modo servidor PostgreSQL, não adicionar métodos que dependem de IndexedDB
+  const isServerMode =
+    window.CONFIG?.storage?.mode === 'server' ||
+    window.dbManager?.db?.mode === 'server-postgres' ||
+    window.dbManager?.mode === 'server-postgres' ||
+    (window.dbManager?.db && typeof window.dbManager.db.transaction !== 'function');
+
+  if (isServerMode) {
+    console.info('[Integration] Modo servidor: safeTransaction não adicionado (usa API PostgreSQL)');
+    return;
+  }
+
   // Adiciona método safe para operações críticas
   if (!window.dbManager.safeTransaction) {
     window.dbManager.safeTransaction = Guard.safeAsync(
       async (storeName, mode, callback) => {
         if (!window.dbManager.db) {
           throw new Error('Banco de dados não inicializado');
+        }
+
+        // Verificação defensiva adicional
+        if (typeof window.dbManager.db.transaction !== 'function') {
+          console.warn('[Integration] db.transaction não disponível (modo servidor?)');
+          return null;
         }
 
         return new Promise((resolve, reject) => {

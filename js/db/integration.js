@@ -12,12 +12,35 @@ import * as IDBUtils from './indexeddb-utils.js';
 import { retryWithBackoff } from '../utils/guard.js';
 
 /**
+ * Detecta se está em modo servidor PostgreSQL
+ */
+function isServerMode() {
+  return (
+    window.CONFIG?.storage?.mode === 'server' ||
+    window.dbManager?.db?.mode === 'server-postgres' ||
+    window.dbManager?.mode === 'server-postgres'
+  );
+}
+
+/**
  * Adiciona métodos utilitários ao dbManager existente
  */
 export function enhanceDBManager() {
+  // Em modo servidor PostgreSQL, não injetar métodos IndexedDB
+  if (isServerMode()) {
+    console.info('[DBIntegration] Modo servidor: IndexedDB integration desativada');
+    return true;
+  }
+
   if (!window.dbManager) {
     console.warn('⚠️ window.dbManager não encontrado ainda');
     return false;
+  }
+
+  // Verificação defensiva: se db existe mas não tem transaction, é modo servidor
+  if (window.dbManager.db && typeof window.dbManager.db.transaction !== 'function') {
+    console.info('[DBIntegration] db.transaction não disponível: pulando enhance');
+    return true;
   }
 
   // ========================================
@@ -30,6 +53,11 @@ export function enhanceDBManager() {
    */
   if (!window.dbManager.withTransaction) {
     window.dbManager.withTransaction = function (storeNames, mode, callback) {
+      // Verificação defensiva em runtime
+      if (typeof this.db?.transaction !== 'function') {
+        console.warn('[DBIntegration] withTransaction ignorado: modo servidor');
+        return Promise.resolve(null);
+      }
       return IDBUtils.withTx(this.db, storeNames, mode, callback);
     };
   }
@@ -40,6 +68,11 @@ export function enhanceDBManager() {
    */
   if (!window.dbManager.batchInsert) {
     window.dbManager.batchInsert = async function (storeName, items, options) {
+      // Verificação defensiva em runtime
+      if (typeof this.db?.transaction !== 'function') {
+        console.warn('[DBIntegration] batchInsert ignorado: modo servidor');
+        return [];
+      }
       return IDBUtils.batchPut(this.db, storeName, items, options);
     };
   }
@@ -157,6 +190,12 @@ export function enhanceDBManager() {
  * Aguarda dbManager estar disponível e adiciona melhorias
  */
 export async function waitAndEnhance() {
+  // Em modo servidor, não tentar adicionar métodos IndexedDB
+  if (isServerMode()) {
+    console.info('[DBIntegration] Modo servidor detectado: pulando waitAndEnhance');
+    return true;
+  }
+
   // Se dbManager já existe, melhora imediatamente
   if (window.dbManager) {
     return enhanceDBManager();
@@ -169,6 +208,14 @@ export async function waitAndEnhance() {
 
     const interval = setInterval(() => {
       attempts++;
+
+      // Verificar modo servidor a cada tentativa (pode mudar durante init)
+      if (isServerMode()) {
+        clearInterval(interval);
+        console.info('[DBIntegration] Modo servidor detectado durante espera: pulando enhance');
+        resolve(true);
+        return;
+      }
 
       if (window.dbManager) {
         clearInterval(interval);

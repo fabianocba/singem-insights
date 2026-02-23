@@ -90,15 +90,15 @@ storage/nfe/
 
 ### Endpoints DisponÃ­veis
 
-| MÃ©todo | Endpoint                | DescriÃ§Ã£o               |
-| ------ | ----------------------- | ----------------------- |
-| `POST` | `/api/nfe/importar`     | Importar NF-e via SEFAZ |
-| `POST` | `/api/nfe/upload`       | Upload de arquivo XML   |
-| `POST` | `/api/nfe/upload-text`  | Enviar XML como texto   |
-| `GET`  | `/api/nfe/danfe/:chave` | Obter PDF do DANFE      |
-| `GET`  | `/api/nfe/xml/:chave`   | Obter XML da NF-e       |
-| `GET`  | `/api/nfe/listar`       | Listar NF-e importadas  |
-| `GET`  | `/api/nfe/status`       | Status do serviÃ§o       |
+| MÃ©todo | Endpoint                | DescriÃ§Ã£o             |
+| -------- | ----------------------- | ----------------------- |
+| `POST`   | `/api/nfe/importar`     | Importar NF-e via SEFAZ |
+| `POST`   | `/api/nfe/upload`       | Upload de arquivo XML   |
+| `POST`   | `/api/nfe/upload-text`  | Enviar XML como texto   |
+| `GET`    | `/api/nfe/danfe/:chave` | Obter PDF do DANFE      |
+| `GET`    | `/api/nfe/xml/:chave`   | Obter XML da NF-e       |
+| `GET`    | `/api/nfe/listar`       | Listar NF-e importadas  |
+| `GET`    | `/api/nfe/status`       | Status do serviÃ§o      |
 
 ### Exemplos de Uso
 
@@ -289,4 +289,3 @@ npm start
 - IntegraÃ§Ã£o SEFAZ DF-e
 - GeraÃ§Ã£o de DANFE em PDF
 - Interface de importaÃ§Ã£o
-

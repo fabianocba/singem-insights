@@ -110,4 +110,3 @@ Isso evita precisar fazer CTRL+F5 toda vez que mudar o cÃ³digo!
 - **Sistema**: SINGEM v1.2.7
 - **Cache Version**: 20251105-002
 - **Data**: 05/11/2025
-

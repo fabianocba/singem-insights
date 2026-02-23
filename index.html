@@ -102,6 +102,46 @@
 
               <button id="btnLogin" class="btn btn-primary btn-block">🔐 Entrar</button>
 
+              <!-- Separador -->
+              <div
+                class="login-separator"
+                style="display: flex; align-items: center; margin: 20px 0; gap: 10px"
+              >
+                <hr style="flex: 1; border: none; border-top: 1px solid #ddd" />
+                <span style="color: #888; font-size: 13px">ou</span>
+                <hr style="flex: 1; border: none; border-top: 1px solid #ddd" />
+              </div>
+
+              <!-- Botão SerproID -->
+              <a
+                id="btnSerproID"
+                href="#"
+                onclick="window.location.href = (window.CONFIG?.api?.baseUrl || 'http://localhost:3000') + '/api/auth/serproid/login'; return false;"
+                class="btn btn-outline btn-block"
+                style="
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  gap: 10px;
+                  padding: 12px 20px;
+                  border: 2px solid #1351b4;
+                  color: #1351b4;
+                  text-decoration: none;
+                  border-radius: 6px;
+                  font-weight: 500;
+                  transition: all 0.2s;
+                "
+                onmouseover="this.style.backgroundColor='#1351b4'; this.style.color='#fff';"
+                onmouseout="this.style.backgroundColor='transparent'; this.style.color='#1351b4';"
+              >
+                <img
+                  src="img/icone-serproid-1024px.png"
+                  alt="SerproID"
+                  style="height: 24px; width: auto"
+                />
+                Entrar com SerproID
+              </a>
+
               <div id="loginError" class="login-error hidden"></div>
 
               <div class="login-footer">

@@ -33,13 +33,13 @@ SINGEM/
 
 **Status:** ðŸ“¦ Podem ser movidos para pasta `/testes/`
 
-| Arquivo                    | Tamanho     | Uso                        |
-| -------------------------- | ----------- | -------------------------- |
-| `teste.html`               | 817 linhas  | Testes gerais do sistema   |
+| Arquivo                    | Tamanho     | Uso                         |
+| -------------------------- | ----------- | --------------------------- |
+| `teste.html`               | 817 linhas  | Testes gerais do sistema    |
 | `teste-ne-parser.html`     | 504 linhas  | Teste especÃ­fico NE Parser |
 | `teste-nf-parser.html`     | 408 linhas  | Teste anÃ¡lise de NF        |
-| `teste-nf-validacao.html`  | ~800 linhas | ValidaÃ§Ã£o de NF            |
-| `teste-comparacao-nf.html` | ~600 linhas | ComparaÃ§Ã£o NE vs NF        |
+| `teste-nf-validacao.html`  | ~800 linhas | ValidaÃ§Ã£o de NF           |
+| `teste-comparacao-nf.html` | ~600 linhas | ComparaÃ§Ã£o NE vs NF       |
 
 **AÃ§Ã£o Sugerida:** Mover para `/testes/` mantendo referÃªncias
 
@@ -49,20 +49,20 @@ SINGEM/
 
 **Status:** ðŸ“¦ Podem ser movidos para `/data/exemplos/`
 
-| Arquivo                                | Tipo | ObservaÃ§Ã£o                    |
-| -------------------------------------- | ---- | ----------------------------- |
-| `NE 039 CGSM COMERCIO.pdf`             | NE   | Usado em testes automatizados |
-| `NF 009 ELETROMAXX.pdf`                | NF   | Exemplo                       |
-| `NF 12619025 DIEGO.pdf`                | NF   | Exemplo                       |
-| `NF 1263 GDA DISTRIBUIÃ‡ÃƒO - Copia.pdf` | NF   | âš ï¸ Duplicado                  |
+| Arquivo                                  | Tipo | ObservaÃ§Ã£o                  |
+| ---------------------------------------- | ---- | ----------------------------- |
+| `NE 039 CGSM COMERCIO.pdf`               | NE   | Usado em testes automatizados |
+| `NF 009 ELETROMAXX.pdf`                  | NF   | Exemplo                       |
+| `NF 12619025 DIEGO.pdf`                  | NF   | Exemplo                       |
+| `NF 1263 GDA DISTRIBUIÃ‡ÃƒO - Copia.pdf` | NF   | âš ï¸ Duplicado               |
 | `NF 1263 GDA DISTRIBUIÃ‡ÃƒO.pdf`         | NF   | Original                      |
-| `NF 12938725 ALTIERES.pdf`             | NF   | Exemplo                       |
-| `NF 1428 LENES.pdf`                    | NF   | Exemplo                       |
-| `NF 243 TRIUNFAL.pdf`                  | NF   | Exemplo                       |
-| `NF 375488 GRAFICA UNIAO.pdf`          | NF   | Exemplo                       |
-| `NF 382 CGSM.pdf`                      | NF   | Usado em testes               |
-| `NF 706 RITALY.pdf`                    | NF   | Exemplo                       |
-| `NF 8525 AGRORURAL.pdf`                | NF   | Exemplo                       |
+| `NF 12938725 ALTIERES.pdf`               | NF   | Exemplo                       |
+| `NF 1428 LENES.pdf`                      | NF   | Exemplo                       |
+| `NF 243 TRIUNFAL.pdf`                    | NF   | Exemplo                       |
+| `NF 375488 GRAFICA UNIAO.pdf`            | NF   | Exemplo                       |
+| `NF 382 CGSM.pdf`                        | NF   | Usado em testes               |
+| `NF 706 RITALY.pdf`                      | NF   | Exemplo                       |
+| `NF 8525 AGRORURAL.pdf`                  | NF   | Exemplo                       |
 
 **AÃ§Ã£o Sugerida:**
 
@@ -139,18 +139,18 @@ console.log("CÃ³digo detectado:", result.text);            // Linha 478
 
 **Status:** âœ… Bem organizada, apenas consolidar
 
-| Arquivo                          | Tamanho       | Status                 |
-| -------------------------------- | ------------- | ---------------------- |
-| `README.md`                      | Principal     | âœ… Manter              |
-| `CHANGELOG.md`                   | HistÃ³rico     | âœ… Manter              |
-| `GUIA_INICIO_RAPIDO.md`          | Tutorial      | âœ… Manter              |
-| `GUIA_USO_APLICACAO.md`          | Manual        | âœ… Manter              |
-| `LEIA-ME_NE_PARSER.md`           | Doc NE        | âš ï¸ Mover para /docs/   |
-| `IMPLEMENTACAO_NE_PARSER.md`     | Doc tÃ©cnica   | âš ï¸ Mover para /docs/   |
-| `IMPLEMENTACAO_CONFIGURACOES.md` | Doc tÃ©cnica   | âš ï¸ Mover para /docs/   |
-| `INTEGRACOES_APLICADAS.md`       | Doc tÃ©cnica   | âš ï¸ Mover para /docs/   |
+| Arquivo                          | Tamanho        | Status                    |
+| -------------------------------- | -------------- | ------------------------- |
+| `README.md`                      | Principal      | âœ… Manter                |
+| `CHANGELOG.md`                   | HistÃ³rico     | âœ… Manter                |
+| `GUIA_INICIO_RAPIDO.md`          | Tutorial       | âœ… Manter                |
+| `GUIA_USO_APLICACAO.md`          | Manual         | âœ… Manter                |
+| `LEIA-ME_NE_PARSER.md`           | Doc NE         | âš ï¸ Mover para /docs/   |
+| `IMPLEMENTACAO_NE_PARSER.md`     | Doc tÃ©cnica  | âš ï¸ Mover para /docs/   |
+| `IMPLEMENTACAO_CONFIGURACOES.md` | Doc tÃ©cnica  | âš ï¸ Mover para /docs/   |
+| `INTEGRACOES_APLICADAS.md`       | Doc tÃ©cnica  | âš ï¸ Mover para /docs/   |
 | `RESTRICOES_SEGURANCA.md`        | Doc seguranÃ§a | âš ï¸ Mover para /docs/   |
-| `TESTE_EMPENHOS.md`              | Doc teste     | âš ï¸ Mover para /testes/ |
+| `TESTE_EMPENHOS.md`              | Doc teste      | âš ï¸ Mover para /testes/ |
 
 **AÃ§Ã£o Sugerida:** Reorganizar documentaÃ§Ã£o em estrutura lÃ³gica
 
@@ -354,4 +354,3 @@ Antes de aplicar qualquer mudanÃ§a:
 **Aguardando aprovaÃ§Ã£o para prosseguir com a limpeza.**
 
 ðŸ”’ Lembrando: **Nenhuma funcionalidade serÃ¡ alterada, apenas organizaÃ§Ã£o.**
-

@@ -7,7 +7,9 @@ let regOnce = null;
 function canReload() {
   const now = Date.now();
   const last = Number(sessionStorage.getItem(RELOAD_KEY) || 0);
-  if (now - last < RELOAD_TTL) return false;
+  if (now - last < RELOAD_TTL) {
+    return false;
+  }
   sessionStorage.setItem(RELOAD_KEY, String(now));
   setTimeout(() => sessionStorage.removeItem(RELOAD_KEY), RELOAD_TTL);
   return true;
@@ -15,7 +17,9 @@ function canReload() {
 
 function postSW(worker, payload) {
   return new Promise((resolve) => {
-    if (!worker) return resolve({ ok: false });
+    if (!worker) {
+      return resolve({ ok: false });
+    }
     const channel = new MessageChannel();
     channel.port1.onmessage = (event) => resolve(event.data || { ok: true });
     worker.postMessage(payload, [channel.port2]);
@@ -31,8 +35,12 @@ function renderVersionInUI() {
 }
 
 export async function registerServiceWorker() {
-  if (!('serviceWorker' in navigator)) return null;
-  if (regOnce) return regOnce;
+  if (!('serviceWorker' in navigator)) {
+    return null;
+  }
+  if (regOnce) {
+    return regOnce;
+  }
 
   regOnce = (async () => {
     console.info('[VM]', VERSION_DISPLAY);
@@ -43,7 +51,9 @@ export async function registerServiceWorker() {
     registration.addEventListener('updatefound', () => {
       console.info('[VM] Nova versão do SW encontrada');
       const newWorker = registration.installing;
-      if (!newWorker) return;
+      if (!newWorker) {
+        return;
+      }
 
       newWorker.addEventListener('statechange', async () => {
         if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {

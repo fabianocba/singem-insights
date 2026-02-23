@@ -316,24 +316,24 @@ Setup global de testes:
 
 ### Antes vs Depois
 
-| MÃ©trica                  | Antes     | Depois       | Melhoria |
-| ------------------------ | --------- | ------------ | -------- |
-| **Problemas de Lint**    | 142       | 138          | -3%      |
-| **Complexity >15**       | 6 mÃ©todos | 3 mÃ©todos    | -50%     |
-| **ValidaÃ§Ã£o de Entrada** | Manual    | Automatizada | +100%    |
-| **Cobertura de Testes**  | 0%        | 32 testes    | âœ…       |
-| **MÃ©todos Auxiliares**   | 0         | 10 novos     | +âˆž       |
-| **Linhas Refatoradas**   | 0         | ~300         | âœ…       |
+| MÃ©trica                  | Antes       | Depois       | Melhoria |
+| -------------------------- | ----------- | ------------ | -------- |
+| **Problemas de Lint**      | 142         | 138          | -3%      |
+| **Complexity >15**         | 6 mÃ©todos | 3 mÃ©todos  | -50%     |
+| **ValidaÃ§Ã£o de Entrada** | Manual      | Automatizada | +100%    |
+| **Cobertura de Testes**    | 0%          | 32 testes    | âœ…      |
+| **MÃ©todos Auxiliares**   | 0           | 10 novos     | +âˆž     |
+| **Linhas Refatoradas**     | 0           | ~300         | âœ…      |
 
 ### Complexity Detalhada
 
-| MÃ©todo                   | Antes | Depois | Status                  |
-| ------------------------ | ----- | ------ | ----------------------- |
-| `processarEmpenhoUpload` | 34    | <15    | âœ… RESOLVIDO            |
-| `salvarEmpenho`          | 18    | <15    | âœ… RESOLVIDO            |
+| MÃ©todo                 | Antes | Depois | Status                     |
+| ------------------------ | ----- | ------ | -------------------------- |
+| `processarEmpenhoUpload` | 34    | <15    | âœ… RESOLVIDO              |
+| `salvarEmpenho`          | 18    | <15    | âœ… RESOLVIDO              |
 | `salvarNotaFiscal`       | 22    | 16     | âš ï¸ -27% (ainda 1 acima) |
-| `carregarDadosUnidade`   | 18    | 18     | â³ Pendente             |
-| `realizarLogin`          | 17    | 17     | â³ Pendente             |
+| `carregarDadosUnidade`   | 18    | 18     | â³ Pendente                |
+| `realizarLogin`          | 17    | 17     | â³ Pendente                |
 | `_gerarMensagemResumo`   | -     | 20     | âš ï¸ Criado (complexo)    |
 
 ---
@@ -490,4 +490,3 @@ singem/
 **Assinatura:** GitHub Copilot (Revisor SÃªnior)  
 **Data:** 6 de novembro de 2025, 18:25  
 **Status:** âœ… **APROVADO PARA PRODUÃ‡ÃƒO**
-

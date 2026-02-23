@@ -465,4 +465,3 @@ btnExcluir.addEventListener('click', async () => {
 **Data**: 07/11/2025  
 **VersÃ£o**: 1.0  
 **Status**: âœ… ImplementaÃ§Ã£o ConcluÃ­da (aguardando integraÃ§Ã£o)
-

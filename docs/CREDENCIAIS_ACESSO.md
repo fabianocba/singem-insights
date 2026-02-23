@@ -136,4 +136,3 @@ Requisitos mÃ­nimos:
 
 **Desenvolvido para IF Baiano - Campus**  
 _Sistema de Controle de Material - SINGEM v1.2.2_
-

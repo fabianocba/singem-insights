@@ -145,4 +145,3 @@ console.log(window.teste);
 4. Screenshot da tela se possÃ­vel
 
 **Com essas informaÃ§Ãµes vou identificar exatamente onde estÃ¡ o problema!**
-

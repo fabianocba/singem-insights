@@ -314,4 +314,3 @@ console.assert(clean === '<p>Texto limpo</p>');
 
 **Data:** 2025-06-12  
 **Revisor:** GitHub Copilot (AnÃ¡lise SÃªnior de SeguranÃ§a)
-

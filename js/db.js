@@ -2119,12 +2119,16 @@ function applyServerDatabaseAdapter() {
   };
 
   manager.get = async function get(storeName, key) {
-    if (storeName !== 'config') return null;
+    if (storeName !== 'config') {
+      return null;
+    }
     return this._serverConfigStore.get(key) || null;
   };
 
   manager.update = async function update(storeName, data) {
-    if (storeName !== 'config') return data;
+    if (storeName !== 'config') {
+      return data;
+    }
     if (data?.id) {
       this._serverConfigStore.set(data.id, data);
     }
@@ -2132,7 +2136,9 @@ function applyServerDatabaseAdapter() {
   };
 
   manager.getAll = async function getAll(storeName) {
-    if (storeName !== 'config') return [];
+    if (storeName !== 'config') {
+      return [];
+    }
     return Array.from(this._serverConfigStore.values());
   };
 

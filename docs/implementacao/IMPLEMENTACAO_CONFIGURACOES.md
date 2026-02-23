@@ -176,12 +176,12 @@ SINGEM/
 
 ### Store: `config`
 
-| ID                    | ConteÃºdo              | Estrutura                                                                                                                                 |
-| --------------------- | --------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| ID                    | ConteÃºdo               | Estrutura                                                                                                                                 |
+| --------------------- | ----------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
 | `unidadeOrcamentaria` | Dados da instituiÃ§Ã£o  | `{ id, razaoSocial, cnpj, cnpjNumeros, ug, endereco, municipio, uf, dataAtualizacao }`                                                    |
-| `usuarios`            | Lista de usuÃ¡rios     | `{ id: 'usuarios', lista: [{ id, nome, login, senhaHash, perfil, ativo, dataCriacao, dataAtualizacao }] }`                                |
+| `usuarios`            | Lista de usuÃ¡rios      | `{ id: 'usuarios', lista: [{ id, nome, login, senhaHash, perfil, ativo, dataCriacao, dataAtualizacao }] }`                                |
 | `rede`                | ConfiguraÃ§Ãµes de rede | `{ id: 'rede', habilitado, ip, porta, intervaloSync, urlBase, dataAtualizacao }`                                                          |
-| `preferencias`        | PreferÃªncias gerais   | `{ id: 'preferencias', tema, idioma, toleranciaValor, toleranciaQuantidade, notificacoes, autoSalvar, validacaoRigida, dataAtualizacao }` |
+| `preferencias`        | PreferÃªncias gerais    | `{ id: 'preferencias', tema, idioma, toleranciaValor, toleranciaQuantidade, notificacoes, autoSalvar, validacaoRigida, dataAtualizacao }` |
 
 **Nota:** Utiliza o store `config` existente (versÃ£o 2 do banco). NÃ£o requer migraÃ§Ã£o se nÃ£o houver conflito de IDs.
 
@@ -538,4 +538,3 @@ O mÃ³dulo de ConfiguraÃ§Ãµes estÃ¡ **100% implementado** e pronto para u
 **Sistema:** SINGEM - IF Baiano  
 **MÃ³dulo:** ConfiguraÃ§Ãµes v1.0  
 **Status:** âœ… Completo
-

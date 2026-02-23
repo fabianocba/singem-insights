@@ -106,7 +106,9 @@ async function staleWhileRevalidate(request, event) {
 async function cacheFirst(request) {
   const cache = await caches.open(CACHE_NAME);
   const cached = await cache.match(request);
-  if (cached) return cached;
+  if (cached) {
+    return cached;
+  }
 
   const response = await fetch(request);
   if (response.ok) {
@@ -121,11 +123,17 @@ async function cacheFirst(request) {
 
 self.addEventListener('fetch', (event) => {
   const request = event.request;
-  if (request.method !== 'GET') return;
+  if (request.method !== 'GET') {
+    return;
+  }
 
   const url = new URL(request.url);
-  if (url.origin !== self.location.origin) return;
-  if (isApiReq(url)) return;
+  if (url.origin !== self.location.origin) {
+    return;
+  }
+  if (isApiReq(url)) {
+    return;
+  }
 
   if (request.mode === 'navigate') {
     event.respondWith(networkFirst(request));

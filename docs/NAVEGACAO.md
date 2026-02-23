@@ -30,77 +30,77 @@
 
 ### ðŸŽ¨ Interface e Uso
 
-| O que procuro         | Onde estÃ¡               |
+| O que procuro         | Onde estÃ¡              |
 | --------------------- | ----------------------- |
 | **Sistema principal** | `index.html`            |
-| **ConfiguraÃ§Ãµes**     | `configuracoes.html`    |
+| **ConfiguraÃ§Ãµes**   | `configuracoes.html`    |
 | **Estilos**           | `css/style.css`         |
 | **Guia de uso**       | `GUIA_USO_APLICACAO.md` |
-| **Tutorial rÃ¡pido**   | `GUIA_INICIO_RAPIDO.md` |
+| **Tutorial rÃ¡pido**  | `GUIA_INICIO_RAPIDO.md` |
 
 ### ðŸ’» CÃ³digo JavaScript
 
-| MÃ³dulo                  | Arquivo                | DescriÃ§Ã£o                        |
-| ----------------------- | ---------------------- | -------------------------------- |
-| **AplicaÃ§Ã£o principal** | `js/app.js`            | LÃ³gica completa do sistema       |
-| **Banco de dados**      | `js/db.js`             | IndexedDB e operaÃ§Ãµes            |
-| **Parser de PDF**       | `js/pdfReader.js`      | Leitor genÃ©rico de PDFs          |
-| **Parser de NE**        | `js/neParser.js`       | Especializado em Nota de Empenho |
-| **IntegraÃ§Ã£o NF-e**     | `js/nfeIntegration.js` | Consulta de NF eletrÃ´nica        |
-| **Sistema de arquivos** | `js/fsManager.js`      | Gerenciamento local de PDFs      |
-| **ConfiguraÃ§Ãµes**       | `js/config.js`         | ParÃ¢metros do sistema            |
+| MÃ³dulo                   | Arquivo                | DescriÃ§Ã£o                      |
+| ------------------------- | ---------------------- | -------------------------------- |
+| **AplicaÃ§Ã£o principal** | `js/app.js`            | LÃ³gica completa do sistema      |
+| **Banco de dados**        | `js/db.js`             | IndexedDB e operaÃ§Ãµes          |
+| **Parser de PDF**         | `js/pdfReader.js`      | Leitor genÃ©rico de PDFs        |
+| **Parser de NE**          | `js/neParser.js`       | Especializado em Nota de Empenho |
+| **IntegraÃ§Ã£o NF-e**     | `js/nfeIntegration.js` | Consulta de NF eletrÃ´nica       |
+| **Sistema de arquivos**   | `js/fsManager.js`      | Gerenciamento local de PDFs      |
+| **ConfiguraÃ§Ãµes**       | `js/config.js`         | ParÃ¢metros do sistema           |
 
 ### âš™ï¸ MÃ³dulo de ConfiguraÃ§Ãµes
 
-| Funcionalidade           | Arquivo                       | DescriÃ§Ã£o                   |
-| ------------------------ | ----------------------------- | --------------------------- |
-| **Controller**           | `js/settings/index.js`        | Gerenciador principal       |
+| Funcionalidade             | Arquivo                       | DescriÃ§Ã£o                 |
+| -------------------------- | ----------------------------- | --------------------------- |
+| **Controller**             | `js/settings/index.js`        | Gerenciador principal       |
 | **Unidade OrÃ§amentÃ¡ria** | `js/settings/unidade.js`      | CNPJ e dados institucionais |
-| **UsuÃ¡rios**             | `js/settings/usuarios.js`     | AutenticaÃ§Ã£o e CRUD         |
-| **Rede/LAN**             | `js/settings/rede.js`         | Compartilhamento em rede    |
-| **PreferÃªncias**         | `js/settings/preferencias.js` | Tema, tolerÃ¢ncias, backup   |
+| **UsuÃ¡rios**              | `js/settings/usuarios.js`     | AutenticaÃ§Ã£o e CRUD       |
+| **Rede/LAN**               | `js/settings/rede.js`         | Compartilhamento em rede    |
+| **PreferÃªncias**          | `js/settings/preferencias.js` | Tema, tolerÃ¢ncias, backup  |
 
 ### ðŸ“š DocumentaÃ§Ã£o
 
 #### ðŸ“– Manuais do UsuÃ¡rio
 
-| Documento               | DescriÃ§Ã£o                               |
-| ----------------------- | --------------------------------------- |
+| Documento               | DescriÃ§Ã£o                              |
+| ----------------------- | ---------------------------------------- |
 | `README.md`             | **Leia primeiro!** VisÃ£o geral completa |
-| `GUIA_INICIO_RAPIDO.md` | Tutorial em 5 minutos                   |
-| `GUIA_USO_APLICACAO.md` | Manual detalhado passo a passo          |
-| `CHANGELOG.md`          | HistÃ³rico de versÃµes e mudanÃ§as         |
+| `GUIA_INICIO_RAPIDO.md` | Tutorial em 5 minutos                    |
+| `GUIA_USO_APLICACAO.md` | Manual detalhado passo a passo           |
+| `CHANGELOG.md`          | HistÃ³rico de versÃµes e mudanÃ§as       |
 
 #### ðŸ”§ DocumentaÃ§Ã£o TÃ©cnica
 
 Pasta: `docs/`
 
-| Arquivo                     | ConteÃºdo                         |
+| Arquivo                     | ConteÃºdo                        |
 | --------------------------- | -------------------------------- |
 | `NE_PARSER.md`              | API e funcionamento do parser NE |
 | `GUIA_RAPIDO_NE.md`         | Como usar o parser NE            |
-| `LEIA-ME_NE_PARSER.md`      | IntroduÃ§Ã£o ao parser             |
-| `CONFIGURACOES.md`          | MÃ³dulo de configuraÃ§Ãµes          |
-| `PADRONIZACAO_NF.md`        | PadrÃµes de Nota Fiscal           |
-| `TESTE_VALIDACAO_PARSER.md` | ValidaÃ§Ã£o de parsers             |
+| `LEIA-ME_NE_PARSER.md`      | IntroduÃ§Ã£o ao parser           |
+| `CONFIGURACOES.md`          | MÃ³dulo de configuraÃ§Ãµes       |
+| `PADRONIZACAO_NF.md`        | PadrÃµes de Nota Fiscal          |
+| `TESTE_VALIDACAO_PARSER.md` | ValidaÃ§Ã£o de parsers           |
 
 #### ðŸ“ DocumentaÃ§Ã£o de ImplementaÃ§Ã£o
 
 Pasta: `docs/implementacao/`
 
-| Arquivo                          | ConteÃºdo                               |
-| -------------------------------- | -------------------------------------- |
-| `IMPLEMENTACAO_NE_PARSER.md`     | Como o parser NE foi implementado      |
+| Arquivo                          | ConteÃºdo                                |
+| -------------------------------- | ---------------------------------------- |
+| `IMPLEMENTACAO_NE_PARSER.md`     | Como o parser NE foi implementado        |
 | `IMPLEMENTACAO_CONFIGURACOES.md` | Como configuraÃ§Ãµes foram implementadas |
 | `RESTRICOES_SEGURANCA.md`        | Sistema de permissÃµes e seguranÃ§a      |
-| `INTEGRACOES_APLICADAS.md`       | IntegraÃ§Ãµes entre mÃ³dulos              |
+| `INTEGRACOES_APLICADAS.md`       | IntegraÃ§Ãµes entre mÃ³dulos             |
 
 #### ðŸ§¹ RelatÃ³rios de ManutenÃ§Ã£o
 
-| Arquivo                | ConteÃºdo                       |
-| ---------------------- | ------------------------------ |
+| Arquivo                | ConteÃºdo                         |
+| ---------------------- | --------------------------------- |
 | `RELATORIO_LIMPEZA.md` | AnÃ¡lise e plano de organizaÃ§Ã£o |
-| `LIMPEZA_EXECUTADA.md` | RelatÃ³rio final da limpeza     |
+| `LIMPEZA_EXECUTADA.md` | RelatÃ³rio final da limpeza       |
 
 ### ðŸ§ª Testes
 
@@ -110,13 +110,13 @@ Pasta: `testes/`
 
 Pasta: `testes/html/`
 
-| Arquivo                    | Testa                     |
-| -------------------------- | ------------------------- |
-| `teste.html`               | Todos os mÃ³dulos bÃ¡sicos  |
-| `teste-ne-parser.html`     | Parser de Nota de Empenho |
-| `teste-nf-parser.html`     | Parser de Nota Fiscal     |
-| `teste-nf-validacao.html`  | ValidaÃ§Ã£o de NF           |
-| `teste-comparacao-nf.html` | ComparaÃ§Ã£o NE vs NF       |
+| Arquivo                    | Testa                      |
+| -------------------------- | -------------------------- |
+| `teste.html`               | Todos os mÃ³dulos bÃ¡sicos |
+| `teste-ne-parser.html`     | Parser de Nota de Empenho  |
+| `teste-nf-parser.html`     | Parser de Nota Fiscal      |
+| `teste-nf-validacao.html`  | ValidaÃ§Ã£o de NF          |
+| `teste-comparacao-nf.html` | ComparaÃ§Ã£o NE vs NF      |
 
 #### PDFs de Teste
 
@@ -131,20 +131,20 @@ Pasta: `testes/pdfs/`
 
 Pasta: `data/`
 
-| Item                         | LocalizaÃ§Ã£o                |
-| ---------------------------- | -------------------------- |
+| Item                           | LocalizaÃ§Ã£o              |
+| ------------------------------ | -------------------------- |
 | **ConfiguraÃ§Ã£o de exemplos** | `exemplos.json`            |
-| **PDFs de exemplo**          | `exemplos/` (~10 arquivos) |
-| **Info sobre exemplos**      | `README.md`                |
+| **PDFs de exemplo**            | `exemplos/` (~10 arquivos) |
+| **Info sobre exemplos**        | `README.md`                |
 
 ### ðŸŒ Servidor (Opcional)
 
 Pasta: `server/`
 
-| Arquivo        | DescriÃ§Ã£o                |
+| Arquivo        | DescriÃ§Ã£o              |
 | -------------- | ------------------------ |
 | `index.js`     | Servidor Express Node.js |
-| `package.json` | DependÃªncias npm         |
+| `package.json` | DependÃªncias npm        |
 | `README.md`    | Como usar o servidor     |
 
 **Iniciar:**
@@ -251,16 +251,16 @@ SINGEM/
 
 ### Procuro cÃ³digo sobre...
 
-| Assunto           | Onde buscar                                    |
-| ----------------- | ---------------------------------------------- |
+| Assunto           | Onde buscar                                      |
+| ----------------- | ------------------------------------------------ |
 | Upload de PDF     | `js/app.js` â†’ `processarEmpenhoUpload()`       |
-| ExtraÃ§Ã£o de NE    | `js/neParser.js` â†’ `extrairDadosNE()`          |
-| ExtraÃ§Ã£o de NF    | `js/pdfReader.js` â†’ `extrairDadosNotaFiscal()` |
-| ValidaÃ§Ã£o CNPJ    | `js/app.js` â†’ `validarCNPJ()`                  |
+| ExtraÃ§Ã£o de NE  | `js/neParser.js` â†’ `extrairDadosNE()`          |
+| ExtraÃ§Ã£o de NF  | `js/pdfReader.js` â†’ `extrairDadosNotaFiscal()` |
+| ValidaÃ§Ã£o CNPJ  | `js/app.js` â†’ `validarCNPJ()`                  |
 | Salvar empenho    | `js/db.js` â†’ `salvarEmpenho()`                 |
 | Comparar NE vs NF | `js/db.js` â†’ `compararNotaFiscalComEmpenho()`  |
-| AutenticaÃ§Ã£o      | `js/settings/usuarios.js` â†’ `autenticar()`     |
-| Configurar rede   | `js/settings/rede.js`                          |
+| AutenticaÃ§Ã£o    | `js/settings/usuarios.js` â†’ `autenticar()`     |
+| Configurar rede   | `js/settings/rede.js`                            |
 
 ### Procuro documentaÃ§Ã£o sobre...
 
@@ -268,10 +268,10 @@ SINGEM/
 | ------------------- | -------------------------------------------- |
 | Como usar o sistema | `GUIA_USO_APLICACAO.md`                      |
 | Parser de NE        | `docs/NE_PARSER.md`                          |
-| ConfiguraÃ§Ãµes       | `docs/CONFIGURACOES.md`                      |
-| SeguranÃ§a           | `docs/implementacao/RESTRICOES_SEGURANCA.md` |
+| ConfiguraÃ§Ãµes     | `docs/CONFIGURACOES.md`                      |
+| SeguranÃ§a          | `docs/implementacao/RESTRICOES_SEGURANCA.md` |
 | Testes              | `testes/README.md`                           |
-| HistÃ³rico           | `CHANGELOG.md`                               |
+| HistÃ³rico          | `CHANGELOG.md`                               |
 
 ---
 
@@ -301,4 +301,3 @@ SINGEM/
 **Projeto:** SINGEM - Sistema de Controle de Material  
 **InstituiÃ§Ã£o:** IF Baiano  
 **VersÃ£o:** 1.2.1
-

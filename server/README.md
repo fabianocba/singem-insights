@@ -119,4 +119,3 @@ PORT=8080 npm start
 ## ðŸ“ž Suporte
 
 Para dÃºvidas ou problemas, consulte a documentaÃ§Ã£o principal do SINGEM.
-

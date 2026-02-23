@@ -332,4 +332,3 @@ Clique em "ðŸ’¾ Criar Backup Agora"
 ---
 
 **âœ… Com este sistema, vocÃª NUNCA mais perderÃ¡ dados no SINGEM! ðŸŽ‰**
-

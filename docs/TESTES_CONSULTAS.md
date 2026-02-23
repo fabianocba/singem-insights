@@ -255,4 +255,3 @@ SugestÃµes para implementaÃ§Ã£o futura:
 **Documento criado em:** 03/11/2025  
 **MÃ³dulo:** Consultas Diversas v1.0.0  
 **Sistema:** SINGEM v1.2.4
-

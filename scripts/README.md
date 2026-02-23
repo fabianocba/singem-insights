@@ -56,7 +56,7 @@ Scripts PowerShell para facilitar o uso do sistema.
 
 Na raiz do projeto existem atalhos que redirecionam para estes scripts:
 
-| Atalho         | Script Real                    | DescriÃ§Ã£o       |
+| Atalho         | Script Real                    | DescriÃ§Ã£o     |
 | -------------- | ------------------------------ | --------------- |
 | `abrir.ps1`    | `scripts\abrir-aplicacao.ps1`  | Abre sistema    |
 | `servidor.ps1` | `scripts\iniciar-servidor.ps1` | Inicia servidor |
@@ -161,4 +161,3 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 **Ãšltima atualizaÃ§Ã£o:** 03/11/2025  
 **VersÃ£o:** 1.2.1  
 **Sistema:** Windows PowerShell 5.1+
-

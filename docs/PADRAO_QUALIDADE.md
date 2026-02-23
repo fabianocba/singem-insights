@@ -10,18 +10,18 @@
 
 ### EstatÃ­sticas Atuais
 
-| MÃ©trica        | Valor | Threshold |
+| MÃ©trica      | Valor | Threshold |
 | -------------- | ----- | --------- |
 | **Linhas**     | 0.84% | 70%       |
-| **FunÃ§Ãµes**    | 0.58% | 70%       |
+| **FunÃ§Ãµes**  | 0.58% | 70%       |
 | **Statements** | 0.83% | 70%       |
 | **Branches**   | 1.54% | 60%       |
 
 ### MÃ³dulo Testado
 
-| Arquivo                     | Linhas     | Branches   | FunÃ§Ãµes  |
-| --------------------------- | ---------- | ---------- | -------- |
-| `js/core/inputValidator.js` | **84.61%** | **85.34%** | **100%** |
+| Arquivo                     | Linhas     | Branches   | FunÃ§Ãµes |
+| --------------------------- | ---------- | ---------- | --------- |
+| `js/core/inputValidator.js` | **84.61%** | **85.34%** | **100%**  |
 
 ### AnÃ¡lise
 
@@ -49,7 +49,7 @@ O SINGEM Ã© uma aplicaÃ§Ã£o **web cliente** que:
 
 ### MÃ³dulos difÃ­ceis de testar
 
-| MÃ³dulo         | Motivo                   |
+| MÃ³dulo        | Motivo                   |
 | -------------- | ------------------------ |
 | `app.js`       | DOM + Estado + UI        |
 | `db.js`        | IndexedDB                |
@@ -107,13 +107,13 @@ e2e/
 ### Documentos criados nesta revisÃ£o
 
 | Documento                        | ConteÃºdo                        |
-| -------------------------------- | ------------------------------- |
+| -------------------------------- | -------------------------------- |
 | `ANALISE_GLOBAL.md`              | Mapa de arquivos e dependÃªncias |
 | `HIGIENE_CODIGO.md`              | AnÃ¡lise de console.log e TODOs  |
-| `SEPARACAO_RESPONSABILIDADES.md` | Estrutura do app.js             |
-| `PERFORMANCE_ESTABILIDADE.md`    | Carregamento e otimizaÃ§Ãµes      |
-| `PADRAO_QUALIDADE.md`            | Este documento                  |
-| `_legacy/README.md`              | Arquivos movidos                |
+| `SEPARACAO_RESPONSABILIDADES.md` | Estrutura do app.js              |
+| `PERFORMANCE_ESTABILIDADE.md`    | Carregamento e otimizaÃ§Ãµes     |
+| `PADRAO_QUALIDADE.md`            | Este documento                   |
+| `_legacy/README.md`              | Arquivos movidos                 |
 
 ### DocumentaÃ§Ã£o existente
 
@@ -141,4 +141,3 @@ O projeto atende aos padrÃµes de qualidade para seu contexto:
 1. Adicionar testes para FormatUtils
 2. Considerar testes E2E para fluxos crÃ­ticos
 3. Manter documentaÃ§Ã£o atualizada
-

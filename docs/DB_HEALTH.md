@@ -204,14 +204,14 @@ console.log(`Total de unidades: ${total}`);
 
 ### Benchmarks Esperados
 
-| OperaÃ§Ã£o                 | Tempo Esperado | ObservaÃ§Ãµes                 |
+| OperaÃ§Ã£o               | Tempo Esperado | ObservaÃ§Ãµes               |
 | ------------------------ | -------------- | --------------------------- |
 | `open()`                 | < 100ms        | Primeira vez pode ser maior |
 | `get()` (por chave)      | < 10ms         | Acesso direto por ID        |
-| `getAll()` (< 100 itens) | < 50ms         | Sem Ã­ndices                 |
-| `put()` (1 item)         | < 20ms         | TransaÃ§Ã£o simples           |
-| `batchPut()` (100 itens) | < 200ms        | Com transaÃ§Ãµes em lote      |
-| `count()`                | < 30ms         | OperaÃ§Ã£o otimizada          |
+| `getAll()` (< 100 itens) | < 50ms         | Sem Ã­ndices                |
+| `put()` (1 item)         | < 20ms         | TransaÃ§Ã£o simples         |
+| `batchPut()` (100 itens) | < 200ms        | Com transaÃ§Ãµes em lote    |
+| `count()`                | < 30ms         | OperaÃ§Ã£o otimizada        |
 
 ### Como Medir
 
@@ -370,4 +370,3 @@ location.reload();
 
 **Ãšltima atualizaÃ§Ã£o:** 05/11/2024  
 **ResponsÃ¡vel:** SINGEM Team
-

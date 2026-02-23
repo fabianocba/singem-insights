@@ -11,14 +11,14 @@
 ### Ordem de Carregamento (index.html)
 
 | #    | Script                 | Tipo      | Tamanho Est. | CrÃ­tico? |
-| ---- | ---------------------- | --------- | ------------ | -------- |
+| ---- | ---------------------- | --------- | ------------ | --------- |
 | 1    | `js/config/version.js` | ES Module | ~1KB         | âœ…       |
 | 2    | `js/versionManager.js` | Sync      | ~10KB        | âœ…       |
 | 3    | `pdf.min.js` (CDN)     | Sync      | ~500KB       | âœ…       |
-| 4    | `zxing` (CDN)          | Sync      | ~200KB       | âš ï¸       |
+| 4    | `zxing` (CDN)          | Sync      | ~200KB       | âš ï¸     |
 | 5    | `js/platform-core.js`  | Sync      | ~5KB         | âœ…       |
-| 6-20 | Scripts defer          | Defer     | VariÃ¡vel     | âœ…       |
-| 21+  | Scripts module         | ES Module | VariÃ¡vel     | âœ…       |
+| 6-20 | Scripts defer          | Defer     | VariÃ¡vel    | âœ…       |
+| 21+  | Scripts module         | ES Module | VariÃ¡vel    | âœ…       |
 
 ### AnÃ¡lise de Performance
 
@@ -127,12 +127,12 @@ Tempo de carregamento estÃ¡ dentro do aceitÃ¡vel para aplicaÃ§Ã£o web.
 
 ### Fallbacks Implementados
 
-| Funcionalidade  | Fallback           |
-| --------------- | ------------------ |
-| File System API | localStorage       |
-| IndexedDB       | Mensagem de erro   |
+| Funcionalidade  | Fallback             |
+| --------------- | -------------------- |
+| File System API | localStorage         |
+| IndexedDB       | Mensagem de erro     |
 | PDF parsing     | MÃ©todo alternativo |
-| API externa     | Modo demo/mock     |
+| API externa     | Modo demo/mock       |
 
 ---
 
@@ -153,4 +153,3 @@ O projeto estÃ¡ **otimizado adequadamente** para o caso de uso:
 3. **Registrar Service Worker** - Para cache offline
 
 **NÃ£o implementadas agora** para manter estabilidade.
-

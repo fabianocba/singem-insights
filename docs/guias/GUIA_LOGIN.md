@@ -190,13 +190,13 @@ Aparece uma mensagem no canto superior direito:
 
 ## ðŸ“± ATALHOS ÃšTEIS
 
-| AÃ§Ã£o            | Atalho                                 |
-| --------------- | -------------------------------------- |
-| Login           | `Enter` no campo de senha              |
+| AÃ§Ã£o          | Atalho                                    |
+| --------------- | ----------------------------------------- |
+| Login           | `Enter` no campo de senha                 |
 | Logout          | BotÃ£o ðŸšª Sair (canto superior direito) |
-| Limpar cache    | `Ctrl + Shift + R`                     |
-| Console         | `F12`                                  |
-| Voltar ao login | FaÃ§a logout                            |
+| Limpar cache    | `Ctrl + Shift + R`                        |
+| Console         | `F12`                                     |
+| Voltar ao login | FaÃ§a logout                              |
 
 ---
 
@@ -254,4 +254,3 @@ Enquanto isso, siga este guia passo a passo!
 **Desenvolvido para IF Baiano - Campus**  
 **Sistema SINGEM - Controle de Material**  
 **VersÃ£o 1.3.2 - Novembro 2025**
-

@@ -153,12 +153,12 @@ console.log('Parser especializado nÃ£o disponÃ­vel, usando parser genÃ©ric
 
 ### Antes vs Depois
 
-| MÃ©trica                       | Antes | Depois | Melhoria |
-| ----------------------------- | ----- | ------ | -------- |
+| MÃ©trica                     | Antes | Depois | Melhoria  |
+| ----------------------------- | ----- | ------ | --------- |
 | **Arquivos na raiz**          | 26    | 10     | -61% âœ…  |
 | **PDFs na raiz**              | 12    | 0      | -100% âœ… |
 | **HTML de teste na raiz**     | 5     | 0      | -100% âœ… |
-| **Docs tÃ©cnicos na raiz**     | 4     | 0      | -100% âœ… |
+| **Docs tÃ©cnicos na raiz**   | 4     | 0      | -100% âœ… |
 | **Pastas organizacionais**    | 6     | 9      | +50% âœ…  |
 | **Linhas de console.log**     | ~60   | ~44    | -27% âœ…  |
 | **Funcionalidades quebradas** | 0     | 0      | 0 âœ…     |
@@ -361,4 +361,3 @@ ApÃ³s esta limpeza, recomenda-se testar:
 **InstituiÃ§Ã£o:** IF Baiano  
 **VersÃ£o:** 1.2  
 **Data:** 03/11/2025
-

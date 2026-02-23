@@ -166,17 +166,17 @@ Exibe resumo visual + grÃ¡ficos
 
 ## ðŸŽ¯ COLUNAS DA PLANILHA
 
-| #   | Coluna          | Tipo   | DescriÃ§Ã£o                      |
-| --- | --------------- | ------ | ------------------------------ |
+| #   | Coluna          | Tipo    | DescriÃ§Ã£o                     |
+| --- | --------------- | ------- | ------------------------------- |
 | 1   | **Seq**         | NÃºmero | SequÃªncia do item (1, 2, 3...) |
-| 2   | **Produto**     | Texto  | DescriÃ§Ã£o + cÃ³digo do item     |
-| 3   | **UN**          | Texto  | Unidade de medida              |
-| 4   | **Qtd Emp.**    | NÃºmero | Quantidade total empenhada     |
-| 5   | **Vlr. Unit.**  | Moeda  | Valor unitÃ¡rio (R$)            |
-| 6   | **Vlr. Total**  | Moeda  | Quantidade Ã— Vlr. Unit.        |
-| 7   | **Entradas**    | Lista  | Cards com NF + Qtd + Data      |
-| 8   | **Saldo Qtd**   | NÃºmero | Quantidade restante            |
-| 9   | **Saldo Valor** | Moeda  | Valor restante (R$)            |
+| 2   | **Produto**     | Texto   | DescriÃ§Ã£o + cÃ³digo do item   |
+| 3   | **UN**          | Texto   | Unidade de medida               |
+| 4   | **Qtd Emp.**    | NÃºmero | Quantidade total empenhada      |
+| 5   | **Vlr. Unit.**  | Moeda   | Valor unitÃ¡rio (R$)            |
+| 6   | **Vlr. Total**  | Moeda   | Quantidade Ã— Vlr. Unit.        |
+| 7   | **Entradas**    | Lista   | Cards com NF + Qtd + Data       |
+| 8   | **Saldo Qtd**   | NÃºmero | Quantidade restante             |
+| 9   | **Saldo Valor** | Moeda   | Valor restante (R$)             |
 
 ### RodapÃ© (Totalizadores):
 
@@ -410,4 +410,3 @@ console.log(saldo.resumo);
 **Ãšltima AtualizaÃ§Ã£o:** 06/11/2024  
 **VersÃ£o:** 3.0  
 **ResponsÃ¡vel:** Sistema SINGEM
-

@@ -373,4 +373,3 @@ Documente e reporte com prints/logs.
 
 **Ãšltima atualizaÃ§Ã£o:** 06/11/2025  
 **VersÃ£o da plataforma:** 2.0.0
-

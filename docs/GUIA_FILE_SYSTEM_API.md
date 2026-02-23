@@ -430,13 +430,13 @@ async _salvarArquivoEmpenho(file, textContent, extractedData) {
 
 ## ðŸ“Š Compatibilidade
 
-| Navegador  | Suporte | ObservaÃ§Ãµes             |
+| Navegador  | Suporte | ObservaÃ§Ãµes           |
 | ---------- | ------- | ----------------------- |
-| Chrome 86+ | âœ… Sim  | Suporte completo        |
-| Edge 86+   | âœ… Sim  | Suporte completo        |
-| Firefox    | âŒ NÃ£o  | Usa fallback (download) |
-| Safari     | âŒ NÃ£o  | Usa fallback (download) |
-| Opera      | âœ… Sim  | Baseado em Chromium     |
+| Chrome 86+ | âœ… Sim | Suporte completo        |
+| Edge 86+   | âœ… Sim | Suporte completo        |
+| Firefox    | âŒ NÃ£o | Usa fallback (download) |
+| Safari     | âŒ NÃ£o | Usa fallback (download) |
+| Opera      | âœ… Sim | Baseado em Chromium     |
 
 **Nota:** Navegadores sem suporte usam download automÃ¡tico (fallback sempre funciona)
 
@@ -473,4 +473,3 @@ async _salvarArquivoEmpenho(file, textContent, extractedData) {
 - DocumentaÃ§Ã£o completa
 
 **Teste agora e reporte o resultado!** ðŸŽ‰
-

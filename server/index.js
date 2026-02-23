@@ -16,6 +16,7 @@ const db = require('./config/database');
 // Rotas SINGEM
 const authRoutes = require('./routes/auth.routes');
 const govbrRoutes = require('./routes/govbr.routes');
+const serproidRoutes = require('./routes/serproid.routes');
 const empenhosRoutes = require('./routes/empenhos.routes');
 const notasFiscaisRoutes = require('./routes/notas-fiscais.routes');
 const estoqueRoutes = require('./routes/estoque.routes');
@@ -92,6 +93,7 @@ app.use('/api/nfe/v2', nfeRoutesV2);
 // Rotas SINGEM
 app.use('/api/auth', authRoutes);
 app.use('/api/auth/govbr', govbrRoutes);
+app.use('/api/auth/serproid', serproidRoutes);
 app.use('/api/empenhos', empenhosRoutes);
 app.use('/api/notas-fiscais', notasFiscaisRoutes);
 app.use('/api/estoque', estoqueRoutes);

@@ -340,4 +340,3 @@ Se precisar de ajuda, anote:
 3. **Para CÃ³digo de Barras**: Use a cÃ¢mera com boa iluminaÃ§Ã£o
 4. **Verifique**: Se todos os dados sÃ£o extraÃ­dos corretamente
 5. **Confirme**: Se divergÃªncias sÃ£o detectadas automaticamente
-

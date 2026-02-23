@@ -393,4 +393,3 @@ console.table(window.PlatformCore.performance.getMeasures());
 - OCR fallback para PDFs-imagem
 
 ðŸš€ **Pronto para produÃ§Ã£o!**
-

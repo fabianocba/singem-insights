@@ -301,4 +301,3 @@ Status: Ativo
 **Ãšltima atualizaÃ§Ã£o:** 03/11/2025  
 **VersÃ£o SINGEM:** 1.2.4  
 **MÃ³dulo:** Consultas Diversas v1.0.0
-

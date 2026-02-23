@@ -311,8 +311,8 @@ Antes de declarar o mÃ³dulo **FECHADO**, confirme:
 
 ## HistÃ³rico
 
-| Data       | Testador | Resultado             |
-| ---------- | -------- | --------------------- |
+| Data       | Testador | Resultado               |
+| ---------- | -------- | ----------------------- |
 | 2026-02-11 | Copilot  | ImplementaÃ§Ã£o inicial |
 
 ---
@@ -352,4 +352,3 @@ const NF_POLICY = {
   valorTotal: 125.00
 }
 ```
-

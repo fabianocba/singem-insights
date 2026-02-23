@@ -65,4 +65,3 @@ Para mais detalhes, consulte:
 
 **Ãšltima atualizaÃ§Ã£o:** 03/11/2025  
 **VersÃ£o:** 1.2.1
-

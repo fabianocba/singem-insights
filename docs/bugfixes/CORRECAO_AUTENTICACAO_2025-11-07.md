@@ -336,4 +336,3 @@ Se encontrar problemas:
 **CorreÃ§Ãµes aplicadas por:** GitHub Copilot  
 **Status:** âœ… Pronto para teste  
 **Data:** 7 de novembro de 2025
-

@@ -370,4 +370,3 @@ Tabela com colunas:
 **Data:** 03/11/2025  
 **Autor:** Sistema SINGEM  
 **Status:** âœ… Implementado e Testado
-

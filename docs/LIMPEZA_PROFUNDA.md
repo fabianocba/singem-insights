@@ -16,13 +16,13 @@
 
 ### Arquivos na Raiz
 
-| Tipo           | Antes (v1.2.1) | Depois (v1.2.2) | ReduÃ§Ã£o     |
-| -------------- | -------------- | --------------- | ----------- |
+| Tipo           | Antes (v1.2.1) | Depois (v1.2.2) | ReduÃ§Ã£o    |
+| -------------- | -------------- | --------------- | ------------ |
 | **Arquivos**   | 11             | **4**           | **-64%** âœ… |
-| **HTML**       | 2              | 1               | -50%        |
-| **Markdown**   | 7              | 1               | -86%        |
-| **PowerShell** | 2              | 2 (atalhos)     | 0%          |
-| **Workspace**  | 1              | 0               | -100%       |
+| **HTML**       | 2              | 1               | -50%         |
+| **Markdown**   | 7              | 1               | -86%         |
+| **PowerShell** | 2              | 2 (atalhos)     | 0%           |
+| **Workspace**  | 1              | 0               | -100%        |
 
 ### Estrutura
 
@@ -146,17 +146,17 @@ SINGEM/                          â† RAIZ MINIMALISTA
 ## ðŸŽ¯ Estrutura Final por Pasta
 
 | Pasta          | Arquivos        | DescriÃ§Ã£o                |
-| -------------- | --------------- | ------------------------ |
-| **`/` (raiz)** | **4**           | **Apenas essenciais** â­ |
+| -------------- | --------------- | -------------------------- |
+| **`/` (raiz)** | **4**           | **Apenas essenciais** â­   |
 | `config/`      | 3               | ConfiguraÃ§Ãµes do sistema |
-| `scripts/`     | 3               | Scripts utilitÃ¡rios      |
+| `scripts/`     | 3               | Scripts utilitÃ¡rios       |
 | `docs/`        | 15              | DocumentaÃ§Ã£o completa    |
-| `css/`         | 1               | Estilos                  |
-| `js/`          | 11              | JavaScript               |
-| `data/`        | 3 + exemplos    | Dados                    |
-| `testes/`      | 3 + html + pdfs | Testes                   |
-| `server/`      | 3               | Node.js                  |
-| `img/`         | 0               | Imagens (vazia)          |
+| `css/`         | 1               | Estilos                    |
+| `js/`          | 11              | JavaScript                 |
+| `data/`        | 3 + exemplos    | Dados                      |
+| `testes/`      | 3 + html + pdfs | Testes                     |
+| `server/`      | 3               | Node.js                    |
+| `img/`         | 0               | Imagens (vazia)            |
 
 ---
 
@@ -250,10 +250,10 @@ SINGEM/                          â† RAIZ MINIMALISTA
 ### Comparativo Geral
 
 | VersÃ£o                       | Arquivos Raiz | Pastas | OrganizaÃ§Ã£o |
-| ---------------------------- | ------------- | ------ | ----------- |
-| **1.0** (inicial)            | 26            | 6      | â­          |
-| **1.2.1** (apÃ³s 1Âª limpeza)  | 11            | 9      | â­â­â­      |
-| **1.2.2** (limpeza profunda) | **4**         | **10** | â­â­â­â­â­  |
+| ----------------------------- | ------------- | ------ | ------------- |
+| **1.0** (inicial)             | 26            | 6      | â­            |
+| **1.2.1** (apÃ³s 1Âª limpeza) | 11            | 9      | â­â­â­        |
+| **1.2.2** (limpeza profunda)  | **4**         | **10** | â­â­â­â­â­    |
 
 ### ReduÃ§Ã£o Total
 
@@ -359,4 +359,3 @@ SINGEM/
 **VersÃ£o:** 1.2.2  
 **Data:** 03/11/2025  
 **Tipo:** Limpeza Profunda da Raiz âœ¨
-

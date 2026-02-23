@@ -79,6 +79,15 @@
 
     async persistError(error) {
       try {
+        // Em modo servidor PostgreSQL, não usar IndexedDB para persistir erros
+        if (
+          window.CONFIG?.storage?.mode === 'server' ||
+          window.dbManager?.db?.mode === 'server-postgres' ||
+          typeof global.db?.transaction !== 'function'
+        ) {
+          return;
+        }
+
         if (!global.db?.errors) {
           return;
         }
@@ -277,6 +286,16 @@
       try {
         if (!global.db) {
           return false;
+        }
+
+        // Em modo servidor PostgreSQL, não usar IndexedDB transaction
+        if (
+          window.CONFIG?.storage?.mode === 'server' ||
+          window.dbManager?.db?.mode === 'server-postgres' ||
+          typeof global.db.transaction !== 'function'
+        ) {
+          // Em modo servidor, assume que DB está OK se dbManager existe
+          return !!window.dbManager;
         }
 
         // Tenta ler uma store

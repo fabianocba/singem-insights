@@ -319,12 +319,12 @@ Requer **dupla confirmaÃ§Ã£o**.
 
 Todas as configuraÃ§Ãµes sÃ£o armazenadas no store `config`:
 
-| ID                    | ConteÃºdo              |
-| --------------------- | --------------------- |
+| ID                    | ConteÃºdo               |
+| --------------------- | ----------------------- |
 | `unidadeOrcamentaria` | Dados da instituiÃ§Ã£o  |
-| `usuarios`            | Lista de usuÃ¡rios     |
+| `usuarios`            | Lista de usuÃ¡rios      |
 | `rede`                | ConfiguraÃ§Ãµes de rede |
-| `preferencias`        | PreferÃªncias gerais   |
+| `preferencias`        | PreferÃªncias gerais    |
 
 ### Estrutura
 
@@ -539,4 +539,3 @@ Para dÃºvidas ou problemas:
 **VersÃ£o:** 1.0  
 **Data:** Janeiro 2025  
 **Sistema:** SINGEM - IF Baiano
-

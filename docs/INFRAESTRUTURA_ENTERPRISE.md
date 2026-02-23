@@ -298,19 +298,19 @@ import * as asyncQueue from './core/asyncQueue.js';
 
 ### **Processamento de PDF**
 
-| Evento            | Quando          | Payload                                       |
-| ----------------- | --------------- | --------------------------------------------- |
-| `pdf.parse:start` | Iniciando parse | `{ filename }`                                |
+| Evento            | Quando           | Payload                                       |
+| ----------------- | ---------------- | --------------------------------------------- |
+| `pdf.parse:start` | Iniciando parse  | `{ filename }`                                |
 | `pdf.parse:done`  | Parse concluÃ­do | `{ tipoDocumento, textoCompleto, metadados }` |
-| `pdf.parse:error` | Erro no parse   | `{ message, stack }`                          |
+| `pdf.parse:error` | Erro no parse    | `{ message, stack }`                          |
 
 ### **GeraÃ§Ã£o de RelatÃ³rios**
 
-| Evento                  | Quando              | Payload               |
-| ----------------------- | ------------------- | --------------------- |
-| `relatorio.gerar:start` | Iniciando relatÃ³rio | `{ tipo }`            |
+| Evento                  | Quando                | Payload               |
+| ----------------------- | --------------------- | --------------------- |
+| `relatorio.gerar:start` | Iniciando relatÃ³rio  | `{ tipo }`            |
 | `relatorio.gerar:done`  | RelatÃ³rio concluÃ­do | `{ tipo, resultado }` |
-| `relatorio.gerar:error` | Erro no relatÃ³rio   | `{ tipo, message }`   |
+| `relatorio.gerar:error` | Erro no relatÃ³rio    | `{ tipo, message }`   |
 
 ### **Fila AssÃ­ncrona**
 
@@ -318,7 +318,7 @@ import * as asyncQueue from './core/asyncQueue.js';
 | ------------------ | ----------------- | ---------------------- |
 | `queue.task:added` | Tarefa adicionada | `{ id, tipo }`         |
 | `queue.task:start` | Iniciando tarefa  | `{ id, tipo }`         |
-| `queue.task:done`  | Tarefa concluÃ­da  | `{ id, tipo, result }` |
+| `queue.task:done`  | Tarefa concluÃ­da | `{ id, tipo, result }` |
 | `queue.task:error` | Erro na tarefa    | `{ id, tipo, error }`  |
 
 ---
@@ -553,4 +553,3 @@ A infraestrutura enterprise foi **totalmente implementada e integrada** no siste
 - Nota informativa exibida no console
 
 **Para verificar:** Abra o aplicativo e veja o console do DevTools! ðŸŽ¯
-

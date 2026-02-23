@@ -159,4 +159,3 @@ Para abrir automaticamente ao ligar o PC:
 ---
 
 **Precisa de ajuda?** Veja os logs no terminal ou console do navegador (F12).
-

@@ -132,6 +132,9 @@ class ControleMaterialApp {
       // Verifica sessão existente (NÃO autentica automaticamente)
       await this.verificarSessao();
 
+      // Verifica tokens OAuth (SerproID/Gov.br) na URL
+      await this.handleOAuthCallback();
+
       // Configura event listeners
       this.setupEventListeners();
       console.log('✅ Event listeners configurados');
@@ -153,6 +156,61 @@ class ControleMaterialApp {
    */
   async verificarSessao() {
     console.log('ℹ️ Sessão persistente local desativada (modo PostgreSQL/VPS)');
+  }
+
+  /**
+   * Trata callback OAuth (SerproID/Gov.br)
+   * Captura tokens da URL e autentica o usuário
+   */
+  async handleOAuthCallback() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const accessToken = urlParams.get('accessToken');
+    const refreshToken = urlParams.get('refreshToken');
+    const error = urlParams.get('error');
+
+    // Limpa parâmetros da URL
+    if (accessToken || refreshToken || error) {
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+
+    // Trata erro do OAuth
+    if (error) {
+      console.error('[OAuth] Erro no callback:', error);
+      this.showError('Erro na autenticação: ' + decodeURIComponent(error));
+      return;
+    }
+
+    // Se recebeu tokens, autentica
+    if (accessToken && refreshToken) {
+      console.log('[OAuth] Tokens recebidos, autenticando...');
+
+      try {
+        // Salva tokens
+        localStorage.setItem('singem_token', accessToken);
+        localStorage.setItem('singem_refresh_token', refreshToken);
+
+        // Valida token e obtém dados do usuário
+        const apiClient = (await import('./services/apiClient.js')).default;
+        const response = await apiClient.get('/api/auth/me');
+
+        if (response.sucesso && response.usuario) {
+          this.usuarioLogado = response.usuario;
+          console.log('[OAuth] ✅ Login via SerproID:', this.usuarioLogado.nome);
+
+          // Atualiza UI
+          this.atualizarUIUsuarioLogado();
+          this.showScreen('homeScreen');
+          this.showSuccess(`Bem-vindo(a), ${this.usuarioLogado.nome}!`);
+        } else {
+          throw new Error('Falha ao obter dados do usuário');
+        }
+      } catch (err) {
+        console.error('[OAuth] Erro ao validar token:', err);
+        localStorage.removeItem('singem_token');
+        localStorage.removeItem('singem_refresh_token');
+        this.showError('Sessão inválida. Faça login novamente.');
+      }
+    }
   }
 
   /**

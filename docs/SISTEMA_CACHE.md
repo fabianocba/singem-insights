@@ -377,4 +377,3 @@ Antes de fazer deploy de uma nova versÃ£o:
 
 **Ãšltima atualizaÃ§Ã£o:** 05/11/2025  
 **VersÃ£o do documento:** 1.0
-

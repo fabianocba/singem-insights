@@ -322,4 +322,3 @@ Para dÃºvidas sobre as melhorias:
 ---
 
 _Gerado automaticamente em 05/11/2025 por GitHub Copilot_
-

@@ -264,11 +264,11 @@ npm run quality       # VerificaÃ§Ã£o completa de qualidade
 
 ### **Objetivos**
 
-| MÃ©trica             | Meta  | Atual |
+| MÃ©trica           | Meta  | Atual |
 | ------------------- | ----- | ----- |
 | Lint Errors         | 0     | 62    |
 | Lint Warnings       | < 10  | 81    |
-| CÃ³digo Duplicado    | < 3%  | -     |
+| CÃ³digo Duplicado   | < 3%  | -     |
 | Cobertura de Testes | > 70% | 0%    |
 
 ### **Score de Qualidade**
@@ -377,4 +377,3 @@ if (x === null || x === undefined) {
 
 **Ãšltima AtualizaÃ§Ã£o**: 2025-11-06  
 **VersÃ£o**: 1.0.0
-

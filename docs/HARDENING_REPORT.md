@@ -690,15 +690,15 @@ Taxa de utilizaÃ§Ã£o:       93.1%
 
 ### Melhorias MensurÃ¡veis
 
-| MÃ©trica                            | Antes               | Depois                | Ganho                |
-| ---------------------------------- | ------------------- | --------------------- | -------------------- |
-| **Tempo de primeiro carregamento** | ~1.2s               | ~0.8s                 | -33%                 |
-| **Scripts bloqueantes**            | 12                  | 0                     | -100%                |
-| **Erros nÃ£o capturados**           | 100% perdidos       | 100% registrados      | +âˆž                   |
-| **ValidaÃ§Ã£o de CNPJ/CPF**          | Manual em cada form | 1 funÃ§Ã£o global       | ReutilizÃ¡vel         |
+| MÃ©trica                          | Antes               | Depois                | Ganho                 |
+| ---------------------------------- | ------------------- | --------------------- | --------------------- |
+| **Tempo de primeiro carregamento** | ~1.2s               | ~0.8s                 | -33%                  |
+| **Scripts bloqueantes**            | 12                  | 0                     | -100%                 |
+| **Erros nÃ£o capturados**          | 100% perdidos       | 100% registrados      | +âˆž                  |
+| **ValidaÃ§Ã£o de CNPJ/CPF**        | Manual em cada form | 1 funÃ§Ã£o global     | ReutilizÃ¡vel         |
 | **IndexedDB batch operations**     | Nenhuma             | batchPut, batchDelete | 10x-100x mais rÃ¡pido |
-| **DOM reflows desnecessÃ¡rios**     | VÃ¡rios              | Batching automÃ¡tico   | -80%                 |
-| **ConsistÃªncia de cÃ³digo**         | VariÃ¡vel            | Padronizado           | 100%                 |
+| **DOM reflows desnecessÃ¡rios**    | VÃ¡rios             | Batching automÃ¡tico  | -80%                  |
+| **ConsistÃªncia de cÃ³digo**       | VariÃ¡vel           | Padronizado           | 100%                  |
 
 ---
 
@@ -910,4 +910,3 @@ O projeto SINGEM foi **adequado com sucesso** Ã s boas prÃ¡ticas modernas de
 **Data:** 05 de Novembro de 2025  
 **VersÃ£o do RelatÃ³rio:** 1.0  
 **Projeto:** SINGEM v1.3.0-20251105
-

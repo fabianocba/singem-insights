@@ -406,13 +406,13 @@ Adicione no `<head>`:
 
 ### MÃ©tricas de ReferÃªncia
 
-| OperaÃ§Ã£o                          | Tempo MÃ©dio |
-| --------------------------------- | ----------- |
-| Parser Refinado (PDF texto)       | < 300ms     |
-| Parser Refinado (PDF + OCR)       | 2-5s        |
-| IndexedDB batch write (100 itens) | < 50ms      |
-| Virtual List render (1000 itens)  | < 100ms     |
-| Service Worker cache hit          | < 10ms      |
+| OperaÃ§Ã£o                        | Tempo MÃ©dio |
+| --------------------------------- | ------------- |
+| Parser Refinado (PDF texto)       | < 300ms       |
+| Parser Refinado (PDF + OCR)       | 2-5s          |
+| IndexedDB batch write (100 itens) | < 50ms        |
+| Virtual List render (1000 itens)  | < 100ms       |
+| Service Worker cache hit          | < 10ms        |
 
 ### OtimizaÃ§Ãµes Aplicadas
 
@@ -537,4 +537,3 @@ Desenvolvido com â¤ï¸ para modernizar a gestÃ£o de documentos fiscais.
 **VersÃ£o:** 2.0.0  
 **Data:** 06/11/2025  
 **Status:** âœ… ProduÃ§Ã£o
-

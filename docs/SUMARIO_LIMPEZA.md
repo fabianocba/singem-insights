@@ -25,8 +25,8 @@
 
 ## ðŸ“Š MÃ©tricas de Impacto
 
-| MÃ©trica                       | Antes | Depois | Melhoria     |
-| ----------------------------- | ----- | ------ | ------------ |
+| MÃ©trica                     | Antes | Depois | Melhoria      |
+| ----------------------------- | ----- | ------ | ------------- |
 | **Arquivos na raiz**          | 26    | 11     | **-58%** âœ…  |
 | **PDFs na raiz**              | 12    | 0      | **-100%** âœ… |
 | **Console.log**               | ~60   | ~44    | **-27%** âœ…  |
@@ -232,15 +232,15 @@ SINGEM/                         â† RAIZ LIMPA (11 arquivos)
 
 ## ðŸ“ž ReferÃªncias RÃ¡pidas
 
-| Preciso de...            | Veja...               |
-| ------------------------ | --------------------- |
+| Preciso de...             | Veja...               |
+| ------------------------- | --------------------- |
 | **VisÃ£o geral**          | README.md             |
 | **Tutorial rÃ¡pido**      | GUIA_INICIO_RAPIDO.md |
 | **Onde estÃ¡ cada coisa** | NAVEGACAO.md â­       |
-| **O que foi feito**      | LIMPEZA_EXECUTADA.md  |
-| **Este resumo**          | SUMARIO_LIMPEZA.md    |
+| **O que foi feito**       | LIMPEZA_EXECUTADA.md  |
+| **Este resumo**           | SUMARIO_LIMPEZA.md    |
 | **HistÃ³rico**            | CHANGELOG.md          |
-| **Testes**               | testes/README.md      |
+| **Testes**                | testes/README.md      |
 
 ---
 
@@ -261,4 +261,3 @@ SINGEM/                         â† RAIZ LIMPA (11 arquivos)
 **VersÃ£o:** 1.2.1  
 **Data:** 03/11/2025  
 **Status:** âœ… PRODUÃ‡ÃƒO
-

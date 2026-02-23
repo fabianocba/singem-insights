@@ -16,6 +16,18 @@
 
 const DEBUG_FS = true;
 
+/**
+ * Detecta se está em modo servidor PostgreSQL
+ */
+function isServerMode() {
+  return (
+    window.CONFIG?.storage?.mode === 'server' ||
+    window.dbManager?.db?.mode === 'server-postgres' ||
+    window.dbManager?.mode === 'server-postgres' ||
+    (window.dbManager?.db && typeof window.dbManager.db.transaction !== 'function')
+  );
+}
+
 class FileSystemManager {
   constructor() {
     // Handle da pasta principal selecionada pelo usuário
@@ -187,6 +199,12 @@ Ele pode ser excluído com segurança.`;
     try {
       console.log('[FS] 💾 Salvando referência da pasta no IndexedDB...');
 
+      // Em modo servidor, não usar IndexedDB
+      if (isServerMode()) {
+        console.info('[FS] Modo servidor: saveFolderReference ignorado');
+        return;
+      }
+
       // Verificar se o banco de dados está disponível
       if (!window.dbManager || !window.dbManager.db) {
         console.error('[FS] ❌ Banco de dados não inicializado');
@@ -222,6 +240,12 @@ Ele pode ser excluído com segurança.`;
   async restoreFolderReference() {
     try {
       console.log('[FS] 🔄 Tentando restaurar pasta salva...');
+
+      // Em modo servidor PostgreSQL, não usar IndexedDB para handles de pasta
+      if (isServerMode()) {
+        console.info('[FS] Modo servidor: restoreFolderReference ignorado');
+        return null;
+      }
 
       // Verificar se o banco de dados está disponível
       if (!window.dbManager || !window.dbManager.db) {
@@ -1047,6 +1071,14 @@ Ele pode ser excluído com segurança.`;
    */
   async clearFolderReference() {
     try {
+      // Em modo servidor, não usar IndexedDB
+      if (isServerMode()) {
+        console.info('[FS] Modo servidor: clearFolderReference ignorado');
+        this.mainDirectoryHandle = null;
+        this.directoryCache.clear();
+        return;
+      }
+
       if (!window.dbManager || !window.dbManager.db) {
         console.error('Banco de dados não inicializado');
         return;
@@ -2015,6 +2047,12 @@ Ele pode ser excluído com segurança.`;
    */
   async salvarMetadadosEstrutura(metadados) {
     try {
+      // Em modo servidor, não usar IndexedDB
+      if (isServerMode()) {
+        console.info('[FS] Modo servidor: salvarMetadadosEstrutura ignorado');
+        return;
+      }
+
       if (!window.dbManager?.db) {
         console.warn('[FS] ⚠️ DB não disponível para salvar metadados');
         return;
@@ -2044,6 +2082,11 @@ Ele pode ser excluído com segurança.`;
    */
   async obterMetadadosEstrutura() {
     try {
+      // Em modo servidor, não usar IndexedDB
+      if (isServerMode()) {
+        return null;
+      }
+
       if (!window.dbManager?.db) {
         return null;
       }

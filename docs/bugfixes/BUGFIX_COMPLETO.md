@@ -532,4 +532,3 @@ Se encontrar novos problemas:
 
 **DocumentaÃ§Ã£o gerada automaticamente pelo Copilot**  
 **Ãšltima atualizaÃ§Ã£o:** 05/11/2025 Ã s 14:45
-

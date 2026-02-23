@@ -581,4 +581,3 @@ ConfiguraÃ§Ãµes sÃ£o salvas no store `config`:
 **Data:** 03/11/2025  
 **Sistema:** SINGEM - IF Baiano  
 **VersÃ£o:** 1.1 (com ConfiguraÃ§Ãµes integradas)
-

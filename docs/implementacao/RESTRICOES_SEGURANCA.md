@@ -222,28 +222,28 @@ if (btnImportarConfig) {
 
 ## ðŸ“Š Matriz de PermissÃµes
 
-| Recurso                  | Administrador | UsuÃ¡rio Comum       |
-| ------------------------ | ------------- | ------------------- |
+| Recurso                    | Administrador | UsuÃ¡rio Comum       |
+| -------------------------- | ------------- | -------------------- |
 | **Unidade OrÃ§amentÃ¡ria** |
-| Visualizar               | âœ… Sim        | âœ… Sim              |
-| Editar                   | âœ… Sim        | âŒ NÃ£o              |
-| **UsuÃ¡rios**             |
-| Visualizar               | âœ… Sim        | âŒ NÃ£o (aba oculta) |
-| Cadastrar                | âœ… Sim        | âŒ NÃ£o              |
-| Editar                   | âœ… Sim        | âŒ NÃ£o              |
-| Excluir                  | âœ… Sim        | âŒ NÃ£o              |
-| **Rede/LAN**             |
-| Visualizar               | âœ… Sim        | âŒ NÃ£o (aba oculta) |
-| Configurar               | âœ… Sim        | âŒ NÃ£o              |
-| Testar conexÃ£o           | âœ… Sim        | âŒ NÃ£o              |
-| **PreferÃªncias**         |
-| Tema                     | âœ… Sim        | âœ… Sim              |
-| Idioma                   | âœ… Sim        | âœ… Sim              |
-| TolerÃ¢ncias              | âœ… Sim        | âœ… Sim              |
-| NotificaÃ§Ãµes             | âœ… Sim        | âœ… Sim              |
-| Exportar config          | âœ… Sim        | âœ… Sim              |
-| Importar config          | âœ… Sim        | âŒ NÃ£o              |
-| Limpar banco             | âœ… Sim        | âŒ NÃ£o (oculto)     |
+| Visualizar                 | âœ… Sim       | âœ… Sim              |
+| Editar                     | âœ… Sim       | âŒ NÃ£o              |
+| **UsuÃ¡rios**              |
+| Visualizar                 | âœ… Sim       | âŒ NÃ£o (aba oculta) |
+| Cadastrar                  | âœ… Sim       | âŒ NÃ£o              |
+| Editar                     | âœ… Sim       | âŒ NÃ£o              |
+| Excluir                    | âœ… Sim       | âŒ NÃ£o              |
+| **Rede/LAN**               |
+| Visualizar                 | âœ… Sim       | âŒ NÃ£o (aba oculta) |
+| Configurar                 | âœ… Sim       | âŒ NÃ£o              |
+| Testar conexÃ£o            | âœ… Sim       | âŒ NÃ£o              |
+| **PreferÃªncias**          |
+| Tema                       | âœ… Sim       | âœ… Sim              |
+| Idioma                     | âœ… Sim       | âœ… Sim              |
+| TolerÃ¢ncias               | âœ… Sim       | âœ… Sim              |
+| NotificaÃ§Ãµes             | âœ… Sim       | âœ… Sim              |
+| Exportar config            | âœ… Sim       | âœ… Sim              |
+| Importar config            | âœ… Sim       | âŒ NÃ£o              |
+| Limpar banco               | âœ… Sim       | âŒ NÃ£o (oculto)     |
 
 ---
 
@@ -438,4 +438,3 @@ if (usuarioLogado.perfil !== 'admin') {
 **Data:** 03/11/2025  
 **Sistema:** SINGEM - IF Baiano  
 **MÃ³dulo:** ConfiguraÃ§Ãµes com RestriÃ§Ãµes de SeguranÃ§a v1.2
-

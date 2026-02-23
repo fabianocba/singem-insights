@@ -8,11 +8,11 @@
 
 ## ðŸ“Š ESTATÃSTICAS
 
-| Categoria                  | Quantidade       | Status          |
-| -------------------------- | ---------------- | --------------- |
-| **console.log/info/debug** | 200+ ocorrÃªncias | âš ï¸ Mantidos     |
+| Categoria                  | Quantidade        | Status           |
+| -------------------------- | ----------------- | ---------------- |
+| **console.log/info/debug** | 200+ ocorrÃªncias | âš ï¸ Mantidos   |
 | **TODO/FIXME**             | 5 ocorrÃªncias    | ðŸ“ Documentados |
-| **CÃ³digo comentado**       | MÃ­nimo           | âœ… OK           |
+| **CÃ³digo comentado**      | MÃ­nimo           | âœ… OK           |
 
 ---
 
@@ -44,13 +44,13 @@ Os logs atuais servem para:
 
 | Prefixo             | Uso                     |
 | ------------------- | ----------------------- |
-| `[App]`             | AplicaÃ§Ã£o principal     |
+| `[App]`             | AplicaÃ§Ã£o principal   |
 | `[State]`           | Gerenciamento de estado |
-| `[VALIDAR]`         | ValidaÃ§Ã£o de dados      |
-| `[REALIZAR_LOGIN]`  | AutenticaÃ§Ã£o            |
-| `[EDIT]`            | EdiÃ§Ã£o de empenhos      |
+| `[VALIDAR]`         | ValidaÃ§Ã£o de dados    |
+| `[REALIZAR_LOGIN]`  | AutenticaÃ§Ã£o          |
+| `[EDIT]`            | EdiÃ§Ã£o de empenhos    |
 | `[Parser Refinado]` | Pipeline de parsing     |
-| `ðŸ” ðŸ”‘ âœ… âŒ`       | Emojis indicativos      |
+| `ðŸ” ðŸ”‘ âœ… âŒ`   | Emojis indicativos      |
 
 ### RecomendaÃ§Ã£o futura
 
@@ -86,4 +86,3 @@ Remover console.log poderia:
 - Mascarar problemas de diagnÃ³stico
 - Dificultar debug futuro
 - Quebrar expectativas de comportamento atual
-

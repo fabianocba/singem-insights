@@ -34,17 +34,17 @@ O Sistema de Controle de Saldos foi desenvolvido para acompanhar em tempo real o
 
 ### Colunas Principais:
 
-| Coluna                  | DescriÃ§Ã£o                                        |
+| Coluna                  | DescriÃ§Ã£o                                      |
 | ----------------------- | ------------------------------------------------ |
-| **Seq**                 | SequÃªncia do item no empenho (1, 2, 3...)        |
-| **Produto**             | DescriÃ§Ã£o completa do item + cÃ³digo              |
+| **Seq**                 | SequÃªncia do item no empenho (1, 2, 3...)       |
+| **Produto**             | DescriÃ§Ã£o completa do item + cÃ³digo           |
 | **UN**                  | Unidade de medida (UN, CX, KG, etc.)             |
 | **Qtd Emp.**            | Quantidade total empenhada                       |
-| **Vlr. Unit.**          | Valor unitÃ¡rio do item                           |
-| **Vlr. Total**          | Valor total do item (Qtd Ã— Vlr. Unit.)           |
+| **Vlr. Unit.**          | Valor unitÃ¡rio do item                          |
+| **Vlr. Total**          | Valor total do item (Qtd Ã— Vlr. Unit.)          |
 | **Entradas (NF / Qtd)** | Lista de notas fiscais recebidas com quantidades |
-| **Saldo Qtd**           | Quantidade ainda nÃ£o recebida                    |
-| **Saldo Valor**         | Valor ainda nÃ£o recebido (em R$)                 |
+| **Saldo Qtd**           | Quantidade ainda nÃ£o recebida                   |
+| **Saldo Valor**         | Valor ainda nÃ£o recebido (em R$)                |
 
 ### RodapÃ© (Totais):
 
@@ -309,4 +309,3 @@ Para dÃºvidas ou problemas com o Sistema de Controle de Saldos:
 **Ãšltima AtualizaÃ§Ã£o:** 06/11/2024  
 **VersÃ£o do Sistema:** 3.0  
 **Autor:** Sistema SINGEM - IF Baiano
-

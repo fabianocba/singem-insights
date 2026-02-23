@@ -440,4 +440,3 @@ CNPJ prÃ³prio do projeto
 **Data:** 03/11/2025  
 **Implementado por:** Sistema SINGEM  
 **Status:** âœ… ConcluÃ­do e Testado
-

@@ -568,4 +568,3 @@ Ou restaurar arquivos especÃ­ficos:
 **Data do Documento:** 2025-11-07  
 **VersÃ£o do Sistema:** 1.3.1-20251107  
 **Status:** âœ… PRONTO PARA TESTE
-

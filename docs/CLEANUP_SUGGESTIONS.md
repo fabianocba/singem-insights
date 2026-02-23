@@ -47,4 +47,3 @@ Relatório gerado automaticamente: arquivos e diretórios com nomes que podem in
 - Revisar cada item marcado como `Não` para confirmar que é seguro remover.
 - Para `Incerto`, pesquisar por referência e executar testes manuais de navegação nas telas que podem usar o arquivo.
 - Para `Sim`, investigar e atualizar rotas/imports antes de remover.
-

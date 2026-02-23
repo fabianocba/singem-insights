@@ -222,6 +222,15 @@ class TrashManager {
         return;
       }
 
+      // Em modo servidor PostgreSQL, não usar IndexedDB
+      if (
+        window.CONFIG?.storage?.mode === 'server' ||
+        window.dbManager?.db?.mode === 'server-postgres' ||
+        typeof window.dbManager.db.transaction !== 'function'
+      ) {
+        return;
+      }
+
       const tx = window.dbManager.db.transaction(['config'], 'readwrite');
       const store = tx.objectStore('config');
 
@@ -278,6 +287,15 @@ class TrashManager {
   async removeTrashMetadata(year, trashFileName) {
     try {
       if (!window.dbManager?.db) {
+        return;
+      }
+
+      // Em modo servidor PostgreSQL, não usar IndexedDB
+      if (
+        window.CONFIG?.storage?.mode === 'server' ||
+        window.dbManager?.db?.mode === 'server-postgres' ||
+        typeof window.dbManager.db.transaction !== 'function'
+      ) {
         return;
       }
 

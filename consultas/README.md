@@ -54,4 +54,3 @@ DocumentaÃ§Ã£o oficial: https://dadosabertos.compras.gov.br/swagger-ui/index
 ---
 
 **SINGEM v1.2.4** | IF Baiano
-
