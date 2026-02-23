@@ -1,6 +1,42 @@
-﻿## [0.1.1] - 2026-02-19
+﻿## [0.0.3] - 2026-02-20
+
+### Changed
+
+- Migração inicial para modo server-first: login e inicialização passam a depender da API (VPS/PostgreSQL), sem fallback para persistência local de dados de negócio.
+- `js/db.js` agora aplica adapter de servidor para operações de empenhos e notas fiscais via endpoints backend, desativando gravação local dessas entidades.
+- `js/core/repository.js` removido de transações IndexedDB para `config`, usando camada compatível com `dbManager` em modo servidor.
+- `js/config.js` atualizado para modo de armazenamento `server`/`postgres` e sem persistência de configuração em `localStorage`.
+- `js/core/authRemember.js` ajustado para não persistir credenciais localmente (somente estado efêmero de sessão).
+- `js/services/apiClient.js` alterado para tokens e usuário apenas em memória, com limpeza de chaves legadas sensíveis no navegador.
+- `js/app.js` passou a executar logout via endpoint de autenticação da API, removendo dependência de sessão local.
+- `js/settings/usuarios.js` removeu criação de sessão persistente local, mantendo sessão apenas em memória.
+- `js/settings/backup.js` removeu senhas em texto puro dos dados de teste.
+- `js/settings/preferencias.js` ajustado para modo servidor: verificação de dados e exportação CSV via API; backup/import/limpeza local bloqueados com mensagem orientativa.
+- `js/settings/backup.js` agora bloqueia export/import/reset/dados de teste locais no modo PostgreSQL/VPS.
+- `js/settings/diagnostico.js` atualizado para diagnóstico server-first (API/sessão em memória), sem inspeção de armazenamento sensível local.
+- `js/settings/arquivos.js` atualizado para mensagens compatíveis com persistência em servidor.
+- `js/core/dataBackup.js` desativado no modo servidor para evitar rotinas automáticas de backup local em IndexedDB.
+- Finalização de consistência server-first: `preferencias`, `diagnostico` e `dataBackup` ajustados para evitar avisos/fluxos locais enganosos quando o modo PostgreSQL/VPS está ativo.
+
+### Security
+
+- Remoção do fluxo de “lembrar senha” persistente no navegador.
+
+## [0.0.2] - 2026-02-20
+
+### Changed
+
+- Fonte canônica de versão consolidada em `js/core/version.json` + `js/core/version.js`.
+- Bridge legado `js/config/version.js` ajustado para páginas não-module sem divergência de versão.
+- `js/versionManager.js` atualizado para registro único de SW, `SKIP_WAITING`, `controllerchange` com reload único e utilitários `window.SINGEM_CACHE`.
+- `sw.js` blindado com cache determinístico `singem-cache-<version>-<build>`, limpeza de caches antigos (`ifdesk*`/`singem*`), e estratégias NetworkFirst/SWR/CacheFirst.
+- Workflows de CI/CD ajustados para bump semver patch em `main`, deploy produção/staging e release automática por tag `vX.Y.Z`.
+- Higiene de backup no git com `.gitignore` e preservação de `04_BACKUPS/README.md`.
+
+## [0.1.1] - 2026-02-19
 
 ### Added
+
 - Estrutura backend Node/Express institucional
 - PostgreSQL preparado com migrations
 - Identity provider pattern (local + govbr stub)
@@ -8,10 +44,12 @@
 - OrganizaÃ§Ã£o Git com branch dev
 
 ### Changed
+
 - RemoÃ§Ã£o de dados locais do repositÃ³rio
 - PadronizaÃ§Ã£o de ambiente com .env.example
 
 ### Security
+
 - RemoÃ§Ã£o de credenciais hardcoded
 - JWT server-side
 
@@ -677,3 +715,11 @@ Este changelog segue o formato [Keep a Changelog](https://keepachangelog.com/pt-
 - `Corrigido` - correÃ§Ãµes de bugs
 - `SeguranÃ§a` - vulnerabilidades corrigidas
 
+## [0.0.2] - 2026-02-20
+
+- versão canônica em js/core/version.json + bridge legado
+- service worker blindado com cache determinístico e limpeza de legados
+- versionManager com update controlado e reload 1x
+- bump patch + tag + release automáticos
+- deploy automático produção e staging
+- backups fora do Git

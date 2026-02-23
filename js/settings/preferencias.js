@@ -8,6 +8,7 @@
 class SettingsPreferencias {
   constructor() {
     this.preferencias = null;
+    this.serverMode = window.CONFIG?.storage?.mode === 'server';
     this.init();
   }
 
@@ -77,7 +78,9 @@ class SettingsPreferencias {
       const statusEl = document.getElementById('backupStatusPref');
 
       if (tipo === 'nf') {
-        const nfs = await window.dbManager.getAll('notasFiscais');
+        const nfs = this.serverMode
+          ? await window.dbManager.buscarNotasFiscais()
+          : await window.dbManager.getAll('notasFiscais');
         if (!nfs || nfs.length === 0) {
           if (statusEl) {
             statusEl.innerHTML =
@@ -94,7 +97,9 @@ class SettingsPreferencias {
           throw new Error('Módulo CSVExporter não disponível');
         }
       } else if (tipo === 'empenhos') {
-        const empenhos = await window.dbManager.getAll('empenhos');
+        const empenhos = this.serverMode
+          ? await window.dbManager.buscarEmpenhos(true)
+          : await window.dbManager.getAll('empenhos');
         if (!empenhos || empenhos.length === 0) {
           if (statusEl) {
             statusEl.innerHTML =
@@ -168,7 +173,9 @@ class SettingsPreferencias {
     }
 
     resultEl.style.display = 'block';
-    resultEl.innerHTML = '<p>⏳ Verificando dados diretamente no IndexedDB...</p>';
+    resultEl.innerHTML = this.serverMode
+      ? '<p>⏳ Verificando dados na API PostgreSQL...</p>'
+      : '<p>⏳ Verificando dados diretamente no IndexedDB...</p>';
 
     try {
       if (!window.dbManager?.db) {
@@ -177,15 +184,22 @@ class SettingsPreferencias {
 
       console.log('[Preferencias] 🔍 Verificando dados no banco...');
 
-      // Buscar contagens de todas as stores - DIRETAMENTE DO INDEXEDDB
-      const empenhos = await window.dbManager.getAll('empenhos');
-      const notasFiscais = await window.dbManager.getAll('notasFiscais');
-      const arquivos = await window.dbManager.getAll('arquivos');
-      const entregas = await window.dbManager.getAll('entregas');
-      const saldos = await window.dbManager.getAll('saldosEmpenhos');
+      const empenhos = this.serverMode
+        ? await window.dbManager.buscarEmpenhos(true)
+        : await window.dbManager.getAll('empenhos');
+      const notasFiscais = this.serverMode
+        ? await window.dbManager.buscarNotasFiscais()
+        : await window.dbManager.getAll('notasFiscais');
+      const arquivos = this.serverMode ? [] : await window.dbManager.getAll('arquivos');
+      const entregas = this.serverMode ? [] : await window.dbManager.getAll('entregas');
+      const saldos = this.serverMode ? [] : await window.dbManager.getAll('saldosEmpenhos');
 
       // Log detalhado no console
-      console.log('[Preferencias] 📊 Dados encontrados no IndexedDB:');
+      console.log(
+        this.serverMode
+          ? '[Preferencias] 📊 Dados encontrados na API PostgreSQL:'
+          : '[Preferencias] 📊 Dados encontrados no IndexedDB:'
+      );
       console.log('  - Empenhos:', empenhos.length);
       console.log('  - Notas Fiscais:', notasFiscais.length);
       console.log('  - Arquivos:', arquivos.length);
@@ -232,7 +246,7 @@ class SettingsPreferencias {
       }
 
       resultEl.innerHTML = `
-        <h4 style="margin: 0 0 10px 0; color: #1e7e34;">📊 Dados no IndexedDB (ControleMaterialDB)</h4>
+        <h4 style="margin: 0 0 10px 0; color: #1e7e34;">📊 Dados em ${this.serverMode ? 'API PostgreSQL (VPS)' : 'IndexedDB (ControleMaterialDB)'}</h4>
         <table style="width: 100%; border-collapse: collapse;">
           <tr style="background: #e9ecef;">
             <td style="padding: 8px; border: 1px solid #ddd;"><strong>Store</strong></td>
@@ -290,7 +304,7 @@ class SettingsPreferencias {
         </div>
 
         ${
-          empenhos.length > 0 && empenhosComArquivo === 0
+          !this.serverMode && empenhos.length > 0 && empenhosComArquivo === 0
             ? `
         <div style="margin-top: 15px; padding: 10px; background: #fff3cd; border-radius: 5px;">
           <strong>⚠️ Atenção:</strong> Você tem ${empenhos.length} empenho(s) no banco, mas nenhum tem arquivo PDF vinculado.
@@ -328,6 +342,15 @@ class SettingsPreferencias {
     const originalText = btn?.innerHTML;
 
     try {
+      if (this.serverMode) {
+        this._showStatus(
+          statusEl,
+          'warning',
+          '⚠️ Backup local desativado no modo PostgreSQL/VPS. Use rotina de backup do servidor.'
+        );
+        return;
+      }
+
       if (btn) {
         btn.disabled = true;
         btn.innerHTML = '⏳ Exportando...';
@@ -456,6 +479,15 @@ class SettingsPreferencias {
   async _handleImportarBackup() {
     const statusEl = document.getElementById('backupStatusPref');
 
+    if (this.serverMode) {
+      this._showStatus(
+        statusEl,
+        'warning',
+        '⚠️ Importação local desativada no modo PostgreSQL/VPS. Use rotina de restauração do servidor.'
+      );
+      return;
+    }
+
     console.log('[Preferencias] 📥 Abrindo seletor de arquivo DIRETO...');
 
     // Usa sempre o método direto (mais confiável)
@@ -490,6 +522,16 @@ class SettingsPreferencias {
       this._showStatus(statusEl, 'info', '⏳ Processando backup...');
 
       try {
+        if (this.serverMode) {
+          this._showStatus(
+            statusEl,
+            'warning',
+            '⚠️ Importação local desativada no modo PostgreSQL/VPS. Use rotina de restauração do servidor.'
+          );
+          input.remove();
+          return;
+        }
+
         // Lê o arquivo
         const text = await file.text();
         const backup = JSON.parse(text);
@@ -886,6 +928,11 @@ class SettingsPreferencias {
    * Limpa banco de dados (APENAS ADMINISTRADOR)
    */
   async limparBancoDados() {
+    if (this.serverMode) {
+      alert('⚠️ Limpeza local desativada no modo PostgreSQL/VPS. Use procedimentos administrativos no servidor.');
+      return;
+    }
+
     // Verifica se usuário é administrador
     const usuarioLogado = window.settingsUsuarios?.usuarioLogado;
 

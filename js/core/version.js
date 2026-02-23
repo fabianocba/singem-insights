@@ -1,105 +1,78 @@
-/**
- * ══════════════════════════════════════════════════════════════════
- * SINGEM - ARQUIVO CENTRAL DE VERSÃO (js/core/version.js)
- * ══════════════════════════════════════════════════════════════════
- *
- * FONTE CANÔNICA DE VERSÃO - Atualizada automaticamente pelo CI
- *
- * A versão abaixo é sincronizada com js/core/version.json pelo
- * GitHub Actions em cada push para a branch principal.
- *
- * Padrão SemVer: MAJOR.MINOR.PATCH
- * - Correção de bug → PATCH: 0.0.2 → 0.0.3
- * - Nova funcionalidade → MINOR: 0.0.2 → 0.1.0
- * - Mudança estrutural → MAJOR: 0.0.2 → 1.0.0
- *
- * ══════════════════════════════════════════════════════════════════
- */
+﻿const FALLBACK = Object.freeze({
+  name: 'SINGEM',
+  version: '0.0.2',
+  build: '',
+  buildTimestamp: ''
+});
 
-// @ts-check
-
-/** Nome da aplicação */
-export const APP_NAME = 'SINGEM';
-
-/**
- * Versão semântica (MAJOR.MINOR.PATCH)
- * @GENERATED - Atualizada automaticamente pelo CI, não editar manualmente
- */
-export const APP_VERSION = '0.0.2';
-
-/**
- * Gera build timestamp dinâmico (YYYY-MM-DD-HHMM)
- * @returns {string} Build no formato padrão
- */
-function generateBuild() {
-  const d = new Date();
-  const pad = (n) => String(n).padStart(2, '0');
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}-${pad(d.getHours())}${pad(d.getMinutes())}`;
+async function loadMeta() {
+  try {
+    const res = await fetch(new URL('./version.json', import.meta.url), { cache: 'no-store' });
+    if (!res.ok) return FALLBACK;
+    const json = await res.json();
+    return { ...FALLBACK, ...json };
+  } catch {
+    return FALLBACK;
+  }
 }
 
-/**
- * Build dinâmico - gerado automaticamente a cada reload
- */
-export const APP_BUILD = generateBuild();
+const raw = await loadMeta();
 
-/** Timestamp ISO completo */
-export const BUILD_TIMESTAMP = new Date().toISOString();
+function safeIso(value) {
+  const parsed = Date.parse(value || '');
+  return Number.isFinite(parsed) ? new Date(parsed).toISOString() : new Date().toISOString();
+}
 
-/** String para exibição */
+function buildFromIso(iso) {
+  const dt = new Date(iso);
+  const pad = (n) => String(n).padStart(2, '0');
+  return `${dt.getUTCFullYear()}${pad(dt.getUTCMonth() + 1)}${pad(dt.getUTCDate())}-${pad(dt.getUTCHours())}${pad(dt.getUTCMinutes())}`;
+}
+
+export const APP_NAME = String(raw.name || FALLBACK.name);
+export const APP_VERSION = String(raw.version || FALLBACK.version);
+export const BUILD_TIMESTAMP = safeIso(raw.buildTimestamp);
+export const APP_BUILD = String(raw.build || '').trim() || buildFromIso(BUILD_TIMESTAMP);
 export const VERSION_DISPLAY = `${APP_NAME} ${APP_VERSION} • build ${APP_BUILD}`;
+export const CACHE_BUSTER = `${APP_VERSION}-${APP_BUILD}`;
 
-/** Query string para cache busting */
-export const CACHE_BUSTER = '?v=' + APP_BUILD.replace(/-/g, '');
-
-/**
- * Objeto VERSION - interface simplificada
- */
-export const VERSION = {
-  name: APP_NAME,
+export const VERSION_INFO = Object.freeze({
+  appName: APP_NAME,
   version: APP_VERSION,
-  get build() {
-    return APP_BUILD;
-  }
-};
+  build: APP_BUILD,
+  buildTimestamp: BUILD_TIMESTAMP,
+  display: VERSION_DISPLAY,
+  cacheBuster: CACHE_BUSTER
+});
 
-/**
- * Informações completas de versão
- */
-export const VERSION_INFO = {
+export const VERSION = Object.freeze({
   name: APP_NAME,
   version: APP_VERSION,
   build: APP_BUILD,
-  timestamp: BUILD_TIMESTAMP,
-  fullName: 'SINGEM - Sistema de Controle de Material',
-  organization: 'IF Baiano'
-};
+  buildTimestamp: BUILD_TIMESTAMP
+});
 
-/**
- * Exibe versão no console de forma formatada
- */
-export function logVersion() {
-  console.log(
-    `%c SINGEM %c v${APP_VERSION} %c build ${APP_BUILD} `,
-    'background: #1e7e34; color: white; padding: 2px 6px; border-radius: 3px 0 0 3px;',
-    'background: #28a745; color: white; padding: 2px 6px;',
-    'background: #6c757d; color: white; padding: 2px 6px; border-radius: 0 3px 3px 0;'
-  );
-}
-
-/**
- * Atualiza elemento da UI com versão (se existir)
- */
-export function renderVersionUI() {
-  const el = document.getElementById('appVersion');
+export function renderVersionUI(targetId = 'appVersion') {
+  if (typeof document === 'undefined') return;
+  const el = document.getElementById(targetId);
   if (el) {
-    el.textContent = `${APP_NAME} ${APP_VERSION} • build ${APP_BUILD}`;
+    el.textContent = VERSION_DISPLAY;
   }
 }
 
-// Expõe globalmente para uso em scripts não-módulo
+export function logVersion(prefix = '[SINGEM] ') {
+  console.info(`${prefix}${VERSION_DISPLAY}`);
+}
+
 if (typeof window !== 'undefined') {
-  window.SINGEM_VERSION = APP_VERSION;
-  window.SINGEM_BUILD = APP_BUILD;
-  window.VERSION_INFO = VERSION_INFO;
-  window.APP_VERSION = APP_VERSION;
+  Object.assign(window, {
+    APP_NAME,
+    APP_VERSION,
+    APP_BUILD,
+    BUILD_TIMESTAMP,
+    VERSION_DISPLAY,
+    CACHE_BUSTER,
+    VERSION_INFO,
+    VERSION
+  });
 }

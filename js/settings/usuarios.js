@@ -654,20 +654,13 @@ class SettingsUsuarios {
 
       console.log('✅ Usuário autenticado com sucesso:', usuario.nome);
 
-      // Salva sessão em localStorage com token e expiração
-      const token = this.gerarToken();
-      const expiracao = Date.now() + 24 * 60 * 60 * 1000; // 24 horas
+      this.sessaoAtual = {
+        login: usuario.login,
+        token: this.gerarToken(),
+        criadaEm: Date.now()
+      };
 
-      localStorage.setItem(
-        'session',
-        JSON.stringify({
-          login: usuario.login,
-          token: token,
-          exp: expiracao
-        })
-      );
-
-      console.log('✅ Sessão criada (válida por 24h)');
+      console.log('✅ Sessão em memória criada para usuário autenticado');
 
       return { sucesso: true, usuario: this.usuarioLogado };
     } catch (error) {

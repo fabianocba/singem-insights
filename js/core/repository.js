@@ -5,10 +5,9 @@
 
 import { emit } from './eventBus.js';
 import { validateEmpenhoDraft, validateEmpenhoCompleto, validateNotaFiscal } from './validators/required.js';
-import { withTx } from './dbTx.js';
 
 console.log('[Repository] 🔄 Inicializando camada de dados...');
-console.log('[Repository] withTx importado:', typeof withTx);
+console.log('[Repository] Modo de persistência: API PostgreSQL');
 
 /**
  * Salva um empenho com validação
@@ -294,45 +293,28 @@ export async function cleanupOrphanRecords() {
  * @returns {Promise<Object>}
  */
 export async function saveUnidade(unidade) {
-  if (!window.dbManager?.db) {
-    throw new Error('Banco de dados não inicializado');
+  const existentes = await getUnidadeConfigArray('todasUnidades', 'unidades');
+  const idx = existentes.findIndex((u) => u.id === unidade.id);
+  if (idx >= 0) {
+    existentes[idx] = { ...unidade, dataAtualizacao: new Date().toISOString() };
+  } else {
+    existentes.push({ ...unidade, dataCriacao: new Date().toISOString(), ativa: true });
   }
 
-  return withTx(window.dbManager.db, ['config'], 'readwrite', async (tx) => {
-    const store = tx.objectStore('config');
-
-    // Busca todas as unidades
-    const result = await new Promise((resolve, reject) => {
-      const req = store.get('todasUnidades');
-      req.onsuccess = () => resolve(req.result);
-      req.onerror = () => reject(req.error);
-    });
-
-    const unidades = result?.unidades || [];
-
-    // Verifica se já existe
-    const index = unidades.findIndex((u) => u.id === unidade.id);
-
-    if (index >= 0) {
-      unidades[index] = { ...unidade, dataAtualizacao: new Date().toISOString() };
-    } else {
-      unidades.push({ ...unidade, dataCriacao: new Date().toISOString(), ativa: true });
-    }
-
-    // Salva de volta
-    await new Promise((resolve, reject) => {
-      const req = store.put({
-        id: 'todasUnidades',
-        unidades,
-        dataAtualizacao: new Date().toISOString()
-      });
-      req.onsuccess = () => resolve();
-      req.onerror = () => reject(req.error);
-    });
-
-    emit('unidade.salva', { id: unidade.id, razaoSocial: unidade.razaoSocial });
-    return unidade;
+  await window.dbManager.update('config', {
+    id: 'todasUnidades',
+    unidades: existentes,
+    dataAtualizacao: new Date().toISOString()
   });
+
+  await window.dbManager.update('config', {
+    id: 'unidadeOrcamentaria',
+    ...unidade,
+    dataAtualizacao: new Date().toISOString()
+  });
+
+  emit('unidade.salva', { id: unidade.id, razaoSocial: unidade.razaoSocial });
+  return unidade;
 }
 
 /**
@@ -340,21 +322,7 @@ export async function saveUnidade(unidade) {
  * @returns {Promise<Object|null>}
  */
 export async function getUnidade() {
-  if (!window.dbManager?.db) {
-    return null;
-  }
-
-  return withTx(window.dbManager.db, ['config'], 'readonly', async (tx) => {
-    const store = tx.objectStore('config');
-
-    const result = await new Promise((resolve, reject) => {
-      const req = store.get('unidadeOrcamentaria');
-      req.onsuccess = () => resolve(req.result);
-      req.onerror = () => reject(req.error);
-    });
-
-    return result || null;
-  });
+  return (await window.dbManager.get('config', 'unidadeOrcamentaria')) || null;
 }
 
 /**
@@ -363,28 +331,11 @@ export async function getUnidade() {
  * @returns {Promise<Array>}
  */
 export async function listUnidades(filters = {}) {
-  if (!window.dbManager?.db) {
-    return [];
+  let unidades = await getUnidadeConfigArray('todasUnidades', 'unidades');
+  if (filters.ativa !== undefined) {
+    unidades = unidades.filter((u) => u.ativa === filters.ativa);
   }
-
-  return withTx(window.dbManager.db, ['config'], 'readonly', async (tx) => {
-    const store = tx.objectStore('config');
-
-    const result = await new Promise((resolve, reject) => {
-      const req = store.get('todasUnidades');
-      req.onsuccess = () => resolve(req.result);
-      req.onerror = () => reject(req.error);
-    });
-
-    let unidades = result?.unidades || [];
-
-    // Aplicar filtros se necessário
-    if (filters.ativa !== undefined) {
-      unidades = unidades.filter((u) => u.ativa === filters.ativa);
-    }
-
-    return unidades;
-  });
+  return unidades;
 }
 
 /**
@@ -393,61 +344,22 @@ export async function listUnidades(filters = {}) {
  * @returns {Promise<Object>}
  */
 export async function saveUsuario(usuario) {
-  if (!window.dbManager?.db) {
-    throw new Error('Banco de dados não inicializado');
+  const usuarios = await getUnidadeConfigArray('usuarios', 'usuarios');
+  const idx = usuarios.findIndex((u) => u.id === usuario.id);
+  if (idx >= 0) {
+    usuarios[idx] = { ...usuario, dataAtualizacao: new Date().toISOString() };
+  } else {
+    usuarios.push({ ...usuario, dataCriacao: new Date().toISOString(), ativo: true });
   }
 
-  return withTx(window.dbManager.db, ['config'], 'readwrite', async (tx) => {
-    const store = tx.objectStore('config');
-
-    // 🔒 BACKUP: Cria backup antes de modificar
-    if (window.dataBackupManager) {
-      await window.dataBackupManager.createAutoBackup('pre-save-usuario');
-      await window.dataBackupManager.logChange('save_usuario', {
-        usuarioId: usuario.id,
-        login: usuario.login,
-        nome: usuario.nome
-      });
-    }
-
-    // Busca todos os usuários
-    const result = await new Promise((resolve, reject) => {
-      const req = store.get('usuarios');
-      req.onsuccess = () => resolve(req.result);
-      req.onerror = () => reject(req.error);
-    });
-
-    const usuarios = result?.usuarios || [];
-
-    // Verifica se já existe
-    const index = usuarios.findIndex((u) => u.id === usuario.id);
-
-    if (index >= 0) {
-      usuarios[index] = { ...usuario, dataAtualizacao: new Date().toISOString() };
-    } else {
-      usuarios.push({ ...usuario, dataCriacao: new Date().toISOString(), ativo: true });
-    }
-
-    // Salva de volta
-    await new Promise((resolve, reject) => {
-      const req = store.put({
-        id: 'usuarios',
-        usuarios,
-        dataAtualizacao: new Date().toISOString()
-      });
-      req.onsuccess = () => resolve();
-      req.onerror = () => reject(req.error);
-    });
-
-    emit('usuario.salvo', { id: usuario.id, nome: usuario.nome, login: usuario.login });
-
-    // 🔒 BACKUP: Cria backup após modificação bem-sucedida
-    if (window.dataBackupManager) {
-      await window.dataBackupManager.createAutoBackup('post-save-usuario');
-    }
-
-    return usuario;
+  await window.dbManager.update('config', {
+    id: 'usuarios',
+    usuarios,
+    dataAtualizacao: new Date().toISOString()
   });
+
+  emit('usuario.salvo', { id: usuario.id, nome: usuario.nome, login: usuario.login });
+  return usuario;
 }
 
 /**
@@ -456,22 +368,8 @@ export async function saveUsuario(usuario) {
  * @returns {Promise<Object|null>}
  */
 export async function getUsuarioByLogin(login) {
-  if (!window.dbManager?.db) {
-    return null;
-  }
-
-  return withTx(window.dbManager.db, ['config'], 'readonly', async (tx) => {
-    const store = tx.objectStore('config');
-
-    const result = await new Promise((resolve, reject) => {
-      const req = store.get('usuarios');
-      req.onsuccess = () => resolve(req.result);
-      req.onerror = () => reject(req.error);
-    });
-
-    const usuarios = result?.usuarios || [];
-    return usuarios.find((u) => u.login === login) || null;
-  });
+  const usuarios = await getUnidadeConfigArray('usuarios', 'usuarios');
+  return usuarios.find((u) => u.login === login) || null;
 }
 
 /**
@@ -480,30 +378,13 @@ export async function getUsuarioByLogin(login) {
  * @returns {Promise<Array>}
  */
 export async function listUsuarios(filters = {}) {
-  if (!window.dbManager?.db) {
-    return [];
+  let usuarios = await getUnidadeConfigArray('usuarios', 'usuarios');
+  if (filters.status === 'ativo') {
+    usuarios = usuarios.filter((u) => u.ativo === true);
+  } else if (filters.status === 'inativo') {
+    usuarios = usuarios.filter((u) => u.ativo === false);
   }
-
-  return withTx(window.dbManager.db, ['config'], 'readonly', async (tx) => {
-    const store = tx.objectStore('config');
-
-    const result = await new Promise((resolve, reject) => {
-      const req = store.get('usuarios');
-      req.onsuccess = () => resolve(req.result);
-      req.onerror = () => reject(req.error);
-    });
-
-    let usuarios = result?.usuarios || [];
-
-    // Aplicar filtros
-    if (filters.status === 'ativo') {
-      usuarios = usuarios.filter((u) => u.ativo === true);
-    } else if (filters.status === 'inativo') {
-      usuarios = usuarios.filter((u) => u.ativo === false);
-    }
-
-    return usuarios;
-  });
+  return usuarios;
 }
 
 /**
@@ -511,8 +392,12 @@ export async function listUsuarios(filters = {}) {
  * @returns {Promise<boolean>}
  */
 export async function hasUsuarios() {
-  const usuarios = await listUsuarios();
-  return usuarios.length > 0;
+  return true;
+}
+
+async function getUnidadeConfigArray(configId, key) {
+  const result = await window.dbManager.get('config', configId);
+  return result?.[key] || [];
 }
 
 console.log('[Repository] Camada de dados centralizada inicializada');

@@ -9,12 +9,17 @@ class DataBackupManager {
     this.BACKUP_STORE = 'backups';
     this.CHANGELOG_STORE = 'changelog';
     this.VERSION = 3; // Incrementar quando houver mudanças estruturais
+    this.disabled = window.CONFIG?.storage?.mode === 'server';
   }
 
   /**
    * Inicializa o sistema de backup
    */
   async init() {
+    if (this.disabled) {
+      return null;
+    }
+
     console.log('[BACKUP] 🔄 Inicializando sistema de backup...');
 
     return new Promise((resolve, reject) => {
@@ -62,6 +67,10 @@ class DataBackupManager {
    * Cria backup automático dos dados críticos
    */
   async createAutoBackup(reason = 'auto') {
+    if (this.disabled) {
+      return null;
+    }
+
     try {
       console.log('[BACKUP] 💾 Criando backup automático...');
 
@@ -105,6 +114,10 @@ class DataBackupManager {
    * Registra mudança no changelog
    */
   async logChange(action, details) {
+    if (this.disabled) {
+      return null;
+    }
+
     try {
       const db = await this.init();
 
@@ -134,6 +147,10 @@ class DataBackupManager {
    * Lista backups disponíveis
    */
   async listBackups() {
+    if (this.disabled) {
+      return [];
+    }
+
     try {
       const db = await this.init();
       const tx = db.transaction([this.BACKUP_STORE], 'readonly');
@@ -165,6 +182,10 @@ class DataBackupManager {
    * Restaura backup específico
    */
   async restoreBackup(backupId) {
+    if (this.disabled) {
+      return false;
+    }
+
     try {
       console.log('[BACKUP] 🔄 Restaurando backup ID:', backupId);
 
@@ -211,6 +232,10 @@ class DataBackupManager {
    * Exporta backup para arquivo JSON
    */
   async exportBackup(backupId) {
+    if (this.disabled) {
+      return false;
+    }
+
     try {
       const db = await this.init();
       const backup = await this._getBackup(db, backupId);
@@ -241,6 +266,10 @@ class DataBackupManager {
    * Importa backup de arquivo JSON
    */
   async importBackup(file) {
+    if (this.disabled) {
+      return false;
+    }
+
     try {
       const text = await file.text();
       const backup = JSON.parse(text);
@@ -272,6 +301,10 @@ class DataBackupManager {
    * Obtém changelog completo
    */
   async getChangelog(limit = 50) {
+    if (this.disabled) {
+      return [];
+    }
+
     try {
       const db = await this.init();
       const tx = db.transaction([this.CHANGELOG_STORE], 'readonly');
@@ -390,6 +423,11 @@ window.dataBackupManager = new DataBackupManager();
 // Auto-backup a cada mudança crítica
 window.addEventListener('load', async () => {
   try {
+    if (window.dataBackupManager?.disabled) {
+      console.log('[BACKUP] ℹ️ Sistema de backup local desativado (modo PostgreSQL/VPS)');
+      return;
+    }
+
     await window.dataBackupManager.init();
 
     // Cria backup inicial

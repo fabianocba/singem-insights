@@ -12,6 +12,7 @@ import { StorageAdapter } from '../core/storageAdapter.js';
 // ============================================================================
 let initialized = false;
 let storageAdapter = null;
+const SERVER_MODE = window.CONFIG?.storage?.mode === 'server';
 
 // ============================================================================
 // Funções de formatação
@@ -51,6 +52,28 @@ function _formatDate(dateString) {
 async function renderStorageStats(containerId) {
   const container = document.getElementById(containerId);
   if (!container) {
+    return;
+  }
+
+  if (SERVER_MODE) {
+    const authAtivo = !!window.__SINGEM_AUTH?.accessToken;
+    const apiBase = window.CONFIG?.api?.baseUrl || 'http://localhost:3000';
+    container.innerHTML = `
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+        <div style="background: #e8f5e9; padding: 15px; border-radius: 8px; text-align: center;">
+          <div style="font-size: 24px; font-weight: bold; color: #2e7d32;">SERVER</div>
+          <div style="color: #666;">Modo de armazenamento</div>
+        </div>
+        <div style="background: #e3f2fd; padding: 15px; border-radius: 8px; text-align: center;">
+          <div style="font-size: 24px; font-weight: bold; color: #1565c0;">${authAtivo ? 'ATIVA' : 'INATIVA'}</div>
+          <div style="color: #666;">Sessão em memória</div>
+        </div>
+        <div style="background: #fff3e0; padding: 15px; border-radius: 8px; text-align: center;">
+          <div style="font-size: 14px; font-weight: bold; color: #e65100;">${escapeHtml(apiBase)}</div>
+          <div style="color: #666;">API base</div>
+        </div>
+      </div>
+    `;
     return;
   }
 
@@ -121,6 +144,43 @@ async function renderIndexedDBDetails(containerId) {
   const container = document.getElementById(containerId);
   if (!container) {
     return;
+  }
+
+  if (SERVER_MODE) {
+    try {
+      const empenhos = await window.dbManager.buscarEmpenhos(true);
+      const notasFiscais = await window.dbManager.buscarNotasFiscais();
+      const authAtivo = !!window.__SINGEM_AUTH?.accessToken;
+
+      container.innerHTML = `
+        <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+          <div style="font-weight: bold; color: #1e7e34; margin-bottom: 10px;">
+            🖥️ API PostgreSQL (VPS)
+          </div>
+
+          <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+            <tbody>
+              <tr>
+                <td style="padding: 8px; border-bottom: 1px solid #eee;">📋 Empenhos</td>
+                <td style="padding: 8px; text-align: right; border-bottom: 1px solid #eee;"><strong>${empenhos.length}</strong></td>
+              </tr>
+              <tr>
+                <td style="padding: 8px; border-bottom: 1px solid #eee;">📄 Notas Fiscais</td>
+                <td style="padding: 8px; text-align: right; border-bottom: 1px solid #eee;"><strong>${notasFiscais.length}</strong></td>
+              </tr>
+              <tr>
+                <td style="padding: 8px; border-bottom: 1px solid #eee;">🔐 Sessão</td>
+                <td style="padding: 8px; text-align: right; border-bottom: 1px solid #eee;">${authAtivo ? 'Ativa ✅' : 'Inativa ⚠️'}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      `;
+      return;
+    } catch (error) {
+      container.innerHTML = `<div class="status-message error">❌ Erro ao consultar API: ${error.message}</div>`;
+      return;
+    }
   }
 
   try {
@@ -201,6 +261,12 @@ function renderLocalStorageDetails(containerId) {
     return;
   }
 
+  if (SERVER_MODE) {
+    container.innerHTML =
+      '<div style="color: #666;">Modo servidor ativo: armazenamento local sensível desativado por política.</div>';
+    return;
+  }
+
   try {
     const keys = Object.keys(localStorage);
 
@@ -276,7 +342,8 @@ function renderSystemInfo(containerId) {
   }
 
   const info = {
-    'Versão SINGEM': localStorage.getItem('SINGEM_app_version') || 'Não definida',
+    'Versão SINGEM': window.APP_VERSION || 'Não definida',
+    'Modo Storage': SERVER_MODE ? 'Servidor (PostgreSQL) ✅' : 'Local (IndexedDB)',
     'User Agent': navigator.userAgent,
     Plataforma: navigator.platform,
     Idioma: navigator.language,

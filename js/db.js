@@ -1955,11 +1955,233 @@ class DatabaseManager {
   }
 }
 
+function applyServerDatabaseAdapter() {
+  const serverMode = window.CONFIG?.storage?.mode === 'server';
+  if (!serverMode || !window.dbManager) {
+    return;
+  }
+
+  const manager = window.dbManager;
+  manager._serverConfigStore = manager._serverConfigStore || new Map();
+
+  const getApiBase = () => window.CONFIG?.api?.baseUrl || 'http://localhost:3000';
+  const getToken = () => window.__SINGEM_AUTH?.accessToken || null;
+
+  const normalizeEmpenho = (item = {}) => ({
+    ...item,
+    dataEmpenho: item.dataEmpenho || item.data_empenho || null,
+    cnpjFornecedor: item.cnpjFornecedor || item.cnpj_fornecedor || null,
+    valorTotal: item.valorTotal ?? item.valor_total ?? 0,
+    naturezaDespesa: item.naturezaDespesa || item.natureza_despesa || null,
+    processoSuap: item.processoSuap || item.processo_suap || null,
+    statusValidacao: item.statusValidacao || item.status_validacao || 'rascunho'
+  });
+
+  const normalizeNF = (item = {}) => ({
+    ...item,
+    empenhoId: item.empenhoId || item.empenho_id || null,
+    dataNotaFiscal: item.dataNotaFiscal || item.data_emissao || null,
+    cnpjFornecedor: item.cnpjFornecedor || item.cnpj_fornecedor || null,
+    valorTotal: item.valorTotal ?? item.valor_total ?? 0,
+    chaveAcesso: item.chaveAcesso || item.chave_acesso || null
+  });
+
+  async function apiRequest(path, options = {}) {
+    const token = getToken();
+    const headers = {
+      'Content-Type': 'application/json',
+      ...(options.headers || {})
+    };
+
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
+    }
+
+    const response = await fetch(`${getApiBase()}${path}`, {
+      method: options.method || 'GET',
+      headers,
+      body: options.body ? JSON.stringify(options.body) : undefined
+    });
+
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      throw new Error(data.erro || data.message || `HTTP ${response.status}`);
+    }
+
+    return data;
+  }
+
+  manager.init = async function initServerMode() {
+    this.db = { mode: 'server-postgres' };
+    return true;
+  };
+
+  manager.buscarEmpenhos = async function buscarEmpenhos(_incluirRascunhos = true) {
+    const result = await apiRequest('/api/empenhos?limite=1000&offset=0');
+    return (result.dados || []).map(normalizeEmpenho);
+  };
+
+  manager.buscarEmpenhoPorId = async function buscarEmpenhoPorId(id) {
+    const result = await apiRequest(`/api/empenhos/${id}`);
+    return normalizeEmpenho(result.dados || result);
+  };
+
+  manager.buscarEmpenho = manager.buscarEmpenhoPorId;
+
+  manager.buscarEmpenhoPorSlug = async function buscarEmpenhoPorSlug(slug) {
+    const result = await apiRequest(`/api/empenhos/slug/${encodeURIComponent(slug)}`);
+    return normalizeEmpenho(result.dados || result);
+  };
+
+  manager.buscarEmpenhosPorCNPJ = async function buscarEmpenhosPorCNPJ(cnpj) {
+    const result = await apiRequest(
+      `/api/empenhos?cnpj=${encodeURIComponent(String(cnpj || '').replace(/\D/g, ''))}&limite=1000&offset=0`
+    );
+    return (result.dados || []).map(normalizeEmpenho);
+  };
+
+  manager.salvarEmpenho = async function salvarEmpenho(empenho) {
+    const hasId = !!empenho?.id;
+    const result = await apiRequest(hasId ? `/api/empenhos/${empenho.id}` : '/api/empenhos', {
+      method: hasId ? 'PUT' : 'POST',
+      body: empenho
+    });
+    return result?.dados?.id || empenho?.id;
+  };
+
+  manager.deletarEmpenho = async function deletarEmpenho(id) {
+    await apiRequest(`/api/empenhos/${id}`, { method: 'DELETE' });
+    return true;
+  };
+
+  manager.buscarNotasFiscais = async function buscarNotasFiscais() {
+    const result = await apiRequest('/api/notas-fiscais?limite=1000&offset=0');
+    return (result.dados || []).map(normalizeNF);
+  };
+
+  manager.listarNotasFiscais = manager.buscarNotasFiscais;
+
+  manager.buscarNotaFiscal = async function buscarNotaFiscal(id) {
+    const result = await apiRequest(`/api/notas-fiscais/${id}`);
+    return normalizeNF(result.dados || result);
+  };
+
+  manager.salvarNotaFiscal = async function salvarNotaFiscal(nf) {
+    const hasId = !!nf?.id;
+    const payload = {
+      ...nf,
+      empenho_id: nf.empenhoId || nf.empenho_id || null,
+      data_emissao: nf.dataNotaFiscal || nf.data_emissao || null,
+      cnpj_fornecedor: nf.cnpjFornecedor || nf.cnpj_fornecedor || null,
+      valor_total: nf.valorTotal ?? nf.valor_total ?? 0,
+      chave_acesso: nf.chaveAcesso || nf.chave_acesso || null
+    };
+    const result = await apiRequest(hasId ? `/api/notas-fiscais/${nf.id}` : '/api/notas-fiscais', {
+      method: hasId ? 'PUT' : 'POST',
+      body: payload
+    });
+    return result?.dados?.id || nf?.id;
+  };
+
+  manager.buscarNotasFiscaisPorEmpenho = async function buscarNotasFiscaisPorEmpenho(empenhoId) {
+    const result = await apiRequest(
+      `/api/notas-fiscais?empenho_id=${encodeURIComponent(empenhoId)}&limite=1000&offset=0`
+    );
+    return (result.dados || []).map(normalizeNF);
+  };
+
+  manager.salvarEntrega = async function salvarEntrega(_entrega) {
+    throw new Error('Salvar entrega local foi desativado. Use endpoint de estoque no backend PostgreSQL.');
+  };
+
+  manager.criarSaldosEmpenho = async function criarSaldosEmpenho() {
+    return [];
+  };
+
+  manager.buscarSaldosEmpenho = async function buscarSaldosEmpenho() {
+    return [];
+  };
+
+  manager.atualizarSaldo = async function atualizarSaldo() {
+    return true;
+  };
+
+  manager.compararNotaFiscalComEmpenho = async function compararNotaFiscalComEmpenho() {
+    return [];
+  };
+
+  manager.salvarArquivo = async function salvarArquivo() {
+    throw new Error('Salvamento local de arquivos foi desativado no modo PostgreSQL/VPS.');
+  };
+
+  manager.buscarArquivoPorDocumento = async function buscarArquivoPorDocumento() {
+    return null;
+  };
+
+  manager.get = async function get(storeName, key) {
+    if (storeName !== 'config') return null;
+    return this._serverConfigStore.get(key) || null;
+  };
+
+  manager.update = async function update(storeName, data) {
+    if (storeName !== 'config') return data;
+    if (data?.id) {
+      this._serverConfigStore.set(data.id, data);
+    }
+    return data;
+  };
+
+  manager.getAll = async function getAll(storeName) {
+    if (storeName !== 'config') return [];
+    return Array.from(this._serverConfigStore.values());
+  };
+
+  manager.add = async function add(storeName, data) {
+    if (storeName === 'config' && data?.id) {
+      this._serverConfigStore.set(data.id, data);
+      return data.id;
+    }
+    return data?.id || null;
+  };
+
+  manager.delete = async function removeById(storeName, id) {
+    if (storeName === 'config') {
+      this._serverConfigStore.delete(id);
+      return true;
+    }
+    return true;
+  };
+
+  manager.remove = async function remove(storeName, id) {
+    return this.delete(storeName, id);
+  };
+
+  manager.exportBackup = async function exportBackup() {
+    throw new Error('Exportação de backup local desativada no modo PostgreSQL/VPS. Use rotina de backup do servidor.');
+  };
+
+  manager.importBackup = async function importBackup() {
+    throw new Error(
+      'Importação de backup local desativada no modo PostgreSQL/VPS. Use rotina de restauração do servidor.'
+    );
+  };
+
+  manager.clear = async function clear() {
+    return true;
+  };
+
+  console.warn(
+    '[DB] Modo servidor PostgreSQL ativo: persistência local IndexedDB foi desativada para entidades de negócio.'
+  );
+}
+
 // Instância global do gerenciador de banco de dados
 if (!window.dbManager) {
   window.dbManager = new DatabaseManager();
   console.log('✅ DatabaseManager criado e anexado a window.dbManager');
 }
+
+applyServerDatabaseAdapter();
 
 // Auto-inicializar se estiver sendo carregado como módulo
 (async () => {

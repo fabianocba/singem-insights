@@ -1,105 +1,47 @@
-# ══════════════════════════════════════════════════════════════════
-# SINGEM - Auto Version Bump
-# ══════════════════════════════════════════════════════════════════
-# Incrementa automaticamente a versão PATCH em cada push para main
-# Arquivos atualizados:
-#   - js/core/version.json (fonte canônica)
-#   - js/core/version.js (constante APP_VERSION)
-# ══════════════════════════════════════════════════════════════════
-
-name: Auto Version Bump
+﻿name: Bump Version + Tag + Release
 
 on:
   push:
-    branches:
-      - main
-    paths-ignore:
-      - '.github/**'
-      - '*.md'
-      - 'docs/**'
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
-  bump-version:
-    # Não executa se o commit contém [skip ci] ou [ci skip]
-    if: "!contains(github.event.head_commit.message, '[skip ci]') && !contains(github.event.head_commit.message, '[ci skip]')"
-
+  bump:
+    if: github.actor != 'github-actions[bot]' && !contains(github.event.head_commit.message, 'chore: bump version to')
     runs-on: ubuntu-latest
-
-    permissions:
-      contents: write
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Get current version
-        id: get_version
-        run: |
-          VERSION=$(cat js/core/version.json | jq -r '.version')
-          echo "current=$VERSION" >> $GITHUB_OUTPUT
-          echo "Current version: $VERSION"
-
-      - name: Bump PATCH version
+      - name: Bump patch
         id: bump
         run: |
-          CURRENT="${{ steps.get_version.outputs.current }}"
+          set -euo pipefail
+          V=$(jq -r '.version' js/core/version.json)
+          IFS='.' read -r A B C <<< "$V"
+          N="${A}.${B}.$((C+1))"
+          BUILD=$(date -u +%Y%m%d-%H%M)
+          TS=$(date -u +%Y-%m-%dT%H:%M:%S.000Z)
+          jq --arg v "$N" --arg b "$BUILD" --arg t "$TS" '.name="SINGEM"|.version=$v|.build=$b|.buildTimestamp=$t' js/core/version.json > /tmp/v.json
+          mv /tmp/v.json js/core/version.json
+          DATE_UTC=$(date -u +%F)
+          if ! grep -q "## \[$N\]" CHANGELOG.md; then
+            printf "## [%s] - %s\n- chore: bump automático de versão\n\n" "$N" "$DATE_UTC" | cat - CHANGELOG.md > /tmp/changelog.md
+            mv /tmp/changelog.md CHANGELOG.md
+          fi
+          echo "version=$N" >> $GITHUB_OUTPUT
 
-          # Parse semver
-          IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT"
-
-          # Increment PATCH
-          NEW_PATCH=$((PATCH + 1))
-          NEW_VERSION="$MAJOR.$MINOR.$NEW_PATCH"
-
-          echo "new=$NEW_VERSION" >> $GITHUB_OUTPUT
-          echo "Bumping: $CURRENT -> $NEW_VERSION"
-
-      - name: Update version.json
+      - name: Commit + tag
         run: |
-          NEW_VERSION="${{ steps.bump.outputs.new }}"
-
-          # Update JSON
-          cat js/core/version.json | jq --arg v "$NEW_VERSION" '.version = $v' > tmp.json
-          mv tmp.json js/core/version.json
-
-          echo "Updated version.json:"
-          cat js/core/version.json
-
-      - name: Update version.js
-        run: |
-          NEW_VERSION="${{ steps.bump.outputs.new }}"
-
-          # Replace APP_VERSION in version.js
-          sed -i "s/export const APP_VERSION = '[0-9]*\.[0-9]*\.[0-9]*';/export const APP_VERSION = '$NEW_VERSION';/" js/core/version.js
-
-          echo "Updated version.js:"
-          grep "APP_VERSION" js/core/version.js | head -1
-
-      - name: Commit and Push
-        run: |
+          set -euo pipefail
+          V="${{ steps.bump.outputs.version }}"
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-
-          git add js/core/version.json js/core/version.js
-
-          NEW_VERSION="${{ steps.bump.outputs.new }}"
-          git commit -m "chore: bump version to $NEW_VERSION [skip ci]"
-
-          git push
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Summary
-        run: |
-          echo "## Version Bump Complete" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "- **Previous:** ${{ steps.get_version.outputs.current }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **New:** ${{ steps.bump.outputs.new }}" >> $GITHUB_STEP_SUMMARY
+          git add js/core/version.json CHANGELOG.md
+          git commit -m "chore: bump version to ${V} [skip ci]" || exit 0
+          git tag "v${V}"
+          git push origin main
+          git push origin "v${V}"

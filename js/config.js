@@ -6,6 +6,14 @@
  */
 
 window.CONFIG = {
+  storage: {
+    mode: 'server',
+    provider: 'postgres',
+    persistLocalConfig: false
+  },
+  api: {
+    baseUrl: 'http://localhost:3000'
+  },
   // Informações da Instituição
   instituicao: {
     nome: 'Instituto Federal de Educação, Ciência e Tecnologia Baiano',
@@ -170,30 +178,14 @@ window.CONFIG = {
 
 // Função para carregar configurações personalizadas
 window.carregarConfiguracoes = function () {
-  try {
-    // Tenta carregar configurações salvas localmente
-    const configSalva = localStorage.getItem('controle_material_config');
-    if (configSalva) {
-      const configCustom = JSON.parse(configSalva);
-      // Mescla configurações padrão com personalizadas
-      window.CONFIG = { ...window.CONFIG, ...configCustom };
-    }
-  } catch (error) {
-    console.warn('Erro ao carregar configurações personalizadas:', error);
-  }
+  return window.CONFIG;
 };
 
 // Função para salvar configurações
 window.salvarConfiguracoes = function (novasConfigs) {
-  try {
-    const configAtual = { ...window.CONFIG, ...novasConfigs };
-    localStorage.setItem('controle_material_config', JSON.stringify(configAtual));
-    window.CONFIG = configAtual;
-    return true;
-  } catch (error) {
-    console.error('Erro ao salvar configurações:', error);
-    return false;
-  }
+  const configAtual = { ...window.CONFIG, ...novasConfigs };
+  window.CONFIG = configAtual;
+  return true;
 };
 
 // Carrega configurações ao inicializar

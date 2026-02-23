@@ -9,55 +9,57 @@
 // ============================================================================
 
 const API_CONFIG = {
-  // URL base do servidor (pode ser sobrescrita via localStorage)
-  baseUrl: localStorage.getItem('singem_api_url') || 'http://localhost:3000',
+  // URL base do servidor
+  baseUrl: window.CONFIG?.api?.baseUrl || 'http://localhost:3000',
   timeout: 30000,
   retries: 3
 };
 
-// Chaves de storage
-const TOKEN_KEY = 'singem_access_token';
-const REFRESH_KEY = 'singem_refresh_token';
-const USER_KEY = 'singem_user';
+const authState = {
+  accessToken: null,
+  refreshToken: null,
+  user: null
+};
+
+window.__SINGEM_AUTH = authState;
+
+try {
+  localStorage.removeItem('singem_access_token');
+  localStorage.removeItem('singem_refresh_token');
+  localStorage.removeItem('singem_user');
+} catch {
+  // sem impacto em ambientes com storage bloqueado
+}
 
 // ============================================================================
 // GERENCIAMENTO DE TOKENS
 // ============================================================================
 
 function getAccessToken() {
-  return localStorage.getItem(TOKEN_KEY);
+  return authState.accessToken;
 }
 
 function getRefreshToken() {
-  return localStorage.getItem(REFRESH_KEY);
+  return authState.refreshToken;
 }
 
 function setTokens(accessToken, refreshToken) {
-  if (accessToken) {
-    localStorage.setItem(TOKEN_KEY, accessToken);
-  }
-  if (refreshToken) {
-    localStorage.setItem(REFRESH_KEY, refreshToken);
-  }
+  authState.accessToken = accessToken || null;
+  authState.refreshToken = refreshToken || null;
 }
 
 function clearTokens() {
-  localStorage.removeItem(TOKEN_KEY);
-  localStorage.removeItem(REFRESH_KEY);
-  localStorage.removeItem(USER_KEY);
+  authState.accessToken = null;
+  authState.refreshToken = null;
+  authState.user = null;
 }
 
 function getStoredUser() {
-  try {
-    const user = localStorage.getItem(USER_KEY);
-    return user ? JSON.parse(user) : null;
-  } catch {
-    return null;
-  }
+  return authState.user;
 }
 
 function setStoredUser(user) {
-  localStorage.setItem(USER_KEY, JSON.stringify(user));
+  authState.user = user || null;
 }
 
 // ============================================================================
@@ -206,7 +208,6 @@ const apiClient = {
 
   setBaseUrl(url) {
     API_CONFIG.baseUrl = url;
-    localStorage.setItem('singem_api_url', url);
   },
 
   // ========================================================================

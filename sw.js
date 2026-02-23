@@ -1,138 +1,153 @@
-/**
- * SINGEM Service Worker
- * Estratégia: Network First (Cache como fallback)
- *
- * Garante que o usuário sempre tenha a versão mais recente,
- * mas mantém funcionalidade offline quando necessário.
- */
+﻿const u = new URL(self.location.href);
+const APP_VERSION = u.searchParams.get('v') || '0.0.2';
+const APP_BUILD = u.searchParams.get('b') || 'local';
 
-const CACHE_VERSION = 'SINGEM-v1.6.2-20260210';
-const CACHE_NAME = `${CACHE_VERSION}-cache`;
+const APP_CACHE_PREFIX = 'singem-cache';
+const CACHE_NAME = `${APP_CACHE_PREFIX}-${APP_VERSION}-${APP_BUILD}`;
+const IMAGE_LIMIT = 80;
 
-// Instalação do Service Worker
+const APP_SHELL = [
+  '/',
+  '/index.html',
+  '/css/style.css',
+  '/js/app.js',
+  '/js/versionManager.js',
+  '/js/core/version.js',
+  '/js/core/version.json'
+];
+
+const isApiReq = (url) => url.port === '3000' || url.pathname.startsWith('/api/');
+
 self.addEventListener('install', (event) => {
-  console.log('📦 Service Worker: Instalando versão', CACHE_VERSION);
-
   event.waitUntil(
-    caches
-      .open(CACHE_NAME)
-      .then(() => {
-        console.log('📦 Service Worker: Cache aberto');
-        // Não force o cache inicial - deixe ser preenchido sob demanda
-        return Promise.resolve();
-      })
-      .then(() => {
-        // Força a ativação imediata
-        return self.skipWaiting();
-      })
-  );
-});
-
-// Ativação - limpa caches antigos
-self.addEventListener('activate', (event) => {
-  console.log('✅ Service Worker: Ativando versão', CACHE_VERSION);
-
-  event.waitUntil(
-    caches
-      .keys()
-      .then((cacheNames) => {
-        return Promise.all(
-          cacheNames.map((cacheName) => {
-            if (cacheName !== CACHE_NAME) {
-              console.log('🗑️ Service Worker: Removendo cache antigo:', cacheName);
-              return caches.delete(cacheName);
-            }
-            return undefined;
-          })
-        );
-      })
-      .then(() => {
-        // Assume controle de todas as páginas imediatamente
-        return self.clients.claim();
-      })
-  );
-});
-
-// Fetch - Estratégia Network First
-self.addEventListener('fetch', (event) => {
-  const { request } = event;
-  const url = new URL(request.url);
-
-  // Ignora requisições de outros domínios (CDN, APIs externas, etc)
-  if (url.origin !== location.origin) {
-    return;
-  }
-
-  // Ignora requisições POST, PUT, DELETE (apenas GET)
-  if (request.method !== 'GET') {
-    return;
-  }
-
-  event.respondWith(
-    // SEMPRE tenta da rede primeiro
-    fetch(request)
-      .then((response) => {
-        // Se conseguiu da rede, clona e salva no cache
-        if (response && response.status === 200) {
-          const responseToCache = response.clone();
-
-          caches
-            .open(CACHE_NAME)
-            .then((cache) => {
-              // Atualiza o cache com a versão mais recente
-              cache.put(request, responseToCache);
-            })
-            .catch((err) => {
-              console.warn('⚠️ Erro ao salvar no cache:', err);
-            });
+    (async () => {
+      const cache = await caches.open(CACHE_NAME);
+      for (const asset of APP_SHELL) {
+        try {
+          await cache.add(asset);
+        } catch {
+          // segue precache mesmo com falhas pontuais
         }
-
-        return response;
-      })
-      .catch(() => {
-        // Se a rede falhar, tenta buscar do cache
-        console.log('🔌 Rede falhou, buscando do cache:', request.url);
-
-        return caches.match(request).then((cachedResponse) => {
-          if (cachedResponse) {
-            console.log('✅ Servindo do cache:', request.url);
-            return cachedResponse;
-          }
-
-          // Se não tem no cache, retorna erro genérico
-          console.error('❌ Não encontrado nem na rede nem no cache:', request.url);
-          return new Response('Offline e sem cache disponível', {
-            status: 503,
-            statusText: 'Service Unavailable',
-            headers: new Headers({
-              'Content-Type': 'text/plain'
-            })
-          });
-        });
-      })
+      }
+      await self.skipWaiting();
+      console.info('[SW] instalado', CACHE_NAME);
+    })()
   );
 });
 
-// Mensagens do cliente
+self.addEventListener('activate', (event) => {
+  event.waitUntil(
+    (async () => {
+      const keys = await caches.keys();
+      for (const key of keys) {
+        if (key !== CACHE_NAME) {
+          await caches.delete(key);
+          console.info('[SW] removendo cache antigo', key);
+        }
+      }
+      await self.clients.claim();
+      console.info('[SW] ativado', CACHE_NAME);
+    })()
+  );
+});
+
 self.addEventListener('message', (event) => {
-  if (event.data && event.data.type === 'SKIP_WAITING') {
-    console.log('⏭️ Service Worker: Pulando espera e ativando imediatamente');
+  const msg = event.data || {};
+
+  if (msg.type === 'SKIP_WAITING') {
     self.skipWaiting();
   }
 
-  if (event.data && event.data.type === 'CLEAR_CACHE') {
-    console.log('🗑️ Service Worker: Limpando todo o cache');
+  if (msg.type === 'CLEAR_CACHES') {
     event.waitUntil(
-      caches
-        .keys()
-        .then((cacheNames) => {
-          return Promise.all(cacheNames.map((cacheName) => caches.delete(cacheName)));
-        })
-        .then(() => {
-          event.ports[0].postMessage({ success: true });
-        })
+      (async () => {
+        const keys = await caches.keys();
+        await Promise.all(keys.map((key) => caches.delete(key)));
+        event.ports?.[0]?.postMessage({ ok: true, deleted: keys });
+      })()
     );
   }
 });
 
-console.log('🚀 Service Worker carregado - versão', CACHE_VERSION);
+async function networkFirst(request) {
+  const cache = await caches.open(CACHE_NAME);
+  try {
+    const response = await fetch(request, { cache: 'no-store' });
+    if (response.ok) {
+      await cache.put(request, response.clone());
+    }
+    return response;
+  } catch {
+    return (await cache.match(request)) || (await cache.match('/index.html')) || Response.error();
+  }
+}
+
+async function staleWhileRevalidate(request, event) {
+  const cache = await caches.open(CACHE_NAME);
+  const cached = await cache.match(request);
+
+  const networkPromise = fetch(request)
+    .then(async (response) => {
+      if (response.ok) {
+        await cache.put(request, response.clone());
+      }
+      return response;
+    })
+    .catch(() => null);
+
+  if (cached) {
+    event.waitUntil(networkPromise);
+    return cached;
+  }
+
+  return (await networkPromise) || Response.error();
+}
+
+async function cacheFirst(request) {
+  const cache = await caches.open(CACHE_NAME);
+  const cached = await cache.match(request);
+  if (cached) return cached;
+
+  const response = await fetch(request);
+  if (response.ok) {
+    await cache.put(request, response.clone());
+    const keys = await cache.keys();
+    if (keys.length > IMAGE_LIMIT) {
+      await cache.delete(keys[0]);
+    }
+  }
+  return response;
+}
+
+self.addEventListener('fetch', (event) => {
+  const request = event.request;
+  if (request.method !== 'GET') return;
+
+  const url = new URL(request.url);
+  if (url.origin !== self.location.origin) return;
+  if (isApiReq(url)) return;
+
+  if (request.mode === 'navigate') {
+    event.respondWith(networkFirst(request));
+    return;
+  }
+
+  const isJsCss =
+    request.destination === 'script' ||
+    request.destination === 'style' ||
+    url.pathname.endsWith('.js') ||
+    url.pathname.endsWith('.css');
+
+  if (isJsCss) {
+    event.respondWith(staleWhileRevalidate(request, event));
+    return;
+  }
+
+  const isAsset = request.destination === 'image' || request.destination === 'font';
+  if (isAsset) {
+    event.respondWith(cacheFirst(request));
+    return;
+  }
+
+  event.respondWith(staleWhileRevalidate(request, event));
+});

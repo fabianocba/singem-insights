@@ -89,9 +89,13 @@ class ControleMaterialApp {
     try {
       console.log('🚀 Iniciando aplicação SINGEM...');
 
-      // Inicializa o banco de dados
-      await window.dbManager.init();
-      console.log('✅ Banco de dados inicializado');
+      // Inicializa modo servidor (PostgreSQL via API)
+      const apiClient = (await import('./services/apiClient.js')).default;
+      const health = await apiClient.healthCheck();
+      if (!health.online) {
+        throw new Error('API PostgreSQL indisponível. Inicie o server Node/VPS antes de usar o sistema.');
+      }
+      console.log('✅ API PostgreSQL disponível');
 
       // ============================================================================
       // INFRAESTRUTURA ENTERPRISE - Event Listeners
@@ -148,41 +152,7 @@ class ControleMaterialApp {
    * Verifica sessão sem auto-login
    */
   async verificarSessao() {
-    try {
-      const sessionData = localStorage.getItem('session');
-
-      if (!sessionData) {
-        console.log('ℹ️ Nenhuma sessão encontrada');
-        return;
-      }
-
-      const session = JSON.parse(sessionData);
-
-      // Verifica expiração
-      if (!session.exp || Date.now() > session.exp) {
-        console.log('⚠️ Sessão expirada');
-        localStorage.removeItem('session');
-        return;
-      }
-
-      // Verifica se usuário ainda existe e está ativo
-      const usuario = await window.repository.getUsuarioByLogin(session.login);
-
-      if (!usuario || !usuario.ativo) {
-        console.log('⚠️ Usuário da sessão não encontrado ou inativo');
-        localStorage.removeItem('session');
-        return;
-      }
-
-      console.log('✅ Sessão válida encontrada:', session.login);
-      console.log('ℹ️ Use suas credenciais para fazer login');
-
-      // NÃO faz login automático - apenas valida a sessão
-      // Usuário precisa digitar credenciais
-    } catch (error) {
-      console.error('❌ Erro ao verificar sessão:', error);
-      localStorage.removeItem('session');
-    }
+    console.log('ℹ️ Sessão persistente local desativada (modo PostgreSQL/VPS)');
   }
 
   /**
@@ -1687,216 +1657,41 @@ class ControleMaterialApp {
     }
 
     try {
-      console.log('🔐 Tentando fazer login com usuário:', usuario);
+      console.log('🔐 Tentando fazer login via API:', usuario);
+      const apiClient = (await import('./services/apiClient.js')).default;
+      const resultadoAPI = await apiClient.login(usuario, senha);
 
-      // Tenta autenticar via API (SINGEM)
-      let _apiDisponivel = false;
-      let resultadoAPI = null;
-
-      try {
-        const apiClient = (await import('./services/apiClient.js')).default;
-        resultadoAPI = await apiClient.login(usuario, senha);
-        _apiDisponivel = true;
-
-        if (resultadoAPI.dados?.usuario) {
-          console.log('✅ Login via API bem-sucedido');
-          this.usuarioLogado = {
-            id: resultadoAPI.dados.usuario.id,
-            nome: resultadoAPI.dados.usuario.nome,
-            perfil: resultadoAPI.dados.usuario.perfil,
-            login: usuario
-          };
-
-          await this.salvarDadosLembradosPosLogin(usuario, ''); // Não salva senha em modo API
-          document.getElementById('loginUsuario').value = '';
-          document.getElementById('loginSenha').value = '';
-          await this.carregarDadosIniciais();
-          this.atualizarUsuarioHeader();
-          this.showScreen('homeScreen');
-
-          if (btnLogin) {
-            btnLogin.disabled = false;
-            btnLogin.textContent = '🔐 Entrar';
-          }
-          return;
-        }
-      } catch (apiErr) {
-        console.log('📴 API indisponível, usando modo offline:', apiErr.message);
+      const usuarioApi = resultadoAPI?.usuario || resultadoAPI?.dados?.usuario || apiClient.getUser?.();
+      if (!usuarioApi) {
+        throw new Error('Resposta de autenticação inválida.');
       }
 
-      // Modo offline: verifica se há usuários cadastrados localmente
-      const temUsuarios = (await window.repository?.hasUsuarios?.()) ?? false;
+      this.usuarioLogado = {
+        id: usuarioApi.id,
+        nome: usuarioApi.nome,
+        perfil: usuarioApi.perfil,
+        login: usuarioApi.login || usuario
+      };
 
-      if (!temUsuarios) {
-        // Primeiro acesso - permite entrada para cadastro inicial
-        console.log('🔑 Primeiro acesso detectado - redirecionando para cadastro');
+      await this.salvarDadosLembradosPosLogin(usuario, '');
 
-        this.usuarioLogado = {
-          nome: 'Configuração Inicial',
-          perfil: 'admin',
-          primeiroAcesso: true
-        };
+      document.getElementById('loginUsuario').value = '';
+      document.getElementById('loginSenha').value = '';
 
-        await this.salvarDadosLembradosPosLogin(usuario, senha);
+      await this.carregarDadosIniciais();
+      this.atualizarUsuarioHeader();
+      this.showScreen('homeScreen');
 
-        // Limpa campos
-        document.getElementById('loginUsuario').value = '';
-        document.getElementById('loginSenha').value = '';
-
-        // Carrega dados iniciais
-        await this.carregarDadosIniciais();
-
-        // Atualiza informações do usuário no header
-        this.atualizarUsuarioHeader();
-
-        // Vai direto para tela de configurações
-        this.showScreen('configScreen');
-
-        // Aguarda carregar o iframe e depois executa ações
-        setTimeout(() => {
-          // Mostra alerta ANTES de abrir a aba
-          const continuar = confirm(
-            '🔐 PRIMEIRO ACESSO AO SISTEMA\n\n' +
-              '➡️ AÇÃO NECESSÁRIA AGORA:\n\n' +
-              'Você precisa cadastrar seu usuário administrador.\n\n' +
-              'Ao clicar em OK, você será levado para a tela de cadastro de usuários.\n\n' +
-              '⚠️ IMPORTANTE:\n' +
-              '• Crie um usuário administrador com senha FORTE\n' +
-              '• Anote suas credenciais em local seguro\n\n' +
-              'Deseja continuar?'
-          );
-
-          if (continuar) {
-            // Abre a aba de usuários no iframe de configurações
-            this.abrirAbaUsuariosConfiguracao();
-
-            // Segundo alerta com instruções
-            setTimeout(() => {
-              alert(
-                '📋 INSTRUÇÕES:\n\n' +
-                  "1. Preencha o formulário 'Novo Usuário'\n" +
-                  '2. Nome: Seu nome completo\n' +
-                  '3. Login: Escolha um nome de usuário\n' +
-                  '4. Senha: Mínimo 6 caracteres (use números e letras)\n' +
-                  "5. Perfil: Selecione 'Administrador'\n" +
-                  "6. Clique em 'Adicionar Usuário'\n\n" +
-                  'Depois, faça LOGOUT e entre com suas novas credenciais!'
-              );
-            }, 1000);
-          } else {
-            // Se não quiser continuar, faz logout
-            alert(
-              '⚠️ Você será desconectado.\n\n' + 'Para acessar o sistema, retorne e cadastre um usuário administrador.'
-            );
-            this.realizarLogout();
-          }
-        }, 800);
-
-        return;
+      if (btnLogin) {
+        btnLogin.disabled = false;
+        btnLogin.textContent = '🔐 Entrar';
       }
-
-      // Tenta autenticar com usuário normal
-      if (window.settingsUsuarios && typeof window.settingsUsuarios.autenticar === 'function') {
-        console.log('👤 Autenticando usuário cadastrado...');
-
-        const resultado = await window.settingsUsuarios.autenticar(usuario, senha);
-
-        if (resultado.sucesso) {
-          console.log('✅ Login realizado com sucesso!');
-          console.log('👤 Usuário:', resultado.usuario.nome);
-          console.log('🔑 Perfil:', resultado.usuario.perfil);
-
-          this.usuarioLogado = resultado.usuario;
-
-          await this.salvarDadosLembradosPosLogin(usuario, senha);
-
-          // Verifica se window.app está definido
-          console.log('🔍 window.app existe?', !!window.app);
-          console.log('🔍 window.app.usuarioLogado:', window.app?.usuarioLogado);
-
-          // Limpa campos
-          document.getElementById('loginUsuario').value = '';
-          document.getElementById('loginSenha').value = '';
-
-          // Mostra mensagem de sucesso
-          if (btnLogin) {
-            btnLogin.textContent = '✅ Logado!';
-            btnLogin.style.backgroundColor = '#28a745';
-          }
-
-          // Aguarda um pouco para mostrar o feedback
-          await new Promise((resolve) => setTimeout(resolve, 500));
-
-          // Carrega dados iniciais
-          await this.carregarDadosIniciais();
-
-          // Atualiza informações do usuário no header
-          this.atualizarUsuarioHeader();
-
-          // ✅ REABILITA BOTÃO antes de sair da tela de login
-          if (btnLogin) {
-            console.log('[REALIZAR_LOGIN] 🔓 Reabilitando botão para próxima sessão...');
-            btnLogin.disabled = false;
-            btnLogin.textContent = '🔐 Entrar';
-            btnLogin.style.backgroundColor = ''; // Remove cor verde
-          }
-
-          // Vai para tela principal
-          this.showScreen('homeScreen');
-
-          // Mostra mensagem de boas-vindas
-          setTimeout(() => {
-            const welcome = document.createElement('div');
-            welcome.style.cssText = `
-              position: fixed;
-              top: 80px;
-              right: 20px;
-              background: #28a745;
-              color: white;
-              padding: 15px 25px;
-              border-radius: 8px;
-              box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-              z-index: 10000;
-              animation: slideInRight 0.3s ease-out;
-            `;
-            welcome.innerHTML = `
-              <strong>✅ Bem-vindo(a), ${resultado.usuario.nome}!</strong><br>
-              <small>Login realizado com sucesso</small>
-            `;
-            document.body.appendChild(welcome);
-
-            setTimeout(() => {
-              welcome.style.animation = 'slideOutRight 0.3s ease-in';
-              setTimeout(() => welcome.remove(), 300);
-            }, 3000);
-          }, 500);
-        } else {
-          console.warn('❌ Login falhou:', resultado.mensagem);
-
-          if (errorDiv) {
-            errorDiv.textContent = resultado.mensagem || 'Usuário ou senha inválidos';
-            errorDiv.classList.remove('hidden');
-          }
-
-          // Reseta botão
-          if (btnLogin) {
-            btnLogin.disabled = false;
-            btnLogin.textContent = '🔐 Entrar';
-          }
-        }
-      } else {
-        console.warn('⚠️ Módulo de usuários não disponível - modo desenvolvimento');
-
-        // Modo desenvolvimento: permite acesso sem autenticação
-        this.usuarioLogado = { nome: 'Desenvolvimento', perfil: 'admin' };
-        await this.carregarDadosIniciais();
-        this.showScreen('homeScreen');
-      }
+      return;
     } catch (error) {
       console.error('❌ Erro no login:', error);
 
       if (errorDiv) {
-        errorDiv.textContent = 'Erro ao realizar login. Tente novamente.';
+        errorDiv.textContent = error?.message || 'Erro ao realizar login. Tente novamente.';
         errorDiv.classList.remove('hidden');
       }
 
@@ -1914,7 +1709,14 @@ class ControleMaterialApp {
   /**
    * Realiza logout do sistema
    */
-  realizarLogout() {
+  async realizarLogout() {
+    try {
+      const apiClient = (await import('./services/apiClient.js')).default;
+      await apiClient.logout();
+    } catch (error) {
+      console.warn('⚠️ Falha ao encerrar sessão na API:', error?.message || error);
+    }
+
     // Limpa usuário logado
     this.usuarioLogado = null;
 
@@ -8175,7 +7977,7 @@ function logBootstrapReport() {
   console.log('║   📊 RELATÓRIO DE INICIALIZAÇÃO       ║');
   console.log('╚════════════════════════════════════════╝');
   console.log('📦 Versão:', APP_VERSION);
-  console.log('🏗️  Build:', new Date(APP_BUILD).toLocaleString('pt-BR'));
+  console.log('🏗️  Build:', APP_BUILD);
   console.log('🗄️  DB:', window.dbManager?.db?.name || 'N/A');
   console.log('📊 DB Versão:', window.dbManager?.db?.version || 'N/A');
   console.log('✅ Repository:', typeof repository);

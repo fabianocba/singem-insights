@@ -23,6 +23,7 @@ class BackupManager {
   constructor() {
     this.selectedFile = null;
     this.parsedBackup = null;
+    this.serverMode = window.CONFIG?.storage?.mode === 'server';
     this.isDevMode = this._checkDevMode();
   }
 
@@ -32,7 +33,7 @@ class BackupManager {
   _checkDevMode() {
     // Considera DEV se: localhost, 127.0.0.1, ou flag localStorage
     const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-    const devFlag = localStorage.getItem('SINGEM_DEV_MODE') === 'true';
+    const devFlag = !this.serverMode && localStorage.getItem('SINGEM_DEV_MODE') === 'true';
     return isLocal || devFlag;
   }
 
@@ -41,6 +42,10 @@ class BackupManager {
    */
   async init() {
     console.log('[Backup] 🚀 Inicializando módulo de backup...');
+
+    if (this.serverMode) {
+      console.warn('[Backup] Modo servidor ativo: backup local desativado');
+    }
 
     // Aguarda DOM estar pronto - procura qualquer botão de backup
     try {
@@ -335,6 +340,15 @@ class BackupManager {
    */
   async exportarBackup() {
     const statusEl = document.getElementById('backupExportStatus');
+
+    if (this.serverMode) {
+      this._showStatus(
+        statusEl,
+        'warning',
+        '⚠️ Exportação local desativada no modo PostgreSQL/VPS. Use rotina de backup do servidor.'
+      );
+      return;
+    }
 
     try {
       this._showStatus(statusEl, 'info', '⏳ Coletando dados...');
@@ -678,6 +692,15 @@ class BackupManager {
   async importarBackup() {
     const statusEl = document.getElementById('backupImportStatus');
     const mode = document.querySelector('input[name="importMode"]:checked')?.value || 'merge';
+
+    if (this.serverMode) {
+      this._showStatus(
+        statusEl,
+        'warning',
+        '⚠️ Importação local desativada no modo PostgreSQL/VPS. Use rotina de restauração do servidor.'
+      );
+      return;
+    }
 
     console.group('[BACKUP IMPORT] 🚀 Iniciando importação');
     console.log('[BACKUP] Modo:', mode);
@@ -1068,6 +1091,11 @@ class BackupManager {
     const statusEl = document.getElementById('testDataStatus');
     const mode = document.querySelector('input[name="testDataMode"]:checked')?.value || 'merge';
 
+    if (this.serverMode) {
+      this._showStatus(statusEl, 'warning', '⚠️ Dados de teste locais desativados no modo PostgreSQL/VPS.');
+      return;
+    }
+
     try {
       this._showStatus(statusEl, 'info', '⏳ Gerando dados de teste...');
 
@@ -1122,7 +1150,7 @@ class BackupManager {
         {
           nome: 'Administrador Teste',
           login: 'admin',
-          senha: 'admin123',
+          senhaTemporaria: true,
           perfil: 'administrador',
           ativo: true,
           criadoEm: now.toISOString()
@@ -1130,7 +1158,7 @@ class BackupManager {
         {
           nome: 'Almoxarife Teste',
           login: 'almoxarife',
-          senha: 'almox123',
+          senhaTemporaria: true,
           perfil: 'almoxarife',
           ativo: true,
           criadoEm: now.toISOString()
@@ -1138,7 +1166,7 @@ class BackupManager {
         {
           nome: 'Consulta Teste',
           login: 'consulta',
-          senha: 'consulta123',
+          senhaTemporaria: true,
           perfil: 'consulta',
           ativo: true,
           criadoEm: now.toISOString()
@@ -1554,6 +1582,11 @@ class BackupManager {
    */
   async resetarTudo() {
     const statusEl = document.getElementById('resetStatus');
+
+    if (this.serverMode) {
+      this._showStatus(statusEl, 'warning', '⚠️ Reset local desativado no modo PostgreSQL/VPS.');
+      return;
+    }
 
     if (!this.isDevMode) {
       this._showStatus(statusEl, 'error', '❌ Função disponível apenas em modo DEV');

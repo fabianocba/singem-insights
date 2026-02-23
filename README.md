@@ -651,7 +651,7 @@ Todos os direitos reservados.
 - **ES Module errors**: `infrastructureInfo.js` agora carregado como `type="module"`
 - **Bootstrap timeout**: `waitForBootstrap()` com fallback para `window.repository`
 - **Charset**: Arquivo `js/config/version.js` corrigido para UTF-8
-- **versionManager.js v0.0.0**: Atualização de valores movida para `init()` (após modules carregarem)
+- **versionManager.js**: Atualização de valores movida para `init()` (após modules carregarem)
 
 ### Arquivos Alterados
 

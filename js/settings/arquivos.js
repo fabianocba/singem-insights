@@ -47,7 +47,7 @@ class SettingsArquivos {
             '• Chrome 86+\n' +
             '• Edge 86+\n' +
             '• Opera 72+\n\n' +
-            'Seus dados continuarão sendo salvos no banco local (IndexedDB).'
+            'Os dados do sistema permanecem no servidor PostgreSQL (VPS).'
         );
         return;
       }
@@ -337,7 +337,7 @@ class SettingsArquivos {
             '• Chrome 86+\n' +
             '• Edge 86+\n' +
             '• Opera 72+\n\n' +
-            'Seus dados continuarão sendo salvos no banco local (IndexedDB).'
+            'Os dados do sistema permanecem no servidor PostgreSQL (VPS).'
         );
         return;
       }

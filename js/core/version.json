@@ -1,4 +1,6 @@
-{
+﻿{
   "name": "SINGEM",
-  "version": "0.0.2"
+  "version": "0.0.2",
+  "build": "20260220-1200",
+  "buildTimestamp": "2026-02-20T12:00:00.000Z"
 }

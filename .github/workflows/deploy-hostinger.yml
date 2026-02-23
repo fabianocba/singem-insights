@@ -1,0 +1,41 @@
+﻿name: Deploy Hostinger Production
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.PORT }}
+          script: |
+            set -e
+            cd /var/www/singem
+            git fetch --all --tags
+            git reset --hard origin/main
+            if [ -f server/package-lock.json ]; then
+              cd server
+              npm ci --omit=dev
+              if npm run | grep -q " build"; then npm run build; fi
+              pm2 restart singem-api || true
+              pm2 save || true
+              cd ..
+            fi
+            if command -v nginx >/dev/null 2>&1; then
+              sudo nginx -t
+              sudo systemctl reload nginx || true
+            fi

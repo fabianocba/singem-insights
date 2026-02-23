@@ -1,0 +1,79 @@
+name: Release on Tag
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag de release (ex.: v0.0.2)'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Resolver tag
+        id: tag
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ "${GITHUB_EVENT_NAME}" == "workflow_dispatch" ]]; then
+            TAG="${{ github.event.inputs.tag }}"
+          else
+            TAG="${GITHUB_REF_NAME}"
+          fi
+          if [[ ! "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Tag inválida: $TAG"
+            exit 1
+          fi
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+
+      - name: Montar release notes
+        shell: bash
+        run: |
+          set -euo pipefail
+          TAG="${{ steps.tag.outputs.tag }}"
+          VERSION="${TAG#v}"
+
+          awk -v ver="$VERSION" '
+            BEGIN { capture=0 }
+            $0 ~ "^## " {
+              if (capture==1) exit
+              if ($0 ~ "\\[" ver "\\]") capture=1
+            }
+            capture==1 { print }
+          ' CHANGELOG.md > release_notes.md || true
+
+          if [[ ! -s release_notes.md ]]; then
+            PREV_TAG="$(git tag --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | grep -v "^${TAG}$" | head -n 1 || true)"
+            {
+              echo "## ${TAG}"
+              echo
+              if [[ -n "${PREV_TAG}" ]]; then
+                echo "### Commits desde ${PREV_TAG}"
+                git log --pretty=format:'- %s (%h)' "${PREV_TAG}..${TAG}" || true
+              else
+                echo "### Commits"
+                git log --pretty=format:'- %s (%h)' -n 30 || true
+              fi
+            } > release_notes.md
+          fi
+
+      - name: Criar release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.tag.outputs.tag }}
+          name: SINGEM ${{ steps.tag.outputs.tag }}
+          body_path: release_notes.md
+          draft: false
+          prerelease: false

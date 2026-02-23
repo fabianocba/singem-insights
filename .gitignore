@@ -57,9 +57,21 @@ docs/bugfixes/*.json
 01_EMPENHOS/
 02_NOTAS_FISCAIS/
 03_RELATORIOS/
-04_BACKUPS/
+04_BACKUPS/*
+!04_BACKUPS/README.md
 05_ANEXOS/
 data/exemplos/
 storage/
 coverage/
 node_modules/
+# Backups fora do versionamento
+04_BACKUPS/*.json
+04_BACKUPS/**/*.json
+data/backups/
+**/backups/
+*.dump
+*.dmp
+*.bak
+*.sql.gz
+*.tar.gz
+*.zip
