@@ -1,0 +1,9 @@
+﻿{
+    "frontUrl":  "http://localhost:8000",
+    "healthUrl":  "http://localhost:3000/health",
+    "localPort":  5433,
+    "projectRoot":  "C:\\SINGEM",
+    "startedAt":  "2026-02-24T21:18:10",
+    "serverDir":  "C:\\SINGEM\\server",
+    "sshUserHost":  "root@72.61.55.250"
+}
