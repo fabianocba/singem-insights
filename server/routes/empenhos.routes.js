@@ -6,6 +6,7 @@
 const express = require('express');
 const db = require('../config/database');
 const { authenticate, optionalAuth } = require('../middleware/auth');
+const { catmatObrigatorioMiddleware } = require('../utils/catmatValidation');
 
 const router = express.Router();
 
@@ -145,7 +146,7 @@ router.get('/slug/:slug', authenticate, async (req, res) => {
 // ============================================================================
 // POST /api/empenhos - Cria novo empenho
 // ============================================================================
-router.post('/', authenticate, async (req, res) => {
+router.post('/', authenticate, catmatObrigatorioMiddleware('empenho_items'), async (req, res) => {
   try {
     const data = req.body;
 
@@ -202,7 +203,7 @@ router.post('/', authenticate, async (req, res) => {
 // ============================================================================
 // PUT /api/empenhos/:id - Atualiza empenho
 // ============================================================================
-router.put('/:id', authenticate, async (req, res) => {
+router.put('/:id', authenticate, catmatObrigatorioMiddleware('empenho_items'), async (req, res) => {
   try {
     const { id } = req.params;
     const data = req.body;

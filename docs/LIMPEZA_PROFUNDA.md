@@ -35,7 +35,7 @@ ANTES (v1.2.1):                    DEPOIS (v1.2.2):
 â”œâ”€â”€ GUIA_INICIO_RAPIDO.md         â”‚
 â”œâ”€â”€ GUIA_USO_APLICACAO.md         â”œâ”€â”€ ðŸ“ config/
 â”œâ”€â”€ NAVEGACAO.md                   â”œâ”€â”€ ðŸ“ css/
-â”œâ”€â”€ RELATORIO_LIMPEZA.md          â”œâ”€â”€ ðŸ“ data/
+â”œâ”€â”€ LIMPEZA_EXECUTADA.md          â”œâ”€â”€ ðŸ“ data/
 â”œâ”€â”€ LIMPEZA_EXECUTADA.md          â”œâ”€â”€ ðŸ“ docs/
 â”œâ”€â”€ SUMARIO_LIMPEZA.md            â”œâ”€â”€ ðŸ“ img/
 â”œâ”€â”€ SINGEM.code-workspace         â”œâ”€â”€ ðŸ“ js/
@@ -64,7 +64,7 @@ ANTES (v1.2.1):                    DEPOIS (v1.2.2):
 - âœ… `GUIA_INICIO_RAPIDO.md` â†’ `docs/GUIA_INICIO_RAPIDO.md`
 - âœ… `GUIA_USO_APLICACAO.md` â†’ `docs/GUIA_USO_APLICACAO.md`
 - âœ… `NAVEGACAO.md` â†’ `docs/NAVEGACAO.md`
-- âœ… `RELATORIO_LIMPEZA.md` â†’ `docs/RELATORIO_LIMPEZA.md`
+- âœ… `LIMPEZA_EXECUTADA.md` mantido em `docs/`
 - âœ… `LIMPEZA_EXECUTADA.md` â†’ `docs/LIMPEZA_EXECUTADA.md`
 - âœ… `SUMARIO_LIMPEZA.md` â†’ `docs/SUMARIO_LIMPEZA.md`
 

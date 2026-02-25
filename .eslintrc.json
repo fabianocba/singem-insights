@@ -23,7 +23,7 @@
   ],
   "overrides": [
     {
-      "files": ["scripts/audit.js", "scripts/quality-check.mjs"],
+      "files": ["scripts/quality-check.mjs"],
       "env": {
         "node": true,
         "browser": false
@@ -34,7 +34,7 @@
       }
     },
     {
-      "files": ["scripts/scan-refs.js", "server/**/*.js"],
+      "files": ["scripts/scan-refs.cjs", "server/**/*.js"],
       "env": {
         "node": true,
         "browser": false
@@ -44,32 +44,10 @@
       }
     },
     {
-      "files": ["scripts/test-security-modules.js", "scripts/util/reset-singem.js"],
+      "files": ["scripts/util/reset-singem.js"],
       "env": {
         "browser": true,
         "node": false
-      }
-    },
-    {
-      "files": ["tests/**/*.js", "**/*.test.js", "**/*.spec.js"],
-      "env": {
-        "node": true,
-        "browser": true
-      },
-      "globals": {
-        "describe": "readonly",
-        "it": "readonly",
-        "expect": "readonly",
-        "beforeEach": "readonly",
-        "afterEach": "readonly",
-        "beforeAll": "readonly",
-        "afterAll": "readonly",
-        "vi": "readonly",
-        "global": "writable",
-        "window": "writable",
-        "document": "writable",
-        "localStorage": "writable",
-        "sessionStorage": "writable"
       }
     },
     {

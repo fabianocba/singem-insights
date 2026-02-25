@@ -77,8 +77,8 @@
 
 **RelatÃ³rios gerados:**
 
-- âœ… `CLEANUP_SUGGESTIONS.md` - SugestÃµes de limpeza
-- âœ… `cleanup-report.json` - RelatÃ³rio estruturado
+- âœ… `docs/LIMPEZA_EXECUTADA.md` - HistÃ³rico de limpeza
+- âœ… `docs/SUMARIO_LIMPEZA.md` - SumÃ¡rio de organizaÃ§Ã£o
 - ðŸ“Š 26 candidatos identificados (3 removidos, 23 para revisÃ£o)
 
 ---
@@ -170,8 +170,8 @@ console.log(status); // { healthy: true/false, checks: {...} }
 
 ### RelatÃ³rios de limpeza
 
-- âœ… `CLEANUP_SUGGESTIONS.md` - Raiz do projeto
-- âœ… `cleanup-report.json` - Raiz do projeto
+- âœ… `docs/LIMPEZA_EXECUTADA.md` - Raiz documental do projeto
+- âœ… `docs/SUMARIO_LIMPEZA.md` - Raiz documental do projeto
 
 ---
 
@@ -286,7 +286,7 @@ console.log('Healthy:', resultado.healthy);
 
 ### Limpeza Adicional (opcional)
 
-- ðŸ“‹ Revisar 23 itens em `CLEANUP_SUGGESTIONS.md`
+- ðŸ“‹ Revisar pendÃªncias em `docs/LIMPEZA_EXECUTADA.md`
 - ðŸ—‘ï¸ Mover/remover apÃ³s validaÃ§Ã£o manual
 - ðŸ“¦ Criar pasta `_legacy/` para arquivos antigos
 

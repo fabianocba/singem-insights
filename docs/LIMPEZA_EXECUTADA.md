@@ -145,7 +145,7 @@ console.log('Parser especializado nÃ£o disponÃ­vel, usando parser genÃ©ric
 
 1. âœ… `testes/README.md` - Documenta todos os testes HTML e PDFs de referÃªncia
 2. âœ… `data/exemplos/README.md` - Explica PDFs de exemplo
-3. âœ… `RELATORIO_LIMPEZA.md` - Este arquivo (relatÃ³rio completo)
+3. âœ… `LIMPEZA_EXECUTADA.md` - Este arquivo (relatÃ³rio completo)
 
 ---
 
@@ -209,7 +209,7 @@ SINGEM/
 â”œâ”€â”€ GUIA_INICIO_RAPIDO.md     â† Tutorial
 â”œâ”€â”€ GUIA_USO_APLICACAO.md     â† Manual
 â”œâ”€â”€ CHANGELOG.md              â† HistÃ³rico
-â”œâ”€â”€ RELATORIO_LIMPEZA.md      â† Este relatÃ³rio
+â”œâ”€â”€ LIMPEZA_EXECUTADA.md      â† Este relatÃ³rio
 â””â”€â”€ SINGEM.code-workspace     â† Workspace VS Code
 ```
 

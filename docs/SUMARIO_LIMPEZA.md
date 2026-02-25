@@ -47,7 +47,6 @@ SINGEM/                         â† RAIZ LIMPA (11 arquivos)
 â”œâ”€â”€ CHANGELOG.md                â† HistÃ³rico
 â”œâ”€â”€ NAVEGACAO.md                â† Guia de navegaÃ§Ã£o â­ NOVO
 â”œâ”€â”€ LIMPEZA_EXECUTADA.md       â† RelatÃ³rio final â­ NOVO
-â”œâ”€â”€ RELATORIO_LIMPEZA.md       â† AnÃ¡lise tÃ©cnica
 â””â”€â”€ SINGEM.code-workspace      â† Workspace VS Code
 
 /css/                           â† Estilos (1 arquivo)

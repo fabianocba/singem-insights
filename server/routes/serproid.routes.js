@@ -13,6 +13,7 @@ const identityService = require('../domain/identity/identityService');
 const serproidProvider = require('../domain/identity/providers/serproidProvider');
 const auth = require('../middleware/auth');
 const db = require('../config/database');
+const { config } = require('../config');
 
 const router = express.Router();
 
@@ -100,7 +101,7 @@ router.get('/callback', async (req, res) => {
   const { code, state, error, error_description } = req.query;
 
   // URL de redirecionamento após login (frontend)
-  const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:8000';
+  const frontendUrl = config.frontendUrl;
 
   // Erro retornado pelo SerproID
   if (error) {
@@ -212,7 +213,7 @@ async function findOrCreateUser(profile) {
   }
 
   // Auto-criação de usuário (se habilitado)
-  if (process.env.SERPROID_AUTO_CREATE_USER === 'true') {
+  if (config.serproid.autoCreateUser) {
     const login = cpf ? `serproid_${cpf.slice(-6)}` : `serproid_${Date.now()}`;
 
     const newUser = await db.insert('usuarios', {

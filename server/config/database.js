@@ -6,25 +6,22 @@
 const { Pool } = require('pg');
 const fs = require('fs');
 const path = require('path');
-
-// Carrega variáveis de ambiente
-require('dotenv').config();
+const { config } = require('./index');
 
 // ============================================================================
 // POOL DE CONEXÕES
 // ============================================================================
 
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  // Fallback para variáveis individuais
-  host: process.env.DB_HOST || 'localhost',
-  port: parseInt(process.env.DB_PORT || '5432'),
-  database: process.env.DB_NAME || 'singem',
-  user: process.env.DB_USER || 'singem_user',
-  password: process.env.DB_PASSWORD,
-  max: 20,
-  idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 2000
+  connectionString: config.db.connectionString,
+  host: config.db.host,
+  port: config.db.port,
+  database: config.db.name,
+  user: config.db.user,
+  password: config.db.password,
+  max: config.db.max,
+  idleTimeoutMillis: config.db.idleTimeoutMillis,
+  connectionTimeoutMillis: config.db.connectionTimeoutMillis
 });
 
 // Teste de conexão
@@ -37,11 +34,12 @@ pool.on('error', (err) => {
 });
 
 // ============================================================================
-// MIGRATIONS - Executa arquivo SQL
+// MIGRATIONS - Executa arquivos SQL automaticamente
 // ============================================================================
 
 /**
- * Executa migrations do arquivo SQL
+ * Executa todas as migrations SQL em ordem numérica
+ * Busca arquivos *.sql na pasta migrations/ e aplica os pendentes
  */
 async function runMigrations() {
   const client = await pool.connect();
@@ -60,31 +58,37 @@ async function runMigrations() {
     const { rows } = await client.query('SELECT id FROM _migrations');
     const applied = new Set(rows.map((r) => r.id));
 
-    // Migration principal: schema completo
-    const migrationId = '001_schema_completo';
+    // Busca todos os arquivos .sql na pasta migrations
+    const migrationsDir = path.join(__dirname, '../migrations');
+    const files = fs
+      .readdirSync(migrationsDir)
+      .filter((f) => f.endsWith('.sql'))
+      .sort(); // Ordem alfabética = ordem numérica (001, 002, 003...)
 
-    if (!applied.has(migrationId)) {
-      console.log(`[DB] ▶️ Aplicando migration: ${migrationId}`);
+    let appliedCount = 0;
+    let skippedCount = 0;
 
-      const sqlPath = path.join(__dirname, '../migrations/001_schema_completo.sql');
+    for (const file of files) {
+      const migrationId = file.replace('.sql', '');
 
-      if (!fs.existsSync(sqlPath)) {
-        console.error(`[DB] ❌ Arquivo de migration não encontrado: ${sqlPath}`);
-        throw new Error('Arquivo de migration não encontrado');
+      if (applied.has(migrationId)) {
+        skippedCount++;
+        continue;
       }
 
+      console.log(`[DB] ▶️ Aplicando migration: ${migrationId}`);
+
+      const sqlPath = path.join(migrationsDir, file);
       const sql = fs.readFileSync(sqlPath, 'utf8');
 
       await client.query('BEGIN');
       try {
         // Executa cada statement separadamente
-        const statements = sql
-          .split(';')
-          .map((s) => s.trim())
-          .filter((s) => s.length > 0 && !s.startsWith('--'));
+        // Divide por ; mas ignora ; dentro de funções ($$...$$)
+        const statements = splitSqlStatements(sql);
 
         for (const statement of statements) {
-          if (statement.length > 0) {
+          if (statement.trim().length > 0) {
             await client.query(statement);
           }
         }
@@ -92,19 +96,66 @@ async function runMigrations() {
         await client.query('INSERT INTO _migrations (id) VALUES ($1)', [migrationId]);
         await client.query('COMMIT');
         console.log(`[DB] ✅ Migration ${migrationId} aplicada com sucesso`);
+        appliedCount++;
       } catch (err) {
         await client.query('ROLLBACK');
         console.error(`[DB] ❌ Erro na migration ${migrationId}:`, err.message);
         throw err;
       }
-    } else {
-      console.log(`[DB] ✅ Migration ${migrationId} já aplicada`);
+    }
+
+    if (appliedCount > 0) {
+      console.log(`[DB] ✅ ${appliedCount} migration(s) aplicada(s)`);
+    }
+    if (skippedCount > 0) {
+      console.log(`[DB] ✅ ${skippedCount} migration(s) já aplicada(s)`);
     }
 
     console.log('[DB] ✅ Migrations verificadas');
   } finally {
     client.release();
   }
+}
+
+/**
+ * Divide SQL em statements, respeitando blocos de função ($$...$$)
+ */
+function splitSqlStatements(sql) {
+  const statements = [];
+  let current = '';
+  let inBlock = false;
+
+  const lines = sql.split('\n');
+  for (const line of lines) {
+    // Ignora linhas de comentário puro
+    const trimmed = line.trim();
+    if (trimmed.startsWith('--') && !inBlock) {
+      continue;
+    }
+
+    current += line + '\n';
+
+    // Detecta início/fim de bloco de função
+    if (line.includes('$$')) {
+      const count = (line.match(/\$\$/g) || []).length;
+      if (count % 2 === 1) {
+        inBlock = !inBlock;
+      }
+    }
+
+    // Se não está em bloco e a linha termina com ;, encerra statement
+    if (!inBlock && trimmed.endsWith(';')) {
+      statements.push(current.trim());
+      current = '';
+    }
+  }
+
+  // Adiciona resto se houver
+  if (current.trim().length > 0) {
+    statements.push(current.trim());
+  }
+
+  return statements.filter((s) => s.length > 0 && !s.startsWith('--'));
 }
 
 /**
@@ -127,6 +178,13 @@ async function testConnection() {
  * Inicializa o banco de dados
  */
 async function initDatabase() {
+  const hasConnectionString = Boolean(config.db.connectionString);
+  const hasPasswordFallback = Boolean(config.db.password);
+
+  if (!hasConnectionString && !hasPasswordFallback) {
+    throw new Error('[DB] Configuração inválida: defina DATABASE_URL ou DB_PASSWORD no ambiente.');
+  }
+
   const connected = await testConnection();
   if (connected) {
     await runMigrations();
@@ -145,7 +203,7 @@ async function query(text, params) {
   const start = Date.now();
   const result = await pool.query(text, params);
   const duration = Date.now() - start;
-  if (process.env.NODE_ENV === 'development') {
+  if (config.env === 'development') {
     console.log('[DB] Query executada', { text: text.substring(0, 50), duration, rows: result.rowCount });
   }
   return result;

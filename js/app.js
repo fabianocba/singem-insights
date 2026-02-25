@@ -17,6 +17,8 @@ import * as FormatUtils from './core/format.js';
 import * as NaturezaSubelementos from './data/naturezaSubelementos.js';
 import * as RelatoriosEmpenhos from './relatoriosEmpenhos.js';
 import { initInfrastructureInfo } from './infrastructureInfo.js';
+import * as CatmatIntegration from './catmatIntegration.js';
+import * as CatalogacaoTela from './catalogacaoTela.js';
 
 console.log('[App] 📦 Versão:', APP_VERSION, 'Build:', APP_BUILD);
 console.log('[App] 🔍 Repository importado:', typeof repository);
@@ -4964,6 +4966,11 @@ class ControleMaterialApp {
         window.initConsultas();
       }
 
+      // Inicializa tela de pedidos de catalogação CATMAT
+      if (screenId === 'catalogacaoScreen') {
+        CatalogacaoTela.initTelaCatalogacao('catalogacaoPedidosContainer');
+      }
+
       // Carrega empenhos no select quando entra na tela de Nota Fiscal
       if (screenId === 'notaFiscalScreen') {
         this.carregarEmpenhosSelect().catch((err) =>
@@ -6028,22 +6035,37 @@ ${details.stack || 'Não disponível'}</div>
             </div>
           </fieldset>
 
-          <!-- Seção: CATMAT -->
+          <!-- Seção: CATMAT com Autocomplete -->
           <fieldset class="modal-section">
-            <legend>🏷️ CATMAT (Opcional)</legend>
-            <div class="modal-grid modal-grid-3">
+            <legend>🏷️ CATMAT</legend>
+            <div class="form-group" style="position: relative;">
+              <label for="modalCatmatBusca">Buscar Material CATMAT</label>
+              <input type="text" id="modalCatmatBusca"
+                placeholder="Digite pelo menos 3 caracteres para buscar..."
+                autocomplete="off"
+                style="width: 100%;" />
+              <small style="color: #666; font-size: 12px;">
+                Digite para buscar no catálogo. Se não encontrar, clique em "Criar Pedido de Catalogação".
+              </small>
+            </div>
+            <div class="modal-grid modal-grid-3" style="margin-top: 10px;">
               <div class="form-group">
-                <label for="modalCatmatCodigo">Código</label>
-                <input type="text" id="modalCatmatCodigo" value="${dados.catmatCodigo || ''}" placeholder="Código CATMAT" />
+                <label for="modalCatmatCodigo">Código CATMAT</label>
+                <input type="text" id="modalCatmatCodigo" value="${dados.catmatCodigo || ''}" placeholder="Preenchido automaticamente" readonly style="background: #f9f9f9;" />
               </div>
               <div class="form-group form-group-span-2">
                 <label for="modalCatmatDescricao">Descrição CATMAT</label>
-                <input type="text" id="modalCatmatDescricao" value="${dados.catmatDescricao || ''}" placeholder="Descrição do CATMAT" />
+                <input type="text" id="modalCatmatDescricao" value="${dados.catmatDescricao || ''}" placeholder="Preenchido ao selecionar" readonly style="background: #f9f9f9;" />
               </div>
             </div>
             <div class="form-group">
-              <label for="modalCatmatFonte">Fonte</label>
-              <input type="text" id="modalCatmatFonte" value="${dados.catmatFonte || ''}" placeholder="Fonte do CATMAT" />
+              <label for="modalCatmatFonte">Fonte/Unidade</label>
+              <input type="text" id="modalCatmatFonte" value="${dados.catmatFonte || ''}" placeholder="Preenchido automaticamente" readonly style="background: #f9f9f9;" />
+            </div>
+            <div style="margin-top: 8px;">
+              <button type="button" id="btnLimparCatmat" class="btn btn-secondary btn-sm" style="font-size: 12px; padding: 4px 8px;">
+                🗑️ Limpar CATMAT
+              </button>
             </div>
           </fieldset>
 
@@ -6110,6 +6132,40 @@ ${details.stack || 'Não disponível'}</div>
     if (window.UXHelpers) {
       window.UXHelpers.initModalItemUX();
     }
+
+    // ═══════════════════════════════════════════════════════════════
+    // INICIALIZAR AUTOCOMPLETE CATMAT
+    // ═══════════════════════════════════════════════════════════════
+    const catmatBusca = overlay.querySelector('#modalCatmatBusca');
+    if (catmatBusca && window.CatmatIntegration) {
+      window.CatmatIntegration.initCatmatAutocomplete(catmatBusca, (material) => {
+        // Preenche campos com dados do material selecionado
+        document.getElementById('modalCatmatCodigo').value = material.catmat_id || material.codigo || '';
+        document.getElementById('modalCatmatDescricao').value = material.catmat_padrao_desc || material.descricao || '';
+        document.getElementById('modalCatmatFonte').value = material.unidade || 'UN';
+
+        // Se descrição do item estiver vazia, sugere a do CATMAT
+        const descricaoItem = document.getElementById('modalDescricao');
+        if (!descricaoItem.value.trim()) {
+          descricaoItem.value = material.descricao || '';
+        }
+
+        // Se unidade estiver como padrão, usa do CATMAT
+        const unidadeItem = document.getElementById('modalUnidade');
+        if (unidadeItem && unidadeItem.value === 'UN' && material.unidade) {
+          unidadeItem.value = material.unidade;
+        }
+
+        catmatBusca.value = ''; // Limpa campo de busca
+      });
+    }
+
+    // Botão Limpar CATMAT
+    overlay.querySelector('#btnLimparCatmat')?.addEventListener('click', () => {
+      document.getElementById('modalCatmatCodigo').value = '';
+      document.getElementById('modalCatmatDescricao').value = '';
+      document.getElementById('modalCatmatFonte').value = '';
+    });
 
     // ═══════════════════════════════════════════════════════════════
     // CONTROLE DE "DIRTY" - detectar se formulário foi modificado

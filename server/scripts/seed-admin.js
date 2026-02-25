@@ -5,10 +5,9 @@
  * Uso: node scripts/seed-admin.js
  */
 
-require('dotenv').config();
-
 const bcrypt = require('bcrypt');
 const db = require('../config/database');
+const { config } = require('../config');
 
 const SALT_ROUNDS = 10;
 
@@ -50,10 +49,10 @@ async function seedAdmin() {
     }
 
     // Lê credenciais do ambiente ou usa padrão
-    const adminLogin = process.env.ADMIN_LOGIN || 'admin';
-    const adminEmail = process.env.ADMIN_EMAIL || 'admin@ifbaiano.edu.br';
-    const adminNome = process.env.ADMIN_NOME || 'Administrador SINGEM';
-    const adminSenha = process.env.ADMIN_PASSWORD;
+    const adminLogin = config.admin.login;
+    const adminEmail = config.admin.email;
+    const adminNome = config.admin.nome;
+    const adminSenha = config.admin.password;
 
     if (!adminSenha) {
       console.error('❌ Variável ADMIN_PASSWORD não definida no .env');

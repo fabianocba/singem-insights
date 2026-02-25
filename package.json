@@ -5,22 +5,14 @@
   "main": "index.html",
   "type": "module",
   "scripts": {
-    "audit:node": "node ./scripts/audit.js",
-    "audit:selftest": "echo \"â–¶ Abra /audit/selftest.html no navegador para testes locais\"",
-    "audit:all": "npm run audit:node && npm run audit:selftest",
-    "scan:orphans": "node ./scripts/scan-refs.js",
+    "scan:orphans": "node ./scripts/scan-refs.cjs",
     "serve": "python -m http.server 8000",
     "serve:dev": "python -m http.server 8000 --bind localhost",
     "lint": "eslint . --ext .js --max-warnings 60",
     "lint:fix": "eslint . --ext .js --fix",
     "format": "prettier . --write --ignore-unknown",
     "format:check": "prettier . --check --ignore-unknown",
-    "quality": "node ./scripts/quality-check.mjs",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "test:ui": "vitest --ui",
-    "test:coverage": "vitest run --coverage",
-    "test:security": "vitest run tests/inputValidator.test.js"
+    "quality": "node ./scripts/quality-check.mjs"
   },
   "keywords": [
     "controle-material",
@@ -31,14 +23,9 @@
   "author": "IF Baiano",
   "license": "MIT",
   "devDependencies": {
-    "@vitest/coverage-v8": "^4.0.7",
-    "@vitest/ui": "^4.0.7",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
-    "jsdom": "^27.1.0",
-    "prettier": "^3.3.0",
-    "vitest": "^4.0.7",
-    "xmldom": "^0.6.0"
+    "prettier": "^3.3.0"
   },
   "engines": {
     "node": ">=14.0.0"

@@ -25,9 +25,6 @@ const PATTERNS = {
   cssUrl: /url\s*\(\s*["']?([^"')]+)["']?\s*\)/g
 };
 
-/**
- * Obtém todos os arquivos do projeto
- */
 function getAllFiles(dir, fileList = []) {
   const files = fs.readdirSync(dir);
 
@@ -36,7 +33,6 @@ function getAllFiles(dir, fileList = []) {
     const stat = fs.statSync(filePath);
 
     if (stat.isDirectory()) {
-      // Ignora pastas específicas
       if (IGNORE_DIRS.includes(file)) {
         return;
       }
@@ -52,9 +48,6 @@ function getAllFiles(dir, fileList = []) {
   return fileList;
 }
 
-/**
- * Escaneia arquivo em busca de referências
- */
 function scanFileForReferences(filePath) {
   const content = fs.readFileSync(filePath, 'utf8');
   const references = new Set();
@@ -69,34 +62,23 @@ function scanFileForReferences(filePath) {
   return Array.from(references);
 }
 
-/**
- * Normaliza caminho de referência
- */
 function resolveReferencePath(ref, fromFile) {
-  // Remove query strings e hashes
   ref = ref.split('?')[0].split('#')[0];
 
-  // Ignora URLs externas
   if (ref.startsWith('http://') || ref.startsWith('https://')) {
     return null;
   }
 
-  // Ignora data URIs
   if (ref.startsWith('data:')) {
     return null;
   }
 
-  // Resolve caminho relativo
   const fromDir = path.dirname(fromFile);
   const resolved = path.resolve(fromDir, ref);
 
-  // Normaliza para separadores do sistema
   return path.normalize(resolved);
 }
 
-/**
- * Análise principal
- */
 function analyzeProject() {
   console.log('🔍 Escaneando projeto SINGEM...\n');
 
@@ -105,7 +87,6 @@ function analyzeProject() {
 
   console.log(`📦 Total de arquivos encontrados: ${allFiles.length}\n`);
 
-  // Escaneia cada arquivo em busca de referências
   allFiles.forEach((file) => {
     const ext = path.extname(file);
 
@@ -125,14 +106,11 @@ function analyzeProject() {
 
   console.log(`✅ Arquivos referenciados: ${referenced.size}\n`);
 
-  // Encontra órfãos
   const orphans = allFiles.filter((file) => {
-    // Sempre considera index.html como referenciado
     if (file.endsWith('index.html')) {
       return false;
     }
 
-    // Ignora arquivos de configuração
     if (
       file.endsWith('.editorconfig') ||
       file.endsWith('.eslintrc.json') ||
@@ -142,7 +120,6 @@ function analyzeProject() {
       return false;
     }
 
-    // Ignora README e documentação principal
     if (file.endsWith('README.md') || file.endsWith('CHANGELOG.md')) {
       return false;
     }
@@ -150,7 +127,6 @@ function analyzeProject() {
     return !referenced.has(file);
   });
 
-  // Relatório
   console.log('========================================');
   console.log('📊 RELATÓRIO DE ARQUIVOS ÓRFÃOS');
   console.log('========================================\n');
@@ -160,7 +136,6 @@ function analyzeProject() {
   } else {
     console.log(`⚠️  ${orphans.length} arquivo(s) potencialmente órfão(s):\n`);
 
-    // Agrupa por extensão
     const byExtension = {};
     orphans.forEach((file) => {
       const ext = path.extname(file);
@@ -170,7 +145,6 @@ function analyzeProject() {
       byExtension[ext].push(path.relative(ROOT_DIR, file));
     });
 
-    // Mostra agrupado
     Object.entries(byExtension).forEach(([ext, files]) => {
       console.log(`\n${ext} (${files.length} arquivo(s)):`);
       files.forEach((file) => {
@@ -184,7 +158,6 @@ function analyzeProject() {
     console.log('  - Faça backup antes de qualquer remoção\n');
   }
 
-  // Estatísticas
   console.log('========================================');
   console.log('📈 ESTATÍSTICAS');
   console.log('========================================\n');
@@ -202,7 +175,6 @@ function analyzeProject() {
 
   console.log('\n');
 
-  // Salva relatório
   const reportPath = path.join(ROOT_DIR, 'SCAN_REPORT.txt');
   const reportContent = [
     'SINGEM - Relatório de Análise de Referências',
@@ -224,7 +196,6 @@ function analyzeProject() {
   console.log(`💾 Relatório salvo em: ${reportPath}\n`);
 }
 
-// Executa análise
 try {
   analyzeProject();
 } catch (error) {

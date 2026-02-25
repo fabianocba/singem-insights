@@ -78,7 +78,7 @@ O projeto **SINGEM** foi adequado com sucesso Ã s **boas prÃ¡ticas modernas*
 ### âœ… 8. DocumentaÃ§Ã£o (2 arquivos, ~1.300 linhas)
 
 - `docs/DB_HEALTH.md` - Checklist IndexedDB
-- `HARDENING_REPORT.md` - RelatÃ³rio completo
+- `docs/LIMPEZA_EXECUTADA.md` - HistÃ³rico de higienizaÃ§Ã£o
 
 **BenefÃ­cio:** DocumentaÃ§Ã£o detalhada
 
@@ -94,7 +94,7 @@ O projeto **SINGEM** foi adequado com sucesso Ã s **boas prÃ¡ticas modernas*
 
 - VersÃ£o 1.3.0 destacada
 - Estrutura de pastas atualizada
-- Link para HARDENING_REPORT.md
+- Links para documentaÃ§Ã£o tÃ©cnica ativa em `docs/`
 
 **BenefÃ­cio:** DocumentaÃ§Ã£o atualizada
 
@@ -187,7 +187,7 @@ window.sanitizarURL(url);
 
 ### Leia Estes Documentos
 
-1. **[HARDENING_REPORT.md](HARDENING_REPORT.md)** - RelatÃ³rio detalhado de todas as melhorias
+1. **[docs/DB_HEALTH.md](../DB_HEALTH.md)** - Checklist de saÃºde do banco
 2. **[docs/DB_HEALTH.md](docs/DB_HEALTH.md)** - Checklist de saÃºde do IndexedDB
 3. **[README.md](README.md)** - DocumentaÃ§Ã£o principal atualizada
 
@@ -195,7 +195,7 @@ window.sanitizarURL(url);
 
 ```bash
 # Escanear arquivos Ã³rfÃ£os
-node scripts/scan-refs.js
+node scripts/scan-refs.cjs
 
 # Iniciar servidor (produÃ§Ã£o)
 .\scripts\iniciar-servidor.ps1
@@ -245,7 +245,7 @@ npm install --save-dev esbuild
 
 ```bash
 # Escaneia arquivos Ã³rfÃ£os
-node scripts/scan-refs.js
+node scripts/scan-refs.cjs
 
 # Formata cÃ³digo (se tiver Prettier instalado)
 npx prettier --write "**/*.{js,html,css,md}"
@@ -311,9 +311,9 @@ console.log(logs);
 
 Para dÃºvidas sobre as melhorias:
 
-1. Leia o [HARDENING_REPORT.md](HARDENING_REPORT.md)
-2. Verifique o [README.md](README.md) atualizado
-3. Consulte [docs/DB_HEALTH.md](docs/DB_HEALTH.md) para problemas de banco
+1. Leia o [DB_HEALTH.md](../DB_HEALTH.md)
+2. Verifique o [README.md](../../README.md) atualizado
+3. Consulte [LIMPEZA_EXECUTADA.md](../LIMPEZA_EXECUTADA.md) para histÃ³rico de limpeza
 
 ---
 

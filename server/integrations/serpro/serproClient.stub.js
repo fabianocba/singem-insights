@@ -6,14 +6,16 @@
  * Hoje: stub que documenta contrato esperado
  */
 
+const { config } = require('../../config');
+
 /**
  * Client stub para consumir APIs SERPRO
  */
 class SerproClient {
   constructor() {
-    this.baseUrl = process.env.SERPRO_BASE_URL || 'https://gateway.apiserpro.serpro.gov.br';
-    this.apiKey = process.env.SERPRO_API_KEY || '';
-    this.consumerSecret = process.env.SERPRO_CONSUMER_SECRET || '';
+    this.baseUrl = config.serpro.baseUrl;
+    this.apiKey = config.serpro.apiKey;
+    this.consumerSecret = config.serpro.consumerSecret;
   }
 
   /**

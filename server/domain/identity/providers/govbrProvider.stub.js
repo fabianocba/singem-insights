@@ -7,12 +7,15 @@
  * 2. exchangeCodeForProfile() → troca code por token + userinfo
  */
 
+const { config } = require('../../../config');
+
 class GovBrProviderStub {
   constructor() {
-    this.clientId = process.env.GOVBR_CLIENT_ID;
-    this.clientSecret = process.env.GOVBR_CLIENT_SECRET;
-    this.redirectUri = process.env.GOVBR_REDIRECT_URI;
-    this.issuer = process.env.GOVBR_ISSUER || 'https://sso.acesso.gov.br';
+    this.clientId = config.govbr.clientId;
+    this.clientSecret = config.govbr.clientSecret;
+    this.redirectUri = config.govbr.redirectUri;
+    this.issuer = config.govbr.issuer;
+    this.enabled = config.govbr.enabled;
   }
 
   /**
@@ -87,7 +90,7 @@ class GovBrProviderStub {
    */
   getConfig() {
     return {
-      enabled: process.env.GOVBR_ENABLED === 'true',
+      enabled: this.enabled,
       configured: this.isConfigured(),
       issuer: this.issuer,
       hasClientId: !!this.clientId,

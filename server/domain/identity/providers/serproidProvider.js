@@ -8,13 +8,15 @@
  */
 
 const crypto = require('crypto');
+const { config } = require('../../../config');
 
 class SerproIDProvider {
   constructor() {
-    this.clientId = process.env.SERPROID_CLIENT_ID;
-    this.clientSecret = process.env.SERPROID_CLIENT_SECRET;
-    this.redirectUri = process.env.SERPROID_REDIRECT_URI;
-    this.baseUrl = process.env.SERPROID_BASE_URL || 'https://hom.serproid.serpro.gov.br';
+    this.clientId = config.serproid.clientId;
+    this.clientSecret = config.serproid.clientSecret;
+    this.redirectUri = config.serproid.redirectUri;
+    this.baseUrl = config.serproid.baseUrl;
+    this.enabled = config.serproid.enabled;
 
     // Endpoints OAuth2
     this.authorizeUrl = `${this.baseUrl}/oauth/v0/oauth/authorize`;
@@ -212,7 +214,7 @@ class SerproIDProvider {
    */
   getConfig() {
     return {
-      enabled: process.env.SERPROID_ENABLED === 'true',
+      enabled: this.enabled,
       configured: this.isConfigured(),
       baseUrl: this.baseUrl,
       hasClientId: !!this.clientId,

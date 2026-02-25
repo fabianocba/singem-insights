@@ -6,6 +6,7 @@
 const express = require('express');
 const db = require('../config/database');
 const { authenticate } = require('../middleware/auth');
+const { catmatObrigatorioMiddleware } = require('../utils/catmatValidation');
 
 const router = express.Router();
 
@@ -167,7 +168,7 @@ router.get('/chave/:chave', authenticate, async (req, res) => {
 // ============================================================================
 // POST /api/notas-fiscais - Cria nova nota fiscal
 // ============================================================================
-router.post('/', authenticate, async (req, res) => {
+router.post('/', authenticate, catmatObrigatorioMiddleware('nota_fiscal_items'), async (req, res) => {
   try {
     const data = req.body;
 
@@ -246,7 +247,7 @@ router.post('/', authenticate, async (req, res) => {
 // ============================================================================
 // PUT /api/notas-fiscais/:id - Atualiza nota fiscal
 // ============================================================================
-router.put('/:id', authenticate, async (req, res) => {
+router.put('/:id', authenticate, catmatObrigatorioMiddleware('nota_fiscal_items'), async (req, res) => {
   try {
     const { id } = req.params;
     const data = req.body;

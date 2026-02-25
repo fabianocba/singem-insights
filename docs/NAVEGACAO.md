@@ -75,14 +75,14 @@
 
 Pasta: `docs/`
 
-| Arquivo                     | ConteÃºdo                        |
-| --------------------------- | -------------------------------- |
-| `NE_PARSER.md`              | API e funcionamento do parser NE |
-| `GUIA_RAPIDO_NE.md`         | Como usar o parser NE            |
-| `LEIA-ME_NE_PARSER.md`      | IntroduÃ§Ã£o ao parser           |
-| `CONFIGURACOES.md`          | MÃ³dulo de configuraÃ§Ãµes       |
-| `PADRONIZACAO_NF.md`        | PadrÃµes de Nota Fiscal          |
-| `TESTE_VALIDACAO_PARSER.md` | ValidaÃ§Ã£o de parsers           |
+| Arquivo                | ConteÃºdo                        |
+| ---------------------- | -------------------------------- |
+| `NE_PARSER.md`         | API e funcionamento do parser NE |
+| `GUIA_RAPIDO_NE.md`    | Como usar o parser NE            |
+| `LEIA-ME_NE_PARSER.md` | IntroduÃ§Ã£o ao parser           |
+| `CONFIGURACOES.md`     | MÃ³dulo de configuraÃ§Ãµes       |
+| `PADRONIZACAO_NF.md`   | PadrÃµes de Nota Fiscal          |
+| `NE_PARSER.md`         | ValidaÃ§Ã£o e regras do parser   |
 
 #### ðŸ“ DocumentaÃ§Ã£o de ImplementaÃ§Ã£o
 
@@ -97,10 +97,9 @@ Pasta: `docs/implementacao/`
 
 #### ðŸ§¹ RelatÃ³rios de ManutenÃ§Ã£o
 
-| Arquivo                | ConteÃºdo                         |
-| ---------------------- | --------------------------------- |
-| `RELATORIO_LIMPEZA.md` | AnÃ¡lise e plano de organizaÃ§Ã£o |
-| `LIMPEZA_EXECUTADA.md` | RelatÃ³rio final da limpeza       |
+| Arquivo                | ConteÃºdo                   |
+| ---------------------- | --------------------------- |
+| `LIMPEZA_EXECUTADA.md` | RelatÃ³rio final da limpeza |
 
 ### ðŸ§ª Testes
 

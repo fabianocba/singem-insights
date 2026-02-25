@@ -5,17 +5,95 @@
 
 const express = require('express');
 const bcrypt = require('bcrypt');
+const crypto = require('crypto');
 const db = require('../config/database');
 const auth = require('../middleware/auth');
+const { createAuthLimiter } = require('../middleware/rateLimit');
 const identityService = require('../domain/identity/identityService');
+const { sendMail, buildActivationEmail, buildResetPasswordEmail } = require('../services/emailService');
 
 const router = express.Router();
 const SALT_ROUNDS = 10;
+const ACTIVATION_HOURS = 24;
+const RESET_HOURS = 1;
+
+const loginLimiter = createAuthLimiter(20, 'Muitas tentativas de login. Tente novamente em alguns minutos.');
+
+const registerLimiter = createAuthLimiter(10, 'Muitas tentativas de cadastro. Tente novamente em alguns minutos.');
+
+const forgotPasswordLimiter = createAuthLimiter(10, 'Muitas tentativas. Tente novamente em alguns minutos.');
+
+const resetPasswordLimiter = createAuthLimiter(
+  10,
+  'Muitas tentativas de redefinição. Tente novamente em alguns minutos.'
+);
+
+function ok(res, message, data) {
+  const payload = { ok: true, message };
+  if (data !== undefined) {
+    payload.data = data;
+  }
+  return res.json(payload);
+}
+
+function fail(res, status, message) {
+  return res.status(status).json({ ok: false, message });
+}
+
+function isEmailValid(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+function generateRawToken() {
+  return crypto.randomBytes(32).toString('hex');
+}
+
+function hashToken(rawToken) {
+  return crypto.createHash('sha256').update(rawToken).digest('hex');
+}
+
+async function saveAuthToken(userId, type, rawToken, expiresAt) {
+  const tokenHash = hashToken(rawToken);
+
+  await db.query('DELETE FROM auth_tokens WHERE user_id = $1 AND type = $2 AND used_at IS NULL', [userId, type]);
+
+  await db.query('INSERT INTO auth_tokens (user_id, token_hash, type, expires_at) VALUES ($1, $2, $3, $4)', [
+    userId,
+    tokenHash,
+    type,
+    expiresAt
+  ]);
+
+  return tokenHash;
+}
+
+async function consumeAuthToken(rawToken, type) {
+  const tokenHash = hashToken(rawToken);
+
+  const result = await db.query(
+    `
+      SELECT id, user_id
+      FROM auth_tokens
+      WHERE token_hash = $1
+        AND type = $2
+        AND used_at IS NULL
+        AND expires_at > NOW()
+      LIMIT 1
+    `,
+    [tokenHash, type]
+  );
+
+  if (!result.rows[0]) {
+    return null;
+  }
+
+  return result.rows[0];
+}
 
 // ============================================================================
 // POST /api/auth/login - Login via Provider Pattern
 // ============================================================================
-router.post('/login', async (req, res) => {
+router.post('/login', loginLimiter, async (req, res) => {
   try {
     const { login, senha, email, password } = req.body;
 
@@ -64,7 +142,10 @@ router.post('/login', async (req, res) => {
   } catch (err) {
     console.error('[Auth] Erro no login:', err);
     const status = err.statusCode || 500;
-    return res.status(status).json({ erro: err.message || 'Erro interno no login' });
+    if (status >= 500) {
+      return res.status(500).json({ erro: 'Erro interno no login' });
+    }
+    return res.status(status).json({ erro: 'Credenciais inválidas' });
   }
 });
 
@@ -132,65 +213,218 @@ router.get('/me', auth.authenticate, async (req, res) => {
 // ============================================================================
 // POST /api/auth/register - Registro de primeiro admin (bootstrap)
 // ============================================================================
-router.post('/register', async (req, res) => {
+router.post('/register', registerLimiter, async (req, res) => {
   try {
-    // Verifica se já existem usuários
-    const count = await db.query('SELECT COUNT(*) as total FROM usuarios');
-    const totalUsuarios = parseInt(count.rows[0].total);
+    const { name, nome, email, password, senha } = req.body;
 
-    if (totalUsuarios > 0) {
-      return res.status(403).json({
-        erro: 'Registro direto desabilitado. Solicite ao administrador.'
-      });
+    const userName = (name || nome || '').trim();
+    const userEmail = (email || '').trim().toLowerCase();
+    const userPassword = password || senha;
+
+    if (!userName || !userEmail || !userPassword) {
+      return fail(res, 400, 'Nome, e-mail e senha são obrigatórios.');
     }
 
-    const { login, email, senha, nome } = req.body;
-
-    if (!login || !senha || !nome) {
-      return res.status(400).json({ erro: 'Login, senha e nome são obrigatórios' });
+    if (!isEmailValid(userEmail)) {
+      return fail(res, 400, 'E-mail inválido.');
     }
 
-    if (senha.length < 6) {
-      return res.status(400).json({ erro: 'Senha deve ter no mínimo 6 caracteres' });
+    if (userPassword.length < 8) {
+      return fail(res, 400, 'A senha deve ter no mínimo 8 caracteres.');
     }
 
-    // Hash da senha
-    const senhaHash = await bcrypt.hash(senha, SALT_ROUNDS);
+    const existing = await db.query('SELECT id FROM usuarios WHERE LOWER(email) = $1 OR LOWER(login) = $1 LIMIT 1', [
+      userEmail
+    ]);
 
-    // Cria primeiro usuário como admin
+    if (existing.rows.length > 0) {
+      return fail(res, 409, 'Não foi possível concluir o cadastro com este e-mail.');
+    }
+
+    const senhaHash = await bcrypt.hash(userPassword, SALT_ROUNDS);
+
     const user = await db.insert('usuarios', {
-      login: login.toLowerCase(),
-      email: email ? email.toLowerCase() : null,
+      login: userEmail,
+      email: userEmail,
       senha_hash: senhaHash,
-      nome,
-      perfil: 'admin',
-      ativo: true
+      nome: userName,
+      perfil: 'operador',
+      ativo: false,
+      is_active: false
     });
 
-    // Gera tokens
-    const accessToken = auth.generateAccessToken(user);
-    const refreshToken = auth.generateRefreshToken(user);
-    await auth.saveRefreshToken(user.id, refreshToken);
+    const token = generateRawToken();
+    const expiresAt = new Date(Date.now() + ACTIVATION_HOURS * 60 * 60 * 1000);
+
+    await saveAuthToken(user.id, 'ACTIVATION', token, expiresAt);
+
+    const emailContent = buildActivationEmail({ name: user.nome, token });
+    const mailResult = await sendMail({
+      to: user.email,
+      subject: emailContent.subject,
+      html: emailContent.html,
+      text: emailContent.text
+    });
+
+    if (!mailResult.ok) {
+      return fail(res, 503, 'Cadastro realizado, mas não foi possível enviar o e-mail de ativação no momento.');
+    }
 
     return res.status(201).json({
-      sucesso: true,
-      mensagem: 'Primeiro administrador criado com sucesso',
-      usuario: {
-        id: user.id,
-        login: user.login,
-        nome: user.nome,
-        perfil: user.perfil
-      },
-      accessToken,
-      refreshToken
+      ok: true,
+      message: 'Cadastro realizado. Verifique seu e-mail para ativar a conta.'
     });
   } catch (err) {
     console.error('[Auth] Erro no registro:', err);
     if (err.code === '23505') {
-      // Unique violation
-      return res.status(409).json({ erro: 'Login ou email já existe' });
+      return fail(res, 409, 'Não foi possível concluir o cadastro com este e-mail.');
     }
-    return res.status(500).json({ erro: 'Erro interno no registro' });
+    return fail(res, 500, 'Erro interno no cadastro.');
+  }
+});
+
+// ============================================================================
+// GET /api/auth/activate?token=XXXX - Ativação de conta
+// ============================================================================
+router.get('/activate', async (req, res) => {
+  const token = typeof req.query.token === 'string' ? req.query.token : '';
+
+  if (!token) {
+    return fail(res, 400, 'Token de ativação é obrigatório.');
+  }
+
+  try {
+    const tokenRow = await consumeAuthToken(token, 'ACTIVATION');
+
+    if (!tokenRow) {
+      return fail(res, 400, 'Token inválido ou expirado.');
+    }
+
+    await db.query('BEGIN');
+    try {
+      await db.query('UPDATE usuarios SET ativo = true, is_active = true, updated_at = NOW() WHERE id = $1', [
+        tokenRow.user_id
+      ]);
+
+      await db.query('UPDATE auth_tokens SET used_at = NOW() WHERE id = $1', [tokenRow.id]);
+
+      await db.query(
+        "UPDATE auth_tokens SET used_at = NOW() WHERE user_id = $1 AND type = 'ACTIVATION' AND used_at IS NULL",
+        [tokenRow.user_id]
+      );
+
+      await db.query('COMMIT');
+    } catch (error) {
+      await db.query('ROLLBACK');
+      throw error;
+    }
+
+    return ok(res, 'Conta ativada com sucesso.');
+  } catch (err) {
+    console.error('[Auth] Erro na ativação:', err);
+    return fail(res, 500, 'Erro interno na ativação da conta.');
+  }
+});
+
+// ============================================================================
+// POST /api/auth/forgot-password
+// ============================================================================
+router.post('/forgot-password', forgotPasswordLimiter, async (req, res) => {
+  const genericMessage = 'Se existir uma conta ativa para este e-mail, enviaremos instruções de recuperação.';
+
+  try {
+    const { email } = req.body;
+    const userEmail = (email || '').trim().toLowerCase();
+
+    if (!userEmail || !isEmailValid(userEmail)) {
+      return ok(res, genericMessage);
+    }
+
+    const result = await db.query(
+      `
+        SELECT id, nome, email
+        FROM usuarios
+        WHERE LOWER(email) = $1
+          AND ativo = true
+          AND COALESCE(is_active, false) = true
+        LIMIT 1
+      `,
+      [userEmail]
+    );
+
+    const user = result.rows[0];
+
+    if (user) {
+      const token = generateRawToken();
+      const expiresAt = new Date(Date.now() + RESET_HOURS * 60 * 60 * 1000);
+
+      await saveAuthToken(user.id, 'RESET', token, expiresAt);
+
+      const emailContent = buildResetPasswordEmail({ name: user.nome, token });
+      await sendMail({
+        to: user.email,
+        subject: emailContent.subject,
+        html: emailContent.html,
+        text: emailContent.text
+      });
+    }
+
+    return ok(res, genericMessage);
+  } catch (err) {
+    console.error('[Auth] Erro no forgot-password:', err);
+    return ok(res, genericMessage);
+  }
+});
+
+// ============================================================================
+// POST /api/auth/reset-password
+// ============================================================================
+router.post('/reset-password', resetPasswordLimiter, async (req, res) => {
+  try {
+    const { token, new_password: newPassword, novaSenha } = req.body;
+    const nextPassword = newPassword || novaSenha;
+
+    if (!token || !nextPassword) {
+      return fail(res, 400, 'Token e nova senha são obrigatórios.');
+    }
+
+    if (nextPassword.length < 8) {
+      return fail(res, 400, 'A nova senha deve ter no mínimo 8 caracteres.');
+    }
+
+    const tokenRow = await consumeAuthToken(token, 'RESET');
+    if (!tokenRow) {
+      return fail(res, 400, 'Token inválido ou expirado.');
+    }
+
+    const passwordHash = await bcrypt.hash(nextPassword, SALT_ROUNDS);
+
+    await db.query('BEGIN');
+    try {
+      await db.query('UPDATE usuarios SET senha_hash = $1, updated_at = NOW() WHERE id = $2', [
+        passwordHash,
+        tokenRow.user_id
+      ]);
+
+      await db.query('UPDATE auth_tokens SET used_at = NOW() WHERE id = $1', [tokenRow.id]);
+
+      await db.query(
+        "UPDATE auth_tokens SET used_at = NOW() WHERE user_id = $1 AND type = 'RESET' AND used_at IS NULL",
+        [tokenRow.user_id]
+      );
+
+      await db.query('DELETE FROM refresh_tokens WHERE usuario_id = $1', [tokenRow.user_id]);
+
+      await db.query('COMMIT');
+    } catch (error) {
+      await db.query('ROLLBACK');
+      throw error;
+    }
+
+    return ok(res, 'Senha redefinida com sucesso.');
+  } catch (err) {
+    console.error('[Auth] Erro no reset-password:', err);
+    return fail(res, 500, 'Erro interno ao redefinir senha.');
   }
 });
 

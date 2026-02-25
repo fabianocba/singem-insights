@@ -51,7 +51,7 @@ const status = await window.PlatformCore.health.runAllChecks();
 ### 3. Limpeza de CÃ³digo
 
 **Removidos:** 3 arquivos de teste nÃ£o usados
-**Identificados:** 23 candidatos para revisÃ£o (ver `CLEANUP_SUGGESTIONS.md`)
+**Identificados:** candidatos para revisÃ£o (ver `docs/LIMPEZA_EXECUTADA.md`)
 
 ---
 
@@ -127,9 +127,8 @@ d:/SINGEM/
 â”‚       â””â”€â”€ worker/
 â”‚           â””â”€â”€ parse.worker.js
 â”œâ”€â”€ IMPLEMENTACAO_COMPLETA.md     â† DOCUMENTAÃ‡ÃƒO COMPLETA
-â”œâ”€â”€ GUIA_TESTE_RAPIDO.md          â† CHECKLIST DE TESTES
-â”œâ”€â”€ CLEANUP_SUGGESTIONS.md        â† SUGESTÃ•ES DE LIMPEZA
-â””â”€â”€ cleanup-report.json           â† RELATÃ“RIO JSON
+â”œâ”€â”€ docs/LIMPEZA_EXECUTADA.md     â† HISTÃ“RICO DE LIMPEZA
+â””â”€â”€ docs/implementacao/           â† DOCUMENTAÃ‡ÃƒO TÃ‰CNICA
 ```
 
 ---
@@ -190,7 +189,7 @@ document.head.appendChild(s);
 
 ### Teste Completo (5 minutos)
 
-Ver arquivo: **GUIA_TESTE_RAPIDO.md**
+Ver seÃ§Ã£o de validaÃ§Ã£o neste documento e em **IMPLEMENTACAO_COMPLETA.md**.
 
 Checklist:
 
@@ -272,7 +271,7 @@ if (checkboxMarcado && parserRefinadoDisponivel) {
 
 ### MÃ©dio Prazo
 
-- [ ] Revisar 23 arquivos em CLEANUP_SUGGESTIONS.md
+- [ ] Revisar pendÃªncias de documentaÃ§Ã£o em `docs/`
 - [ ] Mover/remover arquivos legados
 - [ ] Criar pasta `_legacy/` para backup
 

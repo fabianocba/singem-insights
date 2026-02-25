@@ -12,6 +12,7 @@
 const localProvider = require('./providers/localProvider');
 const govbrProvider = require('./providers/govbrProvider.stub');
 const serproidProvider = require('./providers/serproidProvider');
+const { config } = require('../../config');
 
 class IdentityService {
   constructor({ providers } = {}) {
@@ -88,10 +89,10 @@ class IdentityService {
       return true;
     }
     if (providerName === 'govbr') {
-      return process.env.GOVBR_ENABLED === 'true';
+      return config.govbr.enabled;
     }
     if (providerName === 'serproid') {
-      return process.env.SERPROID_ENABLED === 'true';
+      return config.serproid.enabled;
     }
     return false;
   }
@@ -110,13 +111,13 @@ class IdentityService {
         enabled: this.isProviderEnabled('govbr'),
         name: 'Gov.br',
         description: 'Login Único do Governo Federal',
-        issuer: process.env.GOVBR_ISSUER || 'https://sso.acesso.gov.br'
+        issuer: config.govbr.issuer
       },
       serproid: {
         enabled: this.isProviderEnabled('serproid'),
         name: 'SerproID',
         description: 'Autenticação via Certificado Digital (Serpro)',
-        baseUrl: process.env.SERPROID_BASE_URL || 'https://hom.serproid.serpro.gov.br'
+        baseUrl: config.serproid.baseUrl
       }
     };
   }

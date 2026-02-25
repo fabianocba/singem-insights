@@ -17,14 +17,14 @@ ImplementaÃ§Ã£o completa de uma **plataforma confiÃ¡vel, eficiente e moder
 
 ### ðŸš€ COMEÃ‡AR RÃPIDO
 
-**Arquivo:** [`GUIA_TESTE_RAPIDO.md`](./GUIA_TESTE_RAPIDO.md)
+**Arquivo:** [`RESUMO_INTEGRACAO.md`](./RESUMO_INTEGRACAO.md)
 
 **Use se vocÃª quer:**
 
-- Testar a implementaÃ§Ã£o agora
-- Checklist de verificaÃ§Ã£o
-- Comandos para console
-- Troubleshooting
+- Verificar integraÃ§Ã£o atual na UI
+- Conferir pontos de entrada e APIs
+- Validar comandos de diagnÃ³stico no console
+- Revisar troubleshooting
 
 **Tempo estimado:** 5 minutos
 
@@ -63,29 +63,25 @@ ImplementaÃ§Ã£o completa de uma **plataforma confiÃ¡vel, eficiente e moder
 
 ### ðŸ§¹ LIMPEZA DE CÃ“DIGO
 
-**Arquivo:** [`CLEANUP_SUGGESTIONS.md`](./CLEANUP_SUGGESTIONS.md)
+**Arquivo:** [`LIMPEZA_EXECUTADA.md`](../LIMPEZA_EXECUTADA.md)
 
 **Use se vocÃª quer:**
 
-- Ver arquivos identificados para revisÃ£o (26 candidatos)
-- CritÃ©rios usados na anÃ¡lise
-- Riscos antes de remover
-- PrÃ³ximos passos recomendados
+- Ver o que jÃ¡ foi removido
+- Entender o racional da organizaÃ§Ã£o
+- Consultar prÃ³ximos passos de higienizaÃ§Ã£o
 
-**RelatÃ³rio JSON:** [`cleanup-report.json`](./cleanup-report.json)
-
-**Tempo estimado:** 15 minutos
+**Tempo estimado:** 10 minutos
 
 ---
 
 ## ðŸ—‚ï¸ ARQUIVOS POR CATEGORIA
 
-### ðŸ“‹ DocumentaÃ§Ã£o (4 arquivos)
+### ðŸ“‹ DocumentaÃ§Ã£o (3 arquivos)
 
-1. `GUIA_TESTE_RAPIDO.md` - Checklist de testes
-2. `RESUMO_INTEGRACAO.md` - IntegraÃ§Ã£o e APIs
-3. `IMPLEMENTACAO_COMPLETA.md` - Arquitetura completa
-4. `CLEANUP_SUGGESTIONS.md` - Limpeza recomendada
+1. `RESUMO_INTEGRACAO.md` - IntegraÃ§Ã£o e APIs
+2. `IMPLEMENTACAO_COMPLETA.md` - Arquitetura completa
+3. `LIMPEZA_EXECUTADA.md` - Limpeza aplicada
 
 ### ðŸ’» CÃ³digo JavaScript (16 arquivos)
 
@@ -115,9 +111,9 @@ ImplementaÃ§Ã£o completa de uma **plataforma confiÃ¡vel, eficiente e moder
 
 - `index.html` - Imports dos novos mÃ³dulos (linhas 838-870)
 
-### ðŸ“Š RelatÃ³rios (1 arquivo)
+### ðŸ“Š RelatÃ³rios
 
-- `cleanup-report.json` - RelatÃ³rio JSON de limpeza
+- RelatÃ³rios operacionais e de limpeza em `docs/`
 
 ---
 
@@ -127,13 +123,12 @@ ImplementaÃ§Ã£o completa de uma **plataforma confiÃ¡vel, eficiente e moder
 
 1. **InÃ­cio:** `RESUMO_INTEGRACAO.md` (entender integraÃ§Ã£o)
 2. **Aprofundar:** `IMPLEMENTACAO_COMPLETA.md` (arquitetura)
-3. **Praticar:** `GUIA_TESTE_RAPIDO.md` (testar)
-4. **Manter:** `CLEANUP_SUGGESTIONS.md` (limpar cÃ³digo)
+3. **Manter:** `LIMPEZA_EXECUTADA.md` (higiene do repositÃ³rio)
 
 ### Para QA/Testers
 
-1. **InÃ­cio:** `GUIA_TESTE_RAPIDO.md` (checklist)
-2. **ReferÃªncia:** `RESUMO_INTEGRACAO.md` (pontos de teste)
+1. **InÃ­cio:** `RESUMO_INTEGRACAO.md` (checklist de integraÃ§Ã£o)
+2. **ReferÃªncia:** `IMPLEMENTACAO_COMPLETA.md` (pontos de teste)
 3. **Troubleshooting:** `IMPLEMENTACAO_COMPLETA.md` (APIs de debug)
 
 ### Para Gestores
@@ -141,7 +136,7 @@ ImplementaÃ§Ã£o completa de uma **plataforma confiÃ¡vel, eficiente e moder
 1. **InÃ­cio:** Este arquivo (Ã­ndice)
 2. **Resumo:** `RESUMO_INTEGRACAO.md` (entregÃ¡veis)
 3. **Detalhes:** `IMPLEMENTACAO_COMPLETA.md` (completo)
-4. **PrÃ³ximos passos:** `CLEANUP_SUGGESTIONS.md` (backlog)
+4. **PrÃ³ximos passos:** `LIMPEZA_EXECUTADA.md` (backlog de higiene)
 
 ---
 
@@ -156,7 +151,7 @@ ImplementaÃ§Ã£o completa de uma **plataforma confiÃ¡vel, eficiente e moder
 â†’ `IMPLEMENTACAO_COMPLETA.md` > "API PÃºblica"
 
 **...testar se estÃ¡ tudo funcionando?**
-â†’ `GUIA_TESTE_RAPIDO.md` > "Checklist de Testes"
+â†’ `RESUMO_INTEGRACAO.md` > "Como testar"
 
 **...ver erros capturados?**
 â†’ Console: `window.PlatformCore.errorBoundary.getErrors()`
@@ -171,7 +166,7 @@ ImplementaÃ§Ã£o completa de uma **plataforma confiÃ¡vel, eficiente e moder
 â†’ Console: `window.refinedParserUI.getLastResult()`
 
 **...limpar arquivos antigos?**
-â†’ `CLEANUP_SUGGESTIONS.md` + `cleanup-report.json`
+â†’ `LIMPEZA_EXECUTADA.md`
 
 ---
 
@@ -284,7 +279,7 @@ window.PlatformCore.errorBoundary.clearErrors();
 
 Antes de considerar completo, verificar:
 
-- [ ] Todos os 20 arquivos criados
+- [ ] Todos os arquivos essenciais criados
 - [ ] `index.html` modificado corretamente
 - [ ] 3 arquivos de teste removidos
 - [ ] Quick-check retorna "PLATAFORMA OK"
@@ -311,6 +306,6 @@ Antes de considerar completo, verificar:
 .\abrir-aplicacao.ps1
 ```
 
-Depois, pressione **F12** e execute o quick-check conforme `GUIA_TESTE_RAPIDO.md`.
+Depois, pressione **F12** e execute o quick-check conforme `RESUMO_INTEGRACAO.md`.
 
 **Boa sorte! ðŸš€**
