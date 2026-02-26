@@ -1,9 +1,8 @@
 ﻿param(
-  # Se "ask": pergunta na hora. Se "yes": promove dev->main. Se "no": não promove.
+  # ask = pergunta. yes = promove. no = não promove.
   [ValidateSet("ask","yes","no")]
   [string]$PromoteMain = "ask",
 
-  # Mensagem do commit (se vazio, pergunta). Se ainda ficar vazio, aborta commit/push.
   [string]$CommitMessage = ""
 )
 
@@ -13,71 +12,70 @@ $ProjectRoot = Split-Path -Parent $PSScriptRoot
 $PidFile     = Join-Path $ProjectRoot ".dev-session.json"
 $Remote      = "origin"
 
-# ===== VPS / DEPLOY SETTINGS =====
-# Mantidos "no arquivo" como você pediu.
+# ===== VPS / DEPLOY SETTINGS (CORRETOS) =====
 $VpsIp   = "72.61.55.250"
 $SshPort = 2222
 $SshUser = "root"
+$VpsRepoDir = "/opt/singem"
+$Pm2AppName = "singem-server"
 
-# Ajuste para a pasta REAL do repositório na VPS (onde existe .git)
-# Se você já usa outra pasta, troque aqui.
-$VpsRepoDir = "/var/www/singem"
-
-# Comando de restart pós-atualização.
-# Se você usa systemd/dockers/pm2, ajuste aqui.
-# - pm2: (pm2 restart singem || pm2 restart all)
-# - systemd: (systemctl restart singem)
-# - docker compose: (docker compose up -d --build)
-$RestartCmd = "pm2 restart singem || pm2 restart all || true"
-
-# Deploy: atualiza main e reinicia
-$DeployCmd = "cd $VpsRepoDir && git fetch origin main && git checkout main && git pull --ff-only origin main && $RestartCmd"
-
-# ================================
+# Deploy: só continua se tudo der certo
+$DeployCmd = @"
+set -e
+cd $VpsRepoDir
+test -d .git
+git fetch origin main
+git checkout main
+git pull --ff-only origin main
+pm2 restart $Pm2AppName
+pm2 status $Pm2AppName || true
+"@
 
 function Ensure-Command($cmd) {
   $null = Get-Command $cmd -ErrorAction SilentlyContinue
   if (-not $?) { throw "Command not found: $cmd. Install it and try again." }
 }
 
-function Say($msg, $color="White") {
-  Write-Host $msg -ForegroundColor $color
-}
+function Say($msg, $color="White") { Write-Host $msg -ForegroundColor $color }
 
 function Try-KillTree([int]$processId, [string]$label) {
   if (-not $processId) { return }
-  try {
-    taskkill /PID $processId /T /F | Out-Null
-    Say "OK: $label fechado (PID $processId)." "Green"
-  } catch {
-    Say "WARN: $label PID $processId não foi finalizado (talvez já estava fechado)." "Yellow"
-  }
+  try { taskkill /PID $processId /T /F | Out-Null; Say "OK: $label fechado (PID $processId)." "Green" }
+  catch { Say "WARN: $label PID $processId não foi finalizado (talvez já estava fechado)." "Yellow" }
 }
 
 function Try-KillByPort([int]$port, [string]$label) {
   try {
     $pids = (Get-NetTCPConnection -LocalPort $port -ErrorAction SilentlyContinue | Select-Object -ExpandProperty OwningProcess -Unique)
-    foreach ($pid in $pids) {
-      if ($pid) { Try-KillTree -processId $pid -label "$label (fallback port $port)" }
-    }
-  } catch {
-    # ignore
-  }
+    foreach ($pid in $pids) { if ($pid) { Try-KillTree -processId $pid -label "$label (fallback port $port)" } }
+  } catch {}
 }
 
-# -------------------- START --------------------
-
-Say "==> Stopping SINGEM session (DEV first, optional MAIN)..." "Cyan"
-Say "ProjectRoot: $ProjectRoot" "DarkYellow"
+# Executa comando nativo sem o PowerShell "matar" por stderr/hints.
+function Run-Native {
+  param(
+    [Parameter(Mandatory=$true)][string]$File,
+    [Parameter(Mandatory=$false)][string[]]$Args = @()
+  )
+  $oldEAP = $ErrorActionPreference
+  $ErrorActionPreference = "Continue"
+  try {
+    $out = & $File @Args 2>&1
+    $code = $LASTEXITCODE
+  } finally {
+    $ErrorActionPreference = $oldEAP
+  }
+  return @{ Out = $out; Code = $code }
+}
 
 Ensure-Command git
 Ensure-Command ssh
 
-# 0) Ler sessão e fechar processos (PowerShell windows + Chrome)
-$sshPid    = $null
-$serverPid = $null
-$chromePid = $null
+Say "==> Stopping SINGEM session (DEV first, optional MAIN)..." "Cyan"
+Say "ProjectRoot: $ProjectRoot" "DarkYellow"
 
+# 0) Fechar processos via PID (se existir) + fallback por portas
+$sshPid=$null; $serverPid=$null; $chromePid=$null
 if (Test-Path $PidFile) {
   try {
     $sess = Get-Content $PidFile -Raw | ConvertFrom-Json
@@ -91,31 +89,56 @@ if (Test-Path $PidFile) {
   Say "WARN: $PidFile não encontrado (vou usar fallback por portas)." "Yellow"
 }
 
-# Fecha (preferencial) pelos PIDs que o start salvou
 Try-KillTree -processId $serverPid -label "Backend (PowerShell window)"
 Try-KillTree -processId $sshPid    -label "Tunnel (PowerShell window)"
 Try-KillTree -processId $chromePid -label "Chrome (opened by start)"
-
-# Fallback: fecha por portas, se PIDs não existirem
-# Backend local (3000) e túnel local (5433)
 Try-KillByPort -port 3000 -label "Backend"
 Try-KillByPort -port 5433 -label "Tunnel"
 
-# 1) DEV: sempre salvar primeiro
+# 1) DEV: sempre salvar primeiro (com auto-stash)
 Set-Location -LiteralPath $ProjectRoot
-if (-not (Test-Path (Join-Path $ProjectRoot ".git"))) {
-  throw "Not a git repository: $ProjectRoot"
-}
+if (-not (Test-Path (Join-Path $ProjectRoot ".git"))) { throw "Not a git repository: $ProjectRoot" }
 
 Say "==> DEV: sync + commit + push (se houver alterações)..." "Cyan"
-git fetch $Remote dev | Out-Null
-git checkout dev | Out-Null
-git pull --ff-only $Remote dev
 
-$status = git status --porcelain
-if ($status) {
-  git add .
-  git status
+# Auto-stash se tiver alterações (evita erro no checkout)
+$dirty = (Run-Native git @("status","--porcelain")).Out
+$stashMade = $false
+$stashName = ""
+if ($dirty -and ($dirty | Out-String).Trim().Length -gt 0) {
+  $stashName = "autostash stop $(Get-Date -Format 'yyyyMMdd-HHmmss')"
+  Say "==> Working tree sujo: fazendo stash automático ($stashName)..." "Yellow"
+  $r = Run-Native git @("stash","push","-u","-m",$stashName)
+  if ($r.Code -ne 0) { throw ($r.Out | Out-String) }
+  $stashMade = $true
+}
+
+$r = Run-Native git @("fetch",$Remote,"dev")
+if ($r.Code -ne 0) { throw ($r.Out | Out-String) }
+
+$r = Run-Native git @("checkout","dev")
+if ($r.Code -ne 0) { throw ($r.Out | Out-String) }
+
+$r = Run-Native git @("pull","--ff-only",$Remote,"dev")
+if ($r.Code -ne 0) { throw ($r.Out | Out-String) }
+
+# reaplica stash se foi criado
+if ($stashMade) {
+  Say "==> Reaplicando stash..." "Cyan"
+  $r = Run-Native git @("stash","pop")
+  if ($r.Code -ne 0) {
+    Say ($r.Out | Out-String) "Red"
+    throw "Conflito ao aplicar stash. Resolva os conflitos e rode o stop novamente."
+  }
+}
+
+# commit/push dev se houver mudanças
+$status = (Run-Native git @("status","--porcelain")).Out
+if (($status | Out-String).Trim().Length -gt 0) {
+  $r = Run-Native git @("add",".")
+  if ($r.Code -ne 0) { throw ($r.Out | Out-String) }
+
+  (Run-Native git @("status")).Out | Out-Host
 
   if ([string]::IsNullOrWhiteSpace($CommitMessage)) {
     $CommitMessage = Read-Host "Commit message (dev)"
@@ -124,8 +147,12 @@ if ($status) {
     throw "Commit message vazio. Abortando para não fazer push sem mensagem."
   }
 
-  git commit -m "$CommitMessage"
-  git push $Remote dev
+  $r = Run-Native git @("commit","-m",$CommitMessage)
+  if ($r.Code -ne 0) { throw ($r.Out | Out-String) }
+
+  $r = Run-Native git @("push",$Remote,"dev")
+  if ($r.Code -ne 0) { throw ($r.Out | Out-String) }
+
   Say "OK: DEV commitado e enviado (push)." "Green"
 } else {
   Say "DEV: sem mudanças para commit." "Yellow"
@@ -140,33 +167,52 @@ else {
   if ($ans -match '^(s|S|y|Y)$') { $doPromote = $true }
 }
 
-if ($doPromote) {
-  Say "==> MAIN: fast-forward para DEV + push + deploy..." "Cyan"
-
-  # Atualiza main local
-  git fetch $Remote main | Out-Null
-  git checkout main | Out-Null
-  git pull --ff-only $Remote main
-
-  # Promove main -> dev (FF-only para não criar merge commit)
-  git merge --ff-only dev
-
-  # Push main
-  git push $Remote main
-  Say "OK: MAIN atualizado com DEV e enviado (push)." "Green"
-
-  # Deploy na VPS
-  Say "==> VPS deploy (main)..." "Cyan"
-  Say "SSH: $SshUser@$VpsIp port $SshPort" "DarkYellow"
-  Say "CMD: $DeployCmd" "DarkYellow"
-
-  ssh -p $SshPort "$SshUser@$VpsIp" $DeployCmd
-  Say "OK: Deploy executado na VPS." "Green"
-} else {
+if (-not $doPromote) {
   Say "MAIN não foi promovido (você escolheu não)." "Yellow"
+  if (Test-Path $PidFile) { Remove-Item $PidFile -Force }
+  Say "DONE." "Green"
+  exit 0
 }
 
-# 3) Limpar sessão
+# 3) MAIN: política fixa => main sempre vira dev (se divergir, reset + force-with-lease)
+Say "==> MAIN: atualizando para ficar IDÊNTICA ao DEV (política fixa)..." "Cyan"
+
+$r = Run-Native git @("fetch",$Remote,"main")
+if ($r.Code -ne 0) { throw ($r.Out | Out-String) }
+
+$r = Run-Native git @("checkout","main")
+if ($r.Code -ne 0) { throw ($r.Out | Out-String) }
+
+$r = Run-Native git @("pull","--ff-only",$Remote,"main")
+if ($r.Code -ne 0) { throw ($r.Out | Out-String) }
+
+# tenta FF primeiro; se não der, força reset
+$r = Run-Native git @("merge","--ff-only","dev")
+if ($r.Code -ne 0) {
+  Say "WARN: MAIN divergiu do DEV. Aplicando RESET main=dev + force-with-lease." "Yellow"
+  Say ($r.Out | Out-String) "DarkYellow"
+
+  $r = Run-Native git @("reset","--hard","dev")
+  if ($r.Code -ne 0) { throw ($r.Out | Out-String) }
+
+  $r = Run-Native git @("push","--force-with-lease",$Remote,"main")
+  if ($r.Code -ne 0) { throw ($r.Out | Out-String) }
+
+  Say "OK: MAIN agora é idêntica ao DEV (force-with-lease)." "Green"
+} else {
+  $r = Run-Native git @("push",$Remote,"main")
+  if ($r.Code -ne 0) { throw ($r.Out | Out-String) }
+  Say "OK: MAIN atualizado com DEV (fast-forward) e enviado (push)." "Green"
+}
+
+# 4) Deploy VPS (main)
+Say "==> VPS deploy (main)..." "Cyan"
+Say "RepoDir: $VpsRepoDir | PM2: $Pm2AppName" "DarkYellow"
+$r = Run-Native ssh @("-p",$SshPort,"$SshUser@$VpsIp",$DeployCmd)
+if ($r.Code -ne 0) { throw ($r.Out | Out-String) }
+Say "OK: Deploy executado na VPS." "Green"
+
+# 5) Limpar sessão
 if (Test-Path $PidFile) { Remove-Item $PidFile -Force }
 
 Say "DONE." "Green"
