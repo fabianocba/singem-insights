@@ -1,4 +1,5 @@
 ﻿import { APP_VERSION, APP_BUILD, VERSION_DISPLAY } from './core/version.js';
+import { initVersionFooter } from './core/version-footer.js';
 
 const RELOAD_KEY = 'singem:swReloadedAt';
 const RELOAD_TTL = 10000;
@@ -102,6 +103,9 @@ window.SINGEM_CACHE = {
 if (typeof window !== 'undefined') {
   window.addEventListener('DOMContentLoaded', () => {
     renderVersionInUI();
+    initVersionFooter().catch((error) => {
+      console.warn('[VM] Falha ao renderizar rodapé de versão:', error);
+    });
     registerServiceWorker().catch((error) => {
       console.warn('[VM] Falha ao registrar Service Worker:', error);
     });

@@ -1,4 +1,6 @@
 const path = require('path');
+const fs = require('fs');
+const { execSync } = require('child_process');
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
@@ -21,6 +23,45 @@ const integrationsRoutes = require('./routes/integrations.routes');
 
 const { router: nfeRoutes, setNfeService } = require('./routes/nfe.routes');
 const { router: nfeRoutesV2, setNfeService: setNfeServiceV2 } = require('./routes/nfe.routes.v2');
+
+function readJsonSafe(filePath) {
+  try {
+    const content = fs.readFileSync(filePath, 'utf8').replace(/^\uFEFF/, '');
+    return JSON.parse(content);
+  } catch {
+    return {};
+  }
+}
+
+function resolveGitCommitShort() {
+  try {
+    return execSync('git rev-parse --short HEAD', {
+      cwd: path.resolve(__dirname, '..'),
+      stdio: ['ignore', 'pipe', 'ignore']
+    })
+      .toString()
+      .trim();
+  } catch {
+    return 'unknown';
+  }
+}
+
+function loadVersionInfo(nodeEnv) {
+  const versionJsonPath = path.resolve(__dirname, '..', 'js', 'core', 'version.json');
+  const serverPackagePath = path.resolve(__dirname, 'package.json');
+
+  const coreVersion = readJsonSafe(versionJsonPath);
+  const serverPackage = readJsonSafe(serverPackagePath);
+
+  return {
+    name: String(coreVersion.name || 'SINGEM'),
+    version: String(serverPackage.version || coreVersion.version || '0.0.0'),
+    build: String(coreVersion.build || 'local'),
+    buildTimestamp: String(coreVersion.buildTimestamp || new Date().toISOString()),
+    gitCommit: resolveGitCommitShort(),
+    nodeEnv: nodeEnv === 'production' ? 'production' : 'development'
+  };
+}
 
 function createApp({ nodeEnv, bodyLimit, corsOrigins, trustProxy, nfeService, nfeServiceV2 }) {
   const app = express();
@@ -96,6 +137,10 @@ function createApp({ nodeEnv, bodyLimit, corsOrigins, trustProxy, nfeService, nf
     });
   });
 
+  app.get('/api/version', (_req, res) => {
+    return res.json(loadVersionInfo(nodeEnv));
+  });
+
   app.use(notFoundHandler);
   app.use(errorHandler(nodeEnv));
 
@@ -110,6 +155,7 @@ function createApp({ nodeEnv, bodyLimit, corsOrigins, trustProxy, nfeService, nf
     '/api/catmat',
     '/api/catalogacao-pedidos',
     '/api/integrations',
+    '/api/version',
     '/api/nfe',
     '/api/nfe/v2',
     '/health',

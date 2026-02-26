@@ -672,6 +672,23 @@ Todos os direitos reservados.
 
 ---
 
+## 🚀 Versionamento e Deploy Main
+
+- O rodapé global exibe: `SINGEM vX.Y.Z • build YYYYMMDD-HHMM • commit abc1234 • env production|development`.
+- O frontend consulta `GET /api/version`; se falhar, usa fallback em `js/core/version.json`.
+- Fonte de verdade de `build` e `buildTimestamp`: `js/core/version.json`.
+- Versão semântica usada pelo backend: `server/package.json`.
+
+### Deploy da main (1 comando)
+
+```bash
+bash ./scripts/deploy-main.sh
+```
+
+O script aborta se não estiver na branch `main` ou se o working tree estiver sujo.
+
+---
+
 **Desenvolvido para o IF Baiano - Campus**  
 **Sistema de Controle de Material v1.0**  
 **Data: Outubro 2025**
