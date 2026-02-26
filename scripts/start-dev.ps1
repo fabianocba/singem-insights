@@ -182,6 +182,66 @@ function Ensure-Tool($name, $hint) {
     if (-not $cmd) { Fail "Ferramenta '$name' não encontrada. $hint" }
 }
 
+function Get-ProjectVersion {
+    $pkgPath = Join-Path $ProjectRoot "package.json"
+    if (Test-Path $pkgPath) {
+        try {
+            $pkg = Get-Content -Raw -Encoding UTF8 $pkgPath | ConvertFrom-Json
+            if ($pkg -and $pkg.version) {
+                return [string]$pkg.version
+            }
+        } catch {}
+    }
+
+    $verPath = Join-Path $ProjectRoot $VersionFileRelPath
+    if (Test-Path $verPath) {
+        try {
+            $ver = Get-Content -Raw -Encoding UTF8 $verPath | ConvertFrom-Json
+            if ($ver -and $ver.version) {
+                return [string]$ver.version
+            }
+        } catch {}
+    }
+
+    return "0.0.0"
+}
+
+function Update-LocalVersionFile {
+    Write-Section "VERSION: Gerar js/core/version.json (build + commit)"
+
+    Set-Location $ProjectRoot
+
+    $gitCommit = (& git rev-parse --short HEAD).Trim()
+    if ($LASTEXITCODE -ne 0 -or -not $gitCommit) {
+        Fail "Não consegui obter commit atual para version.json"
+    }
+
+    $nowUtc = [DateTime]::UtcNow
+    $build = $nowUtc.ToString("yyyyMMdd-HHmm")
+    $buildTimestamp = $nowUtc.ToString("o")
+    $projectVersion = Get-ProjectVersion
+
+    $versionObject = [ordered]@{
+        name = "SINGEM"
+        version = $projectVersion
+        build = $build
+        buildTimestamp = $buildTimestamp
+        gitCommit = $gitCommit
+    }
+
+    $versionPath = Join-Path $ProjectRoot $VersionFileRelPath
+    $versionDir = Split-Path -Parent $versionPath
+    if (-not (Test-Path $versionDir)) {
+        New-Item -ItemType Directory -Path $versionDir -Force | Out-Null
+    }
+
+    $json = ($versionObject | ConvertTo-Json -Depth 10)
+    [System.IO.File]::WriteAllText($versionPath, $json + [Environment]::NewLine, [System.Text.UTF8Encoding]::new($false))
+
+    Write-Host "✅ Version file atualizado: $VersionFileRelPath"
+    Write-Host ("   {0} v{1} | build {2} | commit {3}" -f $versionObject.name, $versionObject.version, $versionObject.build, $versionObject.gitCommit)
+}
+
 function Get-DirtyFiles {
     # SEMPRE retorna ARRAY (mesmo 0 ou 1 item) -> evita erro .Count
     $out = & git status --porcelain
@@ -410,7 +470,7 @@ function Verify-ServingLatestDev {
         Fail "Verificação de versão falhou (relatório acima)."
     }
 
-    $fields = @("name", "version", "build", "buildTimestamp")
+    $fields = @("name", "version", "build", "buildTimestamp", "gitCommit")
     $differences = New-Object System.Collections.Generic.List[string]
 
     foreach ($field in $fields) {
@@ -448,6 +508,7 @@ function Verify-ServingLatestDev {
             version = $servedObj.version
             build = $servedObj.build
             buildTimestamp = $servedObj.buildTimestamp
+            gitCommit = $servedObj.gitCommit
         }
     }
 }
@@ -474,6 +535,7 @@ Write-Host ""
 
 try {
     Git-EnsureLatestDev
+    Update-LocalVersionFile
     Start-FrontServer
     Start-SshTunnel
     Start-Backend
