@@ -32,9 +32,9 @@ const state = {
  * @param {string} query - Termo de busca
  * @returns {Promise<{dados: Array, total: number}>}
  */
-export async function searchCatmat(query) {
+export async function searchCatmat(query, { offset = 0, limite = config.maxResults } = {}) {
   if (!query || query.length < config.minChars) {
-    return { dados: [], total: 0 };
+    return { dados: [], total: 0, offset, limite };
   }
 
   // Cancela busca anterior se houver
@@ -46,7 +46,7 @@ export async function searchCatmat(query) {
   try {
     const token = localStorage.getItem('singem_token') || sessionStorage.getItem('singem_token');
     const response = await fetch(
-      `${API_BASE}/api/catmat/search?q=${encodeURIComponent(query)}&limite=${config.maxResults}`,
+      `${API_BASE}/api/catmat/search?q=${encodeURIComponent(query)}&limite=${limite}&offset=${offset}`,
       {
         signal: state.searchAbortController.signal,
         headers: {
@@ -60,7 +60,12 @@ export async function searchCatmat(query) {
       throw new Error('Erro na busca CATMAT');
     }
 
-    return await response.json();
+    const result = await response.json();
+    return {
+      ...result,
+      offset,
+      limite
+    };
   } catch (err) {
     if (err.name === 'AbortError') {
       return { dados: [], total: 0 };
@@ -159,8 +164,22 @@ function createDropdown(inputElement) {
 /**
  * Renderiza resultados no dropdown
  */
-function renderResults(dropdown, results, inputElement, onSelect) {
+function renderResults(dropdown, results, inputElement, onSelect, options = {}) {
+  const { aviso = null, hasMore = false, onLoadMore = null } = options;
   dropdown.innerHTML = '';
+
+  if (aviso) {
+    const avisoEl = document.createElement('div');
+    avisoEl.style.cssText = `
+      padding: 8px 10px;
+      background: #fff3cd;
+      color: #856404;
+      border-bottom: 1px solid #f0d98c;
+      font-size: 12px;
+    `;
+    avisoEl.textContent = aviso;
+    dropdown.appendChild(avisoEl);
+  }
 
   if (results.length === 0) {
     dropdown.innerHTML = `
@@ -253,6 +272,28 @@ function renderResults(dropdown, results, inputElement, onSelect) {
   });
   dropdown.appendChild(footer);
 
+  if (hasMore && typeof onLoadMore === 'function') {
+    const loadMore = document.createElement('button');
+    loadMore.type = 'button';
+    loadMore.textContent = 'Carregar mais resultados';
+    loadMore.style.cssText = `
+      width: 100%;
+      padding: 8px 10px;
+      border: none;
+      border-top: 1px solid #ddd;
+      background: #f5f8ff;
+      color: #1351B4;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 600;
+    `;
+    loadMore.addEventListener('click', (e) => {
+      e.preventDefault();
+      onLoadMore();
+    });
+    dropdown.appendChild(loadMore);
+  }
+
   dropdown.style.display = 'block';
 }
 
@@ -267,6 +308,53 @@ export function initCatmatAutocomplete(inputElement, onSelect) {
   }
 
   const dropdown = createDropdown(inputElement);
+  let currentQuery = '';
+  let currentOffset = 0;
+  let currentResults = [];
+  let currentTotal = 0;
+  let currentAviso = null;
+
+  const runSearch = async (query, { append = false } = {}) => {
+    const targetOffset = append ? currentOffset + config.maxResults : 0;
+    const result = await searchCatmat(query, {
+      offset: targetOffset,
+      limite: config.maxResults
+    });
+    const dados = result.dados || [];
+
+    currentQuery = query;
+    currentOffset = targetOffset;
+    currentTotal = Number(result.total || 0);
+    currentAviso = result.aviso || null;
+    currentResults = append ? [...currentResults, ...dados] : dados;
+
+    const hasMore = currentTotal > 0 && currentResults.length < currentTotal;
+
+    renderResults(
+      dropdown,
+      currentResults,
+      inputElement,
+      (material) => {
+        state.selectedMaterial = material;
+        if (onSelect) {
+          onSelect(material);
+        }
+      },
+      {
+        aviso: currentAviso,
+        hasMore,
+        onLoadMore: hasMore
+          ? async () => {
+              try {
+                await runSearch(currentQuery, { append: true });
+              } catch {
+                dropdown.style.display = 'none';
+              }
+            }
+          : null
+      }
+    );
+  };
 
   const debouncedSearch = debounce(async (query) => {
     if (query.length < config.minChars) {
@@ -275,13 +363,7 @@ export function initCatmatAutocomplete(inputElement, onSelect) {
     }
 
     try {
-      const { dados } = await searchCatmat(query);
-      renderResults(dropdown, dados, inputElement, (material) => {
-        state.selectedMaterial = material;
-        if (onSelect) {
-          onSelect(material);
-        }
-      });
+      await runSearch(query, { append: false });
     } catch {
       dropdown.style.display = 'none';
     }

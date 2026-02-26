@@ -52,6 +52,17 @@ const config = {
   frontendUrl: process.env.FRONTEND_URL || 'http://localhost:8000',
   catmatImportPath: process.env.CATMAT_IMPORT_PATH || '',
   catmatObrigatorio: parseBoolean(process.env.CATMAT_OBRIGATORIO, false),
+  comprasApi: {
+    baseUrl: process.env.COMPRAS_API_BASE_URL || 'http://compras.dados.gov.br',
+    timeoutMs: Number(process.env.COMPRAS_API_TIMEOUT_MS || 8000),
+    maxRetries: Number(process.env.COMPRAS_API_MAX_RETRIES || 3),
+    retryBaseDelayMs: Number(process.env.COMPRAS_API_RETRY_BASE_DELAY_MS || 500),
+    rateLimitMs: Number(process.env.COMPRAS_API_RATE_LIMIT_MS || 250)
+  },
+  catmatCacheTtlHours: Number(process.env.CATMAT_CACHE_TTL_HOURS || 168),
+  catmatObrigatorioNF: parseBoolean(process.env.CATMAT_OBRIGATORIO_NF, false),
+  catmatObrigatorioEmpenho: parseBoolean(process.env.CATMAT_OBRIGATORIO_EMPENHO, false),
+  catmatObrigatorioItens: parseBoolean(process.env.CATMAT_OBRIGATORIO_ITENS, false),
   govbr: {
     enabled: parseBoolean(process.env.GOVBR_ENABLED, false),
     clientId: process.env.GOVBR_CLIENT_ID || '',

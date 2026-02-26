@@ -1,323 +1,187 @@
 #!/usr/bin/env node
 /**
- * Script de Importação CATMAT - SINGEM
+ * Script de Sync CATMAT Oficial - SINGEM
  *
- * Importa dados do CATMAT a partir de arquivo CSV baixado do Portal de Compras
+ * Fonte EXCLUSIVA:
+ *   http://compras.dados.gov.br/materiais/v1/materiais.{formato}
  *
- * USO:
- *   node scripts/import-catmat.js [caminho-arquivo.csv]
- *
- * Se caminho não for especificado, usa CATMAT_IMPORT_PATH do .env
- *
- * FORMATO CSV ESPERADO (separador: ;):
- *   CÓDIGO;DESCRIÇÃO;UNIDADE;GRUPO;CLASSE;SUSTENTÁVEL
- *   453210;PAPEL A4 BRANCO 75G/M2;RESMA;MATERIAL DE EXPEDIENTE;PAPEL;N
+ * Uso:
+ *   node scripts/import-catmat.js --offset=0 --limit=200 --max-pages=10
+ *   node scripts/import-catmat.js --resume --max-pages=50
  */
 
-const fs = require('fs');
-const path = require('path');
-const readline = require('readline');
 const db = require('../config/database');
-const { config } = require('../config');
+const catmatService = require('../integrations/catmat/catmatService');
 
-// Configurações
-const BATCH_SIZE = 500;
-const SEPARADOR = ';';
-
-// Estatísticas
-const stats = {
-  totalLinhas: 0,
-  importados: 0,
-  atualizados: 0,
-  erros: 0,
-  errosDetalhes: []
-};
-
-/**
- * Normaliza valor de célula CSV
- */
-function normalizeValue(value) {
-  if (!value) {
-    return null;
-  }
-  return value.trim().replace(/^"|"$/g, '').trim();
-}
-
-/**
- * Processa uma linha do CSV
- */
-function parseLine(line, headers) {
-  const values = line.split(SEPARADOR);
-  const obj = {};
-
-  headers.forEach((header, index) => {
-    obj[header.toLowerCase().trim()] = normalizeValue(values[index]);
-  });
-
-  return obj;
-}
-
-/**
- * Converte linha CSV para objeto do banco
- */
-function toMaterial(row) {
-  // Tenta mapear diferentes formatos de CSV do Portal de Compras
-  const codigo = row.codigo || row['código'] || row.catmat || row.cod_item;
-  const descricao = row.descricao || row['descrição'] || row.descr_item || row.desc_material;
-  const unidade = row.unidade || row.unid_fornecimento || row.un || 'UN';
-  const grupo = row.grupo || row.nome_grupo || row.catmat_grupo;
-  const classe = row.classe || row.nome_classe || row.catmat_classe;
-  const sustentavel = ['S', 'SIM', 'TRUE', '1', 'Y', 'YES'].includes(
-    (row.sustentavel || row['sustentável'] || row.item_sustentavel || 'N').toUpperCase()
-  );
-
-  if (!codigo || !descricao) {
-    return null;
-  }
-
-  return {
-    codigo: String(codigo).replace(/\D/g, ''),
-    catmat_id: parseInt(String(codigo).replace(/\D/g, '')) || null,
-    descricao: descricao.substring(0, 500),
-    unidade: (unidade || 'UN').substring(0, 20).toUpperCase(),
-    catmat_grupo: grupo?.substring(0, 100) || null,
-    catmat_classe: classe?.substring(0, 100) || null,
-    catmat_padrao_desc: descricao.substring(0, 500),
-    catmat_sustentavel: sustentavel,
-    fonte: 'catmat_import',
-    ativo: true
-  };
-}
-
-/**
- * Processa batch de materiais via UPSERT
- */
-async function processBatch(client, materials) {
-  if (materials.length === 0) {
-    return;
-  }
-
-  for (const mat of materials) {
-    try {
-      // UPSERT: insere ou atualiza se código já existe
-      await client.query(
-        `
-        INSERT INTO materials (
-          codigo, catmat_id, descricao, unidade,
-          catmat_grupo, catmat_classe, catmat_padrao_desc,
-          catmat_sustentavel, fonte, ativo, catmat_atualizado_em
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, NOW())
-        ON CONFLICT (codigo) DO UPDATE SET
-          catmat_id = COALESCE(EXCLUDED.catmat_id, materials.catmat_id),
-          descricao = EXCLUDED.descricao,
-          unidade = EXCLUDED.unidade,
-          catmat_grupo = EXCLUDED.catmat_grupo,
-          catmat_classe = EXCLUDED.catmat_classe,
-          catmat_padrao_desc = EXCLUDED.catmat_padrao_desc,
-          catmat_sustentavel = EXCLUDED.catmat_sustentavel,
-          fonte = EXCLUDED.fonte,
-          catmat_atualizado_em = NOW(),
-          updated_at = NOW()
-      `,
-        [
-          mat.codigo,
-          mat.catmat_id,
-          mat.descricao,
-          mat.unidade,
-          mat.catmat_grupo,
-          mat.catmat_classe,
-          mat.catmat_padrao_desc,
-          mat.catmat_sustentavel,
-          mat.fonte,
-          mat.ativo
-        ]
-      );
-
-      stats.importados++;
-    } catch (err) {
-      stats.erros++;
-      if (stats.errosDetalhes.length < 100) {
-        stats.errosDetalhes.push({
-          codigo: mat.codigo,
-          erro: err.message
-        });
-      }
+function parseArgs(argv) {
+  const args = {};
+  for (const item of argv.slice(2)) {
+    if (!item.startsWith('--')) {
+      continue;
     }
+    const [key, value] = item.slice(2).split('=');
+    args[key] = value === undefined ? true : value;
   }
+  return args;
 }
 
-/**
- * Registra log de importação
- */
-async function logImport(client, arquivo, duracao, status, erro = null) {
-  await client.query(
+async function getCursor() {
+  const result = await db.query('SELECT * FROM catmat_sync_cursor WHERE nome = $1 LIMIT 1', ['default']);
+  if (result.rows[0]) {
+    return result.rows[0];
+  }
+
+  await db.query(
+    'INSERT INTO catmat_sync_cursor (nome, ultimo_offset, ultimo_sync_em, updated_at) VALUES ($1,$2,NULL,NOW())',
+    ['default', 0]
+  );
+  return { nome: 'default', ultimo_offset: 0, ultimo_sync_em: null };
+}
+
+async function updateCursor(offset) {
+  await db.query(
+    `
+    UPDATE catmat_sync_cursor
+    SET ultimo_offset = $1,
+        ultimo_sync_em = NOW(),
+        updated_at = NOW()
+    WHERE nome = 'default'
+  `,
+    [offset]
+  );
+}
+
+async function createImportLog(offsetInicio, limiteLote) {
+  const result = await db.query(
     `
     INSERT INTO catmat_import_log (
-      arquivo_fonte, total_linhas, importados, atualizados, erros,
-      erros_detalhes, duracao_ms, status, erro_mensagem, finished_at
-    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW())
+      arquivo_fonte, total_linhas, importados, atualizados, erros, erros_detalhes,
+      duracao_ms, status, origem, offset_inicio, offset_fim, limite_lote
+    ) VALUES ($1, 0, 0, 0, 0, '[]'::jsonb, 0, 'executando', 'api_oficial', $2, $2, $3)
+    RETURNING id
+  `,
+    ['api_oficial_compras', offsetInicio, limiteLote]
+  );
+  return result.rows[0].id;
+}
+
+async function finalizeImportLog(logId, stats) {
+  await db.query(
+    `
+    UPDATE catmat_import_log
+    SET total_linhas = $2,
+        importados = $3,
+        atualizados = $4,
+        erros = $5,
+        erros_detalhes = $6::jsonb,
+        duracao_ms = $7,
+        status = $8,
+        erro_mensagem = $9,
+        offset_fim = $10,
+        observacao = $11,
+        finished_at = NOW()
+    WHERE id = $1
   `,
     [
-      arquivo,
-      stats.totalLinhas,
+      logId,
+      stats.total,
       stats.importados,
       stats.atualizados,
       stats.erros,
       JSON.stringify(stats.errosDetalhes.slice(0, 100)),
-      duracao,
-      status,
-      erro
+      stats.duracaoMs,
+      stats.status,
+      stats.erroMensagem,
+      stats.offsetFim,
+      stats.observacao || null
     ]
   );
 }
 
-/**
- * Importa arquivo CSV
- */
-async function importCSV(filePath) {
-  const startTime = Date.now();
-  const client = await db.pool.connect();
+async function run() {
+  const args = parseArgs(process.argv);
+  const limit = Math.max(1, Math.min(Number(args.limit || 200), 500));
+  const maxPages = Math.max(1, Number(args['max-pages'] || 10));
+  const termo = String(args.termo || '').trim();
+  const useResume = Boolean(args.resume);
+
+  const cursor = await getCursor();
+  let currentOffset = useResume ? Number(cursor.ultimo_offset || 0) : Math.max(0, Number(args.offset || 0));
+  const initialOffset = currentOffset;
+
+  const stats = {
+    total: 0,
+    importados: 0,
+    atualizados: 0,
+    erros: 0,
+    errosDetalhes: [],
+    status: 'concluido',
+    erroMensagem: null,
+    duracaoMs: 0,
+    offsetFim: currentOffset,
+    observacao: null
+  };
+
+  const start = Date.now();
+  const logId = await createImportLog(initialOffset, limit);
 
   console.log('╔═════════════════════════════════════════════════════╗');
-  console.log('║         📦 IMPORTAÇÃO CATMAT - SINGEM               ║');
+  console.log('║        🔄 SYNC CATMAT API OFICIAL (VPS)            ║');
   console.log('╚═════════════════════════════════════════════════════╝');
-  console.log('');
-  console.log(`📁 Arquivo: ${filePath}`);
-  console.log('');
+  console.log(`Offset inicial: ${initialOffset}`);
+  console.log(`Limite por lote: ${limit}`);
+  console.log(`Máx. páginas: ${maxPages}`);
+  console.log(`Modo resume: ${useResume ? 'SIM' : 'NÃO'}`);
+  if (termo) {
+    console.log(`Filtro termo: ${termo}`);
+  }
 
   try {
-    // Verifica se arquivo existe
-    if (!fs.existsSync(filePath)) {
-      throw new Error(`Arquivo não encontrado: ${filePath}`);
-    }
-
-    const fileStream = fs.createReadStream(filePath, { encoding: 'utf8' });
-    const rl = readline.createInterface({
-      input: fileStream,
-      crlfDelay: Infinity
-    });
-
-    let headers = null;
-    let batch = [];
-    let lineNumber = 0;
-
-    for await (const line of rl) {
-      lineNumber++;
-
-      // Primeira linha = headers
-      if (!headers) {
-        headers = line.split(SEPARADOR).map((h) => h.trim().replace(/^"|"$/g, ''));
-        console.log(`📋 Colunas detectadas: ${headers.join(', ')}`);
-        console.log('');
-        continue;
-      }
-
-      // Ignora linhas vazias
-      if (!line.trim()) {
-        continue;
-      }
-
-      stats.totalLinhas++;
-
-      try {
-        const row = parseLine(line, headers);
-        const material = toMaterial(row);
-
-        if (material) {
-          batch.push(material);
-        } else {
-          stats.erros++;
-          if (stats.errosDetalhes.length < 100) {
-            stats.errosDetalhes.push({
-              linha: lineNumber,
-              erro: 'Código ou descrição ausente'
-            });
-          }
-        }
-
-        // Processa batch
-        if (batch.length >= BATCH_SIZE) {
-          await processBatch(client, batch);
-          process.stdout.write(
-            `\r⏳ Processando... ${stats.totalLinhas} linhas (${stats.importados} OK, ${stats.erros} erros)`
-          );
-          batch = [];
-        }
-      } catch (err) {
-        stats.erros++;
-        if (stats.errosDetalhes.length < 100) {
-          stats.errosDetalhes.push({
-            linha: lineNumber,
-            erro: err.message
-          });
-        }
-      }
-    }
-
-    // Processa último batch
-    if (batch.length > 0) {
-      await processBatch(client, batch);
-    }
-
-    const duracao = Date.now() - startTime;
-
-    // Registra log
-    await logImport(client, filePath, duracao, 'concluido');
-
-    console.log('\n');
-    console.log('╔═════════════════════════════════════════════════════╗');
-    console.log('║                  ✅ IMPORTAÇÃO CONCLUÍDA            ║');
-    console.log('╠═════════════════════════════════════════════════════╣');
-    console.log(`║  📊 Total de linhas:  ${String(stats.totalLinhas).padEnd(29)}║`);
-    console.log(`║  ✅ Importados:       ${String(stats.importados).padEnd(29)}║`);
-    console.log(`║  ❌ Erros:            ${String(stats.erros).padEnd(29)}║`);
-    console.log(`║  ⏱️  Tempo:           ${String(duracao + 'ms').padEnd(29)}║`);
-    console.log('╚═════════════════════════════════════════════════════╝');
-
-    if (stats.errosDetalhes.length > 0) {
-      console.log('\n⚠️ Primeiros erros:');
-      stats.errosDetalhes.slice(0, 5).forEach((e) => {
-        console.log(`   - Linha ${e.linha || e.codigo}: ${e.erro}`);
+    for (let page = 1; page <= maxPages; page++) {
+      const lote = await catmatService.runSyncBatch({
+        offset: currentOffset,
+        limite: limit,
+        termo
       });
+
+      stats.total += lote.imported;
+      stats.importados += lote.imported;
+      stats.offsetFim = lote.nextOffset;
+
+      console.log(
+        `[${page}/${maxPages}] offset=${currentOffset} importados=${lote.imported} totalParcial=${stats.importados}`
+      );
+
+      currentOffset = lote.nextOffset;
+      await updateCursor(currentOffset);
+
+      if (!lote.hasMore) {
+        stats.observacao = 'Fim da paginação detectado pela API.';
+        break;
+      }
     }
   } catch (err) {
-    const duracao = Date.now() - startTime;
-    await logImport(client, filePath, duracao, 'erro', err.message).catch(() => {});
-
-    console.error('\n❌ ERRO NA IMPORTAÇÃO:', err.message);
-    process.exit(1);
+    stats.status = 'erro';
+    stats.erros += 1;
+    stats.erroMensagem = err.message;
+    stats.errosDetalhes.push({ erro: err.message });
+    throw err;
   } finally {
-    client.release();
+    stats.duracaoMs = Date.now() - start;
+    await finalizeImportLog(logId, stats).catch((logErr) => {
+      console.error('[CATMAT] Falha ao finalizar log:', logErr.message);
+    });
     await db.pool.end();
   }
-}
 
-// ============================================================================
-// EXECUÇÃO
-// ============================================================================
-
-// Pega caminho do arquivo (argumento ou ENV)
-const arquivoArg = process.argv[2];
-const arquivoEnv = config.catmatImportPath;
-
-let arquivoFinal = arquivoArg || arquivoEnv;
-
-if (!arquivoFinal) {
-  console.error('❌ Erro: Caminho do arquivo CSV não especificado.');
   console.log('');
-  console.log('USO:');
-  console.log('  node scripts/import-catmat.js ./data/catmat/catmat.csv');
-  console.log('');
-  console.log('Ou defina CATMAT_IMPORT_PATH no arquivo .env');
-  process.exit(1);
+  console.log('✅ Sync CATMAT concluído com sucesso');
+  console.log(`Total importado: ${stats.importados}`);
+  console.log(`Offset final: ${stats.offsetFim}`);
+  console.log(`Duração: ${stats.duracaoMs} ms`);
 }
 
-// Resolve caminho relativo
-if (!path.isAbsolute(arquivoFinal)) {
-  arquivoFinal = path.join(__dirname, '..', arquivoFinal);
-}
-
-importCSV(arquivoFinal).catch((err) => {
-  console.error('❌ Erro fatal:', err);
+run().catch((err) => {
+  console.error('❌ Erro no sync CATMAT:', err.message);
   process.exit(1);
 });

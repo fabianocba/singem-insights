@@ -5,7 +5,7 @@
 
 const express = require('express');
 const catmatService = require('./catmatService');
-const { authenticate, requireAdmin } = require('../../middleware/auth');
+const { authenticate } = require('../../middleware/auth');
 
 const router = express.Router();
 
@@ -32,10 +32,28 @@ router.get('/search', authenticate, async (req, res) => {
 
     return res.json({
       sucesso: true,
-      ...result
+      ...result,
+      aviso: result.aviso || null,
+      fonte: result.fonte || 'api_oficial_compras'
     });
   } catch (err) {
     console.error('[CATMAT] Erro na busca:', err);
+    return res.status(500).json({
+      sucesso: false,
+      erro: err.message
+    });
+  }
+});
+
+// ============================================================================
+// GET /api/catmat/stats - Estatísticas do cache
+// ============================================================================
+router.get('/stats', authenticate, async (req, res) => {
+  try {
+    const stats = await catmatService.getStats();
+    return res.json(stats);
+  } catch (err) {
+    console.error('[CATMAT] Erro ao obter stats:', err);
     return res.status(500).json({
       sucesso: false,
       erro: err.message
@@ -65,22 +83,6 @@ router.get('/:codigo', authenticate, async (req, res) => {
     });
   } catch (err) {
     console.error('[CATMAT] Erro ao buscar código:', err);
-    return res.status(500).json({
-      sucesso: false,
-      erro: err.message
-    });
-  }
-});
-
-// ============================================================================
-// GET /api/catmat/stats - Estatísticas do cache
-// ============================================================================
-router.get('/stats', authenticate, async (req, res) => {
-  try {
-    const stats = await catmatService.getStats();
-    return res.json(stats);
-  } catch (err) {
-    console.error('[CATMAT] Erro ao obter stats:', err);
     return res.status(500).json({
       sucesso: false,
       erro: err.message

@@ -6,7 +6,7 @@
 const express = require('express');
 const db = require('../config/database');
 const { authenticate } = require('../middleware/auth');
-const { catmatObrigatorioMiddleware } = require('../utils/catmatValidation');
+const { catmatObrigatorioMiddleware, logVinculoCatmat } = require('../utils/catmatValidation');
 
 const router = express.Router();
 
@@ -209,10 +209,12 @@ router.post('/', authenticate, catmatObrigatorioMiddleware('nota_fiscal_items'),
     if (data.itens && Array.isArray(data.itens)) {
       for (let i = 0; i < data.itens.length; i++) {
         const item = data.itens[i];
-        await db.insert('nota_fiscal_items', {
+        const itemCriado = await db.insert('nota_fiscal_items', {
           nota_fiscal_id: nf.id,
           empenho_item_id: item.empenho_item_id || null,
           material_id: item.material_id || null,
+          catmat_codigo: item.catmat_codigo || item.catmatCodigo || null,
+          catmat_descricao: item.catmat_descricao || item.catmatDescricao || item.descricao || null,
           item_numero: i + 1,
           codigo_produto: item.codigo_produto,
           descricao: item.descricao,
@@ -224,6 +226,23 @@ router.post('/', authenticate, catmatObrigatorioMiddleware('nota_fiscal_items'),
           valor_icms: item.valor_icms || 0,
           valor_ipi: item.valor_ipi || 0
         });
+
+        const codigo = item.catmat_codigo || item.catmatCodigo || item.catmat_id || null;
+        if (codigo) {
+          await logVinculoCatmat({
+            entidade: 'NF_ITEM',
+            entidadeId: itemCriado.id,
+            materialId: itemCriado.material_id || null,
+            catmatId: Number(codigo) || null,
+            oldCatmat: null,
+            newCatmat: String(codigo),
+            acao: 'vincular',
+            dadosAnteriores: null,
+            usuarioId: req.user.id,
+            usuarioNome: req.user.nome,
+            ipAddress: req.ip
+          });
+        }
       }
     }
 

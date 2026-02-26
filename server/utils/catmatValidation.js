@@ -5,6 +5,7 @@
 
 const db = require('../config/database');
 const { config } = require('../config');
+const catmatService = require('../integrations/catmat/catmatService');
 
 /**
  * Cache da configuração (evita queries repetidas)
@@ -31,6 +32,7 @@ async function getCatmatObrigatorioConfig() {
       configCache = {
         empenho_items: true,
         nota_fiscal_items: true,
+        itens: true,
         ativo: true
       };
       configCacheExpires = now + CACHE_TTL;
@@ -41,15 +43,41 @@ async function getCatmatObrigatorioConfig() {
     const result = await db.query(`SELECT valor FROM configuracoes WHERE chave = 'catmat_obrigatorio'`);
 
     if (result.rows.length > 0) {
-      configCache = JSON.parse(result.rows[0].valor);
+      const rawValue = result.rows[0].valor;
+      const dbConfig = typeof rawValue === 'string' ? JSON.parse(rawValue) : rawValue || {};
+      configCache = {
+        empenho_items: Boolean(dbConfig.empenho_items),
+        nota_fiscal_items: Boolean(dbConfig.nota_fiscal_items),
+        itens: Boolean(dbConfig.itens),
+        ativo: Boolean(dbConfig.ativo)
+      };
     } else {
       // Config padrão: desativado
       configCache = {
         empenho_items: false,
         nota_fiscal_items: false,
+        itens: false,
         ativo: false
       };
     }
+
+    if (config.catmatObrigatorioEmpenho) {
+      configCache.empenho_items = true;
+    }
+    if (config.catmatObrigatorioNF) {
+      configCache.nota_fiscal_items = true;
+    }
+    if (config.catmatObrigatorioItens) {
+      configCache.itens = true;
+    }
+    configCache.ativo =
+      configCache.ativo ||
+      configCache.empenho_items ||
+      configCache.nota_fiscal_items ||
+      configCache.itens ||
+      config.catmatObrigatorioEmpenho ||
+      config.catmatObrigatorioNF ||
+      config.catmatObrigatorioItens;
 
     configCacheExpires = now + CACHE_TTL;
     return configCache;
@@ -59,9 +87,30 @@ async function getCatmatObrigatorioConfig() {
     return {
       empenho_items: false,
       nota_fiscal_items: false,
+      itens: false,
       ativo: false
     };
   }
+}
+
+async function resolveCodigoCatmat(item) {
+  const directCode = item.catmatCodigo || item.catmat_codigo || item.catmat_id || item.catmatId || null;
+  if (directCode) {
+    return String(directCode).replace(/\D/g, '');
+  }
+
+  const materialId = item.material_id || item.materialId || null;
+  if (!materialId) {
+    return '';
+  }
+
+  const result = await db.query('SELECT codigo, catmat_id FROM materials WHERE id = $1 LIMIT 1', [materialId]);
+  const row = result.rows[0];
+  if (!row) {
+    return '';
+  }
+
+  return String(row.catmat_id || row.codigo || '').replace(/\D/g, '');
 }
 
 /**
@@ -74,21 +123,22 @@ async function validarCatmatItens(itens, entidade) {
   const config = await getCatmatObrigatorioConfig();
 
   // Se CATMAT não é obrigatório para esta entidade, retorna válido
-  if (!config.ativo || !config[entidade]) {
-    return { valido: true, erros: [] };
+  if (!config.ativo || (!config[entidade] && !config.itens)) {
+    return { valido: true, erros: [], itensNormalizados: Array.isArray(itens) ? itens : [] };
   }
 
   const erros = [];
+  const itensNormalizados = [];
 
   if (!Array.isArray(itens)) {
-    return { valido: true, erros: [] };
+    return { valido: true, erros: [], itensNormalizados: [] };
   }
 
-  itens.forEach((item, index) => {
+  for (let index = 0; index < itens.length; index++) {
+    const item = itens[index];
     const seq = item.seq || item.item_numero || index + 1;
 
-    // Verifica se tem código CATMAT
-    const catmatCodigo = item.catmatCodigo || item.catmat_codigo || item.material_id || item.catmat_id;
+    const catmatCodigo = await resolveCodigoCatmat(item);
 
     if (!catmatCodigo) {
       erros.push({
@@ -96,12 +146,40 @@ async function validarCatmatItens(itens, entidade) {
         descricao: item.descricao?.substring(0, 50) || `Item ${seq}`,
         erro: 'CATMAT obrigatório não informado'
       });
+      continue;
     }
-  });
+
+    const material = await catmatService.validateAndHydrate(catmatCodigo);
+    if (!material) {
+      erros.push({
+        item: seq,
+        descricao: item.descricao?.substring(0, 50) || `Item ${seq}`,
+        erro: `CATMAT ${catmatCodigo} inválido ou não encontrado na API oficial`
+      });
+      continue;
+    }
+
+    const mirror = await db.query('SELECT id, codigo FROM materials WHERE codigo = $1 LIMIT 1', [
+      String(material.codigo || material.catmat_id)
+    ]);
+
+    const materialId = mirror.rows[0]?.id || item.material_id || null;
+
+    itensNormalizados.push({
+      ...item,
+      material_id: materialId,
+      catmat_codigo: String(material.codigo || material.catmat_id),
+      catmat_id: Number(material.codigo || material.catmat_id),
+      catmat_descricao: material.descricao || material.catmat_padrao_desc || item.descricao || null,
+      catmat_status: material.status || 'ATIVO',
+      catmat_fonte: material.fonte || 'api_oficial_compras'
+    });
+  }
 
   return {
     valido: erros.length === 0,
-    erros
+    erros,
+    itensNormalizados
   };
 }
 
@@ -124,6 +202,11 @@ function catmatObrigatorioMiddleware(entidade) {
         });
       }
 
+      req.catmatValidation = resultado;
+      if (Array.isArray(resultado.itensNormalizados) && resultado.itensNormalizados.length > 0) {
+        req.body.itens = resultado.itensNormalizados;
+      }
+
       return next();
     } catch (err) {
       console.error('[CATMAT] Erro no middleware:', err);
@@ -141,6 +224,8 @@ async function logVinculoCatmat({
   entidadeId,
   materialId,
   catmatId,
+  oldCatmat,
+  newCatmat,
   acao,
   dadosAnteriores,
   usuarioId,
@@ -153,6 +238,8 @@ async function logVinculoCatmat({
       entidade_id: entidadeId,
       material_id: materialId,
       catmat_id: catmatId,
+      old_catmat: oldCatmat || null,
+      new_catmat: newCatmat || null,
       acao,
       dados_anteriores: dadosAnteriores ? JSON.stringify(dadosAnteriores) : null,
       usuario_id: usuarioId,

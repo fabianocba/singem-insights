@@ -23,7 +23,7 @@ const STATUS_TRANSITIONS = {
 // ============================================================================
 router.get('/', authenticate, async (req, res) => {
   try {
-    const { status, tipo, solicitante, q, limite = 50, offset = 0 } = req.query;
+    const { status, tipo, solicitante, responsavel, q, limite = 50, offset = 0 } = req.query;
 
     let sql = `
       SELECT
@@ -56,6 +56,12 @@ router.get('/', authenticate, async (req, res) => {
       paramIdx++;
       sql += ` AND cp.created_by = $${paramIdx}`;
       params.push(parseInt(solicitante));
+    }
+
+    if (responsavel) {
+      paramIdx++;
+      sql += ` AND cp.responsavel_nome ILIKE $${paramIdx}`;
+      params.push(`%${responsavel}%`);
     }
 
     // Busca por termo
@@ -156,7 +162,8 @@ router.post('/', authenticate, async (req, res) => {
       descricao_solicitada,
       unidade_sugerida = 'UN',
       justificativa,
-      observacoes
+      observacoes,
+      responsavel_nome
     } = req.body;
 
     // Validações
@@ -181,15 +188,19 @@ router.post('/', authenticate, async (req, res) => {
       unidade_sugerida: unidade_sugerida.toUpperCase(),
       justificativa: justificativa?.trim() || null,
       observacoes: observacoes?.trim() || null,
+      responsavel_nome: responsavel_nome?.trim() || null,
       status: 'NAO_SOLICITADO',
       created_by: req.user?.id || null
     });
 
     // Busca link do Compras.gov.br
     const configResult = await db.query(`SELECT valor FROM configuracoes WHERE chave = 'catmat_link_pedido'`);
-    const linkPedido = configResult.rows[0]?.valor
-      ? JSON.parse(configResult.rows[0].valor)
-      : 'https://www.gov.br/compras/pt-br/sistemas/sistema-de-catalogacao';
+    const rawLink = configResult.rows[0]?.valor;
+    const linkPedido = rawLink
+      ? typeof rawLink === 'string'
+        ? JSON.parse(rawLink)
+        : rawLink
+      : 'https://www.gov.br/compras/pt-br/area-de-trabalho/materiais-e-servicos/catalogo/pedido-de-catalogacao';
 
     return res.status(201).json({
       sucesso: true,
@@ -220,7 +231,7 @@ router.post('/', authenticate, async (req, res) => {
 router.patch('/:id/status', authenticate, async (req, res) => {
   try {
     const { id } = req.params;
-    const { status, observacoes, link_externo, catmat_codigo_aprovado } = req.body;
+    const { status, observacoes, link_externo, catmat_codigo_aprovado, responsavel_nome } = req.body;
 
     // Busca pedido atual
     const pedidoAtual = await db.findById('catalogacao_pedidos', parseInt(id));
@@ -247,7 +258,8 @@ router.patch('/:id/status', authenticate, async (req, res) => {
     // Monta dados de atualização
     const dadosUpdate = {
       status: statusNovo,
-      updated_by: req.user?.id || null
+      updated_by: req.user?.id || null,
+      status_updated_at: new Date()
     };
 
     // Adiciona campos opcionais
@@ -256,6 +268,9 @@ router.patch('/:id/status', authenticate, async (req, res) => {
     }
     if (link_externo !== undefined) {
       dadosUpdate.link_externo = link_externo;
+    }
+    if (responsavel_nome !== undefined) {
+      dadosUpdate.responsavel_nome = responsavel_nome;
     }
 
     // Campos específicos por status
@@ -338,9 +353,12 @@ router.get('/config/link', authenticate, async (req, res) => {
   try {
     const result = await db.query(`SELECT valor FROM configuracoes WHERE chave = 'catmat_link_pedido'`);
 
-    const link = result.rows[0]?.valor
-      ? JSON.parse(result.rows[0].valor)
-      : 'https://www.gov.br/compras/pt-br/sistemas/sistema-de-catalogacao';
+    const rawLink = result.rows[0]?.valor;
+    const link = rawLink
+      ? typeof rawLink === 'string'
+        ? JSON.parse(rawLink)
+        : rawLink
+      : 'https://www.gov.br/compras/pt-br/area-de-trabalho/materiais-e-servicos/catalogo/pedido-de-catalogacao';
 
     return res.json({
       sucesso: true,

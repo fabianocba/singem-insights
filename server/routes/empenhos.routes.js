@@ -6,7 +6,7 @@
 const express = require('express');
 const db = require('../config/database');
 const { authenticate, optionalAuth } = require('../middleware/auth');
-const { catmatObrigatorioMiddleware } = require('../utils/catmatValidation');
+const { catmatObrigatorioMiddleware, logVinculoCatmat } = require('../utils/catmatValidation');
 
 const router = express.Router();
 
@@ -186,6 +186,29 @@ router.post('/', authenticate, catmatObrigatorioMiddleware('empenho_items'), asy
 
     const empenho = await db.insert('empenhos', empenhoData);
 
+    if (Array.isArray(data.itens)) {
+      for (let index = 0; index < data.itens.length; index++) {
+        const item = data.itens[index];
+        const codigo = item.catmat_codigo || item.catmatCodigo || item.catmat_id || null;
+        if (!codigo) {
+          continue;
+        }
+        await logVinculoCatmat({
+          entidade: 'EMPENHO_ITEM',
+          entidadeId: Number(item.seq || index + 1),
+          materialId: item.material_id || null,
+          catmatId: Number(codigo) || null,
+          oldCatmat: null,
+          newCatmat: String(codigo),
+          acao: 'vincular',
+          dadosAnteriores: null,
+          usuarioId: req.user.id,
+          usuarioNome: req.user.nome,
+          ipAddress: req.ip
+        });
+      }
+    }
+
     res.status(201).json({
       sucesso: true,
       mensagem: 'Empenho criado com sucesso',
@@ -213,6 +236,20 @@ router.put('/:id', authenticate, catmatObrigatorioMiddleware('empenho_items'), a
     if (!existe) {
       return res.status(404).json({ erro: 'Empenho não encontrado' });
     }
+
+    const itensAntes = (() => {
+      if (!existe?.itens) {
+        return [];
+      }
+      if (Array.isArray(existe.itens)) {
+        return existe.itens;
+      }
+      try {
+        return JSON.parse(existe.itens);
+      } catch {
+        return [];
+      }
+    })();
 
     // Prepara dados para atualização
     const updateData = {};
@@ -252,6 +289,33 @@ router.put('/:id', authenticate, catmatObrigatorioMiddleware('empenho_items'), a
     }
 
     const empenho = await db.update('empenhos', id, updateData);
+
+    if (Array.isArray(data.itens)) {
+      for (let index = 0; index < data.itens.length; index++) {
+        const itemNovo = data.itens[index];
+        const itemAntigo = itensAntes[index] || {};
+        const codigoNovo = itemNovo.catmat_codigo || itemNovo.catmatCodigo || itemNovo.catmat_id || '';
+        const codigoAntigo = itemAntigo.catmat_codigo || itemAntigo.catmatCodigo || itemAntigo.catmat_id || '';
+
+        if (String(codigoNovo || '') === String(codigoAntigo || '')) {
+          continue;
+        }
+
+        await logVinculoCatmat({
+          entidade: 'EMPENHO_ITEM',
+          entidadeId: Number(itemNovo.seq || itemAntigo.seq || index + 1),
+          materialId: itemNovo.material_id || itemAntigo.material_id || null,
+          catmatId: Number(codigoNovo) || null,
+          oldCatmat: codigoAntigo ? String(codigoAntigo) : null,
+          newCatmat: codigoNovo ? String(codigoNovo) : null,
+          acao: codigoAntigo && codigoNovo ? 'alterar' : codigoNovo ? 'vincular' : 'desvincular',
+          dadosAnteriores: itemAntigo,
+          usuarioId: req.user.id,
+          usuarioNome: req.user.nome,
+          ipAddress: req.ip
+        });
+      }
+    }
 
     res.json({
       sucesso: true,

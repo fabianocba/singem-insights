@@ -1,141 +1,493 @@
 /**
  * CATMAT Service - SINGEM
- * Serviço de domínio para busca e importação CATMAT
- * Usa PostgreSQL para cache local do catálogo
+ * Integração oficial com API de Dados Abertos do Compras + cache PostgreSQL.
  */
 
 const db = require('../../config/database');
+const { config } = require('../../config');
 
-/**
- * Jobs em execução (cache em memória)
- */
 const jobs = new Map();
 
-/**
- * Serviço CATMAT
- */
+const runtime = {
+  lastRequestAt: 0
+};
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function parseJsonSafe(text) {
+  try {
+    return JSON.parse(text);
+  } catch {
+    return null;
+  }
+}
+
+function buildApiBase() {
+  return String(config.comprasApi?.baseUrl || 'http://compras.dados.gov.br').replace(/\/+$/, '');
+}
+
+function isLikelyTransient(status) {
+  return status === 408 || status === 429 || status >= 500;
+}
+
+function extractMaterialList(payload) {
+  if (!payload) {
+    return [];
+  }
+
+  if (Array.isArray(payload)) {
+    return payload;
+  }
+
+  if (Array.isArray(payload.materiais)) {
+    return payload.materiais;
+  }
+
+  if (payload._embedded) {
+    if (Array.isArray(payload._embedded.materiais)) {
+      return payload._embedded.materiais;
+    }
+
+    const values = Object.values(payload._embedded);
+    const firstArray = values.find(Array.isArray);
+    if (firstArray) {
+      return firstArray;
+    }
+  }
+
+  if (Array.isArray(payload.items)) {
+    return payload.items;
+  }
+
+  return [];
+}
+
+function normalizeMaterial(raw) {
+  if (!raw || typeof raw !== 'object') {
+    return null;
+  }
+
+  const codigoRaw = raw.id || raw.codigo || raw.catmat_id || raw.cod_item || raw.cod;
+  const descricao =
+    raw.descricao || raw.descricao_item || raw.nome || raw.descricao_padrao || raw.catmat_padrao_desc || null;
+
+  if (!codigoRaw || !descricao) {
+    return null;
+  }
+
+  const codigo = String(codigoRaw).replace(/\D/g, '');
+  if (!codigo) {
+    return null;
+  }
+
+  const statusRaw = (raw.status || raw.situacao || raw.ativo || '').toString().toUpperCase();
+
+  return {
+    codigo,
+    descricao: String(descricao).trim().slice(0, 500),
+    id_grupo: raw.id_grupo || raw.grupo_id || raw.cod_grupo || null,
+    id_classe: raw.id_classe || raw.classe_id || raw.cod_classe || null,
+    id_pdm: raw.id_pdm || raw.pdm_id || raw.cod_pdm || null,
+    status: raw.status || raw.situacao || (statusRaw === 'INATIVO' ? 'INATIVO' : 'ATIVO'),
+    sustentavel: Boolean(raw.sustentavel || raw.item_sustentavel || raw.catmat_sustentavel),
+    unidade: raw.unidade || raw.unidade_fornecimento || 'UN',
+    fonte: 'api_oficial_compras',
+    raw
+  };
+}
+
 class CatmatService {
-  /**
-   * Busca materiais no cache local com autocomplete
-   * @param {string} query - Termo de busca (min 3 chars)
-   * @param {Object} options - Opções de busca
-   * @returns {Promise<{dados: Array, total: number}>}
-   */
-  async search(query, { limite = 20, offset = 0, apenasAtivos = true } = {}) {
-    if (!query || query.length < 3) {
-      return { dados: [], total: 0 };
+  async _waitRateLimit() {
+    const minInterval = Number(config.comprasApi?.rateLimitMs || 250);
+    const now = Date.now();
+    const elapsed = now - runtime.lastRequestAt;
+    if (elapsed < minInterval) {
+      await sleep(minInterval - elapsed);
+    }
+    runtime.lastRequestAt = Date.now();
+  }
+
+  async _fetchOfficial(pathname, params = {}) {
+    const base = buildApiBase();
+    const url = new URL(`${base}${pathname}`);
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== '') {
+        url.searchParams.set(key, String(value));
+      }
+    });
+
+    const retries = Number(config.comprasApi?.maxRetries || 3);
+    const timeoutMs = Number(config.comprasApi?.timeoutMs || 8000);
+    const retryBaseDelay = Number(config.comprasApi?.retryBaseDelayMs || 500);
+
+    let lastError = null;
+
+    for (let attempt = 1; attempt <= retries; attempt++) {
+      try {
+        await this._waitRateLimit();
+
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
+        const response = await fetch(url, {
+          method: 'GET',
+          headers: {
+            Accept: 'application/json',
+            'User-Agent': 'SINGEM-CATMAT/2.0'
+          },
+          signal: controller.signal
+        });
+
+        clearTimeout(timeoutId);
+
+        const rawText = await response.text();
+        const body = parseJsonSafe(rawText);
+
+        if (!response.ok) {
+          const err = new Error(`Compras API HTTP ${response.status}`);
+          err.status = response.status;
+          err.body = body;
+          throw err;
+        }
+
+        return body || {};
+      } catch (err) {
+        lastError = err;
+        const status = err.status || 0;
+        const transient = err.name === 'AbortError' || isLikelyTransient(status);
+
+        if (!transient || attempt === retries) {
+          break;
+        }
+
+        await sleep(retryBaseDelay * 2 ** (attempt - 1));
+      }
     }
 
-    const params = [];
-    let paramIdx = 0;
+    const wrapped = new Error(`Falha ao consultar API oficial CATMAT: ${lastError?.message || 'erro desconhecido'}`);
+    wrapped.cause = lastError;
+    wrapped.code = 'COMPRAS_API_UNAVAILABLE';
+    throw wrapped;
+  }
 
-    // Busca usando trigram para melhor performance em autocomplete
-    let sql = `
-      SELECT
-        id,
+  async _upsertCache(material) {
+    await db.query(
+      `
+      INSERT INTO catmat_cache (
+        codigo, descricao, id_grupo, id_classe, id_pdm, status,
+        sustentavel, unidade, fonte, payload_raw, fetched_at, updated_at
+      ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,NOW(),NOW())
+      ON CONFLICT (codigo) DO UPDATE SET
+        descricao = EXCLUDED.descricao,
+        id_grupo = EXCLUDED.id_grupo,
+        id_classe = EXCLUDED.id_classe,
+        id_pdm = EXCLUDED.id_pdm,
+        status = EXCLUDED.status,
+        sustentavel = EXCLUDED.sustentavel,
+        unidade = EXCLUDED.unidade,
+        fonte = EXCLUDED.fonte,
+        payload_raw = EXCLUDED.payload_raw,
+        fetched_at = NOW(),
+        updated_at = NOW()
+    `,
+      [
+        material.codigo,
+        material.descricao,
+        material.id_grupo,
+        material.id_classe,
+        material.id_pdm,
+        material.status,
+        material.sustentavel,
+        material.unidade || 'UN',
+        material.fonte,
+        JSON.stringify(material.raw || {})
+      ]
+    );
+  }
+
+  async ensureMaterialMirror(material) {
+    const codigo = String(material.codigo).replace(/\D/g, '');
+    if (!codigo) {
+      return null;
+    }
+
+    await db.query(
+      `
+      INSERT INTO materials (
+        codigo, descricao, unidade, catmat_id, catmat_grupo, catmat_classe,
+        catmat_padrao_desc, catmat_sustentavel, fonte, ativo, catmat_atualizado_em, updated_at
+      ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,NOW(),NOW())
+      ON CONFLICT (codigo) DO UPDATE SET
+        descricao = EXCLUDED.descricao,
+        unidade = EXCLUDED.unidade,
+        catmat_id = EXCLUDED.catmat_id,
+        catmat_grupo = EXCLUDED.catmat_grupo,
+        catmat_classe = EXCLUDED.catmat_classe,
+        catmat_padrao_desc = EXCLUDED.catmat_padrao_desc,
+        catmat_sustentavel = EXCLUDED.catmat_sustentavel,
+        fonte = EXCLUDED.fonte,
+        ativo = EXCLUDED.ativo,
+        catmat_atualizado_em = NOW(),
+        updated_at = NOW()
+      RETURNING *
+    `,
+      [
         codigo,
-        descricao,
-        unidade,
-        catmat_id,
-        catmat_grupo,
-        catmat_classe,
-        catmat_padrao_desc,
-        catmat_sustentavel,
-        natureza_despesa,
-        subelemento,
-        ativo,
-        fonte,
-        updated_at
-      FROM materials
-      WHERE 1=1
+        material.descricao,
+        material.unidade || 'UN',
+        Number(codigo),
+        material.id_grupo ? String(material.id_grupo).slice(0, 100) : null,
+        material.id_classe ? String(material.id_classe).slice(0, 100) : null,
+        material.descricao,
+        Boolean(material.sustentavel),
+        material.fonte || 'api_oficial_compras',
+        String(material.status || 'ATIVO').toUpperCase() !== 'INATIVO'
+      ]
+    );
+
+    const mirror = await db.query('SELECT * FROM materials WHERE codigo = $1 LIMIT 1', [codigo]);
+    return mirror.rows[0] || null;
+  }
+
+  async _queryCacheByTerm(query, { limite = 20, offset = 0, apenasAtivos = true } = {}) {
+    const params = [`%${query}%`];
+    let sql = `
+      SELECT codigo, descricao, id_grupo, id_classe, id_pdm, status, sustentavel,
+             unidade, fonte, fetched_at, updated_at
+      FROM catmat_cache
+      WHERE (descricao ILIKE $1 OR codigo ILIKE $1)
     `;
 
-    // Filtro por texto (usando trigram similarity ou ILIKE)
-    paramIdx++;
-    sql += ` AND (
-      descricao ILIKE $${paramIdx}
-      OR codigo ILIKE $${paramIdx}
-      OR catmat_padrao_desc ILIKE $${paramIdx}
-    )`;
-    params.push(`%${query}%`);
-
-    // Filtro por ativos
     if (apenasAtivos) {
-      sql += ' AND ativo = true';
+      sql += ` AND (status IS NULL OR UPPER(status) NOT IN ('INATIVO', 'CANCELADO'))`;
     }
 
-    // Ordenação: prioriza matches exatos e por relevância
-    sql += ` ORDER BY
-      CASE WHEN descricao ILIKE $${paramIdx} THEN 0 ELSE 1 END,
-      CASE WHEN catmat_id IS NOT NULL THEN 0 ELSE 1 END,
-      descricao
-    `;
+    const countResult = await db.query(`SELECT COUNT(*) AS total FROM (${sql}) AS sub`, params);
+    const total = Number(countResult.rows[0]?.total || 0);
 
-    // Conta total antes de paginar
-    const countSql = sql.replace(/SELECT[\s\S]*?FROM/, 'SELECT COUNT(*) as total FROM');
-    const countResult = await db.query(countSql.split('ORDER BY')[0], params);
-    const total = parseInt(countResult.rows[0]?.total || 0);
-
-    // Paginação
-    paramIdx++;
-    sql += ` LIMIT $${paramIdx}`;
     params.push(limite);
-
-    paramIdx++;
-    sql += ` OFFSET $${paramIdx}`;
     params.push(offset);
 
+    sql += ' ORDER BY descricao LIMIT $2 OFFSET $3';
     const result = await db.query(sql, params);
 
+    const dados = result.rows.map((row) => ({
+      codigo: row.codigo,
+      catmat_id: Number(row.codigo),
+      descricao: row.descricao,
+      catmat_padrao_desc: row.descricao,
+      unidade: row.unidade,
+      id_grupo: row.id_grupo,
+      id_classe: row.id_classe,
+      id_pdm: row.id_pdm,
+      status: row.status,
+      catmat_sustentavel: row.sustentavel,
+      fonte: row.fonte,
+      fetched_at: row.fetched_at,
+      updated_at: row.updated_at
+    }));
+
+    return { dados, total };
+  }
+
+  async search(query, { limite = 20, offset = 0, apenasAtivos = true } = {}) {
+    if (!query || query.length < 3) {
+      return { dados: [], total: 0, pagina: 1, totalPaginas: 0 };
+    }
+
+    const clampedLimit = Math.max(1, Math.min(Number(limite) || 20, 100));
+    const safeOffset = Math.max(0, Number(offset) || 0);
+
+    try {
+      const payload = await this._fetchOfficial('/materiais/v1/materiais.json', {
+        descricao_item: query,
+        offset: safeOffset,
+        limit: clampedLimit
+      });
+
+      const normalized = extractMaterialList(payload).map(normalizeMaterial).filter(Boolean);
+      const filtered = apenasAtivos
+        ? normalized.filter((item) => String(item.status || 'ATIVO').toUpperCase() !== 'INATIVO')
+        : normalized;
+
+      for (const item of filtered) {
+        await this._upsertCache(item);
+      }
+
+      return {
+        dados: filtered.map((item) => ({
+          codigo: item.codigo,
+          catmat_id: Number(item.codigo),
+          descricao: item.descricao,
+          catmat_padrao_desc: item.descricao,
+          unidade: item.unidade,
+          id_grupo: item.id_grupo,
+          id_classe: item.id_classe,
+          id_pdm: item.id_pdm,
+          status: item.status,
+          catmat_sustentavel: item.sustentavel,
+          fonte: item.fonte,
+          fetched_at: new Date().toISOString()
+        })),
+        total: Number(payload?.total || payload?.count || filtered.length || 0),
+        pagina: Math.floor(safeOffset / clampedLimit) + 1,
+        totalPaginas: null,
+        fonte: 'api_oficial_compras'
+      };
+    } catch (apiError) {
+      const fallback = await this._queryCacheByTerm(query, {
+        limite: clampedLimit,
+        offset: safeOffset,
+        apenasAtivos
+      });
+
+      return {
+        ...fallback,
+        pagina: Math.floor(safeOffset / clampedLimit) + 1,
+        totalPaginas: Math.ceil((fallback.total || 0) / clampedLimit),
+        fonte: 'cache_local',
+        aviso: 'API oficial temporariamente indisponível. Resultado retornado do cache local mais recente.',
+        erroApi: apiError.message
+      };
+    }
+  }
+
+  async findByCodigo(codigo) {
+    const cleanCode = String(codigo || '').replace(/\D/g, '');
+    if (!cleanCode) {
+      return null;
+    }
+
+    const cached = await db.query(
+      `
+      SELECT codigo, descricao, id_grupo, id_classe, id_pdm, status, sustentavel,
+             unidade, fonte, fetched_at, updated_at
+      FROM catmat_cache
+      WHERE codigo = $1
+      LIMIT 1
+    `,
+      [cleanCode]
+    );
+
+    const ttlHours = Number(config.catmatCacheTtlHours || 168);
+    const cacheRow = cached.rows[0] || null;
+    const isFresh =
+      cacheRow &&
+      cacheRow.fetched_at &&
+      Date.now() - new Date(cacheRow.fetched_at).getTime() < ttlHours * 60 * 60 * 1000;
+
+    if (cacheRow && isFresh) {
+      return {
+        ...cacheRow,
+        catmat_id: Number(cacheRow.codigo),
+        catmat_padrao_desc: cacheRow.descricao
+      };
+    }
+
+    try {
+      const payload = await this._fetchOfficial(`/materiais/id/material/${cleanCode}.json`);
+      const normalized = normalizeMaterial(payload);
+
+      if (!normalized) {
+        if (cacheRow) {
+          return {
+            ...cacheRow,
+            catmat_id: Number(cacheRow.codigo),
+            catmat_padrao_desc: cacheRow.descricao
+          };
+        }
+        return null;
+      }
+
+      await this._upsertCache(normalized);
+
+      return {
+        codigo: normalized.codigo,
+        catmat_id: Number(normalized.codigo),
+        descricao: normalized.descricao,
+        catmat_padrao_desc: normalized.descricao,
+        unidade: normalized.unidade,
+        id_grupo: normalized.id_grupo,
+        id_classe: normalized.id_classe,
+        id_pdm: normalized.id_pdm,
+        status: normalized.status,
+        catmat_sustentavel: normalized.sustentavel,
+        fonte: normalized.fonte,
+        fetched_at: new Date().toISOString()
+      };
+    } catch {
+      if (!cacheRow) {
+        return null;
+      }
+
+      return {
+        ...cacheRow,
+        catmat_id: Number(cacheRow.codigo),
+        catmat_padrao_desc: cacheRow.descricao,
+        aviso: 'API oficial indisponível. Retornando dado do cache local.'
+      };
+    }
+  }
+
+  async validateAndHydrate(codigo) {
+    const material = await this.findByCodigo(codigo);
+    if (!material) {
+      return null;
+    }
+
+    await this.ensureMaterialMirror({
+      codigo: material.codigo || material.catmat_id,
+      descricao: material.descricao || material.catmat_padrao_desc,
+      id_grupo: material.id_grupo,
+      id_classe: material.id_classe,
+      id_pdm: material.id_pdm,
+      status: material.status,
+      sustentavel: material.catmat_sustentavel,
+      unidade: material.unidade,
+      fonte: material.fonte
+    });
+
+    return material;
+  }
+
+  async runSyncBatch({ offset = 0, limite = 200, termo = '' } = {}) {
+    const payload = await this._fetchOfficial('/materiais/v1/materiais.json', {
+      descricao_item: termo || undefined,
+      offset,
+      limit: limite
+    });
+
+    const normalized = extractMaterialList(payload).map(normalizeMaterial).filter(Boolean);
+
+    let imported = 0;
+    for (const item of normalized) {
+      await this._upsertCache(item);
+      await this.ensureMaterialMirror(item);
+      imported++;
+    }
+
     return {
-      dados: result.rows,
-      total,
-      pagina: Math.floor(offset / limite) + 1,
-      totalPaginas: Math.ceil(total / limite)
+      imported,
+      totalApi: Number(payload?.total || payload?.count || normalized.length || 0),
+      hasMore: normalized.length >= limite,
+      nextOffset: offset + limite
     };
   }
 
-  /**
-   * Busca material por código CATMAT
-   * @param {number|string} codigo - Código CATMAT
-   * @returns {Promise<Object|null>}
-   */
-  async findByCodigo(codigo) {
-    const result = await db.query(`SELECT * FROM materials WHERE catmat_id = $1 OR codigo = $2 LIMIT 1`, [
-      parseInt(codigo),
-      String(codigo)
-    ]);
-    return result.rows[0] || null;
-  }
-
-  /**
-   * Busca material por ID interno
-   * @param {number} id - ID do material
-   * @returns {Promise<Object|null>}
-   */
-  async findById(id) {
-    return db.findById('materials', id);
-  }
-
-  /**
-   * Retorna estatísticas do cache CATMAT
-   * @returns {Promise<Object>}
-   */
   async getStats() {
     const result = await db.query(`
       SELECT
         COUNT(*) as total,
-        COUNT(*) FILTER (WHERE catmat_id IS NOT NULL) as com_catmat,
-        COUNT(*) FILTER (WHERE ativo = true) as ativos,
-        COUNT(*) FILTER (WHERE catmat_sustentavel = true) as sustentaveis,
-        MAX(catmat_atualizado_em) as ultima_atualizacao
-      FROM materials
+        COUNT(*) FILTER (WHERE UPPER(COALESCE(status, 'ATIVO')) NOT IN ('INATIVO', 'CANCELADO')) as ativos,
+        COUNT(*) FILTER (WHERE sustentavel = true) as sustentaveis,
+        MAX(updated_at) as ultima_atualizacao,
+        MAX(fetched_at) as ultima_coleta
+      FROM catmat_cache
     `);
 
-    const importLog = await db.query(`
-      SELECT * FROM catmat_import_log
-      ORDER BY created_at DESC LIMIT 1
-    `);
+    const importLog = await db.query('SELECT * FROM catmat_import_log ORDER BY created_at DESC LIMIT 1');
 
     return {
       sucesso: true,
@@ -146,57 +498,32 @@ class CatmatService {
     };
   }
 
-  /**
-   * Retorna status de importação atual
-   */
-  getImportStatus() {
-    return (
-      Array.from(jobs.values())
-        .filter((j) => j.status === 'running')
-        .pop() || null
-    );
-  }
-
-  /**
-   * Inicia importação de materiais (job assíncrono)
-   * @param {{ since?: string, forceSync?: boolean }} options
-   * @returns {Promise<{ jobId: string, status: string }>}
-   */
   async importMaterials({ since, forceSync = false } = {}) {
-    // Gera ID único para o job
     const jobId = `catmat-${Date.now()}`;
 
-    // Registra job como pendente
     jobs.set(jobId, {
       id: jobId,
       status: 'pending',
       started: new Date().toISOString(),
+      since: since || null,
+      forceSync: Boolean(forceSync),
       progress: 0,
       total: 0,
       imported: 0,
       errors: []
     });
 
-    // Nota: A importação real é feita via script import-catmat.js
-    // Este endpoint apenas inicia e monitora
     const job = jobs.get(jobId);
     job.status = 'info';
-    job.message = 'Use o script import-catmat.js para importar dados. Este endpoint é apenas para monitoramento.';
+    job.message = 'Execute o script node scripts/import-catmat.js para sincronização paginada oficial.';
 
     return { jobId, status: 'info', message: job.message };
   }
 
-  /**
-   * Retorna status de um job de importação
-   * @param {string} jobId
-   */
   getStatus(jobId) {
     return jobs.get(jobId) || null;
   }
 
-  /**
-   * Lista todos os jobs recentes
-   */
   listJobs() {
     return Array.from(jobs.values()).slice(-20);
   }
