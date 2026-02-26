@@ -1,36 +1,36 @@
-﻿# âš¡ ANÃLISE DE PERFORMANCE E ESTABILIDADE
+# ⚡ ANÁLISE DE PERFORMANCE E ESTABILIDADE
 
 **Data:** 2025-06-13  
-**Fase:** ETAPA 5 â€” Performance e Estabilidade  
-**Status:** âœ… Analisado
+**Fase:** ETAPA 5 — Performance e Estabilidade  
+**Status:** ✅ Analisado
 
 ---
 
-## ðŸ“Š CARREGAMENTO DE SCRIPTS
+## 📊 CARREGAMENTO DE SCRIPTS
 
 ### Ordem de Carregamento (index.html)
 
-| #    | Script                 | Tipo      | Tamanho Est. | CrÃ­tico? |
+| #    | Script                 | Tipo      | Tamanho Est. | Crítico? |
 | ---- | ---------------------- | --------- | ------------ | --------- |
-| 1    | `js/config/version.js` | ES Module | ~1KB         | âœ…       |
-| 2    | `js/versionManager.js` | Sync      | ~10KB        | âœ…       |
-| 3    | `pdf.min.js` (CDN)     | Sync      | ~500KB       | âœ…       |
-| 4    | `zxing` (CDN)          | Sync      | ~200KB       | âš ï¸     |
-| 5    | `js/platform-core.js`  | Sync      | ~5KB         | âœ…       |
-| 6-20 | Scripts defer          | Defer     | VariÃ¡vel    | âœ…       |
-| 21+  | Scripts module         | ES Module | VariÃ¡vel    | âœ…       |
+| 1    | `js/config/version.js` | ES Module | ~1KB         | ✅       |
+| 2    | `js/versionManager.js` | Sync      | ~10KB        | ✅       |
+| 3    | `pdf.min.js` (CDN)     | Sync      | ~500KB       | ✅       |
+| 4    | `zxing` (CDN)          | Sync      | ~200KB       | ⚠️     |
+| 5    | `js/platform-core.js`  | Sync      | ~5KB         | ✅       |
+| 6-20 | Scripts defer          | Defer     | Variável    | ✅       |
+| 21+  | Scripts module         | ES Module | Variável    | ✅       |
 
-### AnÃ¡lise de Performance
+### Análise de Performance
 
-#### âœ… BOAS PRÃTICAS JÃ APLICADAS
+#### ✅ BOAS PRÁTICAS JÁ APLICADAS
 
-1. **`defer` em scripts nÃ£o-crÃ­ticos**
+1. **`defer` em scripts não-críticos**
    - `js/config.js defer`
    - `js/db.js defer`
    - `js/settings/*.js defer`
    - `js/refine/*.js defer`
 
-2. **ES Modules para carregamento assÃ­ncrono**
+2. **ES Modules para carregamento assíncrono**
    - `js/app.js` (module)
    - `js/neParserInit.js` (module)
    - `js/consultas/index.js` (module)
@@ -39,32 +39,32 @@
    - PDF.js (CloudFlare)
    - ZXing (unpkg)
 
-#### âš ï¸ PONTOS DE ATENÃ‡ÃƒO
+#### ⚠️ PONTOS DE ATENÇÃO
 
 1. **ZXing carregado sync**
-   - Usado para leitura de cÃ³digo de barras
-   - Poderia ser lazy-loaded quando necessÃ¡rio
-   - **NÃ£o alterar** para nÃ£o quebrar funcionalidade
+   - Usado para leitura de código de barras
+   - Poderia ser lazy-loaded quando necessário
+   - **Não alterar** para não quebrar funcionalidade
 
 2. **PDF.js carregado no head**
-   - NecessÃ¡rio para extraÃ§Ã£o de PDF
+   - Necessário para extração de PDF
    - Tamanho grande (~500KB)
-   - NecessÃ¡rio para funcionalidade core
+   - Necessário para funcionalidade core
 
 ---
 
-## ðŸ”„ SERVICE WORKER
+## 🔄 SERVICE WORKER
 
-O projeto tem `sw.js` na raiz, mas **nÃ£o estÃ¡ sendo registrado** no `index.html`.
+O projeto tem `sw.js` na raiz, mas **não está sendo registrado** no `index.html`.
 
-### Status: âš ï¸ NÃ£o utilizado
+### Status: ⚠️ Não utilizado
 
 O arquivo `sw.js` existe mas:
 
 - Bootstrap.js (que registrava) foi movido para `_legacy/`
 - Nenhum outro script registra o SW
 
-### RecomendaÃ§Ã£o
+### Recomendação
 
 Se quiser cache offline:
 
@@ -75,11 +75,11 @@ if ('serviceWorker' in navigator) {
 }
 ```
 
-**NÃ£o implementado** para nÃ£o alterar funcionalidade.
+**Não implementado** para não alterar funcionalidade.
 
 ---
 
-## ðŸ“ˆ MÃ‰TRICAS DE CARREGAMENTO
+## 📈 MÉTRICAS DE CARREGAMENTO
 
 ### Estimativa de First Paint
 
@@ -100,22 +100,22 @@ if ('serviceWorker' in navigator) {
 | IndexedDB init  | ~100ms     |
 | **Interactive** | **~950ms** |
 
-### AvaliaÃ§Ã£o: âœ… BOM
+### Avaliação: ✅ BOM
 
-Tempo de carregamento estÃ¡ dentro do aceitÃ¡vel para aplicaÃ§Ã£o web.
+Tempo de carregamento está dentro do aceitável para aplicação web.
 
 ---
 
-## ðŸ”’ ESTABILIDADE
+## 🔒 ESTABILIDADE
 
 ### Error Handling
 
 1. **platform-core.js**
    - Carrega primeiro
    - Detecta ambiente (server/file)
-   - ExpÃµe `window.SINGEMPlatform`
+   - Expõe `window.SINGEMPlatform`
 
-2. **Try-catch em operaÃ§Ãµes crÃ­ticas**
+2. **Try-catch em operações críticas**
    - IndexedDB operations
    - File System API
    - PDF parsing
@@ -131,25 +131,25 @@ Tempo de carregamento estÃ¡ dentro do aceitÃ¡vel para aplicaÃ§Ã£o web.
 | --------------- | -------------------- |
 | File System API | localStorage         |
 | IndexedDB       | Mensagem de erro     |
-| PDF parsing     | MÃ©todo alternativo |
+| PDF parsing     | Método alternativo |
 | API externa     | Modo demo/mock       |
 
 ---
 
-## âœ… CONCLUSÃƒO
+## ✅ CONCLUSÃO
 
-O projeto estÃ¡ **otimizado adequadamente** para o caso de uso:
+O projeto está **otimizado adequadamente** para o caso de uso:
 
-- âœ… Scripts com `defer`
-- âœ… ES Modules para cÃ³digo principal
-- âœ… CDN para bibliotecas externas
-- âœ… Error handling adequado
-- âœ… Fallbacks implementados
+- ✅ Scripts com `defer`
+- ✅ ES Modules para código principal
+- ✅ CDN para bibliotecas externas
+- ✅ Error handling adequado
+- ✅ Fallbacks implementados
 
-### OtimizaÃ§Ãµes futuras (opcionais)
+### Otimizações futuras (opcionais)
 
-1. **Lazy loading de ZXing** - Carregar sÃ³ quando usar scanner
+1. **Lazy loading de ZXing** - Carregar só quando usar scanner
 2. **Code splitting** - Dividir app.js em chunks menores
 3. **Registrar Service Worker** - Para cache offline
 
-**NÃ£o implementadas agora** para manter estabilidade.
+**Não implementadas agora** para manter estabilidade.

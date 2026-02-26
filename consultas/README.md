@@ -1,47 +1,47 @@
-﻿# ðŸ” Consultas Diversas
+# 🔍 Consultas Diversas
 
-MÃ³dulo de consulta aos Dados Abertos do Compras.gov.br
+Módulo de consulta aos Dados Abertos do Compras.gov.br
 
-## ðŸš€ Acesso RÃ¡pido
+## 🚀 Acesso Rápido
 
 Abra `index.html` em um navegador ou clique no card "Consultas Diversas" na tela inicial do SINGEM.
 
-## ðŸ“š Datasets DisponÃ­veis
+## 📚 Datasets Disponíveis
 
-1. **CatÃ¡logo â€“ Material** - Itens CATMAT
-2. **CatÃ¡logo â€“ ServiÃ§o** - Itens CATSER
+1. **Catálogo – Material** - Itens CATMAT
+2. **Catálogo – Serviço** - Itens CATSER
 3. **UASG** - Unidades administrativas
-4. **ARP â€“ Itens** - Atas de Registro de PreÃ§os
-5. **ContrataÃ§Ãµes PNCP** - Lei 14.133/2021
-6. **Legado â€“ LicitaÃ§Ãµes** - Sistema antigo
-7. **Legado â€“ Itens** - Itens de licitaÃ§Ãµes legado
+4. **ARP – Itens** - Atas de Registro de Preços
+5. **Contratações PNCP** - Lei 14.133/2021
+6. **Legado – Licitações** - Sistema antigo
+7. **Legado – Itens** - Itens de licitações legado
 
-## ðŸŽ¯ Recursos
+## 🎯 Recursos
 
-- âœ… Filtros dinÃ¢micos por dataset
-- âœ… PaginaÃ§Ã£o automÃ¡tica
-- âœ… Cache de 5 minutos
-- âœ… ExportaÃ§Ã£o CSV
-- âœ… VisualizaÃ§Ã£o JSON completa
-- âœ… Retry automÃ¡tico em erros
-- âœ… Interface responsiva
+- ✅ Filtros dinâmicos por dataset
+- ✅ Paginação automática
+- ✅ Cache de 5 minutos
+- ✅ Exportação CSV
+- ✅ Visualização JSON completa
+- ✅ Retry automático em erros
+- ✅ Interface responsiva
 
-## ðŸ“– DocumentaÃ§Ã£o Completa
+## 📖 Documentação Completa
 
-Veja `/docs/CONSULTAS_DIVERSAS.md` para documentaÃ§Ã£o detalhada com exemplos e troubleshooting.
+Veja `/docs/CONSULTAS_DIVERSAS.md` para documentação detalhada com exemplos e troubleshooting.
 
-## ðŸŒ API
+## 🌐 API
 
 Base URL: `https://dadosabertos.compras.gov.br`
 
-DocumentaÃ§Ã£o oficial: https://dadosabertos.compras.gov.br/swagger-ui/index.html
+Documentação oficial: https://dadosabertos.compras.gov.br/swagger-ui/index.html
 
-## ðŸ’¡ Exemplos
+## 💡 Exemplos
 
 ### Buscar materiais por grupo
 
-1. Selecione "CatÃ¡logo â€“ Material"
-2. CÃ³digo do Grupo: `1`
+1. Selecione "Catálogo – Material"
+2. Código do Grupo: `1`
 3. Clique em "Buscar"
 
 ### Buscar UASG na Bahia

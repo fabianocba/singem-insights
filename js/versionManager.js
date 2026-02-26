@@ -1,4 +1,4 @@
-﻿import { APP_VERSION, APP_BUILD, VERSION_DISPLAY } from './core/version.js';
+import { APP_VERSION, APP_BUILD, VERSION_DISPLAY } from './core/version.js';
 import { initVersionFooter } from './core/version-footer.js';
 
 const RELOAD_KEY = 'singem:swReloadedAt';

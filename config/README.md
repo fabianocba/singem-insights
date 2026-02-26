@@ -1,67 +1,67 @@
-﻿# âš™ï¸ ConfiguraÃ§Ãµes - SINGEM
+# ⚙️ Configurações - SINGEM
 
-Esta pasta contÃ©m arquivos de configuraÃ§Ã£o do sistema.
+Esta pasta contém arquivos de configuração do sistema.
 
 ---
 
-## ðŸ“„ Arquivos
+## 📄 Arquivos
 
 ### `configuracoes.html`
 
-**DescriÃ§Ã£o:** Interface de configuraÃ§Ãµes do sistema  
+**Descrição:** Interface de configurações do sistema  
 **Acesso:**
 
-- Pelo sistema: Clique no Ã­cone de engrenagem (âš™ï¸) no canto superior direito
+- Pelo sistema: Clique no ícone de engrenagem (⚙️) no canto superior direito
 - Direto: Abra este arquivo no navegador
-- Via cÃ³digo: `window.open("config/configuracoes.html", "_blank")`
+- Via código: `window.open("config/configuracoes.html", "_blank")`
 
 **Funcionalidades:**
 
-- ðŸ¢ Unidade OrÃ§amentÃ¡ria (CNPJ, RazÃ£o Social)
-- ðŸ‘¥ UsuÃ¡rios e AutenticaÃ§Ã£o
-- ðŸŒ Rede/LAN (Compartilhamento)
-- ðŸŽ¨ PreferÃªncias (Tema, TolerÃ¢ncias, Backup)
+- 🏢 Unidade Orçamentária (CNPJ, Razão Social)
+- 👥 Usuários e Autenticação
+- 🌐 Rede/LAN (Compartilhamento)
+- 🎨 Preferências (Tema, Tolerâncias, Backup)
 
 ### `SINGEM.code-workspace`
 
-**DescriÃ§Ã£o:** ConfiguraÃ§Ã£o do workspace do VS Code  
-**Uso:** Abra este arquivo no VS Code para carregar o projeto com as configuraÃ§Ãµes ideais
+**Descrição:** Configuração do workspace do VS Code  
+**Uso:** Abra este arquivo no VS Code para carregar o projeto com as configurações ideais
 
 **Funcionalidades:**
 
-- ConfiguraÃ§Ãµes especÃ­ficas do projeto
-- ExtensÃµes recomendadas
-- FormataÃ§Ã£o automÃ¡tica
+- Configurações específicas do projeto
+- Extensões recomendadas
+- Formatação automática
 - Linting
 
 ---
 
-## ðŸ” SeguranÃ§a
+## 🔐 Segurança
 
-### Sistema de PermissÃµes
+### Sistema de Permissões
 
-O mÃ³dulo de configuraÃ§Ãµes implementa controle de acesso:
+O módulo de configurações implementa controle de acesso:
 
 - **Administrador:** Acesso total
-- **UsuÃ¡rio comum:** Acesso restrito (apenas visualizaÃ§Ã£o de alguns mÃ³dulos)
+- **Usuário comum:** Acesso restrito (apenas visualização de alguns módulos)
 
-### AutenticaÃ§Ã£o
+### Autenticação
 
 - Senhas armazenadas com hash PBKDF2-SHA256
-- ValidaÃ§Ã£o de CNPJ integrada
-- UsuÃ¡rios vinculados Ã  unidade orÃ§amentÃ¡ria
+- Validação de CNPJ integrada
+- Usuários vinculados à unidade orçamentária
 
 ---
 
-## ðŸ“š DocumentaÃ§Ã£o
+## 📚 Documentação
 
 Para mais detalhes, consulte:
 
-- `docs/CONFIGURACOES.md` - DocumentaÃ§Ã£o completa
-- `docs/implementacao/RESTRICOES_SEGURANCA.md` - Sistema de permissÃµes
-- `docs/implementacao/IMPLEMENTACAO_CONFIGURACOES.md` - Detalhes tÃ©cnicos
+- `docs/CONFIGURACOES.md` - Documentação completa
+- `docs/implementacao/RESTRICOES_SEGURANCA.md` - Sistema de permissões
+- `docs/implementacao/IMPLEMENTACAO_CONFIGURACOES.md` - Detalhes técnicos
 
 ---
 
-**Ãšltima atualizaÃ§Ã£o:** 03/11/2025  
-**VersÃ£o:** 1.2.1
+**Última atualização:** 03/11/2025  
+**Versão:** 1.2.1

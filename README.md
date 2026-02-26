@@ -1,4 +1,4 @@
-﻿# Sistema de Controle de Material - IF Baiano
+# Sistema de Controle de Material - IF Baiano
 
 **VersÃ£o:** 1.4.0-20250117 ðŸ†•  
 **Status:** âœ… EstÃ¡vel | ðŸ›¡ï¸ Hardened | âš¡ Otimizado | ðŸš€ Enterprise

@@ -1,283 +1,283 @@
-﻿# Estrutura do Projeto SINGEM# ðŸ“ ESTRUTURA E ORGANIZAÃ‡ÃƒO DO PROJETO SINGEM
+# Estrutura do Projeto SINGEM# 📐 ESTRUTURA E ORGANIZAÇÃO DO PROJETO SINGEM
 
-## ðŸ“ Estrutura da Raiz**Ãšltima atualizaÃ§Ã£o:** 04/11/2025
+## 📁 Estrutura da Raiz**Última atualização:** 04/11/2025
 
-**VersÃ£o:** 1.2.5
+**Versão:** 1.2.5
 
-### Arquivos Mantidos na Raiz (Arquivos PadrÃ£o)
+### Arquivos Mantidos na Raiz (Arquivos Padrão)
 
 ---
 
 `````
 
-SINGEM/## ðŸ“ Hierarquia de Pastas
+SINGEM/## 📁 Hierarquia de Pastas
 
-â”œâ”€â”€ .editorconfig            âœ… ConfiguraÃ§Ã£o de editor
+├── .editorconfig            ✅ Configuração de editor
 
-â”œâ”€â”€ .eslintrc.json           âœ… ConfiguraÃ§Ã£o de linting```
+├── .eslintrc.json           ✅ Configuração de linting```
 
-â”œâ”€â”€ .gitignore               âœ… Arquivos ignorados pelo GitD:\SINGEM/
+├── .gitignore               ✅ Arquivos ignorados pelo GitD:\SINGEM/
 
-â”œâ”€â”€ .htaccess                âœ… ConfiguraÃ§Ã£o de servidor Apacheâ”‚
+├── .htaccess                ✅ Configuração de servidor Apache│
 
-â”œâ”€â”€ .prettierignore          âœ… Arquivos ignorados pelo Prettierâ”œâ”€â”€ ðŸ“„ index.html                    # PÃ¡gina principal do sistema
+├── .prettierignore          ✅ Arquivos ignorados pelo Prettier├── 📄 index.html                    # Página principal do sistema
 
-â”œâ”€â”€ .prettierrc.json         âœ… ConfiguraÃ§Ã£o de formataÃ§Ã£oâ”œâ”€â”€ ðŸ“„ abrir.ps1                     # Script de inicializaÃ§Ã£o rÃ¡pida
+├── .prettierrc.json         ✅ Configuração de formatação├── 📄 abrir.ps1                     # Script de inicialização rápida
 
-â”œâ”€â”€ CHANGELOG.md             âœ… HistÃ³rico de mudanÃ§asâ”œâ”€â”€ ðŸ“„ README.md                     # DocumentaÃ§Ã£o principal
+├── CHANGELOG.md             ✅ Histórico de mudanças├── 📄 README.md                     # Documentação principal
 
-â”œâ”€â”€ index.html               âœ… Ponto de entrada da aplicaÃ§Ã£oâ”œâ”€â”€ ðŸ“„ CHANGELOG.md                  # HistÃ³rico de mudanÃ§as
+├── index.html               ✅ Ponto de entrada da aplicação├── 📄 CHANGELOG.md                  # Histórico de mudanças
 
-â”œâ”€â”€ package.json             âœ… DependÃªncias e scripts NPMâ”œâ”€â”€ ðŸ“„ reset-singem.js               # Reset do sistema
+├── package.json             ✅ Dependências e scripts NPM├── 📄 reset-singem.js               # Reset do sistema
 
-â”œâ”€â”€ package-lock.json        âœ… Lock de dependÃªnciasâ”‚
+├── package-lock.json        ✅ Lock de dependências│
 
-â”œâ”€â”€ README.md                âœ… DocumentaÃ§Ã£o principalâ”œâ”€â”€ ðŸ“‚ .vscode/                      # ConfiguraÃ§Ãµes do VS Code
+├── README.md                ✅ Documentação principal├── 📂 .vscode/                      # Configurações do VS Code
 
-â”œâ”€â”€ sw.js                    âœ… Service Workerâ”‚   â””â”€â”€ tasks.json                   # Tasks automatizadas
+├── sw.js                    ✅ Service Worker│   └── tasks.json                   # Tasks automatizadas
 
-â””â”€â”€ package-lock.json        âœ… Lock de dependÃªnciasâ”‚
+└── package-lock.json        ✅ Lock de dependências│
 
-```â”œâ”€â”€ ðŸ“‚ css/                          # Estilos CSS
+```├── 📂 css/                          # Estilos CSS
 
-â”‚   â”œâ”€â”€ style.css                    # Estilos principais
+│   ├── style.css                    # Estilos principais
 
-### Pastas PadrÃ£oâ”‚   â””â”€â”€ consultas.css                # Estilos mÃ³dulo Consultas
+### Pastas Padrão│   └── consultas.css                # Estilos módulo Consultas
 
-â”‚
+│
 
-```â”œâ”€â”€ ðŸ“‚ js/                           # JavaScript
+```├── 📂 js/                           # JavaScript
 
-SINGEM/â”‚   â”œâ”€â”€ app.js                       # AplicaÃ§Ã£o principal
+SINGEM/│   ├── app.js                       # Aplicação principal
 
-â”œâ”€â”€ .vscode/                 âœ… ConfiguraÃ§Ãµes do VS Codeâ”‚   â”œâ”€â”€ db.js                        # IndexedDB
+├── .vscode/                 ✅ Configurações do VS Code│   ├── db.js                        # IndexedDB
 
-â”œâ”€â”€ audit/                   âœ… RelatÃ³rios de auditoriaâ”‚   â”œâ”€â”€ config.js                    # ConfiguraÃ§Ãµes
+├── audit/                   ✅ Relatórios de auditoria│   ├── config.js                    # Configurações
 
-â”œâ”€â”€ config/                  âœ… Arquivos de configuraÃ§Ã£oâ”‚   â”œâ”€â”€ fsManager.js                 # Gerenciador de arquivos
+├── config/                  ✅ Arquivos de configuração│   ├── fsManager.js                 # Gerenciador de arquivos
 
-â”œâ”€â”€ consultas/               âœ… Queries e consultasâ”‚   â”œâ”€â”€ neParser.js                  # Parser Nota de Empenho
+├── consultas/               ✅ Queries e consultas│   ├── neParser.js                  # Parser Nota de Empenho
 
-â”œâ”€â”€ css/                     âœ… Estilos da aplicaÃ§Ã£oâ”‚   â”œâ”€â”€ neParser.test.js             # Testes do parser
+├── css/                     ✅ Estilos da aplicação│   ├── neParser.test.js             # Testes do parser
 
-â”œâ”€â”€ data/                    âœ… Dados e exemplosâ”‚   â”œâ”€â”€ neParser.examples.js         # Exemplos de NE
+├── data/                    ✅ Dados e exemplos│   ├── neParser.examples.js         # Exemplos de NE
 
-â”œâ”€â”€ docs/                    âœ… DocumentaÃ§Ã£o tÃ©cnicaâ”‚   â”œâ”€â”€ neParserInit.js              # InicializaÃ§Ã£o parser
+├── docs/                    ✅ Documentação técnica│   ├── neParserInit.js              # Inicialização parser
 
-â”‚   â”œâ”€â”€ implementacao/       âœ… Documentos de implementaÃ§Ã£oâ”‚   â”œâ”€â”€ nfeIntegration.js            # IntegraÃ§Ã£o NFe
+│   ├── implementacao/       ✅ Documentos de implementação│   ├── nfeIntegration.js            # Integração NFe
 
-â”‚   â”œâ”€â”€ bugfixes/            âœ… CorreÃ§Ãµes documentadasâ”‚   â”œâ”€â”€ pdfReader.js                 # Leitor de PDF
+│   ├── bugfixes/            ✅ Correções documentadas│   ├── pdfReader.js                 # Leitor de PDF
 
-â”‚   â””â”€â”€ guias/               âœ… Guias de usoâ”‚   â”‚
+│   └── guias/               ✅ Guias de uso│   │
 
-â”œâ”€â”€ img/                     âœ… Imagens e recursos visuaisâ”‚   â”œâ”€â”€ ðŸ“‚ consultas/                # MÃ³dulo Consultas Diversas
+├── img/                     ✅ Imagens e recursos visuais│   ├── 📂 consultas/                # Módulo Consultas Diversas
 
-â”œâ”€â”€ js/                      âœ… CÃ³digo JavaScriptâ”‚   â”‚   â”œâ”€â”€ index.js                 # Entry point
+├── js/                      ✅ Código JavaScript│   │   ├── index.js                 # Entry point
 
-â”‚   â”œâ”€â”€ core/                âœ… MÃ³dulos principaisâ”‚   â”‚   â”œâ”€â”€ apiCompras.js            # Cliente API + fallback
+│   ├── core/                ✅ Módulos principais│   │   ├── apiCompras.js            # Cliente API + fallback
 
-â”‚   â”‚   â”œâ”€â”€ inputValidator.jsâ”‚   â”‚   â”œâ”€â”€ dadosMock.js             # Dados demonstraÃ§Ã£o
+│   │   ├── inputValidator.js│   │   ├── dadosMock.js             # Dados demonstração
 
-â”‚   â”‚   â””â”€â”€ htmlSanitizer.jsâ”‚   â”‚   â”œâ”€â”€ cache.js                 # Sistema de cache
+│   │   └── htmlSanitizer.js│   │   ├── cache.js                 # Sistema de cache
 
-â”‚   â”œâ”€â”€ modules/             âœ… MÃ³dulos de domÃ­nioâ”‚   â”‚   â”œâ”€â”€ mapeadores.js            # NormalizaÃ§Ã£o de dados
+│   ├── modules/             ✅ Módulos de domínio│   │   ├── mapeadores.js            # Normalização de dados
 
-â”‚   â””â”€â”€ utils/               âœ… UtilitÃ¡riosâ”‚   â”‚   â”œâ”€â”€ uiConsultas.js           # Interface do usuÃ¡rio
+│   └── utils/               ✅ Utilitários│   │   ├── uiConsultas.js           # Interface do usuário
 
-â”œâ”€â”€ node_modules/            âœ… DependÃªncias (ignorado pelo Git)â”‚   â”‚   â””â”€â”€ loader.js                # Carregador de mÃ³dulos
+├── node_modules/            ✅ Dependências (ignorado pelo Git)│   │   └── loader.js                # Carregador de módulos
 
-â”œâ”€â”€ scripts/                 âœ… Scripts de automaÃ§Ã£oâ”‚   â”‚
+├── scripts/                 ✅ Scripts de automação│   │
 
-â”‚   â””â”€â”€ util/                âœ… Scripts utilitÃ¡rios (.ps1, etc)â”‚   â””â”€â”€ ðŸ“‚ settings/                 # ConfiguraÃ§Ãµes do sistema
+│   └── util/                ✅ Scripts utilitários (.ps1, etc)│   └── 📂 settings/                 # Configurações do sistema
 
-â”œâ”€â”€ server/                  âœ… CÃ³digo do servidorâ”‚
+├── server/                  ✅ Código do servidor│
 
-â”œâ”€â”€ tests/                   âœ… Testes automatizadosâ”œâ”€â”€ ðŸ“‚ server/                       # Servidor e scripts
+├── tests/                   ✅ Testes automatizados├── 📂 server/                       # Servidor e scripts
 
-â”‚   â”œâ”€â”€ setup.jsâ”‚   â”œâ”€â”€ proxy-server.py              # Servidor Proxy CORS
+│   ├── setup.js│   ├── proxy-server.py              # Servidor Proxy CORS
 
-â”‚   â””â”€â”€ inputValidator.test.jsâ”‚   â”œâ”€â”€ iniciar-proxy.ps1            # InicializaÃ§Ã£o proxy
+│   └── inputValidator.test.js│   ├── iniciar-proxy.ps1            # Inicialização proxy
 
-â””â”€â”€ testes/                  âœ… Testes manuais (HTML)â”‚   â””â”€â”€ servidor.ps1                 # Servidor HTTP simples
+└── testes/                  ✅ Testes manuais (HTML)│   └── servidor.ps1                 # Servidor HTTP simples
 
-```â”‚
+```│
 
-â”œâ”€â”€ ðŸ“‚ scripts/                      # Scripts auxiliares
+├── 📂 scripts/                      # Scripts auxiliares
 
-## ðŸ“‹ ConvenÃ§Ãµes de OrganizaÃ§Ã£oâ”‚   â””â”€â”€ abrir-aplicacao.ps1          # Abertura da aplicaÃ§Ã£o
+## 📋 Convenções de Organização│   └── abrir-aplicacao.ps1          # Abertura da aplicação
 
-â”‚
+│
 
-### âœ… O que deve ficar na Raizâ”œâ”€â”€ ðŸ“‚ testes/                       # Arquivos de teste
+### ✅ O que deve ficar na Raiz├── 📂 testes/                       # Arquivos de teste
 
-â”‚   â”œâ”€â”€ teste-api-compras.html       # DiagnÃ³stico API
+│   ├── teste-api-compras.html       # Diagnóstico API
 
-1. **Arquivos de ConfiguraÃ§Ã£o PadrÃ£o**:â”‚   â”œâ”€â”€ teste-clique.html            # Teste de eventos
+1. **Arquivos de Configuração Padrão**:│   ├── teste-clique.html            # Teste de eventos
 
-   - `.editorconfig`, `.eslintrc.json`, `.prettierrc.json`â”‚   â”œâ”€â”€ teste-consultas.js           # Teste consultas
+   - `.editorconfig`, `.eslintrc.json`, `.prettierrc.json`│   ├── teste-consultas.js           # Teste consultas
 
-   - `.gitignore`, `.htaccess`â”‚   â””â”€â”€ teste-simples.html           # Teste bÃ¡sico
+   - `.gitignore`, `.htaccess`│   └── teste-simples.html           # Teste básico
 
-   - `package.json`, `package-lock.json`â”‚
+   - `package.json`, `package-lock.json`│
 
-â”œâ”€â”€ ðŸ“‚ data/                         # Dados do sistema
+├── 📂 data/                         # Dados do sistema
 
-2. **Arquivos de DocumentaÃ§Ã£o Principal**:â”‚   â”œâ”€â”€ exemplos.json                # Exemplos de dados
+2. **Arquivos de Documentação Principal**:│   ├── exemplos.json                # Exemplos de dados
 
-   - `README.md` - DocumentaÃ§Ã£o principal do projetoâ”‚   â””â”€â”€ README.md                    # DocumentaÃ§Ã£o de dados
+   - `README.md` - Documentação principal do projeto│   └── README.md                    # Documentação de dados
 
-   - `CHANGELOG.md` - HistÃ³rico de versÃµes e mudanÃ§asâ”‚
+   - `CHANGELOG.md` - Histórico de versões e mudanças│
 
-â”œâ”€â”€ ðŸ“‚ docs/                         # DocumentaÃ§Ã£o
+├── 📂 docs/                         # Documentação
 
-3. **Arquivos de Entrada**:â”‚   â”œâ”€â”€ NE_PARSER.md                 # Doc parser NE
+3. **Arquivos de Entrada**:│   ├── NE_PARSER.md                 # Doc parser NE
 
-   - `index.html` - Ponto de entrada da aplicaÃ§Ã£oâ”‚   â”œâ”€â”€ PADRONIZACAO_NF.md           # PadrÃµes NF
+   - `index.html` - Ponto de entrada da aplicação│   ├── PADRONIZACAO_NF.md           # Padrões NF
 
-   - `sw.js` - Service Worker para PWAâ”‚   â”œâ”€â”€ GUIA_RAPIDO_NE.md            # Guia rÃ¡pido NE
+   - `sw.js` - Service Worker para PWA│   ├── GUIA_RAPIDO_NE.md            # Guia rápido NE
 
-â”‚   â””â”€â”€ NE_PARSER.md                # Parser de NE
+│   └── NE_PARSER.md                # Parser de NE
 
-### âŒ O que deve ser movido para Subpastasâ”‚
+### ❌ O que deve ser movido para Subpastas│
 
-â”œâ”€â”€ ðŸ“‚ img/                          # Imagens e Ã­cones
+├── 📂 img/                          # Imagens e ícones
 
-1. **DocumentaÃ§Ã£o TÃ©cnica** â†’ `docs/`:â”‚
+1. **Documentação Técnica** → `docs/`:│
 
-   - ImplementaÃ§Ãµes: `ADEQUACAO_*.md`, `IMPLEMENTACAO_*.md` â†’ `docs/implementacao/`â”œâ”€â”€ ðŸ“‚ config/                       # Arquivos de configuraÃ§Ã£o
+   - Implementações: `ADEQUACAO_*.md`, `IMPLEMENTACAO_*.md` → `docs/implementacao/`├── 📂 config/                       # Arquivos de configuração
 
-   - CorreÃ§Ãµes: `BUGFIX_*.md` â†’ `docs/bugfixes/`â”‚
+   - Correções: `BUGFIX_*.md` → `docs/bugfixes/`│
 
-   - Guias: `GUIA_*.md` â†’ `docs/guias/`â””â”€â”€ ðŸ“‚ consultas/                    # Dados de consultas (cache)
+   - Guias: `GUIA_*.md` → `docs/guias/`└── 📂 consultas/                    # Dados de consultas (cache)
 
-   - RelatÃ³rios: `*_REPORT.md`, `DIAGNOSTICO_*.md` â†’ `docs/````
+   - Relatórios: `*_REPORT.md`, `DIAGNOSTICO_*.md` → `docs/````
 
 
 
-2. **Scripts Auxiliares** â†’ `scripts/util/`:---
+2. **Scripts Auxiliares** → `scripts/util/`:---
 
    - Scripts PowerShell: `*.ps1`
 
-   - Scripts de reset/manutenÃ§Ã£o: `reset-singem.js`## ðŸŽ¯ PropÃ³sito de Cada Pasta
+   - Scripts de reset/manutenção: `reset-singem.js`## 🎯 Propósito de Cada Pasta
 
 
 
-3. **RelatÃ³rios Gerados** â†’ `docs/`:### ðŸ“‚ Raiz (`/`)
+3. **Relatórios Gerados** → `docs/`:### 📂 Raiz (`/`)
 
-   - RelatÃ³rios de manutenÃ§Ã£o ativos em `docs/`
+   - Relatórios de manutenção ativos em `docs/`
 
-   - Outputs de anÃ¡lise automÃ¡tica**Arquivos essenciais de inicializaÃ§Ã£o e documentaÃ§Ã£o**
+   - Outputs de análise automática**Arquivos essenciais de inicialização e documentação**
 
 
 
-4. **DocumentaÃ§Ã£o Duplicada**:- `index.html` - PÃ¡gina Ãºnica do sistema (SPA)
+4. **Documentação Duplicada**:- `index.html` - Página única do sistema (SPA)
 
-   - `README_V2.md` â†’ `docs/`- `abrir.ps1` - Atalho para iniciar servidor + navegador
+   - `README_V2.md` → `docs/`- `abrir.ps1` - Atalho para iniciar servidor + navegador
 
-- `README.md` - DocumentaÃ§Ã£o completa
+- `README.md` - Documentação completa
 
-## ðŸ§ª Scripts NPM DisponÃ­veis- `CHANGELOG.md` - HistÃ³rico de versÃµes
+## 🧪 Scripts NPM Disponíveis- `CHANGELOG.md` - Histórico de versões
 
-- `reset-singem.js` - UtilitÃ¡rio de reset
+- `reset-singem.js` - Utilitário de reset
 
 ### Scripts de Qualidade
 
 ```bash
-# Ver scripts disponÃ­veis
+# Ver scripts disponíveis
 npm run
 
 # Lint
 npm run lint
 
-# FormataÃ§Ã£o
+# Formatação
 npm run format
 
-# Scan de arquivos potencialmente Ã³rfÃ£os
+# Scan de arquivos potencialmente órfãos
 npm run scan:orphans
 `````
 
-### ðŸ“‚ `/css`
+### 📂 `/css`
 
 - `style.css` - Estilos base do sistema
-- `consultas.css` - Estilos do mÃ³dulo Consultas Diversas
+- `consultas.css` - Estilos do módulo Consultas Diversas
 
-### ðŸ“‚ `/js`
+### 📂 `/js`
 
-**LÃ³gica JavaScript principal**
+**Lógica JavaScript principal**
 
-- `app.js` - InicializaÃ§Ã£o e coordenaÃ§Ã£o geral
+- `app.js` - Inicialização e coordenação geral
 - `db.js` - Camada de acesso ao IndexedDB
-- `config.js` - Constantes e configuraÃ§Ãµes
+- `config.js` - Constantes e configurações
 
 **Parser de NE:**
 
-### Qualidade de CÃ³digo
+### Qualidade de Código
 
-- `neParser.js` - LÃ³gica de parsing
+- `neParser.js` - Lógica de parsing
 
-```bash- `neParser.test.js` - Testes unitÃ¡rios
+```bash- `neParser.test.js` - Testes unitários
 
 # Executar linting- `neParser.examples.js` - Casos de teste
 
-npm run lint- `neParserInit.js` - InicializaÃ§Ã£o
+npm run lint- `neParserInit.js` - Inicialização
 
-# Corrigir problemas de linting automaticamente**IntegraÃ§Ãµes:**
+# Corrigir problemas de linting automaticamente**Integrações:**
 
 npm run lint:fix
 
 - `nfeIntegration.js` - API NFe
 
-# Formatar cÃ³digo com Prettier- `pdfReader.js` - Leitura de PDFs
+# Formatar código com Prettier- `pdfReader.js` - Leitura de PDFs
 
 npm run format
 
-### ðŸ“‚ `/js/consultas`
+### 📂 `/js/consultas`
 
-# Verificar formataÃ§Ã£o sem modificar
+# Verificar formatação sem modificar
 
-npm run format:check**MÃ³dulo de Consultas Diversas (API Compras.gov.br)**
+npm run format:check**Módulo de Consultas Diversas (API Compras.gov.br)**
 
-# AnÃ¡lise de qualidade completa**Arquitetura:**
+# Análise de qualidade completa**Arquitetura:**
 
 npm run quality
 
 ````
 
-index.js â”€â”€â”
+index.js ──┐
 
-### Desenvolvimento           â”œâ”€â†’ apiCompras.js â”€â”€â†’ dadosMock.js (fallback)
+### Desenvolvimento           ├─→ apiCompras.js ──→ dadosMock.js (fallback)
 
-           â”œâ”€â†’ cache.js
+           ├─→ cache.js
 
-```bash           â”œâ”€â†’ mapeadores.js
+```bash           ├─→ mapeadores.js
 
-# Iniciar servidor de desenvolvimento           â””â”€â†’ uiConsultas.js
+# Iniciar servidor de desenvolvimento           └─→ uiConsultas.js
 
 npm run dev```
 
 
 
-# Build para produÃ§Ã£o**Responsabilidades:**
+# Build para produção**Responsabilidades:**
 
 npm run build
 
-- `index.js` - Ponto de entrada, exporta API pÃºblica
+- `index.js` - Ponto de entrada, exporta API pública
 
-# Preview da build de produÃ§Ã£o- `apiCompras.js` - Cliente HTTP com retry e fallback
+# Preview da build de produção- `apiCompras.js` - Cliente HTTP com retry e fallback
 
-npm run preview- `dadosMock.js` - Dados de demonstraÃ§Ã£o (modo offline)
+npm run preview- `dadosMock.js` - Dados de demonstração (modo offline)
 
-```- `cache.js` - Armazenamento temporÃ¡rio de resultados
+```- `cache.js` - Armazenamento temporário de resultados
 
-- `mapeadores.js` - NormalizaÃ§Ã£o de formatos da API
+- `mapeadores.js` - Normalização de formatos da API
 
-### SeguranÃ§a- `uiConsultas.js` - RenderizaÃ§Ã£o de interface
+### Segurança- `uiConsultas.js` - Renderização de interface
 
-- `loader.js` - Carregamento dinÃ¢mico de mÃ³dulos
+- `loader.js` - Carregamento dinâmico de módulos
 
 ```bash
 
-# Auditoria de seguranÃ§a de dependÃªncias### ðŸ“‚ `/server`
+# Auditoria de segurança de dependências### 📂 `/server`
 
 npm audit
 
@@ -287,221 +287,221 @@ npm audit
 
 npm audit fix- `proxy-server.py` - Servidor Python com proxy CORS
 
-- `iniciar-proxy.ps1` - Script de inicializaÃ§Ã£o automatizada
+- `iniciar-proxy.ps1` - Script de inicialização automatizada
 
-# AnÃ¡lise de seguranÃ§a do cÃ³digo- `servidor.ps1` - Servidor HTTP bÃ¡sico (fallback)
+# Análise de segurança do código- `servidor.ps1` - Servidor HTTP básico (fallback)
 
 npm run security-audit
 
-```**FunÃ§Ã£o do Proxy:**
+```**Função do Proxy:**
 
 
 
-## ðŸ”’ MÃ³dulos de SeguranÃ§a1. Serve arquivos estÃ¡ticos (HTML, CSS, JS)
+## 🔒 Módulos de Segurança1. Serve arquivos estáticos (HTML, CSS, JS)
 
-2. Intercepta `/api/*` â†’ redireciona para API externa
+2. Intercepta `/api/*` → redireciona para API externa
 
 ### InputValidator (`js/core/inputValidator.js`)3. Adiciona headers CORS
 
 4. Retorna dados ao navegador
 
-ValidaÃ§Ã£o de dados de entrada com proteÃ§Ã£o contra injeÃ§Ã£o e manipulaÃ§Ã£o.
+Validação de dados de entrada com proteção contra injeção e manipulação.
 
-### ðŸ“‚ `/scripts`
+### 📂 `/scripts`
 
-**MÃ©todos Principais**:
+**Métodos Principais**:
 
-- `validateCNPJ(cnpj)` - ValidaÃ§Ã£o completa de CNPJ**Scripts PowerShell auxiliares**
+- `validateCNPJ(cnpj)` - Validação completa de CNPJ**Scripts PowerShell auxiliares**
 
-- `validateEmpenho(data)` - ValidaÃ§Ã£o de dados de empenho
+- `validateEmpenho(data)` - Validação de dados de empenho
 
-- `validateNotaFiscal(data)` - ValidaÃ§Ã£o de nota fiscal- `abrir-aplicacao.ps1` - Abertura completa do sistema
+- `validateNotaFiscal(data)` - Validação de nota fiscal- `abrir-aplicacao.ps1` - Abertura completa do sistema
 
-- `validatePDFFile(file)` - ValidaÃ§Ã£o de arquivos PDF
+- `validatePDFFile(file)` - Validação de arquivos PDF
 
-- `sanitizeString(str)` - SanitizaÃ§Ã£o de strings### ðŸ“‚ `/testes`
+- `sanitizeString(str)` - Sanitização de strings### 📂 `/testes`
 
-- `validateCredentials(username, password)` - ValidaÃ§Ã£o de credenciais
+- `validateCredentials(username, password)` - Validação de credenciais
 
-**Arquivos de teste e diagnÃ³stico**
+**Arquivos de teste e diagnóstico**
 
 **Testes**: 32 testes implementados (100% passing)
 
 - HTML de testes isolados
 
-### HTMLSanitizer (`js/core/htmlSanitizer.js`)- Scripts de validaÃ§Ã£o
+### HTMLSanitizer (`js/core/htmlSanitizer.js`)- Scripts de validação
 
-- PÃ¡ginas de diagnÃ³stico
+- Páginas de diagnóstico
 
-PrevenÃ§Ã£o de XSS e sanitizaÃ§Ã£o de conteÃºdo HTML.
+Prevenção de XSS e sanitização de conteúdo HTML.
 
-### ðŸ“‚ `/data`
+### 📂 `/data`
 
-**MÃ©todos Principais**:
+**Métodos Principais**:
 
-- `sanitize(html, options)` - SanitizaÃ§Ã£o completa de HTML**Dados do sistema**
+- `sanitize(html, options)` - Sanitização completa de HTML**Dados do sistema**
 
-- `createElement(tagName, options)` - CriaÃ§Ã£o segura de elementos
+- `createElement(tagName, options)` - Criação segura de elementos
 
-- `_sanitizeURL(url)` - ValidaÃ§Ã£o e sanitizaÃ§Ã£o de URLs- Exemplos de NE, NFe
+- `_sanitizeURL(url)` - Validação e sanitização de URLs- Exemplos de NE, NFe
 
-- `_isHTMLString(str)` - DetecÃ§Ã£o de strings HTML- Schemas JSON
+- `_isHTMLString(str)` - Detecção de strings HTML- Schemas JSON
 
 - Dados de seed
 
-**ProteÃ§Ãµes**:
+**Proteções**:
 
-- XSS via atributos HTML### ðŸ“‚ `/docs`
+- XSS via atributos HTML### 📂 `/docs`
 
 - JavaScript injection em URLs
 
-- Data URIs maliciosos**DocumentaÃ§Ã£o tÃ©cnica**
+- Data URIs maliciosos**Documentação técnica**
 
 - Event handlers perigosos
 
 - Guias de uso
 
-## ðŸ“Š Estado Atual do Projeto- EspecificaÃ§Ãµes de parser
+## 📊 Estado Atual do Projeto- Especificações de parser
 
-- PadrÃµes de validaÃ§Ã£o
+- Padrões de validação
 
-### Fase 1: Estrutura Base âœ… COMPLETA
+### Fase 1: Estrutura Base ✅ COMPLETA
 
-- Sistema de gestÃ£o de empenhos---
+- Sistema de gestão de empenhos---
 
 - Parser de Notas de Empenho (NE)
 
-- IntegraÃ§Ã£o com SIASG## ðŸ”„ Fluxo de InicializaÃ§Ã£o
+- Integração com SIASG## 🔄 Fluxo de Inicialização
 
 
 
-### Fase 2: SeguranÃ§a e ValidaÃ§Ã£o âœ… 100% COMPLETA```
+### Fase 2: Segurança e Validação ✅ 100% COMPLETA```
 
-- âœ… InputValidator integrado em 3 formulÃ¡riosUsuÃ¡rio executa: .\abrir.ps1
+- ✅ InputValidator integrado em 3 formuláriosUsuário executa: .\abrir.ps1
 
-- âœ… HTMLSanitizer implementado        â†“
+- ✅ HTMLSanitizer implementado        ↓
 
-- âœ… ProteÃ§Ã£o XSS e injectionRedireciona para: .\server\iniciar-proxy.ps1
+- ✅ Proteção XSS e injectionRedireciona para: .\server\iniciar-proxy.ps1
 
-- âœ… ValidaÃ§Ã£o de CNPJ, valores, arquivos        â†“
+- ✅ Validação de CNPJ, valores, arquivos        ↓
 
 1. Detecta Python instalado
 
-### Fase 3: Testes Automatizados âœ… 100% COMPLETA2. Verifica porta 8000 livre
+### Fase 3: Testes Automatizados ✅ 100% COMPLETA2. Verifica porta 8000 livre
 
-- âœ… Vitest configurado3. Inicia proxy-server.py em background
+- ✅ Vitest configurado3. Inicia proxy-server.py em background
 
-- âœ… 32 testes implementados (100% passing)4. Aguarda 3 segundos
+- ✅ 32 testes implementados (100% passing)4. Aguarda 3 segundos
 
-- âœ… Cobertura de cÃ³digo habilitada5. Abre navegador em http://localhost:8000/index.html
+- ✅ Cobertura de código habilitada5. Abre navegador em http://localhost:8000/index.html
 
-- âœ… Scripts NPM de teste        â†“
+- ✅ Scripts NPM de teste        ↓
 
 Navegador carrega: index.html
 
-### Fase 4: RefatoraÃ§Ã£o de Complexidade âœ… 67% COMPLETA        â†“
+### Fase 4: Refatoração de Complexidade ✅ 67% COMPLETA        ↓
 
-- âœ… processarEmpenhoUpload(): 34 â†’ <15 (RESOLVIDO)1. Carrega CSS (style.css + consultas.css)
+- ✅ processarEmpenhoUpload(): 34 → <15 (RESOLVIDO)1. Carrega CSS (style.css + consultas.css)
 
-- âœ… salvarEmpenho(): 18 â†’ <15 (RESOLVIDO)2. Carrega app.js (inicializaÃ§Ã£o)
+- ✅ salvarEmpenho(): 18 → <15 (RESOLVIDO)2. Carrega app.js (inicialização)
 
-- âš ï¸ salvarNotaFiscal(): 22 â†’ 16 (MELHORADO -27%)3. Carrega mÃ³dulos ES6
+- ⚠️ salvarNotaFiscal(): 22 → 16 (MELHORADO -27%)3. Carrega módulos ES6
 
-- âœ… 10 mÃ©todos auxiliares extraÃ­dos        â†“
+- ✅ 10 métodos auxiliares extraídos        ↓
 
-Sistema pronto! âœ…
+Sistema pronto! ✅
 
-### Fase 5: Observabilidade ðŸ”„ EM PLANEJAMENTO```
+### Fase 5: Observabilidade 🔄 EM PLANEJAMENTO```
 
-- â³ Logger estruturado (Pino)
+- ⏳ Logger estruturado (Pino)
 
-- â³ Trace-ID para operaÃ§Ãµes assÃ­ncronas---
+- ⏳ Trace-ID para operações assíncronas---
 
-- â³ Health checks
+- ⏳ Health checks
 
-## ðŸŒ Fluxo de Dados - Consultas Diversas
+## 🌐 Fluxo de Dados - Consultas Diversas
 
-### Fase 6: Performance ðŸ”„ EM PLANEJAMENTO
+### Fase 6: Performance 🔄 EM PLANEJAMENTO
 
-- â³ Code-splitting de app.js (2945 linhas)```
+- ⏳ Code-splitting de app.js (2945 linhas)```
 
-- â³ Lazy loading de mÃ³dulos pesadosUsuÃ¡rio clica "Buscar"
+- ⏳ Lazy loading de módulos pesadosUsuário clica "Buscar"
 
-- â³ OtimizaÃ§Ã£o de Service Worker        â†“
+- ⏳ Otimização de Service Worker        ↓
 
-- â³ CompressÃ£o de assetsuiConsultas.js â†’ captura evento
+- ⏳ Compressão de assetsuiConsultas.js → captura evento
 
-        â†“
+        ↓
 
-## ðŸ“ˆ MÃ©tricas de QualidadeapiCompras.js â†’ getMateriais()
+## 📈 Métricas de QualidadeapiCompras.js → getMateriais()
 
-        â†“
+        ↓
 
-### Testesâ”Œâ”€â”€â”€ Verifica modo demo? â”€â”€â”€â”
+### Testes┌─── Verifica modo demo? ───┐
 
-- **Total de Testes**: 32â”‚                           â”‚
+- **Total de Testes**: 32│                           │
 
-- **Taxa de AprovaÃ§Ã£o**: 100% (32/32 passing)SIM                        NÃƒO
+- **Taxa de Aprovação**: 100% (32/32 passing)SIM                        NÃO
 
-- **Cobertura de CÃ³digo**: ~40% (meta: 70%)â”‚                           â”‚
+- **Cobertura de Código**: ~40% (meta: 70%)│                           │
 
-- **Tempo de ExecuÃ§Ã£o**: <2sdadosMock.js              fetch('/api/materiais/1')
+- **Tempo de Execução**: <2sdadosMock.js              fetch('/api/materiais/1')
 
-â†“                           â†“
+↓                           ↓
 
 ### LintingRetorna dados mock     proxy-server.py intercepta
 
-- **Problemas Totais**: 131 (reduÃ§Ã£o de 8%)                            â†“
+- **Problemas Totais**: 131 (redução de 8%)                            ↓
 
 - **Erros**: 0                       Redireciona para:
 
 - **Warnings**: 131                       dadosabertos.compras.gov.br
 
-- **Meta**: <100 problemas                            â†“
+- **Meta**: <100 problemas                            ↓
 
-                       â”Œâ”€â”€â”€ API responde? â”€â”€â”€â”
+                       ┌─── API responde? ───┐
 
-### Complexidade                       â”‚                     â”‚
+### Complexidade                       │                     │
 
-- **MÃ©todos com Complexity >15**: 3 (reduÃ§Ã£o de 50%)                      SIM                   NÃƒO
+- **Métodos com Complexity >15**: 3 (redução de 50%)                      SIM                   NÃO
 
-- **processarEmpenhoUpload**: <15 âœ…                       â”‚                     â”‚
+- **processarEmpenhoUpload**: <15 ✅                       │                     │
 
-- **salvarEmpenho**: <15 âœ…                  Retorna dados         Erro 503
+- **salvarEmpenho**: <15 ✅                  Retorna dados         Erro 503
 
-- **salvarNotaFiscal**: 16 âš ï¸ (falta 1 ponto)                       â”‚                     â†“
+- **salvarNotaFiscal**: 16 ⚠️ (falta 1 ponto)                       │                     ↓
 
-                       â”‚              ATIVA MODO DEMO
+                       │              ATIVA MODO DEMO
 
-### SeguranÃ§a                       â”‚                     â†“
+### Segurança                       │                     ↓
 
-- **Score de SeguranÃ§a**: 60%                       â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+- **Score de Segurança**: 60%                       └─────────┬───────────┘
 
-- **ValidaÃ§Ãµes Implementadas**: 6 tipos                                 â†“
+- **Validações Implementadas**: 6 tipos                                 ↓
 
-- **ProteÃ§Ãµes XSS**: Completas                         mapeadores.js â†’ normaliza
+- **Proteções XSS**: Completas                         mapeadores.js → normaliza
 
-- **Vulnerabilidades Conhecidas**: 0                                 â†“
+- **Vulnerabilidades Conhecidas**: 0                                 ↓
 
-                         cache.js â†’ armazena
+                         cache.js → armazena
 
-## ðŸš€ PrÃ³ximos Passos                                 â†“
+## 🚀 Próximos Passos                                 ↓
 
-                         uiConsultas.js â†’ renderiza
+                         uiConsultas.js → renderiza
 
-### Curto Prazo (1 semana)                                 â†“
+### Curto Prazo (1 semana)                                 ↓
 
-1. âœ… Finalizar organizaÃ§Ã£o da raiz                         UsuÃ¡rio vÃª tabela âœ…
+1. ✅ Finalizar organização da raiz                         Usuário vê tabela ✅
 
-2. â³ Aumentar cobertura de testes para 50%```
+2. ⏳ Aumentar cobertura de testes para 50%```
 
-3. â³ Reduzir problemas de lint para <100
+3. ⏳ Reduzir problemas de lint para <100
 
-4. â³ Resolver Ãºltimo ponto de complexity (salvarNotaFiscal)---
+4. ⏳ Resolver último ponto de complexity (salvarNotaFiscal)---
 
 
 
-### MÃ©dio Prazo (2-3 semanas)## ðŸ“¦ DependÃªncias
+### Médio Prazo (2-3 semanas)## 📦 Dependências
 
 1. Adicionar testes para HTMLSanitizer (10 testes)
 
@@ -509,15 +509,15 @@ Sistema pronto! âœ…
 
 3. Implementar logger estruturado (Pino)
 
-4. Criar health checks- **jsPDF** - GeraÃ§Ã£o de PDFs
+4. Criar health checks- **jsPDF** - Geração de PDFs
 
 - **html2canvas** - Captura de tela
 
 ### Longo Prazo (1-2 meses)- Carregadas via `<script>` tags em `index.html`
 
-1. Dividir app.js em mÃ³dulos (<800 linhas cada)
+1. Dividir app.js em módulos (<800 linhas cada)
 
-2. Implementar code-splitting### Internas (MÃ³dulos ES6)
+2. Implementar code-splitting### Internas (Módulos ES6)
 
 3. Otimizar performance (lazy loading)
 
@@ -525,39 +525,39 @@ Sistema pronto! âœ…
 
 - Importados via `import/export`
 
-## ðŸ“š DocumentaÃ§Ã£o Relacionada- Requerem servidor HTTP (nÃ£o funcionam em `file://`)
+## 📚 Documentação Relacionada- Requerem servidor HTTP (não funcionam em `file://`)
 
 
 
-- **Guias de InÃ­cio**: `docs/guias/GUIA_*.md`### Python
+- **Guias de Início**: `docs/guias/GUIA_*.md`### Python
 
-- **ImplementaÃ§Ãµes**: `docs/implementacao/IMPLEMENTACAO_*.md`
+- **Implementações**: `docs/implementacao/IMPLEMENTACAO_*.md`
 
-- **CorreÃ§Ãµes**: `docs/bugfixes/BUGFIX_*.md`- **Python 3.x** - Servidor proxy
+- **Correções**: `docs/bugfixes/BUGFIX_*.md`- **Python 3.x** - Servidor proxy
 
-- **RelatÃ³rios**: `docs/*_REPORT.md`- **Bibliotecas padrÃ£o** (http.server, urllib)
+- **Relatórios**: `docs/*_REPORT.md`- **Bibliotecas padrão** (http.server, urllib)
 
-- **Changelog**: `CHANGELOG.md`- Sem dependÃªncias externas
+- **Changelog**: `CHANGELOG.md`- Sem dependências externas
 
 - **README Principal**: `README.md`
 
 ---
 
-## ðŸ› ï¸ ManutenÃ§Ã£o
+## 🛠️ Manutenção
 
-## ðŸ” SeguranÃ§a
+## 🔐 Segurança
 
-### Atualizar DependÃªncias
+### Atualizar Dependências
 
 ```bash### Dados Locais
 
-npm outdated              # Verificar dependÃªncias desatualizadas
+npm outdated              # Verificar dependências desatualizadas
 
-npm update                # Atualizar dependÃªncias menores- âœ… IndexedDB (navegador)
+npm update                # Atualizar dependências menores- ✅ IndexedDB (navegador)
 
-npm install <pkg>@latest  # Atualizar dependÃªncia especÃ­fica- âœ… Sem servidor externo
+npm install <pkg>@latest  # Atualizar dependência específica- ✅ Sem servidor externo
 
-```- âœ… Sem banco de dados remoto
+```- ✅ Sem banco de dados remoto
 
 
 
@@ -565,23 +565,23 @@ npm install <pkg>@latest  # Atualizar dependÃªncia especÃ­fica- âœ… Sem 
 
 ```bash
 
-npm run clean             # Limpar arquivos de build- âœ… Apenas localhost
+npm run clean             # Limpar arquivos de build- ✅ Apenas localhost
 
-npm run clean:deps        # Remover node_modules- âœ… Porta 8000 (nÃ£o exposta)
+npm run clean:deps        # Remover node_modules- ✅ Porta 8000 (não exposta)
 
-npm run clean:all         # Limpeza completa- âœ… Sem autenticaÃ§Ã£o (uso interno)
+npm run clean:all         # Limpeza completa- ✅ Sem autenticação (uso interno)
 
 ```
 
 ### APIs Externas
 
-### VerificaÃ§Ã£o de SaÃºde
+### Verificação de Saúde
 
-```bash- âœ… API pÃºblica do Compras.gov.br
+```bash- ✅ API pública do Compras.gov.br
 
-npm run health            # Executar checklist de saÃºde- âœ… Sem credenciais necessÃ¡rias
+npm run health            # Executar checklist de saúde- ✅ Sem credenciais necessárias
 
-npm run doctor            # DiagnÃ³stico completo- âœ… Fallback para modo demo
+npm run doctor            # Diagnóstico completo- ✅ Fallback para modo demo
 
 ```
 
@@ -589,22 +589,22 @@ npm run doctor            # DiagnÃ³stico completo- âœ… Fallback para modo 
 
 ---
 
-## ðŸ› ï¸ ManutenÃ§Ã£o
+## 🛠️ Manutenção
 
-**Ãšltima AtualizaÃ§Ã£o**: 2025-01-XX
+**Última Atualização**: 2025-01-XX
 
-**VersÃ£o**: 1.0.0  ### Adicionar Dados Mock
+**Versão**: 1.0.0  ### Adicionar Dados Mock
 
 **Mantido por**: Equipe SINGEM
 
 1. Edite `/js/consultas/dadosMock.js`
-2. Adicione objeto seguindo padrÃ£o API
+2. Adicione objeto seguindo padrão API
 3. Exporte constante
 4. Importe em `apiCompras.js`
 
 ### Adicionar Nova Consulta
 
-1. Adicione funÃ§Ã£o em `apiCompras.js`
+1. Adicione função em `apiCompras.js`
 2. Adicione mapeador em `mapeadores.js`
 3. Adicione UI em `uiConsultas.js`
 4. Adicione card no menu
@@ -612,15 +612,15 @@ npm run doctor            # DiagnÃ³stico completo- âœ… Fallback para modo 
 ### Atualizar Estilos
 
 1. Edite `/css/consultas.css`
-2. FaÃ§a hard refresh (Ctrl+Shift+R)
-3. Ou use modo anÃ´nimo
+2. Faça hard refresh (Ctrl+Shift+R)
+3. Ou use modo anônimo
 
 ---
 
-## ðŸ“Š EstatÃ­sticas do Projeto
+## 📊 Estatísticas do Projeto
 
 ```
-Linhas de cÃ³digo:
+Linhas de código:
 - js/consultas/        ~2.300 linhas
 - js/ (principal)      ~8.000 linhas
 - Total JavaScript     ~10.300 linhas
@@ -638,13 +638,13 @@ Arquivos:
 
 ---
 
-## ðŸš€ PrÃ³ximas Melhorias
+## 🚀 Próximas Melhorias
 
 - [ ] Adicionar mais dados mock
-- [ ] Implementar exportaÃ§Ã£o de resultados
+- [ ] Implementar exportação de resultados
 - [ ] Melhorar sistema de cache
-- [ ] Adicionar filtros avanÃ§ados
-- [ ] Implementar grÃ¡ficos de dados
+- [ ] Adicionar filtros avançados
+- [ ] Implementar gráficos de dados
 - [ ] Documentar API interna
 
 ---

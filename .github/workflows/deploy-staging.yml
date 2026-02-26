@@ -1,4 +1,4 @@
-﻿name: Deploy Hostinger Staging
+name: Deploy Hostinger Staging
 on:
   push:
     branches: [dev, staging]

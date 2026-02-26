@@ -1,31 +1,31 @@
-﻿# ðŸš€ Como Abrir a AplicaÃ§Ã£o SINGEM
+# 🚀 Como Abrir a Aplicação SINGEM
 
-## MÃ©todo 1: Atalho RÃ¡pido (RECOMENDADO) âœ…
+## Método 1: Atalho Rápido (RECOMENDADO) ✅
 
 ### Windows - Arquivo BAT
 
 **Duplo-clique em:** `ABRIR_APLICACAO.bat`
 
-Isso irÃ¡:
+Isso irá:
 
-1. âœ… Verificar se o servidor estÃ¡ rodando
-2. âœ… Abrir o navegador automaticamente
-3. âœ… Mostrar a URL para copiar se necessÃ¡rio
+1. ✅ Verificar se o servidor está rodando
+2. ✅ Abrir o navegador automaticamente
+3. ✅ Mostrar a URL para copiar se necessário
 
 ### Windows - PowerShell
 
-**Clique-direito em:** `ABRIR_APLICACAO.ps1` â†’ "Executar com PowerShell"
+**Clique-direito em:** `ABRIR_APLICACAO.ps1` → "Executar com PowerShell"
 
 ---
 
-## MÃ©todo 2: Via VS Code (AutomÃ¡tico)
+## Método 2: Via VS Code (Automático)
 
 1. Abra a pasta `D:\SINGEM` no VS Code
-2. Permita a execuÃ§Ã£o da task automÃ¡tica quando solicitado
+2. Permita a execução da task automática quando solicitado
 3. O servidor inicia automaticamente
 4. O navegador abre sozinho em http://localhost:8000/index.html
 
-**Se o navegador NÃƒO abrir automaticamente:**
+**Se o navegador NÃO abrir automaticamente:**
 
 - Veja a URL no terminal do VS Code
 - Pressione `Ctrl + Clique` na URL
@@ -33,9 +33,9 @@ Isso irÃ¡:
 
 ---
 
-## MÃ©todo 3: Manual
+## Método 3: Manual
 
-### 1. Iniciar Servidor (se ainda nÃ£o estÃ¡ rodando)
+### 1. Iniciar Servidor (se ainda não está rodando)
 
 ```powershell
 python -m http.server 8000
@@ -53,9 +53,9 @@ start http://localhost:8000/index.html
 
 ---
 
-## MÃ©todo 4: URL Direta no Navegador
+## Método 4: URL Direta no Navegador
 
-Se o servidor JÃ estÃ¡ rodando, simplesmente abra seu navegador e acesse:
+Se o servidor JÁ está rodando, simplesmente abra seu navegador e acesse:
 
 ```
 http://localhost:8000/index.html
@@ -63,14 +63,14 @@ http://localhost:8000/index.html
 
 ---
 
-## ðŸ› SoluÃ§Ã£o de Problemas
+## 🐛 Solução de Problemas
 
 ### Problema: "Servidor NAO esta rodando"
 
-**SoluÃ§Ã£o:**
+**Solução:**
 
 ```powershell
-# Verifique se Python estÃ¡ instalado
+# Verifique se Python está instalado
 python --version
 
 # Inicie o servidor manualmente
@@ -78,9 +78,9 @@ cd D:\SINGEM
 python -m http.server 8000
 ```
 
-### Problema: "Porta 8000 jÃ¡ estÃ¡ em uso"
+### Problema: "Porta 8000 já está em uso"
 
-**SoluÃ§Ã£o:**
+**Solução:**
 
 ```powershell
 # Use outra porta
@@ -89,50 +89,50 @@ python -m http.server 8080
 # Depois acesse: http://localhost:8080/index.html
 ```
 
-### Problema: Navegador nÃ£o abre automaticamente
+### Problema: Navegador não abre automaticamente
 
-**SoluÃ§Ã£o 1:** Use o atalho `ABRIR_APLICACAO.bat`
+**Solução 1:** Use o atalho `ABRIR_APLICACAO.bat`
 
-**SoluÃ§Ã£o 2:** Abra manualmente:
+**Solução 2:** Abra manualmente:
 
 1. Abra seu navegador (Chrome, Edge, Firefox)
-2. Digite na barra de endereÃ§os: `http://localhost:8000/index.html`
+2. Digite na barra de endereços: `http://localhost:8000/index.html`
 3. Pressione Enter
 
-**SoluÃ§Ã£o 3:** Terminal do VS Code
+**Solução 3:** Terminal do VS Code
 
 - Veja o terminal do VS Code
 - Pressione `Ctrl + Clique` na URL mostrada
 
 ---
 
-## ðŸ“‹ Checklist RÃ¡pido
+## 📋 Checklist Rápido
 
-- [ ] Servidor estÃ¡ rodando? (execute `ABRIR_APLICACAO.bat` para verificar)
-- [ ] Python estÃ¡ instalado? (execute `python --version`)
-- [ ] Porta 8000 estÃ¡ livre? (tente acessar http://localhost:8000)
-- [ ] Navegador padrÃ£o configurado? (tente abrir qualquer link)
+- [ ] Servidor está rodando? (execute `ABRIR_APLICACAO.bat` para verificar)
+- [ ] Python está instalado? (execute `python --version`)
+- [ ] Porta 8000 está livre? (tente acessar http://localhost:8000)
+- [ ] Navegador padrão configurado? (tente abrir qualquer link)
 
 ---
 
-## ðŸŽ¯ RecomendaÃ§Ã£o Final
+## 🎯 Recomendação Final
 
-**Forma mais fÃ¡cil de usar:**
+**Forma mais fácil de usar:**
 
 1. **Sempre que for usar o SINGEM:**
    - Duplo-clique em `ABRIR_APLICACAO.bat`
-2. **Se o servidor nÃ£o estiver rodando:**
+2. **Se o servidor não estiver rodando:**
    - Abra a pasta no VS Code (inicia automaticamente)
    - Ou execute: `python -m http.server 8000` em um terminal
 
-3. **Crie um atalho na Ã¡rea de trabalho:**
+3. **Crie um atalho na área de trabalho:**
    - Clique-direito em `ABRIR_APLICACAO.bat`
-   - "Enviar para" â†’ "Ãrea de trabalho (criar atalho)"
-   - Renomeie para "ðŸš€ Abrir SINGEM"
+   - "Enviar para" → "Área de trabalho (criar atalho)"
+   - Renomeie para "🚀 Abrir SINGEM"
 
 ---
 
-## ðŸ’¡ Dicas Extras
+## 💡 Dicas Extras
 
 ### Adicionar aos Favoritos do Navegador
 
@@ -152,7 +152,7 @@ Depois de abrir pela primeira vez, adicione aos favoritos:
 Para abrir automaticamente ao ligar o PC:
 
 1. Pesquise "Agendador de Tarefas"
-2. Criar Tarefa BÃ¡sica
+2. Criar Tarefa Básica
 3. Ao fazer logon
 4. Executar programa: `D:\SINGEM\ABRIR_APLICACAO.bat`
 

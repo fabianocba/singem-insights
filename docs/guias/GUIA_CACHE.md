@@ -1,18 +1,18 @@
-﻿# ðŸ”§ GUIA: Resolver Problema de Cache no SINGEM
+# 🔧 GUIA: Resolver Problema de Cache no SINGEM
 
-## ðŸŽ¯ Problema
+## 🎯 Problema
 
-O navegador estÃ¡ usando **versÃµes antigas dos arquivos JavaScript em cache**, causando erro:
+O navegador está usando **versões antigas dos arquivos JavaScript em cache**, causando erro:
 
 ```
 Cannot read properties of null (reading 'transaction')
 ```
 
-## âœ… SoluÃ§Ã£o Definitiva
+## ✅ Solução Definitiva
 
 ### Passo 1: Parar o Servidor Atual
 
-1. VÃ¡ no terminal onde o servidor estÃ¡ rodando
+1. Vá no terminal onde o servidor está rodando
 2. Pressione **CTRL + C** para parar
 
 ### Passo 2: Iniciar Servidor SEM Cache
@@ -23,15 +23,15 @@ Execute o novo script:
 .\iniciar-servidor-sem-cache.ps1
 ```
 
-Este script inicia o servidor com a opÃ§Ã£o `-c-1` que **desabilita completamente o cache**.
+Este script inicia o servidor com a opção `-c-1` que **desabilita completamente o cache**.
 
 ### Passo 3: Limpar Cache do Navegador
 
-#### OpÃ§Ã£o A - Hard Refresh (RÃ¡pido)
+#### Opção A - Hard Refresh (Rápido)
 
 - Pressione **CTRL + SHIFT + R** (ou **CTRL + F5**)
 
-#### OpÃ§Ã£o B - Limpar Cache Completo (Recomendado)
+#### Opção B - Limpar Cache Completo (Recomendado)
 
 1. Pressione **CTRL + SHIFT + DELETE**
 2. Selecione "Imagens e arquivos em cache"
@@ -40,15 +40,15 @@ Este script inicia o servidor com a opÃ§Ã£o `-c-1` que **desabilita completa
 ### Passo 4: Testar
 
 1. Abra: http://localhost:8000/config/diagnostico-cache.html
-2. Verifique se todos os testes passam âœ…
-3. Se sim, vÃ¡ para: http://localhost:8000/config/configuracoes.html
+2. Verifique se todos os testes passam ✅
+3. Se sim, vá para: http://localhost:8000/config/configuracoes.html
 4. Tente salvar a unidade gestora
 
 ---
 
-## ðŸ” DiagnÃ³stico
+## 🔍 Diagnóstico
 
-Para verificar se o cache estÃ¡ desabilitado:
+Para verificar se o cache está desabilitado:
 
 ```
 http://localhost:8000/config/diagnostico-cache.html
@@ -56,15 +56,15 @@ http://localhost:8000/config/diagnostico-cache.html
 
 Deve mostrar:
 
-- âœ… Cache desabilitado corretamente
-- âœ… window.dbManager estÃ¡ disponÃ­vel
-- âœ… VersÃ£o: 20251105-002
+- ✅ Cache desabilitado corretamente
+- ✅ window.dbManager está disponível
+- ✅ Versão: 20251105-002
 
 ---
 
-## ðŸ“‹ OpÃ§Ãµes do Servidor
+## 📋 Opções do Servidor
 
-### Servidor COM Cache (nÃ£o use para desenvolvimento)
+### Servidor COM Cache (não use para desenvolvimento)
 
 ```powershell
 .\iniciar-servidor.ps1
@@ -76,24 +76,24 @@ Deve mostrar:
 .\iniciar-servidor-sem-cache.ps1
 ```
 
-A diferenÃ§a Ã© a flag `-c-1`:
+A diferença é a flag `-c-1`:
 
 - `-c-1` = Cache desabilitado (force revalidation)
-- `-c 3600` = Cache de 1 hora (padrÃ£o)
+- `-c 3600` = Cache de 1 hora (padrão)
 
 ---
 
-## ðŸš¨ Se o Problema Persistir
+## 🚨 Se o Problema Persistir
 
 1. **Feche TODAS as abas do navegador** relacionadas ao localhost:8000
 2. **Feche o navegador completamente**
 3. **Reinicie o servidor** com `.\iniciar-servidor-sem-cache.ps1`
 4. **Abra em modo privado** primeiro para testar
-5. Se funcionar em modo privado, Ã© definitivamente cache
+5. Se funcionar em modo privado, é definitivamente cache
 
 ---
 
-## ðŸ’¡ Dica
+## 💡 Dica
 
 Sempre use o servidor **sem cache** durante desenvolvimento:
 
@@ -101,11 +101,11 @@ Sempre use o servidor **sem cache** durante desenvolvimento:
 .\iniciar-servidor-sem-cache.ps1
 ```
 
-Isso evita precisar fazer CTRL+F5 toda vez que mudar o cÃ³digo!
+Isso evita precisar fazer CTRL+F5 toda vez que mudar o código!
 
 ---
 
-## ðŸ“¦ VersÃ£o Atual
+## 📦 Versão Atual
 
 - **Sistema**: SINGEM v1.2.7
 - **Cache Version**: 20251105-002

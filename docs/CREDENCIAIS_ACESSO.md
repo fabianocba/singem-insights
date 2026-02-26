@@ -1,136 +1,136 @@
-﻿# ðŸ” Credenciais de Acesso - SINGEM
+# 🔐 Credenciais de Acesso - SINGEM
 
-## Sistema de AutenticaÃ§Ã£o
+## Sistema de Autenticação
 
-O SINGEM possui um sistema de autenticaÃ§Ã£o em duas camadas para garantir seguranÃ§a e permitir o primeiro acesso.
+O SINGEM possui um sistema de autenticação em duas camadas para garantir segurança e permitir o primeiro acesso.
 
 ---
 
-## ðŸ”‘ Credenciais Mestras (Primeiro Acesso)
+## 🔑 Credenciais Mestras (Primeiro Acesso)
 
 ### Quando usar?
 
-- **Primeiro acesso ao sistema** (quando ainda nÃ£o hÃ¡ usuÃ¡rios cadastrados)
-- InstalaÃ§Ã£o inicial
-- RecuperaÃ§Ã£o de acesso administrativo
+- **Primeiro acesso ao sistema** (quando ainda não há usuários cadastrados)
+- Instalação inicial
+- Recuperação de acesso administrativo
 
-### Credenciais PadrÃ£o:
+### Credenciais Padrão:
 
 ```
-ðŸ‘¤ UsuÃ¡rio: singem
-ðŸ”‘ Senha: admin@2025
+👤 Usuário: singem
+🔑 Senha: admin@2025
 ```
 
 ### O que acontece ao usar as credenciais mestras?
 
-1. âœ… Login Ã© realizado com sucesso
-2. ðŸ”„ Sistema redireciona **automaticamente** para a tela de **ConfiguraÃ§Ãµes**
-3. ðŸ“‹ Aba **"UsuÃ¡rios"** Ã© aberta automaticamente
-4. âš ï¸ Alerta Ã© exibido solicitando cadastro de usuÃ¡rio permanente
-5. âœï¸ Administrador deve cadastrar seu prÃ³prio usuÃ¡rio e senha
+1. ✅ Login é realizado com sucesso
+2. 🔄 Sistema redireciona **automaticamente** para a tela de **Configurações**
+3. 📋 Aba **"Usuários"** é aberta automaticamente
+4. ⚠️ Alerta é exibido solicitando cadastro de usuário permanente
+5. ✍️ Administrador deve cadastrar seu próprio usuário e senha
 
 ---
 
-## ðŸ‘¥ Credenciais de UsuÃ¡rio (Uso Normal)
+## 👥 Credenciais de Usuário (Uso Normal)
 
-### ApÃ³s o primeiro acesso:
+### Após o primeiro acesso:
 
-1. Na tela de **ConfiguraÃ§Ãµes** â†’ Aba **UsuÃ¡rios**
-2. Cadastre um novo usuÃ¡rio com:
-   - Nome de usuÃ¡rio
+1. Na tela de **Configurações** → Aba **Usuários**
+2. Cadastre um novo usuário com:
+   - Nome de usuário
    - Senha segura
-   - Perfil (Administrador ou UsuÃ¡rio)
-3. FaÃ§a logout
+   - Perfil (Administrador ou Usuário)
+3. Faça logout
 4. Entre com suas novas credenciais
 
-### Perfis de UsuÃ¡rio:
+### Perfis de Usuário:
 
-- **ðŸ‘¨â€ðŸ’¼ Administrador**: Acesso total ao sistema, incluindo configuraÃ§Ãµes
-- **ðŸ‘¤ UsuÃ¡rio**: Acesso Ã s funcionalidades operacionais (sem acesso a configuraÃ§Ãµes)
+- **👨‍💼 Administrador**: Acesso total ao sistema, incluindo configurações
+- **👤 Usuário**: Acesso às funcionalidades operacionais (sem acesso a configurações)
 
 ---
 
-## âš ï¸ RecomendaÃ§Ãµes de SeguranÃ§a
+## ⚠️ Recomendações de Segurança
 
-### âŒ NÃƒO FAZER:
+### ❌ NÃO FAZER:
 
-- Usar credenciais mestras para uso diÃ¡rio
-- Compartilhar credenciais entre usuÃ¡rios
-- Manter senhas fracas ou Ã³bvias
+- Usar credenciais mestras para uso diário
+- Compartilhar credenciais entre usuários
+- Manter senhas fracas ou óbvias
 
-### âœ… FAZER:
+### ✅ FAZER:
 
-- Cadastrar usuÃ¡rio prÃ³prio imediatamente apÃ³s primeiro acesso
-- Usar senhas fortes (mÃ­nimo 6 caracteres, incluindo letras e nÃºmeros)
+- Cadastrar usuário próprio imediatamente após primeiro acesso
+- Usar senhas fortes (mínimo 6 caracteres, incluindo letras e números)
 - Trocar senhas periodicamente
-- Cada pessoa deve ter seu prÃ³prio usuÃ¡rio
+- Cada pessoa deve ter seu próprio usuário
 
 ---
 
-## ðŸ”„ Fluxo de Primeiro Acesso
+## 🔄 Fluxo de Primeiro Acesso
 
 ```
 1. Abrir SINGEM
-   â†“
+   ↓
 2. Tela de Login aparece
-   â†“
-3. Clicar em "ðŸ’¡ Primeiro acesso do administrador?"
-   â†“
+   ↓
+3. Clicar em "💡 Primeiro acesso do administrador?"
+   ↓
 4. Ver credenciais mestras
-   â†“
+   ↓
 5. Login com: singem / admin@2025
-   â†“
-6. Sistema abre ConfiguraÃ§Ãµes â†’ UsuÃ¡rios
-   â†“
-7. Cadastrar novo usuÃ¡rio administrativo
-   â†“
+   ↓
+6. Sistema abre Configurações → Usuários
+   ↓
+7. Cadastrar novo usuário administrativo
+   ↓
 8. Fazer logout
-   â†“
+   ↓
 9. Login com novas credenciais
-   â†“
-10. âœ… Sistema pronto para uso!
+   ↓
+10. ✅ Sistema pronto para uso!
 ```
 
 ---
 
-## ðŸ†˜ Problemas Comuns
+## 🆘 Problemas Comuns
 
-### "Credenciais mestras nÃ£o funcionam"
+### "Credenciais mestras não funcionam"
 
 - Verifique se digitou corretamente: `singem` e `admin@2025`
-- Credenciais sÃ£o **case-sensitive** (maiÃºsculas/minÃºsculas importam)
+- Credenciais são **case-sensitive** (maiúsculas/minúsculas importam)
 
-### "Esqueci minha senha de usuÃ¡rio"
+### "Esqueci minha senha de usuário"
 
 - Use as credenciais mestras para acessar
-- VÃ¡ em ConfiguraÃ§Ãµes â†’ UsuÃ¡rios
-- Edite seu usuÃ¡rio e defina nova senha
+- Vá em Configurações → Usuários
+- Edite seu usuário e defina nova senha
 
-### "NÃ£o consigo cadastrar usuÃ¡rio"
+### "Não consigo cadastrar usuário"
 
 - Verifique se entrou com credenciais mestras (tem perfil admin)
-- Verifique se preencheu todos os campos obrigatÃ³rios
-- Senha deve ter no mÃ­nimo 6 caracteres
+- Verifique se preencheu todos os campos obrigatórios
+- Senha deve ter no mínimo 6 caracteres
 
 ---
 
-## ðŸ“ Notas TÃ©cnicas
+## 📝 Notas Técnicas
 
-- Credenciais mestras sÃ£o **hard-coded** no sistema (`app.js`)
-- UsuÃ¡rios sÃ£o armazenados no **IndexedDB** local
-- Senhas sÃ£o criptografadas antes do armazenamento
-- Sistema Ã© **100% offline** - dados permanecem no navegador
+- Credenciais mestras são **hard-coded** no sistema (`app.js`)
+- Usuários são armazenados no **IndexedDB** local
+- Senhas são criptografadas antes do armazenamento
+- Sistema é **100% offline** - dados permanecem no navegador
 
 ---
 
-## ðŸ”’ PolÃ­tica de Senha
+## 🔒 Política de Senha
 
-Requisitos mÃ­nimos:
+Requisitos mínimos:
 
-- âœ… MÃ­nimo de 6 caracteres
-- âœ… Recomendado: letras, nÃºmeros e caracteres especiais
-- âœ… NÃ£o usar dados pessoais Ã³bvios
-- âœ… Trocar periodicamente (recomendado a cada 90 dias)
+- ✅ Mínimo de 6 caracteres
+- ✅ Recomendado: letras, números e caracteres especiais
+- ✅ Não usar dados pessoais óbvios
+- ✅ Trocar periodicamente (recomendado a cada 90 dias)
 
 ---
 

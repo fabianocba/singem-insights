@@ -1,33 +1,33 @@
-﻿# RestriÃ§Ãµes de SeguranÃ§a - MÃ³dulo de ConfiguraÃ§Ãµes
+# Restrições de Segurança - Módulo de Configurações
 
-## ðŸ”’ ImplementaÃ§Ãµes de SeguranÃ§a
+## 🔒 Implementações de Segurança
 
 Data: 03/11/2025
 
 ---
 
-## ðŸ“‹ Resumo das RestriÃ§Ãµes
+## 📋 Resumo das Restrições
 
-### 1ï¸âƒ£ Limpar Banco de Dados - APENAS ADMINISTRADOR
+### 1️⃣ Limpar Banco de Dados - APENAS ADMINISTRADOR
 
 **Arquivo:** `js/settings/preferencias.js`
 
-**RestriÃ§Ã£o:** Apenas usuÃ¡rios com perfil `admin` podem limpar o banco de dados.
+**Restrição:** Apenas usuários com perfil `admin` podem limpar o banco de dados.
 
-**CÃ³digo:**
+**Código:**
 
 ```javascript
 async limparBancoDados() {
-  // Verifica se usuÃ¡rio Ã© administrador
+  // Verifica se usuário é administrador
   const usuarioLogado = window.settingsUsuarios?.usuarioLogado;
 
   if (!usuarioLogado) {
-    alert("âŒ ACESSO NEGADO!\n\nVocÃª precisa estar autenticado...");
+    alert("❌ ACESSO NEGADO!\n\nVocê precisa estar autenticado...");
     return;
   }
 
   if (usuarioLogado.perfil !== 'admin') {
-    alert("âŒ ACESSO NEGADO!\n\nApenas ADMINISTRADORES podem limpar...");
+    alert("❌ ACESSO NEGADO!\n\nApenas ADMINISTRADORES podem limpar...");
     return;
   }
 
@@ -37,37 +37,37 @@ async limparBancoDados() {
 
 **Mensagens:**
 
-- Sem autenticaÃ§Ã£o: "âŒ ACESSO NEGADO! VocÃª precisa estar autenticado para limpar o banco de dados."
-- UsuÃ¡rio comum: "âŒ ACESSO NEGADO! Apenas ADMINISTRADORES podem limpar o banco de dados. Seu perfil: UsuÃ¡rio"
+- Sem autenticação: "❌ ACESSO NEGADO! Você precisa estar autenticado para limpar o banco de dados."
+- Usuário comum: "❌ ACESSO NEGADO! Apenas ADMINISTRADORES podem limpar o banco de dados. Seu perfil: Usuário"
 
 ---
 
-### 2ï¸âƒ£ Cadastro de UsuÃ¡rio - VÃNCULO OBRIGATÃ“RIO COM UNIDADE
+### 2️⃣ Cadastro de Usuário - VÍNCULO OBRIGATÓRIO COM UNIDADE
 
 **Arquivo:** `js/settings/usuarios.js`
 
-**RestriÃ§Ã£o:** NÃ£o Ã© possÃ­vel cadastrar usuÃ¡rios sem antes cadastrar a Unidade OrÃ§amentÃ¡ria.
+**Restrição:** Não é possível cadastrar usuários sem antes cadastrar a Unidade Orçamentária.
 
-**CÃ³digo:**
+**Código:**
 
 ```javascript
 async salvarNovoUsuario() {
-  // VALIDAÃ‡ÃƒO: Verifica se hÃ¡ unidade orÃ§amentÃ¡ria cadastrada
+  // VALIDAÇÃO: Verifica se há unidade orçamentária cadastrada
   const unidade = await window.getUnidadeOrcamentaria();
 
   if (!unidade || !unidade.cnpj) {
     alert(
-      "âŒ UNIDADE ORÃ‡AMENTÃRIA NÃƒO CADASTRADA!\n\n" +
-      "Antes de cadastrar usuÃ¡rios, vocÃª deve:\n\n" +
-      "1. Ir para a aba 'Unidade OrÃ§amentÃ¡ria'\n" +
-      "2. Cadastrar os dados da instituiÃ§Ã£o\n" +
+      "❌ UNIDADE ORÇAMENTÁRIA NÃO CADASTRADA!\n\n" +
+      "Antes de cadastrar usuários, você deve:\n\n" +
+      "1. Ir para a aba 'Unidade Orçamentária'\n" +
+      "2. Cadastrar os dados da instituição\n" +
       "3. Salvar\n\n" +
-      "Todos os usuÃ¡rios devem estar vinculados a uma unidade orÃ§amentÃ¡ria."
+      "Todos os usuários devem estar vinculados a uma unidade orçamentária."
     );
     return;
   }
 
-  // ... continua cadastro e vincula usuÃ¡rio Ã  unidade
+  // ... continua cadastro e vincula usuário à unidade
 
   const usuario = {
     // ... outros campos
@@ -80,12 +80,12 @@ async salvarNovoUsuario() {
 }
 ```
 
-**Estrutura do UsuÃ¡rio:**
+**Estrutura do Usuário:**
 
 ```javascript
 {
   id: "user_1234567890_abc",
-  nome: "JoÃ£o da Silva",
+  nome: "João da Silva",
   login: "joao.silva",
   senhaHash: "salt:hash",
   perfil: "admin", // ou "usuario"
@@ -102,9 +102,9 @@ async salvarNovoUsuario() {
 **Mensagem de Sucesso:**
 
 ```
-âœ… UsuÃ¡rio cadastrado com sucesso!
+✅ Usuário cadastrado com sucesso!
 
-UsuÃ¡rio: JoÃ£o da Silva
+Usuário: João da Silva
 Login: joao.silva
 Perfil: Administrador
 Unidade: Instituto Federal Baiano
@@ -112,48 +112,48 @@ Unidade: Instituto Federal Baiano
 
 ---
 
-### 3ï¸âƒ£ Importar ConfiguraÃ§Ãµes - APENAS ADMINISTRADOR
+### 3️⃣ Importar Configurações - APENAS ADMINISTRADOR
 
 **Arquivo:** `js/settings/preferencias.js`
 
-**RestriÃ§Ã£o:** Apenas usuÃ¡rios com perfil `admin` podem importar configuraÃ§Ãµes.
+**Restrição:** Apenas usuários com perfil `admin` podem importar configurações.
 
-**CÃ³digo:**
+**Código:**
 
 ```javascript
 async importarConfiguracoes(file) {
-  // Verifica se usuÃ¡rio Ã© administrador
+  // Verifica se usuário é administrador
   const usuarioLogado = window.settingsUsuarios?.usuarioLogado;
 
   if (usuarioLogado && usuarioLogado.perfil !== 'admin') {
     alert(
-      "âŒ ACESSO NEGADO!\n\n" +
-      "Apenas ADMINISTRADORES podem importar configuraÃ§Ãµes.\n\n" +
-      "Importar configuraÃ§Ãµes pode modificar o sistema completamente.\n\n" +
-      "Seu perfil: UsuÃ¡rio"
+      "❌ ACESSO NEGADO!\n\n" +
+      "Apenas ADMINISTRADORES podem importar configurações.\n\n" +
+      "Importar configurações pode modificar o sistema completamente.\n\n" +
+      "Seu perfil: Usuário"
     );
     return;
   }
 
-  // ... continua importaÃ§Ã£o
+  // ... continua importação
 }
 ```
 
-**Motivo:** Importar configuraÃ§Ãµes pode sobrescrever todos os dados do sistema, incluindo usuÃ¡rios e permissÃµes.
+**Motivo:** Importar configurações pode sobrescrever todos os dados do sistema, incluindo usuários e permissões.
 
 ---
 
-### 4ï¸âƒ£ RestriÃ§Ãµes Gerais para UsuÃ¡rio Comum
+### 4️⃣ Restrições Gerais para Usuário Comum
 
 **Arquivo:** `js/settings/index.js`
 
-**RestriÃ§Ãµes aplicadas automaticamente:**
+**Restrições aplicadas automaticamente:**
 
-#### A) OcultaÃ§Ã£o de Abas
+#### A) Ocultação de Abas
 
 ```javascript
 aplicarRestricoesUsuarioComum() {
-  // 1. Oculta aba de UsuÃ¡rios
+  // 1. Oculta aba de Usuários
   const tabUsuarios = document.querySelector('[data-tab="usuarios"]');
   if (tabUsuarios) {
     tabUsuarios.style.display = 'none';
@@ -167,10 +167,10 @@ aplicarRestricoesUsuarioComum() {
 }
 ```
 
-#### B) Unidade OrÃ§amentÃ¡ria - Apenas VisualizaÃ§Ã£o
+#### B) Unidade Orçamentária - Apenas Visualização
 
 ```javascript
-// Desabilita ediÃ§Ã£o da Unidade OrÃ§amentÃ¡ria
+// Desabilita edição da Unidade Orçamentária
 const formUnidade = document.getElementById('formUnidade');
 if (formUnidade) {
   const inputs = formUnidade.querySelectorAll('input, select, button[type="submit"]');
@@ -183,8 +183,8 @@ if (formUnidade) {
   // Adiciona mensagem informativa
   statusUnidade.innerHTML =
     '<div class="status-message warning">' +
-    '<strong>ðŸ”’ VisualizaÃ§Ã£o apenas</strong><br>' +
-    'Somente ADMINISTRADORES podem editar a Unidade OrÃ§amentÃ¡ria.' +
+    '<strong>🔒 Visualização apenas</strong><br>' +
+    'Somente ADMINISTRADORES podem editar a Unidade Orçamentária.' +
     '</div>';
 }
 ```
@@ -192,7 +192,7 @@ if (formUnidade) {
 #### C) Zona de Perigo - Oculta Completamente
 
 ```javascript
-// Oculta botÃ£o "Limpar Banco de Dados"
+// Oculta botão "Limpar Banco de Dados"
 const btnLimparBanco = document.getElementById('btnLimparBanco');
 if (btnLimparBanco) {
   btnLimparBanco.style.display = 'none';
@@ -205,111 +205,111 @@ if (painelPerigo) {
 }
 ```
 
-#### D) Importar ConfiguraÃ§Ãµes - Desabilitado
+#### D) Importar Configurações - Desabilitado
 
 ```javascript
-// Desabilita importar configuraÃ§Ãµes
+// Desabilita importar configurações
 const btnImportarConfig = document.getElementById('btnImportarConfig');
 
 if (btnImportarConfig) {
   btnImportarConfig.disabled = true;
   btnImportarConfig.style.opacity = '0.5';
-  btnImportarConfig.title = 'Apenas administradores podem importar configuraÃ§Ãµes';
+  btnImportarConfig.title = 'Apenas administradores podem importar configurações';
 }
 ```
 
 ---
 
-## ðŸ“Š Matriz de PermissÃµes
+## 📊 Matriz de Permissões
 
-| Recurso                    | Administrador | UsuÃ¡rio Comum       |
+| Recurso                    | Administrador | Usuário Comum       |
 | -------------------------- | ------------- | -------------------- |
-| **Unidade OrÃ§amentÃ¡ria** |
-| Visualizar                 | âœ… Sim       | âœ… Sim              |
-| Editar                     | âœ… Sim       | âŒ NÃ£o              |
-| **UsuÃ¡rios**              |
-| Visualizar                 | âœ… Sim       | âŒ NÃ£o (aba oculta) |
-| Cadastrar                  | âœ… Sim       | âŒ NÃ£o              |
-| Editar                     | âœ… Sim       | âŒ NÃ£o              |
-| Excluir                    | âœ… Sim       | âŒ NÃ£o              |
+| **Unidade Orçamentária** |
+| Visualizar                 | ✅ Sim       | ✅ Sim              |
+| Editar                     | ✅ Sim       | ❌ Não              |
+| **Usuários**              |
+| Visualizar                 | ✅ Sim       | ❌ Não (aba oculta) |
+| Cadastrar                  | ✅ Sim       | ❌ Não              |
+| Editar                     | ✅ Sim       | ❌ Não              |
+| Excluir                    | ✅ Sim       | ❌ Não              |
 | **Rede/LAN**               |
-| Visualizar                 | âœ… Sim       | âŒ NÃ£o (aba oculta) |
-| Configurar                 | âœ… Sim       | âŒ NÃ£o              |
-| Testar conexÃ£o            | âœ… Sim       | âŒ NÃ£o              |
-| **PreferÃªncias**          |
-| Tema                       | âœ… Sim       | âœ… Sim              |
-| Idioma                     | âœ… Sim       | âœ… Sim              |
-| TolerÃ¢ncias               | âœ… Sim       | âœ… Sim              |
-| NotificaÃ§Ãµes             | âœ… Sim       | âœ… Sim              |
-| Exportar config            | âœ… Sim       | âœ… Sim              |
-| Importar config            | âœ… Sim       | âŒ NÃ£o              |
-| Limpar banco               | âœ… Sim       | âŒ NÃ£o (oculto)     |
+| Visualizar                 | ✅ Sim       | ❌ Não (aba oculta) |
+| Configurar                 | ✅ Sim       | ❌ Não              |
+| Testar conexão            | ✅ Sim       | ❌ Não              |
+| **Preferências**          |
+| Tema                       | ✅ Sim       | ✅ Sim              |
+| Idioma                     | ✅ Sim       | ✅ Sim              |
+| Tolerâncias               | ✅ Sim       | ✅ Sim              |
+| Notificações             | ✅ Sim       | ✅ Sim              |
+| Exportar config            | ✅ Sim       | ✅ Sim              |
+| Importar config            | ✅ Sim       | ❌ Não              |
+| Limpar banco               | ✅ Sim       | ❌ Não (oculto)     |
 
 ---
 
-## ðŸŽ¯ Interface para Cada Perfil
+## 🎯 Interface para Cada Perfil
 
 ### Administrador
 
-**Abas visÃ­veis:**
+**Abas visíveis:**
 
-- ðŸ¢ Unidade OrÃ§amentÃ¡ria (editÃ¡vel)
-- ðŸ‘¥ UsuÃ¡rios (completo)
-- ðŸŒ Rede/LAN (completo)
-- ðŸŽ¨ PreferÃªncias (completo + zona de perigo)
+- 🏢 Unidade Orçamentária (editável)
+- 👥 Usuários (completo)
+- 🌐 Rede/LAN (completo)
+- 🎨 Preferências (completo + zona de perigo)
 
-**PermissÃµes:**
+**Permissões:**
 
-- âœ… Editar tudo
-- âœ… Cadastrar usuÃ¡rios
-- âœ… Configurar rede
-- âœ… Importar/exportar configuraÃ§Ãµes
-- âœ… Limpar banco de dados
+- ✅ Editar tudo
+- ✅ Cadastrar usuários
+- ✅ Configurar rede
+- ✅ Importar/exportar configurações
+- ✅ Limpar banco de dados
 
 ---
 
-### UsuÃ¡rio Comum
+### Usuário Comum
 
-**Abas visÃ­veis:**
+**Abas visíveis:**
 
-- ðŸ¢ Unidade OrÃ§amentÃ¡ria (apenas visualizaÃ§Ã£o)
-- ðŸŽ¨ PreferÃªncias (sem zona de perigo)
+- 🏢 Unidade Orçamentária (apenas visualização)
+- 🎨 Preferências (sem zona de perigo)
 
 **Abas OCULTAS:**
 
-- âŒ UsuÃ¡rios
-- âŒ Rede/LAN
+- ❌ Usuários
+- ❌ Rede/LAN
 
-**PermissÃµes:**
+**Permissões:**
 
-- âœ… Visualizar unidade
-- âœ… Mudar tema
-- âœ… Configurar tolerÃ¢ncias
-- âœ… Exportar configuraÃ§Ãµes
-- âŒ Editar unidade
-- âŒ Gerenciar usuÃ¡rios
-- âŒ Configurar rede
-- âŒ Importar configuraÃ§Ãµes
-- âŒ Limpar banco de dados
+- ✅ Visualizar unidade
+- ✅ Mudar tema
+- ✅ Configurar tolerâncias
+- ✅ Exportar configurações
+- ❌ Editar unidade
+- ❌ Gerenciar usuários
+- ❌ Configurar rede
+- ❌ Importar configurações
+- ❌ Limpar banco de dados
 
 ---
 
-## ðŸ” Sistema de AutenticaÃ§Ã£o
+## 🔐 Sistema de Autenticação
 
 ### Como Funciona
 
-1. **Sem usuÃ¡rio logado:**
+1. **Sem usuário logado:**
    - Modo compatibilidade (acesso total)
-   - Console: "âš ï¸ Nenhum usuÃ¡rio logado - acesso completo (modo compatibilidade)"
+   - Console: "⚠️ Nenhum usuário logado - acesso completo (modo compatibilidade)"
 
-2. **Com usuÃ¡rio logado:**
+2. **Com usuário logado:**
    - Verifica perfil: `window.settingsUsuarios.usuarioLogado.perfil`
-   - Aplica restriÃ§Ãµes se perfil = `usuario`
-   - Console: "ðŸ‘¤ UsuÃ¡rio: JoÃ£o da Silva (Administrador)" ou "(UsuÃ¡rio)"
+   - Aplica restrições se perfil = `usuario`
+   - Console: "👤 Usuário: João da Silva (Administrador)" ou "(Usuário)"
 
-### VerificaÃ§Ã£o de PermissÃµes
+### Verificação de Permissões
 
-**No carregamento da pÃ¡gina:**
+**No carregamento da página:**
 
 ```javascript
 // configuracoes.html
@@ -318,123 +318,123 @@ setTimeout(() => {
     window.settingsManager.init();
   }
 
-  // Verifica permissÃµes e aplica restriÃ§Ãµes
+  // Verifica permissões e aplica restrições
   if (window.settingsManager) {
     window.settingsManager.verificarPermissoes();
   }
 }, 500);
 ```
 
-**Nas aÃ§Ãµes crÃ­ticas:**
+**Nas ações críticas:**
 
 ```javascript
 // Exemplo: Limpar banco
 const usuarioLogado = window.settingsUsuarios?.usuarioLogado;
 
 if (!usuarioLogado) {
-  alert('âŒ ACESSO NEGADO! VocÃª precisa estar autenticado...');
+  alert('❌ ACESSO NEGADO! Você precisa estar autenticado...');
   return;
 }
 
 if (usuarioLogado.perfil !== 'admin') {
-  alert('âŒ ACESSO NEGADO! Apenas ADMINISTRADORES...');
+  alert('❌ ACESSO NEGADO! Apenas ADMINISTRADORES...');
   return;
 }
 ```
 
 ---
 
-## âœ… Checklist de SeguranÃ§a
+## ✅ Checklist de Segurança
 
 ### Implementado
 
 - [x] Limpar banco de dados - apenas admin
-- [x] Cadastro de usuÃ¡rio requer unidade orÃ§amentÃ¡ria
-- [x] UsuÃ¡rios vinculados Ã  unidade (estrutura de dados)
-- [x] Importar configuraÃ§Ãµes - apenas admin
-- [x] Aba "UsuÃ¡rios" oculta para usuÃ¡rio comum
-- [x] Aba "Rede/LAN" oculta para usuÃ¡rio comum
-- [x] Unidade OrÃ§amentÃ¡ria - apenas visualizaÃ§Ã£o para usuÃ¡rio comum
-- [x] BotÃ£o "Importar" desabilitado para usuÃ¡rio comum
-- [x] Painel "Zona de Perigo" oculto para usuÃ¡rio comum
+- [x] Cadastro de usuário requer unidade orçamentária
+- [x] Usuários vinculados à unidade (estrutura de dados)
+- [x] Importar configurações - apenas admin
+- [x] Aba "Usuários" oculta para usuário comum
+- [x] Aba "Rede/LAN" oculta para usuário comum
+- [x] Unidade Orçamentária - apenas visualização para usuário comum
+- [x] Botão "Importar" desabilitado para usuário comum
+- [x] Painel "Zona de Perigo" oculto para usuário comum
 - [x] Mensagens de erro claras e informativas
-- [x] VerificaÃ§Ã£o de permissÃµes no carregamento
-- [x] Console logs para debug de permissÃµes
+- [x] Verificação de permissões no carregamento
+- [x] Console logs para debug de permissões
 
 ### Futuras Melhorias Sugeridas
 
-- [ ] Tela de login obrigatÃ³ria
-- [ ] SessÃ£o com timeout automÃ¡tico
-- [ ] Log de auditoria (quem fez o quÃª)
-- [ ] PermissÃµes granulares (mais nÃ­veis)
-- [ ] 2FA (autenticaÃ§Ã£o de dois fatores)
-- [ ] RecuperaÃ§Ã£o de senha
+- [ ] Tela de login obrigatória
+- [ ] Sessão com timeout automático
+- [ ] Log de auditoria (quem fez o quê)
+- [ ] Permissões granulares (mais níveis)
+- [ ] 2FA (autenticação de dois fatores)
+- [ ] Recuperação de senha
 
 ---
 
-## ðŸ§ª Como Testar
+## 🧪 Como Testar
 
-### Teste 1: Cadastro de UsuÃ¡rio sem Unidade
+### Teste 1: Cadastro de Usuário sem Unidade
 
 1. Limpe IndexedDB
 2. Abra `configuracoes.html`
-3. VÃ¡ para aba "UsuÃ¡rios"
-4. Tente cadastrar usuÃ¡rio
+3. Vá para aba "Usuários"
+4. Tente cadastrar usuário
 5. **Resultado esperado:** Mensagem de erro solicitando cadastro da unidade
 
-### Teste 2: Cadastro de UsuÃ¡rio com Unidade
+### Teste 2: Cadastro de Usuário com Unidade
 
-1. Cadastre unidade orÃ§amentÃ¡ria
-2. VÃ¡ para aba "UsuÃ¡rios"
-3. Cadastre usuÃ¡rio
-4. **Resultado esperado:** Sucesso + mensagem mostrando vÃ­nculo com unidade
+1. Cadastre unidade orçamentária
+2. Vá para aba "Usuários"
+3. Cadastre usuário
+4. **Resultado esperado:** Sucesso + mensagem mostrando vínculo com unidade
 
-### Teste 3: Limpar Banco como UsuÃ¡rio Comum
+### Teste 3: Limpar Banco como Usuário Comum
 
-1. Crie usuÃ¡rio com perfil "UsuÃ¡rio"
-2. FaÃ§a login (autentique)
-3. VÃ¡ para "PreferÃªncias"
-4. **Resultado esperado:** Zona de Perigo nÃ£o aparece
+1. Crie usuário com perfil "Usuário"
+2. Faça login (autentique)
+3. Vá para "Preferências"
+4. **Resultado esperado:** Zona de Perigo não aparece
 
 ### Teste 4: Limpar Banco como Admin
 
-1. FaÃ§a login como administrador
-2. VÃ¡ para "PreferÃªncias"
+1. Faça login como administrador
+2. Vá para "Preferências"
 3. Clique "Limpar Banco de Dados"
-4. **Resultado esperado:** Dupla confirmaÃ§Ã£o e execuÃ§Ã£o
+4. **Resultado esperado:** Dupla confirmação e execução
 
-### Teste 5: Interface para UsuÃ¡rio Comum
+### Teste 5: Interface para Usuário Comum
 
-1. FaÃ§a login como usuÃ¡rio comum
-2. Abra configuraÃ§Ãµes
+1. Faça login como usuário comum
+2. Abra configurações
 3. **Resultado esperado:**
-   - Apenas 2 abas visÃ­veis
+   - Apenas 2 abas visíveis
    - Unidade em modo leitura
    - Sem zona de perigo
 
 ---
 
-## ðŸ“ž Resumo
+## 📞 Resumo
 
-âœ… **SeguranÃ§a implementada em 4 nÃ­veis:**
+✅ **Segurança implementada em 4 níveis:**
 
-1. **OperaÃ§Ãµes destrutivas** - apenas admin (limpar banco)
-2. **Cadastros crÃ­ticos** - apenas admin (usuÃ¡rios)
-3. **ConfiguraÃ§Ãµes de sistema** - apenas admin (rede, importar)
-4. **VÃ­nculo obrigatÃ³rio** - usuÃ¡rio deve ter unidade orÃ§amentÃ¡ria
+1. **Operações destrutivas** - apenas admin (limpar banco)
+2. **Cadastros críticos** - apenas admin (usuários)
+3. **Configurações de sistema** - apenas admin (rede, importar)
+4. **Vínculo obrigatório** - usuário deve ter unidade orçamentária
 
-âœ… **Backward compatible:**
+✅ **Backward compatible:**
 
-- Sistema continua funcionando sem autenticaÃ§Ã£o (modo compatibilidade)
-- RestriÃ§Ãµes aplicam-se apenas com usuÃ¡rio logado
+- Sistema continua funcionando sem autenticação (modo compatibilidade)
+- Restrições aplicam-se apenas com usuário logado
 
-âœ… **Interface adaptativa:**
+✅ **Interface adaptativa:**
 
-- Administrador vÃª tudo
-- UsuÃ¡rio comum vÃª apenas o necessÃ¡rio
+- Administrador vê tudo
+- Usuário comum vê apenas o necessário
 
 ---
 
 **Data:** 03/11/2025  
 **Sistema:** SINGEM - IF Baiano  
-**MÃ³dulo:** ConfiguraÃ§Ãµes com RestriÃ§Ãµes de SeguranÃ§a v1.2
+**Módulo:** Configurações com Restrições de Segurança v1.2

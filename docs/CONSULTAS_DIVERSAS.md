@@ -1,47 +1,47 @@
-﻿# ðŸ” Consultas Diversas - Dados Abertos Compras.gov.br
+# 🔍 Consultas Diversas - Dados Abertos Compras.gov.br
 
-## ðŸ“‹ VisÃ£o Geral
+## 📋 Visão Geral
 
-MÃ³dulo de consulta a dados pÃºblicos do Compras.gov.br, permitindo acesso a informaÃ§Ãµes sobre materiais, serviÃ§os, UASG, atas de registro de preÃ§os, contrataÃ§Ãµes PNCP e licitaÃ§Ãµes do sistema legado.
+Módulo de consulta a dados públicos do Compras.gov.br, permitindo acesso a informações sobre materiais, serviços, UASG, atas de registro de preços, contratações PNCP e licitações do sistema legado.
 
-## ðŸŽ¯ Funcionalidades
+## 🎯 Funcionalidades
 
 ### Datasets Suportados
 
-1. **CatÃ¡logo â€“ Material**
-   - Itens de material do catÃ¡logo CATMAT
+1. **Catálogo – Material**
+   - Itens de material do catálogo CATMAT
    - Filtros: Grupo, Classe, PDM, Status
 
-2. **CatÃ¡logo â€“ ServiÃ§o**
-   - Itens de serviÃ§o do catÃ¡logo CATSER
+2. **Catálogo – Serviço**
+   - Itens de serviço do catálogo CATSER
    - Filtros: Grupo, Classe, Status
 
 3. **UASG (Unidades)**
-   - Unidades Administrativas de ServiÃ§os Gerais
-   - Filtros: CÃ³digo UASG, UF, Status
+   - Unidades Administrativas de Serviços Gerais
+   - Filtros: Código UASG, UF, Status
 
-4. **ARP â€“ Itens**
-   - Itens de Atas de Registro de PreÃ§os
-   - Filtros: NÃºmero da Ata, Ano, Ã“rgÃ£o, CÃ³digo do Item
+4. **ARP – Itens**
+   - Itens de Atas de Registro de Preços
+   - Filtros: Número da Ata, Ano, Órgão, Código do Item
 
-5. **ContrataÃ§Ãµes â€“ PNCP/Lei 14.133**
-   - ContrataÃ§Ãµes no novo portal PNCP
-   - Filtros: CNPJ do Ã“rgÃ£o, Ano, Modalidade, SituaÃ§Ã£o
+5. **Contratações – PNCP/Lei 14.133**
+   - Contratações no novo portal PNCP
+   - Filtros: CNPJ do Órgão, Ano, Modalidade, Situação
 
-6. **Legado â€“ LicitaÃ§Ãµes**
-   - LicitaÃ§Ãµes do sistema antigo (ComprasNet)
+6. **Legado – Licitações**
+   - Licitações do sistema antigo (ComprasNet)
    - Filtros: UASG, Modalidade, Ano
 
-7. **Legado â€“ Itens de LicitaÃ§Ã£o**
-   - Itens de licitaÃ§Ãµes legado
-   - Filtros: UASG, Modalidade, NÃºmero da LicitaÃ§Ã£o
+7. **Legado – Itens de Licitação**
+   - Itens de licitações legado
+   - Filtros: UASG, Modalidade, Número da Licitação
 
-## ðŸš€ Como Usar
+## 🚀 Como Usar
 
-### Acesso RÃ¡pido
+### Acesso Rápido
 
 1. Na tela inicial do SINGEM, clique em **"Consultas Diversas"**
-2. Uma nova aba serÃ¡ aberta com a interface de consultas
+2. Uma nova aba será aberta com a interface de consultas
 
 ### Passo a Passo
 
@@ -49,31 +49,31 @@ MÃ³dulo de consulta a dados pÃºblicos do Compras.gov.br, permitindo acesso a
    - Escolha o conjunto de dados desejado no seletor superior
 
 2. **Configure os Filtros**
-   - Preencha os filtros disponÃ­veis para refinar a busca
-   - Nem todos os filtros sÃ£o obrigatÃ³rios
+   - Preencha os filtros disponíveis para refinar a busca
+   - Nem todos os filtros são obrigatórios
 
 3. **Execute a Busca**
-   - Clique em **"ðŸ” Buscar"**
+   - Clique em **"🔍 Buscar"**
    - Aguarde o carregamento dos resultados
 
 4. **Navegue pelos Resultados**
-   - Use os controles de paginaÃ§Ã£o (Anterior/PrÃ³xima)
-   - Veja o total de registros e pÃ¡ginas
+   - Use os controles de paginação (Anterior/Próxima)
+   - Veja o total de registros e páginas
 
 5. **Visualize Detalhes**
-   - Clique em **"ðŸ“„ JSON"** para ver dados completos de um item
+   - Clique em **"📄 JSON"** para ver dados completos de um item
 
 6. **Exporte os Dados**
-   - Clique em **"ðŸ“¥ Exportar CSV"** para baixar os resultados
+   - Clique em **"📥 Exportar CSV"** para baixar os resultados
 
-## ðŸ“Š Exemplos de Consulta
+## 📊 Exemplos de Consulta
 
 ### Exemplo 1: Buscar Material por Grupo
 
 ```
-Dataset: CatÃ¡logo â€“ Material
+Dataset: Catálogo – Material
 Filtros:
-  - CÃ³digo do Grupo: 1
+  - Código do Grupo: 1
   - Status: Ativo
 Resultado: Materiais ativos do grupo 1
 ```
@@ -91,69 +91,69 @@ Resultado: Todas UASG ativas do estado da Bahia
 ### Exemplo 3: Buscar ARP por Ano
 
 ```
-Dataset: ARP â€“ Itens
+Dataset: ARP – Itens
 Filtros:
   - Ano da Ata: 2025
 Resultado: Itens de atas de 2025
 ```
 
-### Exemplo 4: Buscar ContrataÃ§Ãµes PNCP
+### Exemplo 4: Buscar Contratações PNCP
 
 ```
-Dataset: ContrataÃ§Ãµes â€“ PNCP/Lei 14.133
+Dataset: Contratações – PNCP/Lei 14.133
 Filtros:
   - Ano: 2025
-  - SituaÃ§Ã£o: em_andamento
-Resultado: ContrataÃ§Ãµes em andamento de 2025
+  - Situação: em_andamento
+Resultado: Contratações em andamento de 2025
 ```
 
-## ðŸ”§ Recursos TÃ©cnicos
+## 🔧 Recursos Técnicos
 
 ### Cache Inteligente
 
-- **DuraÃ§Ã£o:** 5 minutos
-- **Armazenamento:** MemÃ³ria RAM (Map)
-- **Limpeza:** AutomÃ¡tica a cada 2 minutos
-- **Vantagens:** Reduz requisiÃ§Ãµes repetidas, melhora performance
+- **Duração:** 5 minutos
+- **Armazenamento:** Memória RAM (Map)
+- **Limpeza:** Automática a cada 2 minutos
+- **Vantagens:** Reduz requisições repetidas, melhora performance
 
 ### Tratamento de Erros
 
-- **Timeout:** 30 segundos por requisiÃ§Ã£o
-- **Retry:** AtÃ© 3 tentativas com backoff exponencial
-- **Rate Limit (429):** Retry automÃ¡tico com delay
-- **Erros 5xx:** Retry automÃ¡tico
+- **Timeout:** 30 segundos por requisição
+- **Retry:** Até 3 tentativas com backoff exponencial
+- **Rate Limit (429):** Retry automático com delay
+- **Erros 5xx:** Retry automático
 - **CORS:** Detecta e informa quando ocorrer
 
-### PaginaÃ§Ã£o
+### Paginação
 
-- **Formato:** Conforme padrÃ£o da API Compras.gov.br
-- **NavegaÃ§Ã£o:** Anterior/PrÃ³xima
-- **InformaÃ§Ãµes:** PÃ¡gina atual, total de pÃ¡ginas, total de registros
+- **Formato:** Conforme padrão da API Compras.gov.br
+- **Navegação:** Anterior/Próxima
+- **Informações:** Página atual, total de páginas, total de registros
 
-### ExportaÃ§Ã£o CSV
+### Exportação CSV
 
-- **Formato:** CSV com separador `;` (ponto e vÃ­rgula)
+- **Formato:** CSV com separador `;` (ponto e vírgula)
 - **Encoding:** UTF-8 com BOM
-- **Colunas:** CÃ³digo, DescriÃ§Ã£o, Unidade/UF, Ã“rgÃ£o/UASG, Status, AtualizaÃ§Ã£o, Valor
+- **Colunas:** Código, Descrição, Unidade/UF, Órgão/UASG, Status, Atualização, Valor
 - **Nome do arquivo:** `consulta_{dataset}_{data}.csv`
 
-## ðŸ“ Arquitetura do MÃ³dulo
+## 📁 Arquitetura do Módulo
 
 ```
 consultas/
-  â””â”€â”€ index.html           # Interface principal
+  └── index.html           # Interface principal
 
 js/consultas/
-  â”œâ”€â”€ apiCompras.js        # Cliente HTTP para APIs do Compras.gov.br
-  â”œâ”€â”€ mapeadores.js        # NormalizaÃ§Ã£o de dados de diferentes endpoints
-  â”œâ”€â”€ uiConsultas.js       # LÃ³gica de interface (filtros, paginaÃ§Ã£o, tabela)
-  â””â”€â”€ cache.js             # Sistema de cache em memÃ³ria
+  ├── apiCompras.js        # Cliente HTTP para APIs do Compras.gov.br
+  ├── mapeadores.js        # Normalização de dados de diferentes endpoints
+  ├── uiConsultas.js       # Lógica de interface (filtros, paginação, tabela)
+  └── cache.js             # Sistema de cache em memória
 
 css/
-  â””â”€â”€ consultas.css        # Estilos especÃ­ficos do mÃ³dulo
+  └── consultas.css        # Estilos específicos do módulo
 ```
 
-## ðŸŒ Endpoints da API
+## 🌐 Endpoints da API
 
 ### Base URL
 
@@ -161,10 +161,10 @@ css/
 https://dadosabertos.compras.gov.br
 ```
 
-### DocumentaÃ§Ã£o Oficial
+### Documentação Oficial
 
 - **Swagger UI:** https://dadosabertos.compras.gov.br/swagger-ui/index.html
-- **Manual da API:** DisponÃ­vel no portal de Dados Abertos
+- **Manual da API:** Disponível no portal de Dados Abertos
 
 ### Principais Endpoints
 
@@ -174,7 +174,7 @@ https://dadosabertos.compras.gov.br
 GET /modulo-material/material/{pagina}?codigoGrupo={grupo}&codigoClasse={classe}
 ```
 
-#### ServiÃ§os
+#### Serviços
 
 ```
 GET /modulo-servico/servico/{pagina}?codigoGrupo={grupo}&codigoClasse={classe}
@@ -198,13 +198,13 @@ GET /modulo-arp/arp-item/{pagina}?numeroAta={numero}&anoAta={ano}
 GET /pncp/v1/contratacoes/{pagina}?cnpjOrgao={cnpj}&ano={ano}
 ```
 
-#### Legado - LicitaÃ§Ãµes
+#### Legado - Licitações
 
 ```
 GET /licitacoes/v1/licitacoes/{pagina}?uasg={uasg}&modalidade={mod}&ano={ano}
 ```
 
-## âš™ï¸ ConfiguraÃ§Ãµes AvanÃ§adas
+## ⚙️ Configurações Avançadas
 
 ### Cache Manual
 
@@ -212,115 +212,115 @@ GET /licitacoes/v1/licitacoes/{pagina}?uasg={uasg}&modalidade={mod}&ano={ano}
 // Limpar todo o cache
 Cache.clear();
 
-// Obter estatÃ­sticas
+// Obter estatísticas
 const stats = Cache.getStats();
 console.log(`Cache size: ${stats.size} entries`);
 ```
 
 ### LocalStorage
 
-O mÃ³dulo salva automaticamente:
+O módulo salva automaticamente:
 
 - Dataset selecionado
 - Filtros aplicados
-- PÃ¡gina atual
+- Página atual
 
-Ao reabrir, restaura o Ãºltimo estado.
+Ao reabrir, restaura o último estado.
 
-### PersonalizaÃ§Ã£o de Timeout
+### Personalização de Timeout
 
 ```javascript
 // No arquivo apiCompras.js
-const REQUEST_TIMEOUT = 30000; // 30 segundos (padrÃ£o)
+const REQUEST_TIMEOUT = 30000; // 30 segundos (padrão)
 ```
 
-### PersonalizaÃ§Ã£o de TTL do Cache
+### Personalização de TTL do Cache
 
 ```javascript
 // No arquivo cache.js
-const DEFAULT_TTL = 5 * 60 * 1000; // 5 minutos (padrÃ£o)
+const DEFAULT_TTL = 5 * 60 * 1000; // 5 minutos (padrão)
 ```
 
-## ðŸ”’ SeguranÃ§a
+## 🔒 Segurança
 
-- âœ… Sem armazenamento de dados sensÃ­veis
-- âœ… RequisiÃ§Ãµes diretas Ã  API oficial (HTTPS)
-- âœ… ValidaÃ§Ã£o de entrada de usuÃ¡rio
-- âœ… Escape de caracteres em CSV
-- âœ… ProteÃ§Ã£o contra XSS em exibiÃ§Ã£o de JSON
+- ✅ Sem armazenamento de dados sensíveis
+- ✅ Requisições diretas à API oficial (HTTPS)
+- ✅ Validação de entrada de usuário
+- ✅ Escape de caracteres em CSV
+- ✅ Proteção contra XSS em exibição de JSON
 
-## ðŸ“± Responsividade
+## 📱 Responsividade
 
-O mÃ³dulo Ã© totalmente responsivo:
+O módulo é totalmente responsivo:
 
 - **Desktop:** Grid multi-coluna para filtros
-- **Tablet:** AdaptaÃ§Ã£o automÃ¡tica de colunas
+- **Tablet:** Adaptação automática de colunas
 - **Mobile:** Layout single-column, controles empilhados
 
-## â™¿ Acessibilidade
+## ♿ Acessibilidade
 
-- âœ… Labels ARIA em todos os controles
-- âœ… NavegaÃ§Ã£o por teclado
-- âœ… Contraste adequado (WCAG 2.1 AA)
-- âœ… Suporte a `prefers-reduced-motion`
-- âœ… Modo escuro automÃ¡tico (`prefers-color-scheme`)
+- ✅ Labels ARIA em todos os controles
+- ✅ Navegação por teclado
+- ✅ Contraste adequado (WCAG 2.1 AA)
+- ✅ Suporte a `prefers-reduced-motion`
+- ✅ Modo escuro automático (`prefers-color-scheme`)
 
-## ðŸ› Troubleshooting
+## 🐛 Troubleshooting
 
 ### "Erro de CORS"
 
-**Problema:** API nÃ£o permite requisiÃ§Ãµes diretas do navegador  
-**SoluÃ§Ã£o:** Use um servidor proxy ou extensÃ£o de browser para desenvolvimento
+**Problema:** API não permite requisições diretas do navegador  
+**Solução:** Use um servidor proxy ou extensão de browser para desenvolvimento
 
-### "RequisiÃ§Ã£o excedeu o tempo limite"
+### "Requisição excedeu o tempo limite"
 
 **Problema:** API demorou mais de 30s para responder  
-**SoluÃ§Ã£o:** Tente novamente ou ajuste filtros para consulta mais especÃ­fica
+**Solução:** Tente novamente ou ajuste filtros para consulta mais específica
 
 ### "Sem resultados"
 
 **Problema:** Nenhum dado encontrado com os filtros aplicados  
-**SoluÃ§Ã£o:** Ajuste os filtros ou deixe alguns em branco para ampliar a busca
+**Solução:** Ajuste os filtros ou deixe alguns em branco para ampliar a busca
 
 ### "HTTP 404"
 
-**Problema:** Endpoint nÃ£o encontrado  
-**SoluÃ§Ã£o:** Verifique se o dataset estÃ¡ correto e se a API estÃ¡ disponÃ­vel
+**Problema:** Endpoint não encontrado  
+**Solução:** Verifique se o dataset está correto e se a API está disponível
 
 ### "HTTP 429"
 
 **Problema:** Rate limit da API excedido  
-**SoluÃ§Ã£o:** O sistema farÃ¡ retry automÃ¡tico. Aguarde alguns segundos.
+**Solução:** O sistema fará retry automático. Aguarde alguns segundos.
 
-## ðŸ“ˆ Limites e RestriÃ§Ãµes
+## 📈 Limites e Restrições
 
 ### Limites da API Compras.gov.br
 
-- **Rate Limit:** VariÃ¡vel por endpoint (geralmente generoso)
-- **Timeout:** 30 segundos por requisiÃ§Ã£o
-- **PaginaÃ§Ã£o:** MÃ¡ximo de registros por pÃ¡gina definido pela API
+- **Rate Limit:** Variável por endpoint (geralmente generoso)
+- **Timeout:** 30 segundos por requisição
+- **Paginação:** Máximo de registros por página definido pela API
 
-### Limites do MÃ³dulo
+### Limites do Módulo
 
-- **Cache:** Limitado pela memÃ³ria RAM disponÃ­vel
-- **CSV:** Exporta apenas resultados da pÃ¡gina atual
-- **NavegaÃ§Ã£o:** Uma consulta por vez (nÃ£o paralelo)
+- **Cache:** Limitado pela memória RAM disponível
+- **CSV:** Exporta apenas resultados da página atual
+- **Navegação:** Uma consulta por vez (não paralelo)
 
-## ðŸ”„ AtualizaÃ§Ãµes Futuras
+## 🔄 Atualizações Futuras
 
 Melhorias planejadas:
 
-- [ ] ExportaÃ§Ã£o de todas as pÃ¡ginas em CSV
-- [ ] GrÃ¡ficos e visualizaÃ§Ãµes
-- [ ] ComparaÃ§Ã£o entre datasets
+- [ ] Exportação de todas as páginas em CSV
+- [ ] Gráficos e visualizações
+- [ ] Comparação entre datasets
 - [ ] Favoritos e consultas salvas
-- [ ] NotificaÃ§Ãµes de novos dados
-- [ ] IntegraÃ§Ã£o com mÃ³dulo de Empenhos (validaÃ§Ã£o automÃ¡tica)
+- [ ] Notificações de novos dados
+- [ ] Integração com módulo de Empenhos (validação automática)
 - [ ] Cache persistente em IndexedDB
 
-## ðŸ“ž Suporte
+## 📞 Suporte
 
-### DocumentaÃ§Ã£o Oficial
+### Documentação Oficial
 
 - Portal Compras.gov.br: https://www.gov.br/compras
 - Dados Abertos: https://dadosabertos.compras.gov.br
@@ -328,23 +328,23 @@ Melhorias planejadas:
 ### Desenvolvimento
 
 - Sistema: SINGEM v1.2.4
-- InstituiÃ§Ã£o: IF Baiano
-- MÃ³dulo: Consultas Diversas
+- Instituição: IF Baiano
+- Módulo: Consultas Diversas
 
-## ðŸ“ Changelog
+## 📝 Changelog
 
 ### v1.0.0 (2025-11-03)
 
-- âœ¨ LanÃ§amento inicial do mÃ³dulo
-- âœ… 7 datasets suportados
-- âœ… Cache em memÃ³ria (5 min)
-- âœ… ExportaÃ§Ã£o CSV
-- âœ… PaginaÃ§Ã£o completa
-- âœ… VisualizaÃ§Ã£o JSON
-- âœ… Interface responsiva
-- âœ… Retry automÃ¡tico
-- âœ… LocalStorage para persistÃªncia de estado
+- ✨ Lançamento inicial do módulo
+- ✅ 7 datasets suportados
+- ✅ Cache em memória (5 min)
+- ✅ Exportação CSV
+- ✅ Paginação completa
+- ✅ Visualização JSON
+- ✅ Interface responsiva
+- ✅ Retry automático
+- ✅ LocalStorage para persistência de estado
 
 ---
 
-**Desenvolvido para o SINGEM - Instituto Federal de EducaÃ§Ã£o, CiÃªncia e Tecnologia Baiano**
+**Desenvolvido para o SINGEM - Instituto Federal de Educação, Ciência e Tecnologia Baiano**

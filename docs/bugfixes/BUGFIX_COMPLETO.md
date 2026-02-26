@@ -1,19 +1,19 @@
-﻿# ðŸ› BUGFIX COMPLETO - SINGEM
+# 🐛 BUGFIX COMPLETO - SINGEM
 
 **Data:** 05/11/2025  
-**Status:** âœ… TODOS OS BUGS CORRIGIDOS
+**Status:** ✅ TODOS OS BUGS CORRIGIDOS
 
 ---
 
-## ðŸ“‹ RESUMO EXECUTIVO
+## 📋 RESUMO EXECUTIVO
 
-Durante os testes do sistema SINGEM foram identificados e corrigidos **4 bugs crÃ­ticos** que impediam o funcionamento correto das funcionalidades de configuraÃ§Ã£o e autenticaÃ§Ã£o.
+Durante os testes do sistema SINGEM foram identificados e corrigidos **4 bugs críticos** que impediam o funcionamento correto das funcionalidades de configuração e autenticação.
 
 ---
 
-## ðŸ› BUG #1: IndexedDB Null Transaction
+## 🐛 BUG #1: IndexedDB Null Transaction
 
-### âŒ PROBLEMA
+### ❌ PROBLEMA
 
 ```
 TypeError: Cannot read properties of null (reading 'transaction')
@@ -21,9 +21,9 @@ TypeError: Cannot read properties of null (reading 'transaction')
 ```
 
 **Causa Raiz:**
-Os mÃ³dulos de configuraÃ§Ã£o (`unidade.js`, `usuarios.js`) tentavam acessar `dbManager.db.transaction()` antes da inicializaÃ§Ã£o completa do IndexedDB.
+Os módulos de configuração (`unidade.js`, `usuarios.js`) tentavam acessar `dbManager.db.transaction()` antes da inicialização completa do IndexedDB.
 
-### âœ… SOLUÃ‡ÃƒO
+### ✅ SOLUÇÃO
 
 **Arquivos Modificados:**
 
@@ -31,18 +31,18 @@ Os mÃ³dulos de configuraÃ§Ã£o (`unidade.js`, `usuarios.js`) tentavam acess
 - `js/settings/usuarios.js`
 - `js/utils/dbSafe.js` (NOVO)
 
-**MudanÃ§as Implementadas:**
+**Mudanças Implementadas:**
 
-1. **MÃ©todo `ensureDBReady()`** adicionado em cada mÃ³dulo:
+1. **Método `ensureDBReady()`** adicionado em cada módulo:
 
 ```javascript
 async ensureDBReady() {
   if (!window.dbManager) {
-    throw new Error("âŒ dbManager nÃ£o estÃ¡ disponÃ­vel");
+    throw new Error("❌ dbManager não está disponível");
   }
 
   if (!window.dbManager.db) {
-    console.warn("âš ï¸ Banco nÃ£o inicializado, inicializando...");
+    console.warn("⚠️ Banco não inicializado, inicializando...");
     if (window.dbManager.initSafe) {
       await window.dbManager.initSafe();
     } else {
@@ -52,17 +52,17 @@ async ensureDBReady() {
 }
 ```
 
-2. **Chamadas em todos os mÃ©todos que acessam DB:**
+2. **Chamadas em todos os métodos que acessam DB:**
 
 ```javascript
 async getUnidadeOrcamentaria() {
-  await this.ensureDBReady(); // â† Adicionado
+  await this.ensureDBReady(); // ← Adicionado
   const data = await dbManager.get('config', 'unidadeOrcamentaria');
   // ...
 }
 ```
 
-3. **UtilitÃ¡rios globais (`dbSafe.js`):**
+3. **Utilitários globais (`dbSafe.js`):**
 
 - `window.ensureDBReady()`
 - `window.safeDBGet()`
@@ -70,17 +70,17 @@ async getUnidadeOrcamentaria() {
 - `window.safeDBAdd()`
 - `window.safeDBRemove()`
 
-**Status:** âœ… RESOLVIDO
+**Status:** ✅ RESOLVIDO
 
 ---
 
-## ðŸ› BUG #2: ID de Unidade Sobrescrito
+## 🐛 BUG #2: ID de Unidade Sobrescrito
 
-### âŒ PROBLEMA
+### ❌ PROBLEMA
 
 ```
-Unidade orÃ§amentÃ¡ria salva com ID aleatÃ³rio ao invÃ©s de "unidadeOrcamentaria"
-Resultado: "Unidade orÃ§amentÃ¡ria nÃ£o cadastrada" ao tentar cadastrar usuÃ¡rio
+Unidade orçamentária salva com ID aleatório ao invés de "unidadeOrcamentaria"
+Resultado: "Unidade orçamentária não cadastrada" ao tentar cadastrar usuário
 ```
 
 **Exemplo do Erro:**
@@ -89,17 +89,17 @@ Resultado: "Unidade orÃ§amentÃ¡ria nÃ£o cadastrada" ao tentar cadastrar us
 // Banco salvo com ID errado:
 { id: "config_1699294512345_abc123xyz", nome: "...", cnpj: "..." }
 
-// CÃ³digo procurando por:
-get('config', 'unidadeOrcamentaria') // â† NÃ£o encontra!
+// Código procurando por:
+get('config', 'unidadeOrcamentaria') // ← Não encontra!
 ```
 
-### âœ… SOLUÃ‡ÃƒO
+### ✅ SOLUÇÃO
 
 **Arquivo Modificado:**
 
 - `js/settings/unidade.js` (linha ~650)
 
-**MudanÃ§a no CÃ³digo:**
+**Mudança no Código:**
 
 **ANTES (ERRADO):**
 
@@ -119,84 +119,84 @@ const data = {
 };
 ```
 
-**ExplicaÃ§Ã£o:**
-A ordem do spread operator Ã© crucial. Quando `...unidade` vem depois de `id:`, ele sobrescreve o ID fixo com qualquer `id` que exista em `unidade`. Invertendo a ordem, o ID fixo sempre prevalece.
+**Explicação:**
+A ordem do spread operator é crucial. Quando `...unidade` vem depois de `id:`, ele sobrescreve o ID fixo com qualquer `id` que exista em `unidade`. Invertendo a ordem, o ID fixo sempre prevalece.
 
-**Status:** âœ… RESOLVIDO
+**Status:** ✅ RESOLVIDO
 
 ---
 
-## ðŸ› BUG #3: UsuÃ¡rio NÃ£o Salva no Banco
+## 🐛 BUG #3: Usuário Não Salva no Banco
 
-### âŒ PROBLEMA
+### ❌ PROBLEMA
 
 ```
-UsuÃ¡rio cadastrado mas nÃ£o aparece na lista
+Usuário cadastrado mas não aparece na lista
 Console sem erros aparentes
 ```
 
 **Causa Raiz:**
 
-1. MÃ©todo `saveUsuario()` (singular) nÃ£o existia
-2. Estava tentando salvar usuÃ¡rio individual ao invÃ©s da lista completa
-3. MÃ©todo `deleteUsuario()` estava fora da classe (erro de sintaxe)
+1. Método `saveUsuario()` (singular) não existia
+2. Estava tentando salvar usuário individual ao invés da lista completa
+3. Método `deleteUsuario()` estava fora da classe (erro de sintaxe)
 
-### âœ… SOLUÃ‡ÃƒO
+### ✅ SOLUÇÃO
 
 **Arquivo Modificado:**
 
 - `js/settings/usuarios.js`
 
-**MudanÃ§as:**
+**Mudanças:**
 
-1. **Salvamento de novo usuÃ¡rio (linha ~224):**
+1. **Salvamento de novo usuário (linha ~224):**
 
 **ANTES (ERRADO):**
 
 ```javascript
 // Salva no IndexedDB
-await this.saveUsuario(usuario); // â† MÃ©todo nÃ£o existe!
+await this.saveUsuario(usuario); // ← Método não existe!
 
-// Adiciona Ã  lista
+// Adiciona à lista
 this.usuarios.push(usuario);
 ```
 
 **DEPOIS (CORRETO):**
 
 ```javascript
-// Adiciona Ã  lista
+// Adiciona à lista
 this.usuarios.push(usuario);
 
 // Salva toda a lista no IndexedDB
-await this.saveUsuarios(this.usuarios); // â† Salva lista completa
+await this.saveUsuarios(this.usuarios); // ← Salva lista completa
 ```
 
-2. **EdiÃ§Ã£o de usuÃ¡rio (linha ~301):**
+2. **Edição de usuário (linha ~301):**
 
 **ANTES:**
 
 ```javascript
-await this.saveUsuario(usuario); // â† MÃ©todo nÃ£o existe!
+await this.saveUsuario(usuario); // ← Método não existe!
 ```
 
 **DEPOIS:**
 
 ```javascript
-await this.saveUsuarios(this.usuarios); // â† Salva lista completa
+await this.saveUsuarios(this.usuarios); // ← Salva lista completa
 ```
 
-3. **ExclusÃ£o de usuÃ¡rio:**
+3. **Exclusão de usuário:**
 
 **ANTES:**
 
 ```javascript
-async deleteUsuario(id) {  // â† Estava FORA da classe!
+async deleteUsuario(id) {  // ← Estava FORA da classe!
   const usuarios = await this.getUsuarios();
   const novosUsuarios = usuarios.filter((u) => u.id !== id);
 
   await window.dbManager.update("config", {
     id: "usuarios",
-    lista: novosUsuarios,  // â† Propriedade errada!
+    lista: novosUsuarios,  // ← Propriedade errada!
   });
 }
 ```
@@ -204,37 +204,37 @@ async deleteUsuario(id) {  // â† Estava FORA da classe!
 **DEPOIS:**
 
 ```javascript
-async deleteUsuario(id) {  // â† Agora DENTRO da classe
+async deleteUsuario(id) {  // ← Agora DENTRO da classe
   const usuarios = await this.getUsuarios();
   const novosUsuarios = usuarios.filter((u) => u.id !== id);
 
-  await this.saveUsuarios(novosUsuarios);  // â† Usa mÃ©todo correto
+  await this.saveUsuarios(novosUsuarios);  // ← Usa método correto
 }
 ```
 
-**Status:** âœ… RESOLVIDO
+**Status:** ✅ RESOLVIDO
 
 ---
 
-## ðŸ› BUG #4: AutenticaÃ§Ã£o NÃ£o Encontra UsuÃ¡rio
+## 🐛 BUG #4: Autenticação Não Encontra Usuário
 
-### âŒ PROBLEMA
+### ❌ PROBLEMA
 
 ```
-UsuÃ¡rio cadastrado mas login falha
+Usuário cadastrado mas login falha
 Mensagem: "Login ou senha incorretos"
 ```
 
 **Causa Raiz:**
-O mÃ©todo `autenticar()` usava `this.usuarios` (array em memÃ³ria) que estava vazio porque nÃ£o carregava os dados do IndexedDB antes de autenticar.
+O método `autenticar()` usava `this.usuarios` (array em memória) que estava vazio porque não carregava os dados do IndexedDB antes de autenticar.
 
-### âœ… SOLUÃ‡ÃƒO
+### ✅ SOLUÇÃO
 
 **Arquivo Modificado:**
 
 - `js/settings/usuarios.js` (linha ~476)
 
-**MudanÃ§a no CÃ³digo:**
+**Mudança no Código:**
 
 **ANTES (ERRADO):**
 
@@ -258,17 +258,17 @@ async autenticar(login, senha) {
     // 1. Garante DB pronto
     await this.ensureDBReady();
 
-    // 2. CARREGA usuÃ¡rios do banco
+    // 2. CARREGA usuários do banco
     const usuariosDB = await this.getUsuarios();
 
-    console.log('ðŸ” Tentando autenticar:', login);
-    console.log('ðŸ‘¥ UsuÃ¡rios no banco:', usuariosDB.length);
+    console.log('🔐 Tentando autenticar:', login);
+    console.log('👥 Usuários no banco:', usuariosDB.length);
 
-    // 3. Busca usuÃ¡rio NO BANCO
+    // 3. Busca usuário NO BANCO
     const usuario = usuariosDB.find((u) => u.login === login && u.ativo);
 
     if (!usuario) {
-      console.warn('âŒ UsuÃ¡rio nÃ£o encontrado:', login);
+      console.warn('❌ Usuário não encontrado:', login);
       return { sucesso: false, mensagem: "Login ou senha incorretos" };
     }
 
@@ -276,7 +276,7 @@ async autenticar(login, senha) {
     const senhaValida = await this.verificarPassword(senha, usuario.senhaHash);
 
     if (!senhaValida) {
-      console.warn('âŒ Senha invÃ¡lida');
+      console.warn('❌ Senha inválida');
       return { sucesso: false, mensagem: "Login ou senha incorretos" };
     }
 
@@ -288,12 +288,12 @@ async autenticar(login, senha) {
       perfil: usuario.perfil,
     };
 
-    console.log('âœ… Autenticado:', usuario.nome);
+    console.log('✅ Autenticado:', usuario.nome);
     await this.salvarAutenticacao(login, senha);
 
     return { sucesso: true, usuario: this.usuarioLogado };
   } catch (error) {
-    console.error('âŒ Erro na autenticaÃ§Ã£o:', error);
+    console.error('❌ Erro na autenticação:', error);
     return { sucesso: false, mensagem: "Erro: " + error.message };
   }
 }
@@ -301,33 +301,33 @@ async autenticar(login, senha) {
 
 **Melhorias Adicionadas:**
 
-- âœ… Logs informativos para debug
-- âœ… Try-catch para capturar erros
-- âœ… Mensagens de erro especÃ­ficas
-- âœ… Carregamento garantido do banco
+- ✅ Logs informativos para debug
+- ✅ Try-catch para capturar erros
+- ✅ Mensagens de erro específicas
+- ✅ Carregamento garantido do banco
 
-**Status:** âœ… RESOLVIDO
+**Status:** ✅ RESOLVIDO
 
 ---
 
-## ðŸ› BUG #4.1: Vincular Unidade Falha
+## 🐛 BUG #4.1: Vincular Unidade Falha
 
-### âŒ PROBLEMA
+### ❌ PROBLEMA
 
 ```
-Erro ao tentar vincular usuÃ¡rio Ã  unidade gestora
+Erro ao tentar vincular usuário à unidade gestora
 ```
 
 **Causa Raiz:**
-Similar ao bug de autenticaÃ§Ã£o - `this.unidades` estava vazio porque nÃ£o carregava do banco antes de tentar vincular.
+Similar ao bug de autenticação - `this.unidades` estava vazio porque não carregava do banco antes de tentar vincular.
 
-### âœ… SOLUÃ‡ÃƒO
+### ✅ SOLUÇÃO
 
 **Arquivo Modificado:**
 
 - `js/settings/unidade.js` (linha ~371)
 
-**MudanÃ§a:**
+**Mudança:**
 
 **ANTES:**
 
@@ -349,9 +349,9 @@ async vincularUnidadeAoUsuario(unidadeId) {
     // 1. Garante DB pronto
     await this.ensureDBReady();
 
-    // 2. Carrega unidades se necessÃ¡rio
+    // 2. Carrega unidades se necessário
     if (!this.unidades || this.unidades.length === 0) {
-      console.log('ðŸ“¥ Carregando unidades do banco...');
+      console.log('📥 Carregando unidades do banco...');
       await this.load();
     }
 
@@ -362,32 +362,32 @@ async vincularUnidadeAoUsuario(unidadeId) {
 }
 ```
 
-**Status:** âœ… RESOLVIDO
+**Status:** ✅ RESOLVIDO
 
 ---
 
-## ðŸ“Š IMPACTO GERAL
+## 📊 IMPACTO GERAL
 
 ### Antes dos Bugfixes:
 
-âŒ Sistema inutilizÃ¡vel  
-âŒ NÃ£o era possÃ­vel cadastrar unidade  
-âŒ NÃ£o era possÃ­vel cadastrar usuÃ¡rio  
-âŒ NÃ£o era possÃ­vel fazer login  
-âŒ NÃ£o era possÃ­vel vincular unidades
+❌ Sistema inutilizável  
+❌ Não era possível cadastrar unidade  
+❌ Não era possível cadastrar usuário  
+❌ Não era possível fazer login  
+❌ Não era possível vincular unidades
 
 ### Depois dos Bugfixes:
 
-âœ… Sistema totalmente funcional  
-âœ… Cadastro de unidade funciona  
-âœ… Cadastro de usuÃ¡rio funciona e salva  
-âœ… Login funciona corretamente  
-âœ… VinculaÃ§Ã£o de unidades funciona  
-âœ… Dados persistem no IndexedDB
+✅ Sistema totalmente funcional  
+✅ Cadastro de unidade funciona  
+✅ Cadastro de usuário funciona e salva  
+✅ Login funciona corretamente  
+✅ Vinculação de unidades funciona  
+✅ Dados persistem no IndexedDB
 
 ---
 
-## ðŸ”§ ARQUIVOS MODIFICADOS
+## 🔧 ARQUIVOS MODIFICADOS
 
 ### Arquivos Corrigidos:
 
@@ -395,85 +395,85 @@ async vincularUnidadeAoUsuario(unidadeId) {
 2. `js/settings/usuarios.js` (Bugs #1, #3, #4)
 3. `js/utils/dbSafe.js` (NOVO - Bug #1)
 
-### DocumentaÃ§Ã£o Criada:
+### Documentação Criada:
 
-1. `BUGFIX_UNIDADE_DB.md` (Bug #1 - AnÃ¡lise tÃ©cnica)
+1. `BUGFIX_UNIDADE_DB.md` (Bug #1 - Análise técnica)
 2. `BUGFIX_RESUMO.md` (Bug #1 - Resumo executivo)
-3. `BUGFIX_ID_UNIDADE.md` (Bug #2 - AnÃ¡lise completa)
+3. `BUGFIX_ID_UNIDADE.md` (Bug #2 - Análise completa)
 4. `BUGFIX_COMPLETO.md` (Este arquivo - Todos os bugs)
 5. `SOLUCAO_CACHE.md` (Guia de cache)
-6. `COMO_ABRIR.md` (Guia do usuÃ¡rio)
+6. `COMO_ABRIR.md` (Guia do usuário)
 
 ### Scripts de Utilidade:
 
 1. `ABRIR_APLICACAO.bat` (Auto-open com cache-busting)
 2. `ABRIR_APLICACAO.ps1` (PowerShell com cache-busting)
 3. `REINICIAR_SEM_CACHE.ps1` (Server sem cache)
-4. `verificar-db.html` (DiagnÃ³stico do IndexedDB)
+4. `verificar-db.html` (Diagnóstico do IndexedDB)
 
 ---
 
-## ðŸŽ¯ AÃ‡ÃƒO NECESSÃRIA DO USUÃRIO
+## 🎯 AÇÃO NECESSÁRIA DO USUÁRIO
 
 ### Para Aplicar os Bugfixes:
 
-1. **Limpar Cache (OBRIGATÃ“RIO):**
+1. **Limpar Cache (OBRIGATÓRIO):**
 
    ```
-   OpÃ§Ã£o 1: Pressione Ctrl + Shift + R no navegador
-   OpÃ§Ã£o 2: Execute .\REINICIAR_SEM_CACHE.ps1
-   OpÃ§Ã£o 3: F12 â†’ Application â†’ Clear Storage
+   Opção 1: Pressione Ctrl + Shift + R no navegador
+   Opção 2: Execute .\REINICIAR_SEM_CACHE.ps1
+   Opção 3: F12 → Application → Clear Storage
    ```
 
-2. **Recadastrar Unidade OrÃ§amentÃ¡ria:**
-   - VÃ¡ em: ConfiguraÃ§Ãµes â†’ Unidade OrÃ§amentÃ¡ria
+2. **Recadastrar Unidade Orçamentária:**
+   - Vá em: Configurações → Unidade Orçamentária
    - Preencha os dados novamente
    - Clique em SALVAR
    - Verifique no console: `'config': unidadeOrcamentaria`
 
-3. **Cadastrar UsuÃ¡rio:**
-   - VÃ¡ em: ConfiguraÃ§Ãµes â†’ UsuÃ¡rios
+3. **Cadastrar Usuário:**
+   - Vá em: Configurações → Usuários
    - Preencha nome, login, senha
    - Clique em SALVAR
-   - Verifique: `âœ… UsuÃ¡rios salvos no IndexedDB`
+   - Verifique: `✅ Usuários salvos no IndexedDB`
 
 4. **Testar Login:**
-   - FaÃ§a logout
-   - Tente fazer login com o usuÃ¡rio criado
+   - Faça logout
+   - Tente fazer login com o usuário criado
    - Deve funcionar!
 
 5. **Vincular Unidade (Opcional):**
-   - ApÃ³s login, vÃ¡ em Unidade Gestora
-   - Clique em "Vincular ao UsuÃ¡rio"
+   - Após login, vá em Unidade Gestora
+   - Clique em "Vincular ao Usuário"
    - Deve funcionar!
 
 ---
 
-## âœ… VERIFICAÃ‡ÃƒO DE SUCESSO
+## ✅ VERIFICAÇÃO DE SUCESSO
 
 ### Console do Navegador (F12):
 
 ```
-âœ… Banco de Dados: CONECTADO
-âœ… Unidade salva: id: "unidadeOrcamentaria"
-âœ… UsuÃ¡rios salvos no IndexedDB
-ðŸ” Tentando autenticar: usuario_teste
-ðŸ‘¥ UsuÃ¡rios no banco: 1
-âœ… Autenticado: Nome do UsuÃ¡rio
+✅ Banco de Dados: CONECTADO
+✅ Unidade salva: id: "unidadeOrcamentaria"
+✅ Usuários salvos no IndexedDB
+🔐 Tentando autenticar: usuario_teste
+👥 Usuários no banco: 1
+✅ Autenticado: Nome do Usuário
 ```
 
 ### Interface:
 
-- âœ… Unidade aparece como cadastrada
-- âœ… UsuÃ¡rio aparece na lista
-- âœ… Login funciona sem erros
-- âœ… VinculaÃ§Ã£o de unidade funciona
+- ✅ Unidade aparece como cadastrada
+- ✅ Usuário aparece na lista
+- ✅ Login funciona sem erros
+- ✅ Vinculação de unidade funciona
 
 ---
 
-## ðŸ“ LIÃ‡Ã•ES APRENDIDAS
+## 📝 LIÇÕES APRENDIDAS
 
-### PadrÃµes Aplicados:
+### Padrões Aplicados:
 
 1. **Sempre garantir DB pronto:**
 
@@ -481,7 +481,7 @@ async vincularUnidadeAoUsuario(unidadeId) {
    await this.ensureDBReady();
    ```
 
-2. **Carregar do banco, nÃ£o confiar em memÃ³ria:**
+2. **Carregar do banco, não confiar em memória:**
 
    ```javascript
    const dados = await this.getDadosDoIndexedDB();
@@ -490,45 +490,45 @@ async vincularUnidadeAoUsuario(unidadeId) {
 3. **Ordem do spread operator importa:**
 
    ```javascript
-   { ...objeto, propriedadeFixa: "valor" }  // âœ… Correto
-   { propriedadeFixa: "valor", ...objeto }  // âŒ Sobrescreve
+   { ...objeto, propriedadeFixa: "valor" }  // ✅ Correto
+   { propriedadeFixa: "valor", ...objeto }  // ❌ Sobrescreve
    ```
 
-4. **Salvar listas completas, nÃ£o itens individuais:**
+4. **Salvar listas completas, não itens individuais:**
 
    ```javascript
-   await this.saveLista(todosOsItens); // âœ… Correto
-   await this.saveItem(umItem); // âŒ Perde o resto
+   await this.saveLista(todosOsItens); // ✅ Correto
+   await this.saveItem(umItem); // ❌ Perde o resto
    ```
 
 5. **Logs para facilitar debug:**
    ```javascript
-   console.log('âœ… Sucesso:', dados);
-   console.warn('âš ï¸ AtenÃ§Ã£o:', aviso);
-   console.error('âŒ Erro:', erro);
+   console.log('✅ Sucesso:', dados);
+   console.warn('⚠️ Atenção:', aviso);
+   console.error('❌ Erro:', erro);
    ```
 
 ---
 
-## ðŸš€ PRÃ“XIMOS PASSOS
+## 🚀 PRÓXIMOS PASSOS
 
-- [ ] Aplicar mesmo padrÃ£o em `rede.js` e `preferencias.js`
+- [ ] Aplicar mesmo padrão em `rede.js` e `preferencias.js`
 - [ ] Adicionar testes automatizados para IndexedDB
-- [ ] Criar migration para usuÃ¡rios antigos (se houver)
+- [ ] Criar migration para usuários antigos (se houver)
 - [ ] Implementar sistema de versioning do banco
 
 ---
 
-## ðŸ“ž SUPORTE
+## 📞 SUPORTE
 
 Se encontrar novos problemas:
 
-1. Abra `verificar-db.html` para diagnÃ³stico
+1. Abra `verificar-db.html` para diagnóstico
 2. Verifique console do navegador (F12)
 3. Limpe cache completamente
 4. Reporte erros com logs do console
 
 ---
 
-**DocumentaÃ§Ã£o gerada automaticamente pelo Copilot**  
-**Ãšltima atualizaÃ§Ã£o:** 05/11/2025 Ã s 14:45
+**Documentação gerada automaticamente pelo Copilot**  
+**Última atualização:** 05/11/2025 às 14:45

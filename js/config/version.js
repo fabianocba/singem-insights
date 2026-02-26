@@ -1,4 +1,4 @@
-﻿(function versionBridge() {
+(function versionBridge() {
   if (window.__SINGEM_VERSION_BRIDGE__) {
     return;
   }

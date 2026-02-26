@@ -1,4 +1,4 @@
-﻿const FALLBACK = Object.freeze({
+const FALLBACK = Object.freeze({
   name: 'SINGEM',
   version: '0.0.2',
   build: '',

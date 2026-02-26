@@ -1,4 +1,4 @@
-﻿const u = new URL(self.location.href);
+const u = new URL(self.location.href);
 const APP_VERSION = u.searchParams.get('v') || '0.0.2';
 const APP_BUILD = u.searchParams.get('b') || 'local';
 

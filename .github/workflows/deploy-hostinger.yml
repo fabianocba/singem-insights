@@ -1,4 +1,4 @@
-﻿name: Deploy Hostinger Production
+name: Deploy Hostinger Production
 on:
   push:
     branches: [main]

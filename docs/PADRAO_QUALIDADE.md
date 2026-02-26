@@ -1,55 +1,55 @@
-﻿# ðŸ“Š ANÃLISE DE PADRÃƒO DE QUALIDADE
+# 📊 ANÁLISE DE PADRÃO DE QUALIDADE
 
 **Data:** 2025-06-13  
-**Fase:** ETAPA 6 â€” PadrÃ£o de Qualidade  
-**Status:** âœ… Analisado
+**Fase:** ETAPA 6 — Padrão de Qualidade  
+**Status:** ✅ Analisado
 
 ---
 
-## ðŸ§ª COBERTURA DE TESTES
+## 🧪 COBERTURA DE TESTES
 
-### EstatÃ­sticas Atuais
+### Estatísticas Atuais
 
-| MÃ©trica      | Valor | Threshold |
+| Métrica      | Valor | Threshold |
 | -------------- | ----- | --------- |
 | **Linhas**     | 0.84% | 70%       |
-| **FunÃ§Ãµes**  | 0.58% | 70%       |
+| **Funções**  | 0.58% | 70%       |
 | **Statements** | 0.83% | 70%       |
 | **Branches**   | 1.54% | 60%       |
 
-### MÃ³dulo Testado
+### Módulo Testado
 
-| Arquivo                     | Linhas     | Branches   | FunÃ§Ãµes |
+| Arquivo                     | Linhas     | Branches   | Funções |
 | --------------------------- | ---------- | ---------- | --------- |
 | `js/core/inputValidator.js` | **84.61%** | **85.34%** | **100%**  |
 
-### AnÃ¡lise
+### Análise
 
-O projeto tem **32 testes** focados no mÃ³dulo crÃ­tico de validaÃ§Ã£o:
+O projeto tem **32 testes** focados no módulo crítico de validação:
 
-- âœ… ValidaÃ§Ã£o de CNPJ
-- âœ… ValidaÃ§Ã£o de empenho
-- âœ… ValidaÃ§Ã£o de nota fiscal
-- âœ… ValidaÃ§Ã£o de arquivo PDF
-- âœ… SanitizaÃ§Ã£o de strings
-- âœ… ValidaÃ§Ã£o de credenciais
+- ✅ Validação de CNPJ
+- ✅ Validação de empenho
+- ✅ Validação de nota fiscal
+- ✅ Validação de arquivo PDF
+- ✅ Sanitização de strings
+- ✅ Validação de credenciais
 
 ---
 
-## ðŸ” POR QUE A COBERTURA Ã‰ BAIXA?
+## 🔍 POR QUE A COBERTURA É BAIXA?
 
 ### Contexto do Projeto
 
-O SINGEM Ã© uma aplicaÃ§Ã£o **web cliente** que:
+O SINGEM é uma aplicação **web cliente** que:
 
-1. **Depende fortemente de DOM** - Muitas funÃ§Ãµes manipulam elementos HTML
-2. **Usa IndexedDB** - DifÃ­cil de mockar em testes unitÃ¡rios
-3. **Usa File System API** - APIs do navegador nÃ£o disponÃ­veis em Node
+1. **Depende fortemente de DOM** - Muitas funções manipulam elementos HTML
+2. **Usa IndexedDB** - Difícil de mockar em testes unitários
+3. **Usa File System API** - APIs do navegador não disponíveis em Node
 4. **Processa PDFs** - Biblioteca externa (PDF.js)
 
-### MÃ³dulos difÃ­ceis de testar
+### Módulos difíceis de testar
 
-| MÃ³dulo        | Motivo                   |
+| Módulo        | Motivo                   |
 | -------------- | ------------------------ |
 | `app.js`       | DOM + Estado + UI        |
 | `db.js`        | IndexedDB                |
@@ -59,85 +59,85 @@ O SINGEM Ã© uma aplicaÃ§Ã£o **web cliente** que:
 
 ---
 
-## âœ… O QUE ESTÃ BOM
+## ✅ O QUE ESTÁ BOM
 
-1. **MÃ³dulo crÃ­tico testado** - InputValidator tem 84%+ cobertura
+1. **Módulo crítico testado** - InputValidator tem 84%+ cobertura
 2. **Testes bem escritos** - Casos de borda cobertos
 3. **Vitest configurado** - Pronto para mais testes
 4. **CI-friendly** - Testes rodam em ~2 segundos
 
 ---
 
-## ðŸ“‹ ROADMAP DE TESTES (OPCIONAL)
+## 📋 ROADMAP DE TESTES (OPCIONAL)
 
 Se quiser aumentar cobertura no futuro:
 
-### Fase 1: UtilitÃ¡rios puros
+### Fase 1: Utilitários puros
 
 ```
 tests/
-â”œâ”€â”€ format.test.js      # FormatUtils (CNPJ, telefone)
-â”œâ”€â”€ validate.test.js    # ValidaÃ§Ãµes adicionais
-â””â”€â”€ sanitize.test.js    # SanitizaÃ§Ã£o
+├── format.test.js      # FormatUtils (CNPJ, telefone)
+├── validate.test.js    # Validações adicionais
+└── sanitize.test.js    # Sanitização
 ```
 
-### Fase 2: IntegraÃ§Ã£o com mocks
+### Fase 2: Integração com mocks
 
 ```
 tests/
-â”œâ”€â”€ repository.test.js  # Com mock de IndexedDB
-â””â”€â”€ eventBus.test.js    # Eventos
+├── repository.test.js  # Com mock de IndexedDB
+└── eventBus.test.js    # Eventos
 ```
 
 ### Fase 3: E2E (Playwright/Cypress)
 
 ```
 e2e/
-â”œâ”€â”€ login.spec.js       # Fluxo de login
-â”œâ”€â”€ empenho.spec.js     # Cadastro de empenho
-â””â”€â”€ notaFiscal.spec.js  # Entrada de NF
+├── login.spec.js       # Fluxo de login
+├── empenho.spec.js     # Cadastro de empenho
+└── notaFiscal.spec.js  # Entrada de NF
 ```
 
-**NÃ£o implementado agora** - Projeto funciona bem sem.
+**Não implementado agora** - Projeto funciona bem sem.
 
 ---
 
-## ðŸ“š DOCUMENTAÃ‡ÃƒO
+## 📚 DOCUMENTAÇÃO
 
-### Documentos criados nesta revisÃ£o
+### Documentos criados nesta revisão
 
-| Documento                        | ConteÃºdo                        |
+| Documento                        | Conteúdo                        |
 | -------------------------------- | -------------------------------- |
-| `ANALISE_GLOBAL.md`              | Mapa de arquivos e dependÃªncias |
-| `HIGIENE_CODIGO.md`              | AnÃ¡lise de console.log e TODOs  |
+| `ANALISE_GLOBAL.md`              | Mapa de arquivos e dependências |
+| `HIGIENE_CODIGO.md`              | Análise de console.log e TODOs  |
 | `SEPARACAO_RESPONSABILIDADES.md` | Estrutura do app.js              |
-| `PERFORMANCE_ESTABILIDADE.md`    | Carregamento e otimizaÃ§Ãµes     |
+| `PERFORMANCE_ESTABILIDADE.md`    | Carregamento e otimizações     |
 | `PADRAO_QUALIDADE.md`            | Este documento                   |
 | `_legacy/README.md`              | Arquivos movidos                 |
 
-### DocumentaÃ§Ã£o existente
+### Documentação existente
 
-O projeto jÃ¡ tinha boa documentaÃ§Ã£o em `/docs/`:
+O projeto já tinha boa documentação em `/docs/`:
 
 - Guias de uso
-- ImplementaÃ§Ã£o tÃ©cnica
+- Implementação técnica
 - Changelog
 - Credenciais de acesso
 
 ---
 
-## âœ… CONCLUSÃƒO
+## ✅ CONCLUSÃO
 
-O projeto atende aos padrÃµes de qualidade para seu contexto:
+O projeto atende aos padrões de qualidade para seu contexto:
 
-- âœ… **Lint:** 0 erros, 0 warnings
-- âœ… **Testes:** 32 passing (mÃ³dulo crÃ­tico coberto)
-- âœ… **FormataÃ§Ã£o:** Prettier configurado
-- âœ… **DocumentaÃ§Ã£o:** Completa e atualizada
-- âœ… **CÃ³digo:** Organizado e comentado
+- ✅ **Lint:** 0 erros, 0 warnings
+- ✅ **Testes:** 32 passing (módulo crítico coberto)
+- ✅ **Formatação:** Prettier configurado
+- ✅ **Documentação:** Completa e atualizada
+- ✅ **Código:** Organizado e comentado
 
-### PrÃ³ximos passos recomendados (futuros)
+### Próximos passos recomendados (futuros)
 
 1. Adicionar testes para FormatUtils
-2. Considerar testes E2E para fluxos crÃ­ticos
-3. Manter documentaÃ§Ã£o atualizada
+2. Considerar testes E2E para fluxos críticos
+3. Manter documentação atualizada

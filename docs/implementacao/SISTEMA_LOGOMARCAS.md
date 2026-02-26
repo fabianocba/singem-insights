@@ -1,30 +1,30 @@
-﻿# ðŸ–¼ï¸ Sistema de Logomarcas por Unidade - SINGEM
+# 🖼️ Sistema de Logomarcas por Unidade - SINGEM
 
-## ðŸ“‹ Resumo da ImplementaÃ§Ã£o
+## 📋 Resumo da Implementação
 
-Sistema completo de upload e exibiÃ§Ã£o de logomarcas personalizadas para cada Unidade OrÃ§amentÃ¡ria cadastrada.
+Sistema completo de upload e exibição de logomarcas personalizadas para cada Unidade Orçamentária cadastrada.
 
 ---
 
-## âœ¨ Funcionalidades Implementadas
+## ✨ Funcionalidades Implementadas
 
 ### 1. **Upload de Logomarca**
 
-#### Tela de Cadastro (ConfiguraÃ§Ãµes â†’ Unidade OrÃ§amentÃ¡ria)
+#### Tela de Cadastro (Configurações → Unidade Orçamentária)
 
 **Novo Campo:**
 
 ```html
-ðŸ–¼ï¸ Logomarca da Unidade [Escolher arquivo...] Formatos aceitos: PNG, JPG, SVG. Tamanho mÃ¡ximo: 2MB. Recomendado:
-200x200px [Preview da imagem] [ðŸ—‘ï¸ Remover Logomarca]
+🖼️ Logomarca da Unidade [Escolher arquivo...] Formatos aceitos: PNG, JPG, SVG. Tamanho máximo: 2MB. Recomendado:
+200x200px [Preview da imagem] [🗑️ Remover Logomarca]
 ```
 
-**ValidaÃ§Ãµes:**
+**Validações:**
 
-- âœ… Formatos permitidos: `.png`, `.jpg`, `.jpeg`, `.svg`
-- âœ… Tamanho mÃ¡ximo: 2MB
-- âœ… Preview em tempo real ao selecionar arquivo
-- âœ… Possibilidade de remover antes de salvar
+- ✅ Formatos permitidos: `.png`, `.jpg`, `.jpeg`, `.svg`
+- ✅ Tamanho máximo: 2MB
+- ✅ Preview em tempo real ao selecionar arquivo
+- ✅ Possibilidade de remover antes de salvar
 
 ### 2. **Armazenamento**
 
@@ -43,187 +43,187 @@ Sistema completo de upload e exibiÃ§Ã£o de logomarcas personalizadas para ca
   cnpj: "10.123.456/0001-78",
   cnpjNumeros: "10123456000178",
   ug: "158123",
-  logomarca: "data:image/png;base64,iVBORw0KGgoAAAANS...", // â† Base64
+  logomarca: "data:image/png;base64,iVBORw0KGgoAAAANS...", // ← Base64
   // ... demais campos
 }
 ```
 
-### 3. **ExibiÃ§Ã£o da Logomarca**
+### 3. **Exibição da Logomarca**
 
 #### Local 1: **Lista de Unidades Cadastradas**
 
 **Tabela com coluna "Logo":**
 
 ```
-â”Œâ”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
-â”‚ Logo â”‚ RazÃ£o Social       â”‚ CNPJ       â”‚ UG â”‚ Mun./UF  â”‚ AÃ§Ãµes    â”‚
-â”œâ”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
-â”‚ [ðŸ–¼] â”‚ IF Baiano - SB     â”‚ 10.123...  â”‚158 â”‚ SB/BA    â”‚ âœï¸ ðŸ”— ðŸ—‘ï¸ â”‚
-â”‚ ðŸ›ï¸   â”‚ IF Baiano - Feira  â”‚ 10.987...  â”‚159 â”‚ Feira/BA â”‚ âœï¸ ðŸ”— ðŸ—‘ï¸ â”‚
-â””â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+┌──────┬────────────────────┬────────────┬────┬──────────┬──────────┐
+│ Logo │ Razão Social       │ CNPJ       │ UG │ Mun./UF  │ Ações    │
+├──────┼────────────────────┼────────────┼────┼──────────┼──────────┤
+│ [🖼] │ IF Baiano - SB     │ 10.123...  │158 │ SB/BA    │ ✏️ 🔗 🗑️ │
+│ 🏛️   │ IF Baiano - Feira  │ 10.987...  │159 │ Feira/BA │ ✏️ 🔗 🗑️ │
+└──────┴────────────────────┴────────────┴────┴──────────┴──────────┘
 ```
 
 - Se tem logomarca: exibe imagem (40x40px)
-- Se nÃ£o tem: exibe emoji ðŸ›ï¸
+- Se não tem: exibe emoji 🏛️
 
 #### Local 2: **Tela de Login**
 
 **Antes (sem logomarca):**
 
 ```
-â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
-â”‚            ðŸ›ï¸                  â”‚  â† Emoji fixo
-â”‚   Bem-vindo(a) ao IF Baiano    â”‚
-â”‚   CNPJ: 10.123.456/0001-78     â”‚
-â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+┌────────────────────────────────┐
+│            🏛️                  │  ← Emoji fixo
+│   Bem-vindo(a) ao IF Baiano    │
+│   CNPJ: 10.123.456/0001-78     │
+└────────────────────────────────┘
 ```
 
 **Depois (com logomarca):**
 
 ```
-â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
-â”‚          [ðŸ–¼ï¸ LOGO]            â”‚  â† Logo da unidade vinculada
-â”‚   Bem-vindo(a) ao IF Baiano    â”‚
-â”‚   CNPJ: 10.123.456/0001-78     â”‚
-â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+┌────────────────────────────────┐
+│          [🖼️ LOGO]            │  ← Logo da unidade vinculada
+│   Bem-vindo(a) ao IF Baiano    │
+│   CNPJ: 10.123.456/0001-78     │
+└────────────────────────────────┘
 ```
 
-- Tamanho mÃ¡ximo: 120x120px
+- Tamanho máximo: 120x120px
 - Centralizado
-- Substitui o emoji padrÃ£o
+- Substitui o emoji padrão
 
-#### Local 3: **Header da AplicaÃ§Ã£o**
+#### Local 3: **Header da Aplicação**
 
 **Antes:**
 
 ```
-ðŸ“‹ Controle de Material
+📋 Controle de Material
 IF Baiano - Campus
 ```
 
 **Depois (com logomarca):**
 
 ```
-[ðŸ–¼ï¸] Controle de Material  â† Logo 40px de altura + texto
+[🖼️] Controle de Material  ← Logo 40px de altura + texto
 IF Baiano - Campus Senhor do Bonfim
 ```
 
-- Logo ao lado do tÃ­tulo
+- Logo ao lado do título
 - Altura fixa: 40px
 - Alinhamento vertical
 
 ---
 
-## ðŸ”„ Fluxo de Uso
+## 🔄 Fluxo de Uso
 
 ### Cadastrar Unidade com Logomarca
 
-1. **ConfiguraÃ§Ãµes â†’ Unidade OrÃ§amentÃ¡ria**
-2. Preencher dados da unidade (RazÃ£o Social, CNPJ, etc.)
+1. **Configurações → Unidade Orçamentária**
+2. Preencher dados da unidade (Razão Social, CNPJ, etc.)
 3. Clicar em **"Escolher arquivo"** no campo Logomarca
 4. Selecionar imagem (PNG, JPG ou SVG)
-5. âœ… **Preview aparece automaticamente**
-6. (Opcional) Clicar em "ðŸ—‘ï¸ Remover Logomarca" para trocar
-7. Clicar em **"ðŸ’¾ Salvar Unidade"**
-8. âœ… **Unidade aparece na lista COM a logo!**
+5. ✅ **Preview aparece automaticamente**
+6. (Opcional) Clicar em "🗑️ Remover Logomarca" para trocar
+7. Clicar em **"💾 Salvar Unidade"**
+8. ✅ **Unidade aparece na lista COM a logo!**
 
-### Vincular Unidade ao UsuÃ¡rio
+### Vincular Unidade ao Usuário
 
 1. Na lista de unidades, localizar a unidade desejada
-2. Clicar em **"ðŸ”— Vincular ao UsuÃ¡rio"**
-3. Confirmar vinculaÃ§Ã£o
-4. âœ… **Logo aparece na tela de login e no header!**
+2. Clicar em **"🔗 Vincular ao Usuário"**
+3. Confirmar vinculação
+4. ✅ **Logo aparece na tela de login e no header!**
 
 ### Editar Logomarca de Unidade Existente
 
-1. Na lista, clicar em **"âœï¸ Editar"** na unidade
-2. FormulÃ¡rio Ã© preenchido com dados atuais
+1. Na lista, clicar em **"✏️ Editar"** na unidade
+2. Formulário é preenchido com dados atuais
 3. Se houver logo, aparece no preview
 4. Para trocar:
-   - Clicar em "ðŸ—‘ï¸ Remover Logomarca"
+   - Clicar em "🗑️ Remover Logomarca"
    - Escolher novo arquivo
 5. Salvar
 
 ---
 
-## ðŸŽ¨ RecomendaÃ§Ãµes de Design
+## 🎨 Recomendações de Design
 
 ### Tamanho e Formato
 
-**DimensÃµes Recomendadas:**
+**Dimensões Recomendadas:**
 
 - Ideal: 200x200px (quadrado)
-- MÃ­nimo: 100x100px
-- MÃ¡ximo arquivo: 2MB
+- Mínimo: 100x100px
+- Máximo arquivo: 2MB
 
 **Formatos:**
 
 1. **PNG** (recomendado)
-   - Suporta transparÃªncia
+   - Suporta transparência
    - Melhor para logos com fundo transparente
 2. **SVG** (vetorial)
    - Escala perfeitamente
    - Tamanho de arquivo pequeno
    - Ideal para logos simples
 3. **JPG**
-   - Sem transparÃªncia
+   - Sem transparência
    - Bom para fotos/imagens complexas
 
 ### Estilo Visual
 
-**Boas PrÃ¡ticas:**
+**Boas Práticas:**
 
-- âœ… Fundo transparente (PNG/SVG)
-- âœ… Logo centralizado
-- âœ… Cores institucionais
-- âœ… Boa legibilidade
-- âœ… ProporÃ§Ã£o quadrada ou prÃ³xima
+- ✅ Fundo transparente (PNG/SVG)
+- ✅ Logo centralizado
+- ✅ Cores institucionais
+- ✅ Boa legibilidade
+- ✅ Proporção quadrada ou próxima
 
 **Evitar:**
 
-- âŒ Logos muito alongadas (horizontal ou vertical)
-- âŒ Texto muito pequeno
-- âŒ Muitos detalhes (simplificar)
-- âŒ Fundos coloridos (preferir transparente)
+- ❌ Logos muito alongadas (horizontal ou vertical)
+- ❌ Texto muito pequeno
+- ❌ Muitos detalhes (simplificar)
+- ❌ Fundos coloridos (preferir transparente)
 
 ---
 
-## ðŸ’¾ Armazenamento e Performance
+## 💾 Armazenamento e Performance
 
 ### IndexedDB
 
 **Vantagens:**
 
-- âœ… Totalmente offline
-- âœ… NÃ£o precisa de servidor
-- âœ… RÃ¡pido acesso
-- âœ… Sincronizado com dados da unidade
+- ✅ Totalmente offline
+- ✅ Não precisa de servidor
+- ✅ Rápido acesso
+- ✅ Sincronizado com dados da unidade
 
-**LimitaÃ§Ãµes:**
+**Limitações:**
 
-- âš ï¸ Base64 aumenta ~33% o tamanho
-- âš ï¸ Limite de 2MB por imagem
-- âš ï¸ Quota total do IndexedDB (~50MB tÃ­pico)
+- ⚠️ Base64 aumenta ~33% o tamanho
+- ⚠️ Limite de 2MB por imagem
+- ⚠️ Quota total do IndexedDB (~50MB típico)
 
 ### Performance
 
-**OtimizaÃ§Ãµes Implementadas:**
+**Otimizações Implementadas:**
 
 - Carregamento lazy da logo
-- Cache no objeto unidade em memÃ³ria
-- Preview antes de salvar (evita salvar/carregar desnecessÃ¡rio)
+- Cache no objeto unidade em memória
+- Preview antes de salvar (evita salvar/carregar desnecessário)
 
-**RecomendaÃ§Ãµes:**
+**Recomendações:**
 
 - Usar logos otimizadas (ferramentas como TinyPNG)
-- Preferir SVG quando possÃ­vel (menor tamanho)
+- Preferir SVG quando possível (menor tamanho)
 - Evitar logos muito grandes (max 200x200px)
 
 ---
 
-## ðŸ”§ Detalhes TÃ©cnicos
+## 🔧 Detalhes Técnicos
 
-### FunÃ§Ãµes Implementadas (unidade.js)
+### Funções Implementadas (unidade.js)
 
 ```javascript
 // Upload e preview
@@ -238,27 +238,27 @@ renderizarLista(); // Exibe logo na tabela
 editarUnidade(id); // Carrega logo ao editar
 ```
 
-### FunÃ§Ãµes Atualizadas (app.js)
+### Funções Atualizadas (app.js)
 
 ```javascript
 carregarDadosUnidade()
-  â†“
+  ↓
   1. Carrega unidade vinculada
   2. Atualiza tela de login COM logo
   3. Atualiza header COM logo
-  4. Substitui emoji padrÃ£o por imagem
+  4. Substitui emoji padrão por imagem
 ```
 
 ### Estrutura HTML
 
 ```html
-<!-- FormulÃ¡rio de Cadastro -->
+<!-- Formulário de Cadastro -->
 <input type="file" id="logomarcaUnidade" accept="image/png,image/jpeg,image/jpg,image/svg+xml" />
 
 <!-- Preview -->
 <div id="previewLogomarca">
   <img id="imgPreviewLogomarca" src="" />
-  <button id="btnRemoverLogomarca">ðŸ—‘ï¸ Remover</button>
+  <button id="btnRemoverLogomarca">🗑️ Remover</button>
 </div>
 
 <!-- Tabela -->
@@ -274,35 +274,35 @@ carregarDadosUnidade()
 
 ---
 
-## ðŸ“± Casos de Uso
+## 📱 Casos de Uso
 
-### Caso 1: Campus com MÃºltiplos Campi
+### Caso 1: Campus com Múltiplos Campi
 
-**CenÃ¡rio:**
+**Cenário:**
 
 ```
 IF Baiano possui 10 campi, cada um com:
-- Logo prÃ³pria do campus
-- CNPJ prÃ³prio
-- Identidade visual Ãºnica
+- Logo própria do campus
+- CNPJ próprio
+- Identidade visual única
 ```
 
-**SoluÃ§Ã£o:**
+**Solução:**
 
 1. Cadastrar cada campus como unidade
 2. Fazer upload da logo de cada campus
-3. Cada usuÃ¡rio vincula seu campus
-4. Sistema exibe logo do campus do usuÃ¡rio logado
+3. Cada usuário vincula seu campus
+4. Sistema exibe logo do campus do usuário logado
 
 **Resultado:**
 
-- âœ… Identidade visual preservada
-- âœ… UsuÃ¡rios identificam facilmente seu campus
-- âœ… Documentos/relatÃ³rios com logo correta
+- ✅ Identidade visual preservada
+- ✅ Usuários identificam facilmente seu campus
+- ✅ Documentos/relatórios com logo correta
 
 ### Caso 2: Reitoria + Campi
 
-**CenÃ¡rio:**
+**Cenário:**
 
 ```
 - Reitoria: Logo institucional geral
@@ -310,65 +310,65 @@ IF Baiano possui 10 campi, cada um com:
 - Campus B: Logo do campus B
 ```
 
-**ConfiguraÃ§Ã£o:**
+**Configuração:**
 
-- UsuÃ¡rios da Reitoria â†’ Logo IF Baiano geral
-- UsuÃ¡rios do Campus A â†’ Logo Campus A
-- UsuÃ¡rios do Campus B â†’ Logo Campus B
+- Usuários da Reitoria → Logo IF Baiano geral
+- Usuários do Campus A → Logo Campus A
+- Usuários do Campus B → Logo Campus B
 
 ### Caso 3: Projeto Especial
 
-**CenÃ¡rio:**
+**Cenário:**
 
 ```
-Projeto financiado com logo especÃ­fica do projeto
-CNPJ prÃ³prio do projeto
+Projeto financiado com logo específica do projeto
+CNPJ próprio do projeto
 ```
 
-**SoluÃ§Ã£o:**
+**Solução:**
 
 - Cadastrar unidade "Projeto X"
 - Logo personalizada do projeto
-- ValidaÃ§Ã£o de NF especÃ­fica para CNPJ do projeto
+- Validação de NF específica para CNPJ do projeto
 
 ---
 
-## ðŸ› ResoluÃ§Ã£o de Problemas
+## 🐛 Resolução de Problemas
 
-### Logo nÃ£o aparece apÃ³s salvar
+### Logo não aparece após salvar
 
 **Verificar:**
 
-1. âœ… Arquivo selecionado antes de salvar?
-2. âœ… Preview apareceu antes de salvar?
-3. âœ… Formato permitido (PNG/JPG/SVG)?
-4. âœ… Tamanho menor que 2MB?
+1. ✅ Arquivo selecionado antes de salvar?
+2. ✅ Preview apareceu antes de salvar?
+3. ✅ Formato permitido (PNG/JPG/SVG)?
+4. ✅ Tamanho menor que 2MB?
 
-**SoluÃ§Ã£o:**
+**Solução:**
 
-- Recarregar pÃ¡gina (F5)
+- Recarregar página (F5)
 - Verificar console do navegador (F12)
 - Editar unidade e fazer novo upload
 
 ### Logo muito grande ou distorcida
 
-**Causa:** Imagem com proporÃ§Ã£o inadequada
+**Causa:** Imagem com proporção inadequada
 
-**SoluÃ§Ã£o:**
+**Solução:**
 
 1. Editar imagem externamente (Photoshop, GIMP, etc.)
 2. Redimensionar para 200x200px
 3. Salvar como PNG com fundo transparente
 4. Fazer novo upload
 
-### Logo nÃ£o muda na tela de login
+### Logo não muda na tela de login
 
-**Causa:** Unidade nÃ£o estÃ¡ vinculada ao usuÃ¡rio
+**Causa:** Unidade não está vinculada ao usuário
 
-**SoluÃ§Ã£o:**
+**Solução:**
 
-1. Ir em ConfiguraÃ§Ãµes â†’ Unidade OrÃ§amentÃ¡ria
-2. Na lista, clicar "ðŸ”— Vincular ao UsuÃ¡rio"
+1. Ir em Configurações → Unidade Orçamentária
+2. Na lista, clicar "🔗 Vincular ao Usuário"
 3. Fazer logout e login novamente
 
 ### Arquivo muito grande
@@ -376,67 +376,67 @@ CNPJ prÃ³prio do projeto
 **Reduzir tamanho:**
 
 1. Usar ferramenta online: TinyPNG, Compressor.io
-2. Reduzir dimensÃµes (max 200x200px)
-3. Se PNG, converter para JPG (perde transparÃªncia)
-4. Se possÃ­vel, usar SVG (vetorial, menor)
+2. Reduzir dimensões (max 200x200px)
+3. Se PNG, converter para JPG (perde transparência)
+4. Se possível, usar SVG (vetorial, menor)
 
 ---
 
-## ðŸ“Š BenefÃ­cios da ImplementaÃ§Ã£o
+## 📊 Benefícios da Implementação
 
-### ðŸŽ¨ **Identidade Visual**
+### 🎨 **Identidade Visual**
 
-- Cada unidade mantÃ©m sua identidade
+- Cada unidade mantém sua identidade
 - Sistema personalizado por campus/projeto
 - Profissionalismo nas telas
 
-### ðŸ‘¥ **ExperiÃªncia do UsuÃ¡rio**
+### 👥 **Experiência do Usuário**
 
-- IdentificaÃ§Ã£o imediata da unidade
-- Interface mais amigÃ¡vel
+- Identificação imediata da unidade
+- Interface mais amigável
 - Senso de pertencimento
 
-### ðŸ“„ **DocumentaÃ§Ã£o**
+### 📄 **Documentação**
 
-- PreparaÃ§Ã£o para relatÃ³rios com logo
-- Futuras exportaÃ§Ãµes em PDF com brasÃ£o
+- Preparação para relatórios com logo
+- Futuras exportações em PDF com brasão
 - Notas/comprovantes personalizados
 
-### ðŸ”’ **OrganizaÃ§Ã£o**
+### 🔒 **Organização**
 
-- SeparaÃ§Ã£o visual clara entre unidades
-- Menos confusÃ£o em ambientes multi-campus
+- Separação visual clara entre unidades
+- Menos confusão em ambientes multi-campus
 - Auditoria facilitada
 
 ---
 
-## ðŸš€ PrÃ³ximos Passos (Futuro)
+## 🚀 Próximos Passos (Futuro)
 
-### PossÃ­veis Melhorias
+### Possíveis Melhorias
 
 1. **Editor de Imagem Integrado**
    - Recortar/redimensionar dentro do sistema
    - Ajustar contraste/brilho
    - Filtros
 
-2. **MÃºltiplas Logos**
+2. **Múltiplas Logos**
    - Logo principal (tela de login)
-   - Logo secundÃ¡ria (relatÃ³rios)
+   - Logo secundária (relatórios)
    - Favicon personalizado
 
 3. **Galeria de Templates**
-   - Logos prÃ©-definidas do IF
+   - Logos pré-definidas do IF
    - Templates por campus
    - Download de pacote oficial
 
-4. **RelatÃ³rios com Logo**
+4. **Relatórios com Logo**
    - PDF de empenhos com logo
-   - RelatÃ³rios de conferÃªncia com brasÃ£o
-   - CabeÃ§alho personalizado
+   - Relatórios de conferência com brasão
+   - Cabeçalho personalizado
 
 ---
 
-**VersÃ£o:** 1.2.4  
+**Versão:** 1.2.4  
 **Data:** 03/11/2025  
 **Implementado por:** Sistema SINGEM  
-**Status:** âœ… ConcluÃ­do e Testado
+**Status:** ✅ Concluído e Testado
