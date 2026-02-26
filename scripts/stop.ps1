@@ -399,8 +399,8 @@ $deploySteps = @(
   "if [ ! -d .git ]; then echo '[ERRO] Diretório não é repositório git: $VpsRepoDir'; exit 2; fi"
   "if ! command -v pm2 >/dev/null 2>&1; then echo '[ERRO] pm2 não encontrado no servidor'; exit 3; fi"
   "git fetch origin main"
-  "git checkout main"
-  "git pull --ff-only origin main"
+  "git checkout main || git checkout -B main origin/main"
+  "if git merge-base --is-ancestor HEAD origin/main; then git merge --ff-only origin/main; echo '[INFO] VPS main fast-forward para origin/main'; else echo '[WARN] VPS main divergiu; aplicando reset --hard origin/main'; git reset --hard origin/main; fi"
   "pm2 restart $Pm2AppName"
   "pm2 status $Pm2AppName || true"
 )
