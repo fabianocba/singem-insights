@@ -1,4 +1,4 @@
-# start-dev.ps1 - SINGEM DEV (BLINDADO) - PowerShell 5+
+﻿# start-dev.ps1 - SINGEM DEV (BLINDADO) - PowerShell 5+
 # Objetivo: sempre abrir o ambiente DEV na ÚLTIMA origin/dev e PROVAR que o front está servindo a versão correta.
 
 $ErrorActionPreference = "Stop"
@@ -80,10 +80,10 @@ function Fail($msg) {
 function Stop-PortProcess($port) {
     $conn = Get-NetTCPConnection -LocalPort $port -ErrorAction SilentlyContinue | Select-Object -First 1
     if ($null -ne $conn) {
-        $pid = $conn.OwningProcess
+        $procId = $conn.OwningProcess
         if ($pid -and $pid -ne 0) {
-            Write-Host "Encerrando processo na porta $port (PID $pid)..."
-            Stop-Process -Id $pid -Force -ErrorAction SilentlyContinue
+            Write-Host "Encerrando processo na porta $port (PID $procId)..."
+            Stop-Process -Id $procId -Force -ErrorAction SilentlyContinue
             Start-Sleep -Seconds 1
         }
     }
@@ -415,3 +415,4 @@ try {
     Write-Host "Eu travei de propósito para não abrir coisa desatualizada."
     exit 1
 }
+
