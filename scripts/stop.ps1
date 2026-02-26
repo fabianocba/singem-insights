@@ -367,8 +367,8 @@ Say "ℹ️ Hash atual dev: $devHeadForMain" "DarkYellow"
 $r = Run-Native git @("checkout","main")
 Ensure-RunOk -Result $r -Action "git checkout main"
 
-$r = Run-Native git @("pull","--ff-only",$Remote,"main")
-Ensure-RunOk -Result $r -Action "git pull --ff-only origin main"
+$r = Run-Native git @("reset","--hard","origin/main")
+Ensure-RunOk -Result $r -Action "git reset --hard origin/main"
 
 $r = Run-Native git @("merge","--ff-only","dev")
 if (-not $r.Ok) {
