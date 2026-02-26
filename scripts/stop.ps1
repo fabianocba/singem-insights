@@ -409,7 +409,7 @@ $deploySteps = @(
   "mkdir -p $VpsFrontDir"
   "rsync -a --delete --exclude='.git' --exclude='public' --exclude='server' --exclude='node_modules' --exclude='01_EMPENHOS' --exclude='02_NOTAS_FISCAIS' --exclude='03_RELATORIOS' --exclude='04_BACKUPS' --exclude='05_ANEXOS' --exclude='IF GUANAMBI' --exclude='storage' --exclude='scripts' --exclude='docs' --exclude='tests' --exclude='testes' --exclude='*.code-workspace' $VpsRepoDir/ $VpsFrontDir/"
   "if [ ! -f $VpsNginxSite ]; then echo '[ERRO] Config Nginx não encontrada: $VpsNginxSite'; exit 6; fi"
-  "ACTIVE_ROOT=`$(grep -E '^[[:space:]]*root[[:space:]]+' $VpsNginxSite | head -n 1 | awk '{print `$2}' | sed 's/;//')"
+  "ACTIVE_ROOT=`$(grep -E '^[[:space:]]*root[[:space:]]+' $VpsNginxSite | tail -n 1 | awk '{print `$2}' | sed 's/;//')"
   "if [ -z `"`$ACTIVE_ROOT`" ]; then echo '[ERRO] Não foi possível detectar root no Nginx'; exit 7; fi"
   "echo [INFO] Nginx root ativo: `$ACTIVE_ROOT"
   "if [ `"`$ACTIVE_ROOT`" != `"$VpsFrontDir`" ]; then echo '[WARN] Nginx root diferente do padrão. Sincronizando também para o root ativo para evitar front antigo.'; mkdir -p `"`$ACTIVE_ROOT`"; rsync -a --delete --exclude='.git' --exclude='public' --exclude='server' --exclude='node_modules' --exclude='01_EMPENHOS' --exclude='02_NOTAS_FISCAIS' --exclude='03_RELATORIOS' --exclude='04_BACKUPS' --exclude='05_ANEXOS' --exclude='IF GUANAMBI' --exclude='storage' --exclude='scripts' --exclude='docs' --exclude='tests' --exclude='testes' --exclude='*.code-workspace' $VpsRepoDir/ `"`$ACTIVE_ROOT`"/; fi"
