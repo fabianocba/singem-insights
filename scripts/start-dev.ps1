@@ -114,14 +114,53 @@ function Read-FileText($path) {
     return Get-Content -Raw -Encoding UTF8 $path
 }
 
+function Strip-JsonPreamble($text) {
+    if ($null -eq $text) { return $null }
+
+    $clean = [string]$text
+
+    # Remove BOM Unicode real no começo (U+FEFF) e marks invisíveis comuns
+    $clean = $clean.TrimStart([char]0xFEFF, [char]0x200B, [char]0x2060)
+
+    # Remove BOM UTF-8 mal decodificado como Latin-1/Windows-1252 (ï»¿)
+    if ($clean.StartsWith("ï»¿")) {
+        $clean = $clean.Substring(3)
+    }
+
+    return $clean
+}
+
 function Normalize-Json($jsonText) {
     if (-not $jsonText) { return $null }
-    $jsonText = [string]$jsonText
-    $jsonText = $jsonText -replace '^\uFEFF', ''
+
+    $jsonText = Strip-JsonPreamble $jsonText
+
     try {
         return ($jsonText | ConvertFrom-Json)
     } catch {
-        return $null
+        # fallback defensivo: remove qualquer prefixo antes do primeiro '{' ou '['
+        $objIdx = $jsonText.IndexOf('{')
+        $arrIdx = $jsonText.IndexOf('[')
+
+        if ($objIdx -ge 0 -and $arrIdx -ge 0) {
+            $firstIdx = [Math]::Min($objIdx, $arrIdx)
+        } elseif ($objIdx -ge 0) {
+            $firstIdx = $objIdx
+        } elseif ($arrIdx -ge 0) {
+            $firstIdx = $arrIdx
+        } else {
+            return $null
+        }
+
+        if ($firstIdx -gt 0) {
+            $jsonText = $jsonText.Substring($firstIdx)
+        }
+
+        try {
+            return ($jsonText | ConvertFrom-Json)
+        } catch {
+            return $null
+        }
     }
 }
 
@@ -358,8 +397,8 @@ function Verify-ServingLatestDev {
         Fail "Não consegui ler ${VersionUrl}. Talvez o front não esteja servindo do ProjectRoot."
     }
 
-    $localTxt = ([string]$localTxt) -replace '^\uFEFF', ''
-    $servedTxt = ([string]$servedTxt) -replace '^\uFEFF', ''
+    $localTxt = Strip-JsonPreamble $localTxt
+    $servedTxt = Strip-JsonPreamble $servedTxt
 
     $localObj  = Normalize-Json $localTxt
     $servedObj = Normalize-Json $servedTxt
