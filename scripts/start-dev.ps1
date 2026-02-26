@@ -81,7 +81,7 @@ function Stop-PortProcess($port) {
     $conn = Get-NetTCPConnection -LocalPort $port -ErrorAction SilentlyContinue | Select-Object -First 1
     if ($null -ne $conn) {
         $procId = $conn.OwningProcess
-        if ($pid -and $pid -ne 0) {
+        if ($procId -and $procId -ne 0) {
             Write-Host "Encerrando processo na porta $port (PID $procId)..."
             Stop-Process -Id $procId -Force -ErrorAction SilentlyContinue
             Start-Sleep -Seconds 1
@@ -116,11 +116,20 @@ function Read-FileText($path) {
 
 function Normalize-Json($jsonText) {
     if (-not $jsonText) { return $null }
+    $jsonText = [string]$jsonText
+    $jsonText = $jsonText -replace '^\uFEFF', ''
     try {
-        return ($jsonText | ConvertFrom-Json | ConvertTo-Json -Depth 50)
+        return ($jsonText | ConvertFrom-Json)
     } catch {
-        return $jsonText.Trim()
+        return $null
     }
+}
+
+function Get-Preview($text, $maxLen=30) {
+    if ($null -eq $text) { return "" }
+    $raw = [string]$text
+    if ($raw.Length -le $maxLen) { return $raw }
+    return $raw.Substring(0, $maxLen)
 }
 
 function Ensure-RepoRoot($root) {
@@ -242,9 +251,9 @@ function Start-FrontServer {
         Write-Host "→ Front via Python http.server"
     } else {
         Ensure-Tool node "Instale Node.js LTS."
-        $cmd = "cd `"$ProjectRoot`"; npx --yes http-server -p ${FrontPort} -c-1"
+        $cmd = "npx --yes http-server `"$ProjectRoot`" -p ${FrontPort} -a 127.0.0.1 -c-1"
         Start-Process powershell -ArgumentList "-NoExit","-Command",$cmd | Out-Null
-        Write-Host "→ Front via npx http-server (cache desativado -c-1)"
+        Write-Host "→ Front via npx http-server (raiz forçada + cache desativado -c-1)"
     }
 
     Write-Host "Aguardando Front..."
@@ -337,37 +346,71 @@ function Verify-ServingLatestDev {
     $localTxt = Read-FileText $localVersionPath
     if (-not $localTxt) {
         Write-Host "⚠ Não achei '${VersionFileRelPath}' no disco. Pulando comparação de version.json."
-        return
+        return [pscustomobject]@{ Head = $head; ServedVersionObject = $null }
     }
 
     $servedTxt = $null
+    $versionUrlWithTs = "${VersionUrl}?ts=$([DateTime]::UtcNow.Ticks)"
     try {
-        $served = Invoke-WebRequest -Uri $VersionUrl -UseBasicParsing -TimeoutSec 10 -Headers @{ "Cache-Control"="no-cache"; "Pragma"="no-cache" }
+        $served = Invoke-WebRequest -Uri $versionUrlWithTs -UseBasicParsing -TimeoutSec 10 -Headers @{ "Cache-Control"="no-cache"; "Pragma"="no-cache" }
         $servedTxt = $served.Content
     } catch {
         Fail "Não consegui ler ${VersionUrl}. Talvez o front não esteja servindo do ProjectRoot."
     }
 
-    $nLocal  = Normalize-Json $localTxt
-    $nServed = Normalize-Json $servedTxt
+    $localTxt = ([string]$localTxt) -replace '^\uFEFF', ''
+    $servedTxt = ([string]$servedTxt) -replace '^\uFEFF', ''
 
-    if ($nLocal -ne $nServed) {
+    $localObj  = Normalize-Json $localTxt
+    $servedObj = Normalize-Json $servedTxt
+
+    if ($null -eq $localObj -or $null -eq $servedObj) {
+        Write-Host "❌ DIFERENÇA: Falha ao interpretar version.json local ou servido" -ForegroundColor Red
+        Write-Host ("DISCO:   len={0} | preview='{1}'" -f $localTxt.Length, (Get-Preview $localTxt 30))
+        Write-Host ("SERVIDO: len={0} | preview='{1}'" -f $servedTxt.Length, (Get-Preview $servedTxt 30))
+        Fail "Verificação de versão falhou (relatório acima)."
+    }
+
+    $fields = @("name", "version", "build", "buildTimestamp")
+    $differences = New-Object System.Collections.Generic.List[string]
+
+    foreach ($field in $fields) {
+        $localValue = [string]$localObj.$field
+        $servedValue = [string]$servedObj.$field
+        if ($localValue -ne $servedValue) {
+            [void]$differences.Add($field)
+        }
+    }
+
+    if ($differences.Count -gt 0) {
         Write-Host "❌ DIFERENÇA: version.json do DISCO != version.json SERVIDO" -ForegroundColor Red
         Write-Host "DISCO:   ${localVersionPath}"
         Write-Host "SERVIDO: ${VersionUrl}"
         Write-Host ""
-        Write-Host "Causas prováveis:"
-        Write-Host "- Servidor do front apontando para outra pasta"
-        Write-Host "- Service Worker/cache segurando arquivos antigos"
-        Write-Host "- Outro processo antigo na porta ${FrontPort}"
-        Fail "Front não está refletindo a última dev."
+        Write-Host "Campos divergentes:"
+        foreach ($field in $differences) {
+            $localValue = [string]$localObj.$field
+            $servedValue = [string]$servedObj.$field
+            Write-Host ("- {0}: local='{1}' | servido='{2}'" -f $field, $localValue, $servedValue)
+        }
+        Write-Host ""
+        Write-Host ("DISCO  -> len={0} | preview='{1}'" -f $localTxt.Length, (Get-Preview $localTxt 30))
+        Write-Host ("SERVIDO-> len={0} | preview='{1}'" -f $servedTxt.Length, (Get-Preview $servedTxt 30))
+        Fail "Verificação de versão falhou (relatório acima)."
     }
 
     Write-Host "✅ OK: version.json servido == version.json do repo"
-    try {
-        $obj = $servedTxt | ConvertFrom-Json
-        Write-Host ("VERSÃO SERVIDA: {0} | build: {1} | ts: {2}" -f $obj.version, $obj.build, $obj.buildTimestamp)
-    } catch {}
+    Write-Host ("VERSÃO SERVIDA: {0} | build: {1} | ts: {2}" -f $servedObj.version, $servedObj.build, $servedObj.buildTimestamp)
+
+    return [pscustomobject]@{
+        Head = $head
+        ServedVersionObject = [pscustomobject]@{
+            name = $servedObj.name
+            version = $servedObj.version
+            build = $servedObj.build
+            buildTimestamp = $servedObj.buildTimestamp
+        }
+    }
 }
 
 function Open-Browser {
@@ -395,11 +438,18 @@ try {
     Start-FrontServer
     Start-SshTunnel
     Start-Backend
-    Verify-ServingLatestDev
+    $verifyInfo = Verify-ServingLatestDev
     Open-Browser
 
     Write-Host ""
     Write-Host "✅ AMBIENTE DEV PRONTO E CONFIRMADO NA ÚLTIMA origin/dev" -ForegroundColor Green
+    if ($verifyInfo -and $verifyInfo.Head) {
+        Write-Host ("HEAD COMMIT: {0}" -f $verifyInfo.Head)
+    }
+    if ($verifyInfo -and $verifyInfo.ServedVersionObject) {
+        Write-Host "VERSÃO SERVIDA (OBJETO):"
+        $verifyInfo.ServedVersionObject | ConvertTo-Json -Depth 10
+    }
 
     if ($SHOW_CACHE_SW_TIPS) {
         Write-Host ""
@@ -412,7 +462,6 @@ try {
 } catch {
     Write-Host ""
     Write-Host "🧯 FALHOU: $($_.Exception.Message)" -ForegroundColor Red
-    Write-Host "Eu travei de propósito para não abrir coisa desatualizada."
     exit 1
 }
 
