@@ -237,7 +237,7 @@ function Start-FrontServer {
 
     $python = Get-Command python -ErrorAction SilentlyContinue
     if ($python) {
-        $cmd = "cd `"$ProjectRoot`"; python -m http.server ${FrontPort}"
+        $cmd = "python -m http.server ${FrontPort} --bind 127.0.0.1 --directory `"$ProjectRoot`""
         Start-Process powershell -ArgumentList "-NoExit","-Command",$cmd | Out-Null
         Write-Host "→ Front via Python http.server"
     } else {
@@ -342,7 +342,7 @@ function Verify-ServingLatestDev {
 
     $servedTxt = $null
     try {
-        $served = Invoke-WebRequest -Uri $VersionUrl -UseBasicParsing -TimeoutSec 10
+        $served = Invoke-WebRequest -Uri $VersionUrl -UseBasicParsing -TimeoutSec 10 -Headers @{ "Cache-Control"="no-cache"; "Pragma"="no-cache" }
         $servedTxt = $served.Content
     } catch {
         Fail "Não consegui ler ${VersionUrl}. Talvez o front não esteja servindo do ProjectRoot."
@@ -415,4 +415,5 @@ try {
     Write-Host "Eu travei de propósito para não abrir coisa desatualizada."
     exit 1
 }
+
 
