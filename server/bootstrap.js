@@ -1,8 +1,8 @@
 const path = require('path');
-const NfeImportService = require('./services/NfeImportService');
-const NfeImportServiceV2 = require('./services/NfeImportServiceV2');
+const NfeImportService = require('./src/services/NfeImportService');
+const NfeImportServiceV2 = require('./src/services/NfeImportServiceV2');
 const db = require('./config/database');
-const { verifySmtpConnection } = require('./services/emailService');
+const { verifySmtpConnection } = require('./src/services/emailService');
 const { createApp } = require('./app');
 const { config, getCorsOrigins, validateRuntimeConfig } = require('./config');
 

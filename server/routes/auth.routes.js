@@ -10,7 +10,7 @@ const db = require('../config/database');
 const auth = require('../middleware/auth');
 const { createAuthLimiter } = require('../middleware/rateLimit');
 const identityService = require('../domain/identity/identityService');
-const { sendMail, buildActivationEmail, buildResetPasswordEmail } = require('../services/emailService');
+const { sendMail, buildActivationEmail, buildResetPasswordEmail } = require('../src/services/emailService');
 
 const router = express.Router();
 const SALT_ROUNDS = 10;

@@ -36,7 +36,8 @@
     "pdfkit": "^0.14.0",
     "pg": "^8.11.3",
     "singem": "file:..",
-    "soap": "^1.0.4"
+    "soap": "^1.0.4",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "dotenv-cli": "^11.0.0",

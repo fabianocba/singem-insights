@@ -11,7 +11,7 @@
 
 const fs = require('fs').promises;
 const path = require('path');
-const DfeClient = require('../integrations/sefaz/DfeClient');
+const DfeClient = require('../../integrations/sefaz/DfeClient');
 const NfeXmlParser = require('../utils/xmlParser');
 const DanfeGenerator = require('../utils/danfeGenerator');
 

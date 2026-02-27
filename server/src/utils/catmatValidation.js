@@ -3,9 +3,9 @@
  * Funções de validação para CATMAT obrigatório
  */
 
-const db = require('../config/database');
-const { config } = require('../config');
-const catmatService = require('../integrations/catmat/catmatService');
+const db = require('../../config/database');
+const { config } = require('../../config');
+const catmatService = require('../../integrations/catmat/catmatService');
 
 /**
  * Cache da configuração (evita queries repetidas)

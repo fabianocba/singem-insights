@@ -7,17 +7,18 @@ const bodyParser = require('body-parser');
 const helmet = require('helmet');
 
 const db = require('./config/database');
-const notFoundHandler = require('./middleware/notFound');
-const errorHandler = require('./middleware/errorHandler');
+const requestIdMiddleware = require('./src/middlewares/requestId');
+const errorHandler = require('./src/middlewares/errorHandler');
+const AppError = require('./src/utils/appError');
 
-const authRoutes = require('./routes/auth.routes');
+const authRoutes = require('./src/routes/auth.routes');
 const govbrRoutes = require('./routes/govbr.routes');
 const serproidRoutes = require('./routes/serproid.routes');
-const empenhosRoutes = require('./routes/empenhos.routes');
-const notasFiscaisRoutes = require('./routes/notas-fiscais.routes');
-const estoqueRoutes = require('./routes/estoque.routes');
+const empenhosRoutes = require('./src/routes/empenhos.routes');
+const notasFiscaisRoutes = require('./src/routes/notas-fiscais.routes');
+const estoqueRoutes = require('./src/routes/estoque.routes');
 const syncRoutes = require('./routes/sync.routes');
-const catmatRoutes = require('./integrations/catmat/catmat.routes');
+const catmatRoutes = require('./src/routes/catmat.routes');
 const catalogacaoRoutes = require('./routes/catalogacao.routes');
 const integrationsRoutes = require('./routes/integrations.routes');
 
@@ -93,6 +94,7 @@ function createApp({ nodeEnv, bodyLimit, corsOrigins, trustProxy, nfeService, nf
       crossOriginEmbedderPolicy: false
     })
   );
+  app.use(requestIdMiddleware);
   app.use(cors(corsOptions));
   app.use(bodyParser.json({ limit: bodyLimit }));
   app.use(bodyParser.urlencoded({ extended: true, limit: bodyLimit }));
@@ -138,10 +140,23 @@ function createApp({ nodeEnv, bodyLimit, corsOrigins, trustProxy, nfeService, nf
   });
 
   app.get('/api/version', (_req, res) => {
-    return res.json(loadVersionInfo(nodeEnv));
+    const info = loadVersionInfo(nodeEnv);
+    return res.json({
+      backend: {
+        version: info.version,
+        build: info.build,
+        commit: info.gitCommit,
+        env: info.nodeEnv
+      },
+      timestamp: new Date().toISOString(),
+      name: info.name,
+      buildTimestamp: info.buildTimestamp
+    });
   });
 
-  app.use(notFoundHandler);
+  app.use((_req, _res, next) => {
+    next(new AppError(404, 'NOT_FOUND', 'Endpoint não encontrado'));
+  });
   app.use(errorHandler(nodeEnv));
 
   const registeredRoutes = [

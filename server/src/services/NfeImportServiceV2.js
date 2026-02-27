@@ -12,10 +12,10 @@
  */
 
 const path = require('path');
-const NfeXmlParser = require('../domain/nfe/NfeXmlParser');
-const NfeFileStorage = require('../domain/nfe/NfeFileStorage');
-const { validarNfeCompleta, validarChaveAcesso } = require('../domain/nfe/NfeValidators');
-const { NfeConciliationService } = require('../domain/nfe/NfeConciliationService');
+const NfeXmlParser = require('../../domain/nfe/NfeXmlParser');
+const NfeFileStorage = require('../../domain/nfe/NfeFileStorage');
+const { validarNfeCompleta, validarChaveAcesso } = require('../../domain/nfe/NfeValidators');
+const { NfeConciliationService } = require('../../domain/nfe/NfeConciliationService');
 
 /**
  * Resultado padronizado de importação

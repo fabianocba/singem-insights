@@ -6,7 +6,7 @@
 const express = require('express');
 const db = require('../config/database');
 const { authenticate, optionalAuth } = require('../middleware/auth');
-const { catmatObrigatorioMiddleware, logVinculoCatmat } = require('../utils/catmatValidation');
+const { catmatObrigatorioMiddleware, logVinculoCatmat } = require('../src/utils/catmatValidation');
 
 const router = express.Router();
 
