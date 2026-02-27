@@ -2,6 +2,64 @@ Write-Host ""
 Write-Host "=== SINGEM START DEV ==="
 Write-Host ""
 
+$TunnelHost = "127.0.0.1"
+$TunnelLocalPort = 5433
+$TunnelRemoteHost = "127.0.0.1"
+$TunnelRemotePort = 5432
+$TunnelSshPort = 2222
+$TunnelSshUser = "root"
+$TunnelSshIp = "72.61.55.250"
+
+function Test-TunnelPort {
+    param(
+        [string]$TargetHost,
+        [int]$Port
+    )
+
+    try {
+        return (Test-NetConnection $TargetHost -Port $Port -WarningAction SilentlyContinue).TcpTestSucceeded
+    } catch {
+        return $false
+    }
+}
+
+function Wait-TunnelPort {
+    param(
+        [string]$TargetHost,
+        [int]$Port,
+        [int]$TimeoutSec = 20
+    )
+
+    for ($i = 0; $i -lt $TimeoutSec; $i++) {
+        if (Test-TunnelPort -TargetHost $TargetHost -Port $Port) {
+            return $true
+        }
+        Start-Sleep -Seconds 1
+    }
+
+    return $false
+}
+
+function Wait-HttpOk {
+    param(
+        [string]$Url,
+        [int]$TimeoutSec = 20
+    )
+
+    for ($i = 0; $i -lt $TimeoutSec; $i++) {
+        try {
+            $res = Invoke-WebRequest -Uri $Url -UseBasicParsing -TimeoutSec 3
+            if ($res.StatusCode -ge 200 -and $res.StatusCode -lt 500) {
+                return $true
+            }
+        } catch {}
+
+        Start-Sleep -Seconds 1
+    }
+
+    return $false
+}
+
 # Descobrir raiz real do repo
 $ProjectRoot = git rev-parse --show-toplevel 2>$null
 if (-not $ProjectRoot) {
@@ -13,14 +71,45 @@ Set-Location $ProjectRoot
 Write-Host "Projeto: $ProjectRoot"
 Write-Host ""
 
+$ProjectRootResolved = (Resolve-Path -LiteralPath $ProjectRoot).Path.Replace('\\', '/')
+$CurrentScriptGitPath = 'scripts/start-dev.ps1'
+if ($PSCommandPath) {
+    $scriptResolved = (Resolve-Path -LiteralPath $PSCommandPath).Path.Replace('\\', '/')
+    $projectPrefix = "$ProjectRootResolved/"
+    if ($scriptResolved.StartsWith($projectPrefix)) {
+        $CurrentScriptGitPath = $scriptResolved.Substring($projectPrefix.Length)
+    }
+}
+
 # ==============================
 # GIT SYNC SEGURO
 # ==============================
 Write-Host "==> GIT: sincronizar dev sem risco de perda"
 
-git fetch origin
+git fetch origin dev
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "Falha ao executar git fetch origin dev"
+    exit 1
+}
 
-$dirtyFiles = git status --porcelain | Where-Object { $_ -notmatch "js/core/version.json" }
+$dirtyPaths = @(
+    git status --porcelain |
+    Where-Object { $_ -and $_.Length -ge 4 } |
+    ForEach-Object { $_.Substring(3).Trim().Replace('\\', '/') }
+)
+
+$dirtyFiles = @(
+    $dirtyPaths |
+    Where-Object {
+        $_ -ne "js/core/version.json" -and
+        $_ -ne $CurrentScriptGitPath
+    }
+)
+
+if ($dirtyPaths.Count -gt 0 -and $dirtyFiles.Count -eq 0) {
+    Write-Host "Aviso: somente arquivos ignorados no pré-check foram alterados (version.json/start-dev). Seguindo..."
+    Write-Host ""
+}
 
 if ($dirtyFiles) {
     Write-Host ""
@@ -30,10 +119,48 @@ if ($dirtyFiles) {
     exit 1
 }
 
-git checkout dev
-git pull --ff-only origin dev
+git switch dev
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "Falha ao trocar para branch dev"
+    exit 1
+}
+
+git merge --ff-only origin/dev
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "Falha no fast-forward com origin/dev. Resolva merge/rebase e rode novamente."
+    exit 1
+}
 
 Write-Host "Repo sincronizado com origin/dev"
+Write-Host ""
+
+# ==============================
+# TUNEL POSTGRESQL (AUTO-REPARO)
+# ==============================
+Write-Host "==> DB TUNNEL: verificar porta 5433"
+
+$tunnelOk = Test-TunnelPort -TargetHost $TunnelHost -Port $TunnelLocalPort
+if (-not $tunnelOk) {
+    Write-Host "Porta 5433 fechada. Tentando abrir túnel automaticamente..."
+
+    $sshCommand = "ssh -N -L $TunnelLocalPort`:$TunnelRemoteHost`:$TunnelRemotePort -p $TunnelSshPort $TunnelSshUser@$TunnelSshIp"
+    Start-Process powershell -ArgumentList "-NoExit", "-Command", $sshCommand
+
+    $tunnelOpened = Wait-TunnelPort -TargetHost $TunnelHost -Port $TunnelLocalPort -TimeoutSec 20
+    if (-not $tunnelOpened) {
+        Write-Host ""
+        Write-Host "Falha ao abrir túnel PostgreSQL na porta 5433 em até 20s."
+        Write-Host "Execute manualmente em outra janela PowerShell:"
+        Write-Host "ssh -N -L 5433:127.0.0.1:5432 -p 2222 root@72.61.55.250"
+        Write-Host ""
+        exit 1
+    }
+
+    Write-Host "Túnel PostgreSQL aberto com sucesso (127.0.0.1:5433)."
+} else {
+    Write-Host "Túnel PostgreSQL já disponível (127.0.0.1:5433)."
+}
+
 Write-Host ""
 
 # ==============================
@@ -41,22 +168,51 @@ Write-Host ""
 # ==============================
 Write-Host "==> FRONT: iniciar servidor local 8000"
 
-Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd '$ProjectRoot'; python -m http.server 8000"
-
-Start-Sleep -Seconds 2
+$frontAlreadyRunning = Test-TunnelPort -TargetHost "127.0.0.1" -Port 8000
+if ($frontAlreadyRunning) {
+    Write-Host "Frontend já está ativo na porta 8000. Reutilizando instância existente."
+} else {
+    Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd '$ProjectRoot'; python -m http.server 8000"
+    Start-Sleep -Seconds 2
+}
 
 # ==============================
 # BACKEND
 # ==============================
 Write-Host "==> BACKEND: iniciar npm run dev (porta 3000)"
 
-Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd '$ProjectRoot\server'; npm run dev"
+$healthUrl = "http://localhost:3000/health"
 
-Start-Sleep -Seconds 3
+$backendAlreadyRunning = Test-TunnelPort -TargetHost "127.0.0.1" -Port 3000
+if ($backendAlreadyRunning) {
+    Write-Host "Porta 3000 já está em uso. Validando /health..."
+    $healthOk = Wait-HttpOk -Url $healthUrl -TimeoutSec 10
+    if (-not $healthOk) {
+        Write-Host "A porta 3000 está ocupada, mas /health não respondeu como backend SINGEM."
+        Write-Host "Libere a porta 3000 ou encerre o processo atual e rode novamente."
+        exit 1
+    }
+    Write-Host "Backend SINGEM já está ativo na porta 3000. Reutilizando instância existente."
+} else {
+    Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd '$ProjectRoot\server'; npm run dev"
+    $healthOk = Wait-HttpOk -Url $healthUrl -TimeoutSec 20
+    if (-not $healthOk) {
+        Write-Host "Backend não ficou saudável em até 20s (endpoint /health)."
+        Write-Host "Verifique logs da janela do backend e tente novamente."
+        exit 1
+    }
+}
+
+Write-Host "Health check OK: $healthUrl"
+
+# ==============================
+# ABRIR NAVEGADOR
+# ==============================
+Start-Process "http://localhost:8000"
 
 Write-Host ""
 Write-Host "Frontend:  http://localhost:8000"
-Write-Host "Health:    http://localhost:3000/health"
+Write-Host "Health:    $healthUrl"
 Write-Host ""
 Write-Host "Ambiente DEV iniciado com sucesso."
 Write-Host ""
