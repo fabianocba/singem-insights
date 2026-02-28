@@ -6,6 +6,6 @@
 const { startServer } = require('./bootstrap');
 
 startServer().catch((err) => {
-  console.error('❌ Falha ao iniciar servidor:', err);
+  console.error('Falha ao iniciar servidor:', err);
   process.exit(1);
 });

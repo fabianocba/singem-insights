@@ -13,6 +13,12 @@ const loginLimiter = createAuthLimiter(20, 'Muitas tentativas de login. Tente no
 
 router.post('/login', loginLimiter, validate(loginSchema), asyncHandler(authController.login));
 
-router.use('/', legacyAuthRoutes);
+router.use('/', (req, res, next) => {
+  if (req.path === '/login' && req.method === 'POST') {
+    return next();
+  }
+
+  return legacyAuthRoutes(req, res, next);
+});
 
 module.exports = router;

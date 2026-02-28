@@ -21,19 +21,19 @@ async function initializeNfeServices() {
   nfeService
     .inicializar()
     .then(() => {
-      console.log('✅ Serviço de NF-e v1 inicializado');
+      console.log('[NFE] Serviço de NF-e v1 inicializado');
     })
     .catch((err) => {
-      console.warn('⚠️ Serviço de NF-e v1 não totalmente configurado:', err.message);
+      console.warn('[NFE] Serviço de NF-e v1 não totalmente configurado:', err.message);
     });
 
   nfeServiceV2
     .inicializar()
     .then(() => {
-      console.log('✅ Serviço de NF-e v2 inicializado (pipeline robusto)');
+      console.log('[NFE] Serviço de NF-e v2 inicializado (pipeline robusto)');
     })
     .catch((err) => {
-      console.error('❌ Erro ao inicializar serviço NF-e v2:', err.message);
+      console.error('[NFE] Erro ao inicializar serviço NF-e v2:', err.message);
     });
 
   return { nfeService, nfeServiceV2 };
@@ -54,13 +54,11 @@ async function startServer() {
     nfeServiceV2
   });
 
-  console.log('╔═══════════════════════════════════════════╗');
-  console.log('║                                           ║');
-  console.log('║          🏛️  SINGEM SERVER 2.0           ║');
-  console.log('║    Sistema Institucional de Gestão de     ║');
-  console.log('║              Material - IF Baiano         ║');
-  console.log('║                                           ║');
-  console.log('╚═══════════════════════════════════════════╝');
+  console.log('============================================');
+  console.log('SINGEM SERVER 2.0');
+  console.log('Sistema Institucional de Gestão de Material');
+  console.log('IF Baiano');
+  console.log('============================================');
   console.log('');
   console.log(`[Config] Ambiente: ${config.env}`);
   console.log(
@@ -72,31 +70,31 @@ async function startServer() {
   }
   console.log('');
 
-  console.log('🔌 Conectando ao PostgreSQL...');
+  console.log('[DB] Conectando ao PostgreSQL...');
   const dbReady = await db.initDatabase().catch((err) => {
-    console.error('❌ Erro ao conectar ao banco:', err.message);
-    console.log('⚠️  Servidor iniciando sem banco de dados');
+    console.error('[DB] Erro ao conectar ao banco:', err.message);
+    console.log('[DB] Servidor iniciando sem banco de dados');
     return false;
   });
 
   if (dbReady) {
-    console.log('✅ PostgreSQL conectado e migrations aplicadas');
+    console.log('[DB] PostgreSQL conectado e migrations aplicadas');
   }
 
-  console.log('✉️  Verificando configuração SMTP...');
+  console.log('[SMTP] Verificando configuração SMTP...');
   await verifySmtpConnection();
 
   console.log(`[API] Rotas registradas: ${registeredRoutes.join(', ')}`);
 
   app.listen(config.port, '0.0.0.0', () => {
     console.log('');
-    console.log(`✅ Servidor rodando na porta ${config.port}`);
+    console.log(`[API] Servidor rodando na porta ${config.port}`);
     console.log('');
-    console.log('📡 Endereços de acesso:');
+    console.log('Endereços de acesso:');
     console.log(`   • Local:  http://localhost:${config.port}`);
     console.log(`   • Rede:   http://<seu-ip>:${config.port}`);
     console.log('');
-    console.log('🔍 Health Check: /health');
+    console.log('Health Check: /health');
     console.log('');
     console.log('Pressione Ctrl+C para parar o servidor');
     console.log('');

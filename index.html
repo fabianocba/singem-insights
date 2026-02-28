@@ -116,7 +116,12 @@
               <a
                 id="btnSerproID"
                 href="#"
-                onclick="window.location.href = (window.CONFIG?.api?.baseUrl || 'http://localhost:3000') + '/api/auth/serproid/login'; return false;"
+                onclick="
+                  window.location.href =
+                    (window.CONFIG?.api?.baseUrl || 'http://localhost:3000') +
+                    '/api/auth/serproid/login';
+                  return false;
+                "
                 class="btn btn-outline btn-block"
                 style="
                   display: flex;
@@ -131,8 +136,14 @@
                   font-weight: 500;
                   transition: all 0.2s;
                 "
-                onmouseover="this.style.backgroundColor='#1351b4'; this.style.color='#fff';"
-                onmouseout="this.style.backgroundColor='transparent'; this.style.color='#1351b4';"
+                onmouseover="
+                  this.style.backgroundColor = '#1351b4';
+                  this.style.color = '#fff';
+                "
+                onmouseout="
+                  this.style.backgroundColor = 'transparent';
+                  this.style.color = '#1351b4';
+                "
               >
                 <img
                   src="img/icone-serproid-1024px.png"

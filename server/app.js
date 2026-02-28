@@ -8,14 +8,14 @@ const helmet = require('helmet');
 
 const db = require('./config/database');
 const requestIdMiddleware = require('./src/middlewares/requestId');
-const errorHandler = require('./src/middlewares/errorHandler');
-const AppError = require('./src/utils/appError');
+const errorHandler = require('./middlewares/errorHandler');
+const AppError = require('./utils/appError');
 
-const authRoutes = require('./src/routes/auth.routes');
+const authRoutes = require('./modules/auth/auth.routes');
 const govbrRoutes = require('./routes/govbr.routes');
 const serproidRoutes = require('./routes/serproid.routes');
-const empenhosRoutes = require('./src/routes/empenhos.routes');
-const notasFiscaisRoutes = require('./src/routes/notas-fiscais.routes');
+const empenhosRoutes = require('./modules/empenhos/empenhos.routes');
+const notasFiscaisRoutes = require('./modules/notas-fiscais/notas-fiscais.routes');
 const estoqueRoutes = require('./src/routes/estoque.routes');
 const syncRoutes = require('./routes/sync.routes');
 const catmatRoutes = require('./src/routes/catmat.routes');
@@ -157,7 +157,7 @@ function createApp({ nodeEnv, bodyLimit, corsOrigins, trustProxy, nfeService, nf
   app.use((_req, _res, next) => {
     next(new AppError(404, 'NOT_FOUND', 'Endpoint não encontrado'));
   });
-  app.use(errorHandler(nodeEnv));
+  app.use(errorHandler(process.env.NODE_ENV));
 
   const registeredRoutes = [
     '/api/auth',

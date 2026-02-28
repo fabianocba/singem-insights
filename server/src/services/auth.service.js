@@ -8,7 +8,13 @@ async function login(input) {
   const userPassword = input.password || input.senha;
 
   if (!userLogin || !userPassword) {
-    throw new AppError(400, 'VALIDATION_ERROR', 'Login e senha são obrigatórios');
+    throw new AppError(400, 'VALIDATION_ERROR', 'Dados inválidos', [
+      {
+        path: !userLogin ? 'login' : 'senha',
+        message: !userLogin ? 'Login é obrigatório' : 'Senha é obrigatória',
+        code: 'custom'
+      }
+    ]);
   }
 
   let profile;
