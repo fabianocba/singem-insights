@@ -10,7 +10,7 @@ function isCorsDeniedError(error) {
   }
 
   const message = String(error.message || '').toLowerCase();
-  return message.includes('origem não permitida por cors');
+  return message.includes('origem nao permitida por cors') || message.includes('origem não permitida por cors');
 }
 
 function errorHandler(nodeEnv = 'development') {
@@ -28,11 +28,14 @@ function errorHandler(nodeEnv = 'development') {
 
     const statusCode = normalizedError.statusCode || 500;
     const requestPath = req.originalUrl || req.path;
+    const requestId = req.requestId || 'null';
+    const errorCode = normalizedError.code || 'INTERNAL_ERROR';
+    const logLine = `[HTTP] status=${statusCode} method=${req.method} path="${requestPath}" requestId=${requestId} code=${errorCode}`;
 
     if (statusCode >= 500) {
-      console.error(`[HTTP] ${statusCode} ${req.method} ${requestPath}`, normalizedError);
+      console.error(logLine);
     } else {
-      console.warn(`[HTTP] ${statusCode} ${req.method} ${requestPath}`, normalizedError.message);
+      console.log(logLine);
     }
 
     const payload = {

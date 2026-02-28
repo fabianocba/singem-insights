@@ -62,9 +62,81 @@ async function createMovimento(data, user) {
   }
 }
 
+async function listMateriais(filters) {
+  const rows = await estoqueRepository.listMateriais({
+    busca: filters.busca,
+    natureza: filters.natureza,
+    limite: Number.parseInt(filters.limite, 10) || 200,
+    offset: Number.parseInt(filters.offset, 10) || 0
+  });
+
+  return { dados: rows };
+}
+
+async function createMaterial(data) {
+  const { codigo, descricao, unidade, natureza_despesa, subelemento } = data;
+
+  if (!descricao) {
+    throw new AppError(400, 'VALIDATION_ERROR', 'Descrição é obrigatória');
+  }
+
+  if (codigo) {
+    const existente = await estoqueRepository.findMaterialByCodigo(codigo);
+    if (existente) {
+      throw new AppError(409, 'CONFLICT', 'Código já cadastrado');
+    }
+  }
+
+  const material = await estoqueRepository.createMaterial({
+    codigo: codigo || null,
+    descricao,
+    unidade: unidade || 'UN',
+    natureza_despesa: natureza_despesa || null,
+    subelemento: subelemento || null
+  });
+
+  return { dados: material };
+}
+
+async function updateMaterial(id, data) {
+  const updateData = {};
+  if (data.codigo !== undefined) {
+    updateData.codigo = data.codigo;
+  }
+  if (data.descricao !== undefined) {
+    updateData.descricao = data.descricao;
+  }
+  if (data.unidade !== undefined) {
+    updateData.unidade = data.unidade;
+  }
+  if (data.natureza_despesa !== undefined) {
+    updateData.natureza_despesa = data.natureza_despesa;
+  }
+  if (data.subelemento !== undefined) {
+    updateData.subelemento = data.subelemento;
+  }
+  if (data.ativo !== undefined) {
+    updateData.ativo = data.ativo;
+  }
+
+  if (Object.keys(updateData).length === 0) {
+    throw new AppError(400, 'VALIDATION_ERROR', 'Nenhum campo para atualizar');
+  }
+
+  const material = await estoqueRepository.updateMaterial(id, updateData);
+  if (!material) {
+    throw new AppError(404, 'NOT_FOUND', 'Material não encontrado');
+  }
+
+  return { dados: material };
+}
+
 module.exports = {
   listSaldos,
   getSaldoByMaterial,
   listMovimentos,
-  createMovimento
+  createMovimento,
+  listMateriais,
+  createMaterial,
+  updateMaterial
 };

@@ -39,9 +39,47 @@ const createMovimentoSchema = {
   })
 };
 
+const listMateriaisSchema = {
+  query: z.object({
+    busca: z.string().optional(),
+    natureza: z.string().optional(),
+    limite: toInt(200),
+    offset: toInt(0)
+  })
+};
+
+const createMaterialSchema = {
+  body: z.object({
+    codigo: z.string().optional(),
+    descricao: z.string().min(1, 'Descrição é obrigatória'),
+    unidade: z.string().optional(),
+    natureza_despesa: z.string().optional(),
+    subelemento: z.string().optional()
+  })
+};
+
+const updateMaterialSchema = {
+  params: idParam,
+  body: z
+    .object({
+      codigo: z.string().optional(),
+      descricao: z.string().optional(),
+      unidade: z.string().optional(),
+      natureza_despesa: z.string().optional(),
+      subelemento: z.string().optional(),
+      ativo: z.boolean().optional()
+    })
+    .refine((value) => Object.keys(value).length > 0, {
+      message: 'Nenhum campo para atualizar'
+    })
+};
+
 module.exports = {
   listSaldosSchema,
   saldoByMaterialSchema,
   listMovimentosSchema,
-  createMovimentoSchema
+  createMovimentoSchema,
+  listMateriaisSchema,
+  createMaterialSchema,
+  updateMaterialSchema
 };

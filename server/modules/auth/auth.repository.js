@@ -1,4 +1,4 @@
-const db = require('../../config/database');
+const db = require('../../db');
 
 function runQuery(client, text, params) {
   if (client) {
@@ -9,7 +9,7 @@ function runQuery(client, text, params) {
 }
 
 async function withTransaction(callback) {
-  const client = await db.pool.connect();
+  const client = await db.getClient();
   try {
     await client.query('BEGIN');
     const result = await callback(client);

@@ -1,5 +1,118 @@
 const baseNotasRepository = require('../../src/repositories/notasFiscais.repository');
-const db = require('../../config/database');
+const db = require('../../db');
+
+const SORT_FIELD_MAP = {
+  createdAt: 'created_at',
+  numero: 'numero',
+  fornecedor: 'fornecedor',
+  dataEmissao: 'data_emissao',
+  dataEntrada: 'data_entrada',
+  situacao: 'status',
+  status: 'status'
+};
+
+async function findAllPaginated(input) {
+  const {
+    page,
+    limit,
+    offset,
+    sortField,
+    sortDir,
+    q,
+    situacao,
+    fornecedor,
+    numero,
+    chaveAcesso,
+    dataInicio,
+    dataFim,
+    status,
+    cnpj,
+    empenho_id: empenhoId
+  } = input;
+
+  const sortColumn = SORT_FIELD_MAP[sortField] || 'created_at';
+  const direction = String(sortDir || 'desc').toLowerCase() === 'asc' ? 'ASC' : 'DESC';
+
+  let where = ' WHERE 1=1';
+  const params = [];
+  let index = 0;
+
+  if (q) {
+    index++;
+    where += ` AND (fornecedor ILIKE $${index} OR numero::text ILIKE $${index} OR chave_acesso ILIKE $${index})`;
+    params.push(`%${q}%`);
+  }
+
+  const statusFilter = situacao || status;
+  if (statusFilter) {
+    index++;
+    where += ` AND status = $${index}`;
+    params.push(statusFilter);
+  }
+
+  if (fornecedor) {
+    index++;
+    where += ` AND fornecedor ILIKE $${index}`;
+    params.push(`%${fornecedor}%`);
+  }
+
+  if (numero) {
+    index++;
+    where += ` AND numero::text ILIKE $${index}`;
+    params.push(`%${numero}%`);
+  }
+
+  if (chaveAcesso) {
+    index++;
+    where += ` AND chave_acesso = $${index}`;
+    params.push(String(chaveAcesso).replace(/\D/g, ''));
+  }
+
+  if (dataInicio) {
+    index++;
+    where += ` AND data_emissao >= $${index}`;
+    params.push(dataInicio);
+  }
+
+  if (dataFim) {
+    index++;
+    where += ` AND data_emissao <= $${index}`;
+    params.push(dataFim);
+  }
+
+  if (cnpj) {
+    index++;
+    where += ` AND cnpj_fornecedor = $${index}`;
+    params.push(String(cnpj).replace(/\D/g, ''));
+  }
+
+  if (empenhoId) {
+    index++;
+    where += ` AND empenho_id = $${index}`;
+    params.push(empenhoId);
+  }
+
+  const listSql = `
+    SELECT *
+    FROM notas_fiscais
+    ${where}
+    ORDER BY ${sortColumn} ${direction}, id DESC
+    LIMIT $${index + 1}
+    OFFSET $${index + 2}
+  `;
+  const listParams = [...params, limit, offset];
+
+  const countSql = `SELECT COUNT(*) AS total FROM notas_fiscais ${where}`;
+
+  const [rowsResult, countResult] = await Promise.all([db.query(listSql, listParams), db.query(countSql, params)]);
+
+  return {
+    rows: rowsResult.rows,
+    total: Number.parseInt(countResult.rows[0].total, 10),
+    page,
+    limit
+  };
+}
 
 async function updateNota(id, updateData) {
   return db.update('notas_fiscais', id, updateData);
@@ -17,7 +130,7 @@ async function markConferida(id, userId) {
 }
 
 async function markRecebidaAndEntradaEstoque(id, userId) {
-  const client = await db.pool.connect();
+  const client = await db.getClient();
 
   try {
     await client.query('BEGIN');
@@ -90,6 +203,7 @@ async function markRecebidaAndEntradaEstoque(id, userId) {
 }
 
 module.exports = {
+  findAllPaginated,
   findAll: baseNotasRepository.findAll,
   findById: baseNotasRepository.findById,
   findItemsByNotaId: baseNotasRepository.findItemsByNotaId,

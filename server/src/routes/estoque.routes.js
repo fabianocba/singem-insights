@@ -7,10 +7,11 @@ const {
   listSaldosSchema,
   saldoByMaterialSchema,
   listMovimentosSchema,
-  createMovimentoSchema
+  createMovimentoSchema,
+  listMateriaisSchema,
+  createMaterialSchema,
+  updateMaterialSchema
 } = require('../validators/estoque.validators');
-
-const legacyEstoqueRoutes = require('../../routes/estoque.routes');
 
 const router = express.Router();
 
@@ -23,7 +24,8 @@ router.get(
 );
 router.get('/movimentos', authenticate, validate(listMovimentosSchema), asyncHandler(controller.listMovimentos));
 router.post('/movimentos', authenticate, validate(createMovimentoSchema), asyncHandler(controller.createMovimento));
-
-router.use('/', legacyEstoqueRoutes);
+router.get('/materiais', authenticate, validate(listMateriaisSchema), asyncHandler(controller.listMateriais));
+router.post('/materiais', authenticate, validate(createMaterialSchema), asyncHandler(controller.createMaterial));
+router.put('/materiais/:id', authenticate, validate(updateMaterialSchema), asyncHandler(controller.updateMaterial));
 
 module.exports = router;

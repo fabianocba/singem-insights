@@ -6,10 +6,12 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const helmet = require('helmet');
 
-const db = require('./config/database');
-const requestIdMiddleware = require('./src/middlewares/requestId');
+const db = require('./db');
+const requestId = require('./middlewares/requestId');
+const requestLogger = require('./middlewares/requestLogger');
 const errorHandler = require('./middlewares/errorHandler');
 const AppError = require('./utils/appError');
+const { createApiLimiter } = require('./middleware/rateLimit');
 
 const authRoutes = require('./modules/auth/auth.routes');
 const govbrRoutes = require('./routes/govbr.routes');
@@ -94,10 +96,12 @@ function createApp({ nodeEnv, bodyLimit, corsOrigins, trustProxy, nfeService, nf
       crossOriginEmbedderPolicy: false
     })
   );
-  app.use(requestIdMiddleware);
+  app.use(requestId());
+  app.use(requestLogger(nodeEnv));
   app.use(cors(corsOptions));
   app.use(bodyParser.json({ limit: bodyLimit }));
   app.use(bodyParser.urlencoded({ extended: true, limit: bodyLimit }));
+  app.use('/api', createApiLimiter());
 
   app.use(express.static(path.join(__dirname, '..')));
 
@@ -118,16 +122,26 @@ function createApp({ nodeEnv, bodyLimit, corsOrigins, trustProxy, nfeService, nf
   app.use('/api/catalogacao-pedidos', catalogacaoRoutes);
   app.use('/api/integrations', integrationsRoutes);
 
-  app.get('/health', async (_req, res) => {
-    const dbOk = await db.testConnection().catch(() => false);
-    return res.json({
-      status: dbOk ? 'OK' : 'DEGRADED',
+  app.get('/health', async (req, res) => {
+    const dbStatus = await db.healthCheck().catch((error) => ({
+      ok: false,
+      error: error?.message || 'Falha no healthcheck do PostgreSQL'
+    }));
+
+    const response = {
+      status: dbStatus.ok ? 'OK' : 'DEGRADED',
       version: '2.0.0',
       sistema: 'SINGEM',
-      database: dbOk ? 'conectado' : 'desconectado',
+      database: dbStatus.ok ? 'conectado' : 'desconectado',
       nfeService: nfeService ? 'ativo' : 'inativo',
       timestamp: new Date().toISOString()
-    });
+    };
+
+    if (nodeEnv !== 'production' && dbStatus.error) {
+      response.dbError = dbStatus.error;
+    }
+
+    return res.json(response);
   });
 
   app.get('/api/info', (_req, res) => {

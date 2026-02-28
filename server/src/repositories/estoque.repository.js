@@ -174,10 +174,60 @@ async function insertAudit(data) {
   return db.insert('audit_log', data);
 }
 
+async function listMateriais(filters) {
+  const { busca, natureza, limite, offset } = filters;
+
+  let sql = 'SELECT * FROM materials WHERE ativo = true';
+  const params = [];
+  let paramCount = 0;
+
+  if (busca) {
+    paramCount++;
+    sql += ` AND (codigo ILIKE $${paramCount} OR descricao ILIKE $${paramCount})`;
+    params.push(`%${busca}%`);
+  }
+
+  if (natureza) {
+    paramCount++;
+    sql += ` AND natureza_despesa = $${paramCount}`;
+    params.push(natureza);
+  }
+
+  sql += ' ORDER BY descricao';
+
+  paramCount++;
+  sql += ` LIMIT $${paramCount}`;
+  params.push(limite);
+
+  paramCount++;
+  sql += ` OFFSET $${paramCount}`;
+  params.push(offset);
+
+  const result = await db.query(sql, params);
+  return result.rows;
+}
+
+async function findMaterialByCodigo(codigo) {
+  const result = await db.query('SELECT id FROM materials WHERE codigo = $1', [codigo]);
+  return result.rows[0] || null;
+}
+
+async function createMaterial(data) {
+  return db.insert('materials', data);
+}
+
+async function updateMaterial(id, data) {
+  return db.update('materials', id, data);
+}
+
 module.exports = {
   listSaldos,
   getSaldoByMaterial,
   listMovimentos,
   createMovimento,
-  insertAudit
+  insertAudit,
+  listMateriais,
+  findMaterialByCodigo,
+  createMaterial,
+  updateMaterial
 };

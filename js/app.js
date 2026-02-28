@@ -19,6 +19,12 @@ import * as RelatoriosEmpenhos from './relatoriosEmpenhos.js';
 import { initInfrastructureInfo } from './infrastructureInfo.js';
 import * as CatmatIntegration from './catmatIntegration.js';
 import * as CatalogacaoTela from './catalogacaoTela.js';
+import { createEmpenhoFeature } from './features/empenho/pages/empenhoPage.js';
+import { createNotaFiscalFeature } from './features/notaFiscal/pages/notaFiscalPage.js';
+import { showToast as sharedShowToast } from './shared/ui/toast.js';
+import { hideLoader, showLoader } from './shared/ui/loader.js';
+import { focusField } from './shared/ui/formField.js';
+import { confirmAction } from './shared/ui/modal.js';
 
 console.log('[App] 📦 Versão:', APP_VERSION, 'Build:', APP_BUILD);
 console.log('[App] 🔍 Repository importado:', typeof repository);
@@ -77,6 +83,11 @@ class ControleMaterialApp {
       ultimoEditado: null, // ID do último empenho editado (para destaque)
       debounceTimer: null, // Timer para debounce da busca
       modoVisualizacao: false // true = somente visualização (aba Relatório)
+    };
+
+    this.features = {
+      empenho: createEmpenhoFeature(this),
+      notaFiscal: createNotaFiscalFeature(this)
     };
 
     console.log('[State] 📦 Estado único inicializado:', this.empenhoDraft);
@@ -574,20 +585,13 @@ class ControleMaterialApp {
     }
 
     try {
-      // Buscar todos os empenhos
-      const empenhos = await window.dbManager.buscarEmpenhos(true);
+      const empenhos = await this.features.empenho.carregarListaCadastro();
 
       // Popular filtro de anos
-      if (filtroAno) {
-        const anos = [...new Set(empenhos.map((e) => e.ano || new Date(e.dataCriacao).getFullYear()))];
-        anos.sort((a, b) => b - a);
-        filtroAno.innerHTML =
-          '<option value="">Todos os anos</option>' +
-          anos.map((ano) => `<option value="${ano}">${ano}</option>`).join('');
-      }
+      this.features.empenho.preencherFiltroAnos(filtroAno, empenhos);
 
       // Renderizar lista
-      this._renderizarListaCadastro(empenhos, container);
+      this.features.empenho.renderLista(container, empenhos);
 
       // Setup eventos
       if (buscaInput) {
@@ -619,24 +623,7 @@ class ControleMaterialApp {
    * Filtra e renderiza a lista de empenhos no Novo Cadastro
    */
   _filtrarListaCadastro(empenhos, container, termoBusca, anoFiltro) {
-    let filtrados = [...empenhos];
-
-    // Filtrar por ano
-    if (anoFiltro) {
-      filtrados = filtrados.filter((e) => String(e.ano) === String(anoFiltro));
-    }
-
-    // Filtrar por termo de busca
-    if (termoBusca) {
-      const termo = termoBusca.toLowerCase();
-      filtrados = filtrados.filter((e) => {
-        // Compatibilidade: buscar em processoSuap e campos antigos
-        const processo = e.processoSuap || e.codigoReferencia || e.processoNumero || e.processo || '';
-        const texto = `${e.ano} ${e.numero} ${e.fornecedor || ''} ${processo}`.toLowerCase();
-        return texto.includes(termo);
-      });
-    }
-
+    const filtrados = this.features.empenho.filtrarLista(empenhos, termoBusca, anoFiltro);
     this._renderizarListaCadastro(filtrados, container);
   }
 
@@ -644,57 +631,7 @@ class ControleMaterialApp {
    * Renderiza a lista de empenhos agrupados por ano
    */
   _renderizarListaCadastro(empenhos, container) {
-    if (empenhos.length === 0) {
-      container.innerHTML = `
-        <div class="empenhos-vazio">
-          <div class="empenhos-vazio-icon">📭</div>
-          <p>Nenhum empenho encontrado.</p>
-        </div>
-      `;
-      return;
-    }
-
-    // Agrupar por ano
-    const porAno = {};
-    empenhos.forEach((emp) => {
-      const ano = emp.ano || new Date(emp.dataCriacao).getFullYear();
-      if (!porAno[ano]) {
-        porAno[ano] = [];
-      }
-      porAno[ano].push(emp);
-    });
-
-    // Ordenar anos (mais recente primeiro)
-    const anosOrdenados = Object.keys(porAno).sort((a, b) => b - a);
-
-    let html = '';
-    anosOrdenados.forEach((ano) => {
-      // Ordenar por data de criação/id (mais recente primeiro), depois por número
-      const lista = porAno[ano].sort((a, b) => {
-        // Priorizar por dataCriacao ou id (mais recente primeiro)
-        const dataA = new Date(a.dataCriacao || 0).getTime() || a.id || 0;
-        const dataB = new Date(b.dataCriacao || 0).getTime() || b.id || 0;
-        if (dataB !== dataA) {
-          return dataB - dataA;
-        }
-        // Fallback: ordenar por número
-        return (parseInt(b.numero) || 0) - (parseInt(a.numero) || 0);
-      });
-
-      html += `
-        <div class="empenho-ano-grupo">
-          <div class="empenho-ano-header" data-ano="${ano}">
-            <span>📅 ${ano} (${lista.length} empenho${lista.length > 1 ? 's' : ''})</span>
-            <span class="ano-toggle">▼</span>
-          </div>
-          <div class="empenho-ano-lista" id="listaAno${ano}">
-            ${lista.map((emp) => this._renderizarItemCadastro(emp)).join('')}
-          </div>
-        </div>
-      `;
-    });
-
-    container.innerHTML = html;
+    this.features.empenho.renderLista(container, empenhos);
 
     // Setup toggle de colapso
     container.querySelectorAll('.empenho-ano-header').forEach((header) => {
@@ -762,8 +699,7 @@ class ControleMaterialApp {
    */
   async _excluirEmpenho(id) {
     try {
-      await window.dbManager.deletarEmpenho(id);
-      this.showInfo('Empenho excluído com sucesso');
+      await this.features.empenho.excluir(id);
     } catch (error) {
       console.error('[APP] Erro ao excluir empenho:', error);
       this.showError('Erro ao excluir empenho: ' + error.message);
@@ -4391,23 +4327,26 @@ class ControleMaterialApp {
       const cnpjDestinatario = formData.get('cnpjDestinatario');
       const empenhoId = document.getElementById('empenhoAssociado')?.value;
 
-      // ========== VALIDAÇÃO 1: Empenho obrigatório ==========
-      if (!empenhoId) {
+      // ========== VALIDAÇÃO 1: Campos básicos ==========
+      const valorTotalNFInput = document.getElementById('valorTotalNF');
+      const validacaoEntrada = this.features.notaFiscal.validarEntrada({
+        empenhoId,
+        valorTotalNFInput: valorTotalNFInput?.value,
+        formData,
+        itens
+      });
+      if (!validacaoEntrada.valid) {
         this.hideLoading();
-        alert('❌ Empenho é obrigatório!\n\nSelecione um empenho no topo da tela antes de salvar a NF.');
-        document.getElementById('empenhoAssociado')?.focus();
+        alert('❌ Dados inválidos:\n\n' + validacaoEntrada.errors.join('\n'));
+        if (!empenhoId) {
+          focusField('empenhoAssociado');
+        } else {
+          focusField('valorTotalNF');
+        }
         return;
       }
 
-      // ========== VALIDAÇÃO 2: Total NF Manual obrigatório ==========
-      const valorTotalNFInput = document.getElementById('valorTotalNF');
       const totalNFManual = this.money2(this.parseMoneyInputBR(valorTotalNFInput?.value));
-      if (totalNFManual <= 0) {
-        this.hideLoading();
-        alert('❌ Valor Total da NF é obrigatório!\n\nInforme o valor total conforme consta na nota fiscal.');
-        valorTotalNFInput?.focus();
-        return;
-      }
 
       // ========== VALIDAÇÃO 3: Divergência Total × Soma Itens ==========
       const somaItens = this.calcularValorTotalItens(itens);
@@ -4416,7 +4355,7 @@ class ControleMaterialApp {
 
       if (Math.abs(diferencaTotalItens) > TOLERANCIA_TOTAL) {
         this.hideLoading();
-        const confirmar = confirm(
+        const confirmar = confirmAction(
           `⚠️ DIVERGÊNCIA ENTRE TOTAL E SOMA DOS ITENS:\n\n` +
             `• Valor Total da NF: R$ ${this.fmtMoneyBR(totalNFManual)}\n` +
             `• Soma dos Itens: R$ ${this.fmtMoneyBR(somaItens)}\n` +
@@ -4429,23 +4368,6 @@ class ControleMaterialApp {
         }
       }
 
-      // Validação completa com InputValidator
-      const nfParaValidar = {
-        numero: formData.get('numeroNotaFiscal'),
-        dataNotaFiscal: formData.get('dataNotaFiscal'),
-        cnpjEmitente: formData.get('cnpjEmitente'),
-        cnpjDestinatario: cnpjDestinatario,
-        valorTotal: this.calcularValorTotalItens(itens),
-        itens: itens
-      };
-
-      const validation = InputValidator.validateNotaFiscal(nfParaValidar);
-      if (!validation.valid) {
-        this.hideLoading();
-        alert('❌ Dados inválidos:\n\n' + validation.errors.join('\n'));
-        return;
-      }
-
       // Validação de CNPJ do destinatário contra unidade
       const cnpjValido = await this._validarCNPJDestinatarioContraUnidade(cnpjDestinatario);
       if (!cnpjValido) {
@@ -4453,59 +4375,27 @@ class ControleMaterialApp {
         return;
       }
 
-      // ========== VALIDAÇÃO 2: NFValidator contra Empenho ==========
-      if (window.NFValidator) {
-        const empenho = await window.dbManager.buscarEmpenhoPorId(parseInt(empenhoId));
-        const nfObj = {
-          numero: formData.get('numeroNotaFiscal'),
-          dataNotaFiscal: formData.get('dataNotaFiscal'),
-          cnpjEmitente: formData.get('cnpjEmitente'),
-          valorTotal: this.calcularValorTotalItens(itens),
-          itens: itens
-        };
-
-        const resultadoValidacao = window.NFValidator.validateNF(nfObj, empenho);
-
-        // Bloqueia salvamento se houver erros críticos
-        if (!resultadoValidacao.ok && resultadoValidacao.errors?.length > 0) {
-          this.hideLoading();
-
-          const errosCriticos = resultadoValidacao.errors.map((e) => `• ${e.message}`).join('\n');
-          const confirmar = confirm(
-            `⚠️ DIVERGÊNCIAS ENCONTRADAS:\n\n${errosCriticos}\n\n` +
-              `Deseja salvar mesmo assim?\n\n` +
-              `[OK] = Salvar com divergências\n[Cancelar] = Corrigir antes de salvar`
-          );
-
-          if (!confirmar) {
-            return;
-          }
-        }
+      const validacaoEmpenho = await this.features.notaFiscal.validarContraEmpenhoComNFValidator({
+        empenhoId,
+        formData,
+        itens
+      });
+      if (!validacaoEmpenho.ok) {
+        this.hideLoading();
+        return;
       }
 
       this.showLoading('Salvando nota fiscal...');
 
-      const notaFiscal = {
-        numero: formData.get('numeroNotaFiscal'),
-        dataNotaFiscal: formData.get('dataNotaFiscal'),
-        cnpjEmitente: formData.get('cnpjEmitente'),
-        cnpjDestinatario: cnpjDestinatario,
-        chaveAcesso: formData.get('chaveAcesso'),
-        empenhoId: empenhoId,
-        itens: itens,
-        valorTotal: this.calcularValorTotalItens(itens),
-        pdfData: this.currentNotaFiscal ? await this.fileToBase64(this.currentNotaFiscal.file) : null
-      };
+      const notaFiscal = await this.features.notaFiscal.montarNotaFiscal({
+        formData,
+        itens,
+        cnpjDestinatario,
+        empenhoId,
+        currentNotaFiscal: this.currentNotaFiscal
+      });
 
-      // Verifica divergências se há empenho associado
-      if (notaFiscal.empenhoId) {
-        notaFiscal.divergencias = await window.dbManager.compararNotaFiscalComEmpenho(
-          notaFiscal,
-          parseInt(notaFiscal.empenhoId)
-        );
-      }
-
-      const id = await window.dbManager.salvarNotaFiscal(notaFiscal);
+      const id = await this.features.notaFiscal.salvarNotaFiscalCompleta(notaFiscal);
 
       // Salva arquivo físico e atualiza saldos
       await this._salvarArquivoNotaFiscal(id, notaFiscal);
@@ -5003,37 +4893,32 @@ class ControleMaterialApp {
    * Mostra overlay de loading
    */
   showLoading(message = 'Carregando...') {
-    const overlay = document.getElementById('loadingOverlay');
-    if (overlay) {
-      overlay.querySelector('p').textContent = message;
-      overlay.classList.remove('hidden');
-    }
+    showLoader(message);
   }
 
   /**
    * Esconde overlay de loading
    */
   hideLoading() {
-    const overlay = document.getElementById('loadingOverlay');
-    if (overlay) {
-      overlay.classList.add('hidden');
-    }
+    hideLoader();
   }
 
   /**
    * Mostra mensagem de sucesso
    */
   showSuccess(message) {
-    // Implementação simples com alert - pode ser melhorada com toast/modal
-    alert('✅ ' + message);
+    this.showToast('✅ ' + message, 'success');
   }
 
   /**
    * Mostra mensagem informativa
    */
   showInfo(message) {
-    // Implementação simples com alert - pode ser melhorada com toast/modal
-    alert('ℹ️ ' + message);
+    this.showToast('ℹ️ ' + message, 'info');
+  }
+
+  showToast(message, type = 'info') {
+    sharedShowToast(message, type);
   }
 
   /**

@@ -1,6 +1,70 @@
 const baseNotasService = require('../../src/services/notasFiscais.service');
 const AppError = require('../../utils/appError');
 const notasRepository = require('./notas-fiscais.repository');
+const { parsePagination, buildMeta } = require('../../utils/pagination');
+
+async function listNotas(query) {
+  const normalizedQuery = {
+    ...query,
+    limit: query.limit || query.limite,
+    page:
+      query.page ||
+      (query.offset !== undefined && (query.limit || query.limite)
+        ? Math.floor(Number(query.offset) / Number(query.limit || query.limite)) + 1
+        : undefined)
+  };
+
+  const pagination = parsePagination(
+    normalizedQuery,
+    {
+      sortField: 'createdAt',
+      sortDir: 'desc',
+      sort: 'createdAt:desc'
+    },
+    ['createdAt', 'numero', 'fornecedor', 'dataEmissao', 'dataEntrada', 'situacao', 'status']
+  );
+
+  const filters = {
+    ...pagination,
+    q: query.q || query.busca,
+    situacao: query.situacao,
+    fornecedor: query.fornecedor,
+    numero: query.numero,
+    chaveAcesso: query.chaveAcesso,
+    dataInicio: query.dataInicio || query.data_inicio,
+    dataFim: query.dataFim || query.data_fim,
+    status: query.status,
+    cnpj: query.cnpj,
+    empenho_id: query.empenho_id
+  };
+
+  const result = await notasRepository.findAllPaginated(filters);
+
+  const meta = buildMeta({
+    page: pagination.page,
+    limit: pagination.limit,
+    total: result.total,
+    sort: pagination.sort
+  });
+
+  meta.filters = {
+    q: filters.q || null,
+    situacao: filters.situacao || null,
+    fornecedor: filters.fornecedor || null,
+    numero: filters.numero || null,
+    chaveAcesso: filters.chaveAcesso || null,
+    dataInicio: filters.dataInicio || null,
+    dataFim: filters.dataFim || null,
+    status: filters.status || null,
+    cnpj: filters.cnpj || null,
+    empenho_id: filters.empenho_id || null
+  };
+
+  return {
+    items: result.rows,
+    meta
+  };
+}
 
 async function updateNota(id, data, user) {
   const nfAntes = await notasRepository.findById(id);
@@ -95,7 +159,7 @@ async function deleteNota(id, user) {
 }
 
 module.exports = {
-  listNotas: baseNotasService.listNotas,
+  listNotas,
   getNotaById: baseNotasService.getNotaById,
   getItemsByNotaId: baseNotasService.getItemsByNotaId,
   getNotaByChave: baseNotasService.getNotaByChave,

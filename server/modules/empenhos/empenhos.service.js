@@ -1,6 +1,64 @@
 const baseEmpenhosService = require('../../src/services/empenhos.service');
 const AppError = require('../../utils/appError');
 const empenhosRepository = require('./empenhos.repository');
+const { parsePagination, buildMeta } = require('../../utils/pagination');
+
+async function listEmpenhos(query) {
+  const normalizedQuery = {
+    ...query,
+    limit: query.limit || query.limite,
+    page:
+      query.page ||
+      (query.offset !== undefined && (query.limit || query.limite)
+        ? Math.floor(Number(query.offset) / Number(query.limit || query.limite)) + 1
+        : undefined)
+  };
+
+  const pagination = parsePagination(
+    normalizedQuery,
+    {
+      sortField: 'createdAt',
+      sortDir: 'desc',
+      sort: 'createdAt:desc'
+    },
+    ['createdAt', 'numero', 'ano', 'fornecedor', 'dataEmpenho', 'status', 'statusValidacao', 'valorTotal']
+  );
+
+  const filters = {
+    ...pagination,
+    q: query.q || query.busca,
+    status: query.status,
+    unidadeId: query.unidadeId,
+    dataInicio: query.dataInicio,
+    dataFim: query.dataFim,
+    ano: query.ano,
+    cnpj: query.cnpj
+  };
+
+  const result = await empenhosRepository.findAllPaginated(filters);
+
+  const meta = buildMeta({
+    page: pagination.page,
+    limit: pagination.limit,
+    total: result.total,
+    sort: pagination.sort
+  });
+
+  meta.filters = {
+    q: filters.q || null,
+    status: filters.status || null,
+    unidadeId: filters.unidadeId || null,
+    dataInicio: filters.dataInicio || null,
+    dataFim: filters.dataFim || null,
+    ano: filters.ano || null,
+    cnpj: filters.cnpj || null
+  };
+
+  return {
+    items: result.rows,
+    meta
+  };
+}
 
 async function syncEmpenhos(operacoes, user) {
   if (!Array.isArray(operacoes)) {
@@ -46,7 +104,7 @@ async function syncEmpenhos(operacoes, user) {
 }
 
 module.exports = {
-  listEmpenhos: baseEmpenhosService.listEmpenhos,
+  listEmpenhos,
   getEmpenhoById: baseEmpenhosService.getEmpenhoById,
   getEmpenhoBySlug: baseEmpenhosService.getEmpenhoBySlug,
   createEmpenho: baseEmpenhosService.createEmpenho,

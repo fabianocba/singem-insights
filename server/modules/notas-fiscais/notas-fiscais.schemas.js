@@ -1,10 +1,28 @@
-const {
-  listNotasSchema,
-  idNotaSchema,
-  chaveNotaSchema,
-  createNotaSchema
-} = require('../../src/validators/notasFiscais.validators');
+const { idNotaSchema, chaveNotaSchema, createNotaSchema } = require('../../src/validators/notasFiscais.validators');
 const { z } = require('../../src/validators/common');
+
+const listNotasSchema = {
+  query: z.object({
+    page: z.coerce.number().int().min(1).optional().default(1),
+    limit: z.coerce.number().int().min(1).max(100).optional().default(20),
+    limite: z.coerce.number().int().min(1).max(100).optional(),
+    offset: z.coerce.number().int().min(0).optional(),
+    sort: z.string().trim().optional(),
+    q: z.string().trim().optional(),
+    situacao: z.string().trim().optional(),
+    fornecedor: z.string().trim().optional(),
+    numero: z.string().trim().optional(),
+    chaveAcesso: z.string().trim().optional(),
+    dataInicio: z.string().trim().optional(),
+    dataFim: z.string().trim().optional(),
+    status: z.string().trim().optional(),
+    cnpj: z.string().trim().optional(),
+    busca: z.string().trim().optional(),
+    empenho_id: z.coerce.number().int().optional(),
+    data_inicio: z.string().trim().optional(),
+    data_fim: z.string().trim().optional()
+  })
+};
 
 const updateNotaSchema = {
   params: idNotaSchema.params,

@@ -1,7 +1,8 @@
 const path = require('path');
 const NfeImportService = require('./src/services/NfeImportService');
 const NfeImportServiceV2 = require('./src/services/NfeImportServiceV2');
-const db = require('./config/database');
+const db = require('./db');
+const databaseCompat = require('./config/database');
 const { verifySmtpConnection } = require('./src/services/emailService');
 const { createApp } = require('./app');
 const { config, getCorsOrigins, validateRuntimeConfig } = require('./config');
@@ -71,14 +72,24 @@ async function startServer() {
   console.log('');
 
   console.log('[DB] Conectando ao PostgreSQL...');
-  const dbReady = await db.initDatabase().catch((err) => {
-    console.error('[DB] Erro ao conectar ao banco:', err.message);
+  const dbHealth = await db.healthCheck().catch((error) => ({
+    ok: false,
+    error: error?.message || 'Falha no healthcheck do PostgreSQL'
+  }));
+
+  const dbReady = Boolean(dbHealth.ok);
+
+  if (!dbReady) {
+    console.error('[DB] Erro ao conectar ao banco:', dbHealth.error || 'desconhecido');
     console.log('[DB] Servidor iniciando sem banco de dados');
-    return false;
-  });
+  }
 
   if (dbReady) {
+    await databaseCompat.runMigrations();
     console.log('[DB] PostgreSQL conectado e migrations aplicadas');
+  } else {
+    console.log('[DB] PostgreSQL indisponível no startup healthcheck');
+  }
   }
 
   console.log('[SMTP] Verificando configuração SMTP...');
