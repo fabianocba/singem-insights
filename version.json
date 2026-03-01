@@ -1,0 +1,7 @@
+{
+  "name": "SINGEM",
+  "version": "1.2.0",
+  "channel": "dev",
+  "build": "local",
+  "buildTimestamp": "local"
+}
