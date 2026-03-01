@@ -138,8 +138,10 @@ class DataBackupManager {
       });
 
       console.log('[BACKUP] 📝 Mudança registrada:', action);
+      return true;
     } catch (error) {
       console.error('[BACKUP] ❌ Erro ao registrar mudança:', error);
+      return false;
     }
   }
 
@@ -256,6 +258,7 @@ class DataBackupManager {
       URL.revokeObjectURL(url);
 
       console.log('[BACKUP] ✅ Backup exportado');
+      return true;
     } catch (error) {
       console.error('[BACKUP] ❌ Erro ao exportar backup:', error);
       throw error;

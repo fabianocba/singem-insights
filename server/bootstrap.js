@@ -90,7 +90,6 @@ async function startServer() {
   } else {
     console.log('[DB] PostgreSQL indisponível no startup healthcheck');
   }
-  }
 
   console.log('[SMTP] Verificando configuração SMTP...');
   await verifySmtpConnection();

@@ -1,4 +1,4 @@
-const { z, toInt } = require('./common');
+const { z, toInt, idParam } = require('./common');
 
 const listSaldosSchema = {
   query: z.object({

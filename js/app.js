@@ -15,12 +15,12 @@ import { APP_VERSION, APP_BUILD, logVersion } from './core/version.js';
 import * as authRemember from './core/authRemember.js';
 import * as FormatUtils from './core/format.js';
 import * as NaturezaSubelementos from './data/naturezaSubelementos.js';
-import * as RelatoriosEmpenhos from './relatoriosEmpenhos.js';
+import './relatoriosEmpenhos.js';
 import { initInfrastructureInfo } from './infrastructureInfo.js';
-import * as CatmatIntegration from './catmatIntegration.js';
+import './catmatIntegration.js';
 import * as CatalogacaoTela from './catalogacaoTela.js';
-import { createEmpenhoFeature } from './features/empenho/pages/empenhoPage.js';
-import { createNotaFiscalFeature } from './features/notaFiscal/pages/notaFiscalPage.js';
+import { createEmpenhoFeature } from './features/empenho/pages.js';
+import { createNotaFiscalFeature } from './features/notaFiscal/pages.js';
 import { showToast as sharedShowToast } from './shared/ui/toast.js';
 import { hideLoader, showLoader } from './shared/ui/loader.js';
 import { focusField } from './shared/ui/formField.js';
@@ -83,6 +83,23 @@ class ControleMaterialApp {
       ultimoEditado: null, // ID do último empenho editado (para destaque)
       debounceTimer: null, // Timer para debounce da busca
       modoVisualizacao: false // true = somente visualização (aba Relatório)
+    };
+
+    this.cadastroEmpenhoState = {
+      empenhos: [],
+      handlersBound: false,
+      listDelegationBound: false
+    };
+
+    this.notaFiscalUIState = {
+      refs: null,
+      chaveHandlersBound: false,
+      barcodeHandlersBound: false,
+      chaveStatusLast: null,
+      barcodeStatusLast: null,
+      opcaoCards: null,
+      entradaContents: null,
+      opcaoHandlersBound: false
     };
 
     this.features = {
@@ -586,32 +603,48 @@ class ControleMaterialApp {
 
     try {
       const empenhos = await this.features.empenho.carregarListaCadastro();
+      this.cadastroEmpenhoState.empenhos = empenhos;
 
       // Popular filtro de anos
       this.features.empenho.preencherFiltroAnos(filtroAno, empenhos);
 
       // Renderizar lista
       this.features.empenho.renderLista(container, empenhos);
+      this._bindCadastroListaDelegation(container);
 
-      // Setup eventos
-      if (buscaInput) {
-        buscaInput.addEventListener('input', () => {
-          this._filtrarListaCadastro(empenhos, container, buscaInput.value, filtroAno?.value);
-        });
-      }
+      // Setup eventos (bind único para evitar listeners duplicados)
+      if (!this.cadastroEmpenhoState.handlersBound) {
+        if (buscaInput) {
+          buscaInput.addEventListener('input', () => {
+            this._filtrarListaCadastro(
+              this.cadastroEmpenhoState.empenhos,
+              container,
+              buscaInput.value,
+              filtroAno?.value
+            );
+          });
+        }
 
-      if (filtroAno) {
-        filtroAno.addEventListener('change', () => {
-          this._filtrarListaCadastro(empenhos, container, buscaInput?.value || '', filtroAno.value);
-        });
-      }
+        if (filtroAno) {
+          filtroAno.addEventListener('change', () => {
+            this._filtrarListaCadastro(
+              this.cadastroEmpenhoState.empenhos,
+              container,
+              buscaInput?.value || '',
+              filtroAno.value
+            );
+          });
+        }
 
-      if (btnNovo) {
-        btnNovo.addEventListener('click', () => {
-          this.limparFormulario('formEmpenho');
-          this._resetarDraftEmpenho();
-          window.scrollTo({ top: document.querySelector('.form-container')?.offsetTop || 0, behavior: 'smooth' });
-        });
+        if (btnNovo) {
+          btnNovo.addEventListener('click', () => {
+            this.limparFormulario('formEmpenho');
+            this._resetarDraftEmpenho();
+            window.scrollTo({ top: document.querySelector('.form-container')?.offsetTop || 0, behavior: 'smooth' });
+          });
+        }
+
+        this.cadastroEmpenhoState.handlersBound = true;
       }
     } catch (error) {
       console.error('[APP] Erro ao carregar lista cadastro:', error);
@@ -632,38 +665,47 @@ class ControleMaterialApp {
    */
   _renderizarListaCadastro(empenhos, container) {
     this.features.empenho.renderLista(container, empenhos);
+  }
 
-    // Setup toggle de colapso
-    container.querySelectorAll('.empenho-ano-header').forEach((header) => {
-      header.addEventListener('click', () => {
+  _bindCadastroListaDelegation(container) {
+    if (!container || this.cadastroEmpenhoState.listDelegationBound) {
+      return;
+    }
+
+    container.addEventListener('click', async (event) => {
+      const header = event.target.closest('.empenho-ano-header');
+      if (header && container.contains(header)) {
         const ano = header.dataset.ano;
         const lista = document.getElementById(`listaAno${ano}`);
         if (lista) {
           lista.classList.toggle('collapsed');
           header.classList.toggle('collapsed');
         }
-      });
-    });
+        return;
+      }
 
-    // Setup eventos de visualização (abre formulário em modo somente leitura)
-    container.querySelectorAll('.btn-acao.visualizar').forEach((btn) => {
-      btn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const id = parseInt(e.target.dataset.id);
-        this.abrirEmpenhoParaEdicao(id, true); // true = modo visualização
-      });
-    });
-
-    container.querySelectorAll('.btn-acao.excluir').forEach((btn) => {
-      btn.addEventListener('click', async (e) => {
-        e.stopPropagation();
-        const id = parseInt(e.target.dataset.id);
-        if (confirm('Tem certeza que deseja excluir este empenho?')) {
-          await this._excluirEmpenho(id);
-          this.carregarEmpenhosNovoCadastro();
+      const btnVisualizar = event.target.closest('.btn-acao.visualizar');
+      if (btnVisualizar && container.contains(btnVisualizar)) {
+        event.stopPropagation();
+        const id = Number.parseInt(btnVisualizar.dataset.id, 10);
+        if (Number.isFinite(id)) {
+          this.abrirEmpenhoParaEdicao(id, true);
         }
-      });
+        return;
+      }
+
+      const btnExcluir = event.target.closest('.btn-acao.excluir');
+      if (btnExcluir && container.contains(btnExcluir)) {
+        event.stopPropagation();
+        const id = Number.parseInt(btnExcluir.dataset.id, 10);
+        if (Number.isFinite(id) && confirm('Tem certeza que deseja excluir este empenho?')) {
+          await this._excluirEmpenho(id);
+          await this.carregarEmpenhosNovoCadastro();
+        }
+      }
     });
+
+    this.cadastroEmpenhoState.listDelegationBound = true;
   }
 
   /**
@@ -844,7 +886,7 @@ class ControleMaterialApp {
 
       // ✅ BUSCAR TODOS OS EMPENHOS (uma única vez)
       const dados = await window.dbManager.buscarEmpenhos(true);
-      this.listagemState.empenhos = dados || [];
+      this.listagemState.empenhos = this._normalizarEmpenhosListagem(dados || []);
 
       console.log('[APP] 📊 Empenhos carregados:', this.listagemState.empenhos.length);
 
@@ -1031,20 +1073,8 @@ class ControleMaterialApp {
     const termo = this.listagemState.termoBusca.toLowerCase().trim();
     if (termo) {
       resultado = resultado.filter((emp) => {
-        // Compatibilidade: usar processoSuap e fallback para antigos
-        const processo = emp.processoSuap || emp.codigoReferencia || emp.processoNumero || emp.processo || '';
-        const cnpj = emp.cnpjDigits || emp.cnpjFornecedor || '';
-        const campos = [
-          String(emp.ano || ''),
-          String(emp.numero || ''),
-          String(emp.fornecedor || ''),
-          String(processo),
-          String(emp.statusValidacao || 'rascunho'),
-          String(cnpj)
-        ]
-          .join(' ')
-          .toLowerCase();
-        return campos.includes(termo);
+        const searchKey = emp.searchKey || this._buildEmpenhoSearchKey(emp);
+        return searchKey.includes(termo);
       });
     }
 
@@ -1073,6 +1103,35 @@ class ControleMaterialApp {
     return resultado;
   }
 
+  _normalizarEmpenhosListagem(empenhos) {
+    return empenhos.map((emp) => {
+      if (emp.searchKey) {
+        return emp;
+      }
+
+      return {
+        ...emp,
+        searchKey: this._buildEmpenhoSearchKey(emp)
+      };
+    });
+  }
+
+  _buildEmpenhoSearchKey(emp) {
+    const processo = emp.processoSuap || emp.codigoReferencia || emp.processoNumero || emp.processo || '';
+    const cnpj = emp.cnpjDigits || emp.cnpjFornecedor || '';
+
+    return [
+      String(emp.ano || ''),
+      String(emp.numero || ''),
+      String(emp.fornecedor || ''),
+      String(processo),
+      String(emp.statusValidacao || 'rascunho'),
+      String(cnpj)
+    ]
+      .join(' ')
+      .toLowerCase();
+  }
+
   /**
    * Renderiza a lista de empenhos filtrada e ordenada
    */
@@ -1089,10 +1148,16 @@ class ControleMaterialApp {
 
     // Atualizar contadores
     if (totalExibido) {
-      totalExibido.textContent = `📊 Total exibido: ${empenhosFiltrados.length}`;
+      const textoTotalExibido = `📊 Total exibido: ${empenhosFiltrados.length}`;
+      if (totalExibido.textContent !== textoTotalExibido) {
+        totalExibido.textContent = textoTotalExibido;
+      }
     }
     if (contador) {
-      contador.textContent = `${empenhosFiltrados.length} de ${this.listagemState.empenhos.length} empenho(s)`;
+      const textoContador = `${empenhosFiltrados.length} de ${this.listagemState.empenhos.length} empenho(s)`;
+      if (contador.textContent !== textoContador) {
+        contador.textContent = textoContador;
+      }
     }
 
     // Renderizar lista vazia
@@ -1181,47 +1246,65 @@ class ControleMaterialApp {
    * @param {HTMLElement} container - Container dos cards
    * @param {boolean} somenteVisualizacao - Se true, não configura eventos de edição
    */
-  _setupEventosCards(container, somenteVisualizacao = false) {
-    // Clique em editar (somente se não for modo visualização)
-    if (!somenteVisualizacao) {
-      container.querySelectorAll('[data-action="editar"]').forEach((el) => {
-        el.addEventListener('click', (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          const empenhoId = parseInt(e.target.dataset.id || e.target.closest('[data-id]').dataset.id);
-          this.abrirEmpenhoParaEdicao(empenhoId);
-        });
-      });
-
-      // Clique em adicionar item
-      container.querySelectorAll('[data-action="adicionar-item"]').forEach((el) => {
-        el.addEventListener('click', async (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          const empenhoId = parseInt(e.target.dataset.id);
-          await this.abrirEmpenhoParaEdicao(empenhoId);
-          // Abrir modal de adicionar item após carregar
-          setTimeout(() => this.abrirModalItemEmpenho(), 300);
-        });
-      });
-
-      // Duplo clique no card para editar
-      container.querySelectorAll('.empenho-card').forEach((card) => {
-        card.addEventListener('dblclick', () => {
-          const empenhoId = parseInt(card.dataset.id);
-          this.abrirEmpenhoParaEdicao(empenhoId);
-        });
-      });
+  _setupEventosCards(container) {
+    if (!container || container.dataset.cardsDelegacaoBound === '1') {
+      return;
     }
 
-    // Clique em ver detalhes (sempre disponível)
-    container.querySelectorAll('[data-action="ver-detalhes"]').forEach((el) => {
-      el.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        const empenhoId = parseInt(e.target.dataset.id);
+    container.dataset.cardsDelegacaoBound = '1';
+
+    container.addEventListener('click', async (event) => {
+      const actionEl = event.target.closest('[data-action]');
+      if (!actionEl || !container.contains(actionEl)) {
+        return;
+      }
+
+      event.preventDefault();
+      event.stopPropagation();
+
+      const action = actionEl.dataset.action;
+      const card = actionEl.closest('.empenho-card');
+      const rawId = actionEl.dataset.id || card?.dataset.id || '';
+      const empenhoId = Number.parseInt(rawId, 10);
+
+      if (!Number.isFinite(empenhoId)) {
+        return;
+      }
+
+      if (action === 'ver-detalhes') {
         this._mostrarDetalhesEmpenho(empenhoId);
-      });
+        return;
+      }
+
+      if (this.listagemState.modoVisualizacao === true) {
+        return;
+      }
+
+      if (action === 'editar') {
+        this.abrirEmpenhoParaEdicao(empenhoId);
+        return;
+      }
+
+      if (action === 'adicionar-item') {
+        await this.abrirEmpenhoParaEdicao(empenhoId);
+        setTimeout(() => this.abrirModalItemEmpenho(), 300);
+      }
+    });
+
+    container.addEventListener('dblclick', (event) => {
+      if (this.listagemState.modoVisualizacao === true) {
+        return;
+      }
+
+      const card = event.target.closest('.empenho-card');
+      if (!card || !container.contains(card)) {
+        return;
+      }
+
+      const empenhoId = Number.parseInt(card.dataset.id || '', 10);
+      if (Number.isFinite(empenhoId)) {
+        this.abrirEmpenhoParaEdicao(empenhoId);
+      }
     });
   }
 
@@ -1281,7 +1364,10 @@ class ControleMaterialApp {
     const qtdItens = emp.itens?.length || 0;
     const dataEmpenho = emp.dataEmpenho ? new Date(emp.dataEmpenho).toLocaleDateString('pt-BR') : 'Não informada';
 
+    this._removerModalDetalhesEmpenho();
+
     const overlay = document.createElement('div');
+    overlay.id = 'modalDetalhesEmpenhoOverlay';
     overlay.className = 'modal-overlay';
     overlay.innerHTML = `
       <div class="modal-card modal-detalhes">
@@ -1310,19 +1396,33 @@ class ControleMaterialApp {
       </div>
     `;
 
-    overlay.querySelector('#btnFecharDetalhes').addEventListener('click', () => overlay.remove());
-    overlay.querySelector('#btnFecharDetalhesX').addEventListener('click', () => overlay.remove());
-    overlay.querySelector('#btnEditarDetalhes').addEventListener('click', () => {
-      overlay.remove();
-      this.abrirEmpenhoParaEdicao(empenhoId);
-    });
     overlay.addEventListener('click', (e) => {
+      const btnFechar = e.target.closest('#btnFecharDetalhes, #btnFecharDetalhesX');
+      if (btnFechar) {
+        this._removerModalDetalhesEmpenho();
+        return;
+      }
+
+      const btnEditar = e.target.closest('#btnEditarDetalhes');
+      if (btnEditar) {
+        this._removerModalDetalhesEmpenho();
+        this.abrirEmpenhoParaEdicao(empenhoId);
+        return;
+      }
+
       if (e.target === overlay) {
-        overlay.remove();
+        this._removerModalDetalhesEmpenho();
       }
     });
 
     document.body.appendChild(overlay);
+  }
+
+  _removerModalDetalhesEmpenho() {
+    const overlayAtual = document.getElementById('modalDetalhesEmpenhoOverlay');
+    if (overlayAtual) {
+      overlayAtual.remove();
+    }
   }
 
   /**
@@ -1810,13 +1910,18 @@ class ControleMaterialApp {
    * Configura as opções de entrada de Nota Fiscal
    */
   setupNotaFiscalOptions() {
+    this._refreshNotaFiscalOptionRefs();
+
     // Alternância entre opções de entrada
-    document.querySelectorAll('.opcao-card').forEach((card) => {
-      card.addEventListener('click', (e) => {
-        const opcao = e.currentTarget.dataset.opcao;
-        this.selecionarOpcaoEntrada(opcao);
+    if (!this.notaFiscalUIState.opcaoHandlersBound) {
+      (this.notaFiscalUIState.opcaoCards || []).forEach((card) => {
+        card.addEventListener('click', (e) => {
+          const opcao = e.currentTarget.dataset.opcao;
+          this.selecionarOpcaoEntrada(opcao);
+        });
       });
-    });
+      this.notaFiscalUIState.opcaoHandlersBound = true;
+    }
 
     // Funcionalidades de chave de acesso
     this.setupChaveAcesso();
@@ -1825,17 +1930,58 @@ class ControleMaterialApp {
     // this.setupCodigoBarras();
   }
 
+  _getNotaFiscalRefs() {
+    const current = this.notaFiscalUIState.refs;
+    if (current && current.chaveInput && document.contains(current.chaveInput)) {
+      return current;
+    }
+
+    this.notaFiscalUIState.refs = {
+      chaveInput: document.getElementById('chaveAcessoInput'),
+      btnBuscarPorChave: document.getElementById('btnBuscarPorChave'),
+      btnLimparChave: document.getElementById('btnLimparChave'),
+      chaveStatus: document.getElementById('chaveStatus'),
+      barcodeVideo: document.getElementById('barcodeVideo'),
+      btnStartCamera: document.getElementById('btnStartCamera'),
+      btnStopCamera: document.getElementById('btnStopCamera'),
+      btnSwitchCamera: document.getElementById('btnSwitchCamera'),
+      btnUsarCodigoBarras: document.getElementById('btnUsarCodigoBarras'),
+      barcodeData: document.getElementById('barcodeData'),
+      barcodeResult: document.getElementById('barcodeResult'),
+      barcodeStatus: document.getElementById('barcodeStatus')
+    };
+
+    return this.notaFiscalUIState.refs;
+  }
+
+  _refreshNotaFiscalOptionRefs() {
+    const opcaoCards = Array.from(document.querySelectorAll('.opcao-card'));
+    const entradaContents = Array.from(document.querySelectorAll('.entrada-content'));
+
+    this.notaFiscalUIState.opcaoCards = opcaoCards;
+    this.notaFiscalUIState.entradaContents = entradaContents;
+  }
+
   /**
    * Seleciona opção de entrada de NF
    */
   selecionarOpcaoEntrada(opcao) {
+    const precisaRefresh =
+      !Array.isArray(this.notaFiscalUIState.opcaoCards) || !Array.isArray(this.notaFiscalUIState.entradaContents);
+    if (precisaRefresh) {
+      this._refreshNotaFiscalOptionRefs();
+    }
+
+    const opcaoCards = this.notaFiscalUIState.opcaoCards || [];
+    const entradaContents = this.notaFiscalUIState.entradaContents || [];
+
     // Remove seleção anterior
-    document.querySelectorAll('.opcao-card').forEach((card) => {
+    opcaoCards.forEach((card) => {
       card.classList.remove('active');
     });
 
     // Oculta todos os conteúdos
-    document.querySelectorAll('.entrada-content').forEach((content) => {
+    entradaContents.forEach((content) => {
       content.classList.add('hidden');
     });
 
@@ -1853,11 +1999,13 @@ class ControleMaterialApp {
    * Configura funcionalidades de chave de acesso
    */
   setupChaveAcesso() {
-    const chaveInput = document.getElementById('chaveAcessoInput');
-    const btnBuscar = document.getElementById('btnBuscarPorChave');
-    const btnLimpar = document.getElementById('btnLimparChave');
+    const { chaveInput, btnBuscarPorChave: btnBuscar, btnLimparChave: btnLimpar } = this._getNotaFiscalRefs();
 
     if (!chaveInput || !btnBuscar || !btnLimpar) {
+      return;
+    }
+
+    if (this.notaFiscalUIState.chaveHandlersBound) {
       return;
     }
 
@@ -1897,19 +2045,28 @@ class ControleMaterialApp {
       btnBuscar.disabled = true;
       this.hideChaveStatus();
     });
+
+    this.notaFiscalUIState.chaveHandlersBound = true;
   }
 
   /**
    * Configura funcionalidades de código de barras
    */
   setupCodigoBarras() {
-    const video = document.getElementById('barcodeVideo');
-    const btnStart = document.getElementById('btnStartCamera');
-    const btnStop = document.getElementById('btnStopCamera');
-    const btnSwitch = document.getElementById('btnSwitchCamera');
-    const btnUsar = document.getElementById('btnUsarCodigoBarras');
+    const {
+      barcodeVideo: video,
+      btnStartCamera: btnStart,
+      btnStopCamera: btnStop,
+      btnSwitchCamera: btnSwitch,
+      btnUsarCodigoBarras: btnUsar,
+      barcodeData
+    } = this._getNotaFiscalRefs();
 
     if (!video || !btnStart || !btnStop) {
+      return;
+    }
+
+    if (this.notaFiscalUIState.barcodeHandlersBound) {
       return;
     }
 
@@ -1935,9 +2092,10 @@ class ControleMaterialApp {
 
     // Usar código detectado
     btnUsar?.addEventListener('click', () => {
-      const barcodeData = document.getElementById('barcodeData').textContent;
-      this.usarCodigoBarras(barcodeData);
+      this.usarCodigoBarras(barcodeData?.textContent || '');
     });
+
+    this.notaFiscalUIState.barcodeHandlersBound = true;
   }
 
   /**
@@ -2017,15 +2175,18 @@ class ControleMaterialApp {
       // Solicita acesso à câmera
       this.stream = await navigator.mediaDevices.getUserMedia(constraints);
 
-      const video = document.getElementById('barcodeVideo');
+      const { barcodeVideo: video, btnStartCamera, btnStopCamera, btnSwitchCamera } = this._getNotaFiscalRefs();
+      if (!video) {
+        throw new Error('Elemento de vídeo não encontrado');
+      }
       video.srcObject = this.stream;
 
       // Atualiza interface
-      document.getElementById('btnStartCamera').classList.add('hidden');
-      document.getElementById('btnStopCamera').classList.remove('hidden');
+      btnStartCamera?.classList.add('hidden');
+      btnStopCamera?.classList.remove('hidden');
 
       if (this.cameras.length > 1) {
-        document.getElementById('btnSwitchCamera')?.classList.remove('hidden');
+        btnSwitchCamera?.classList.remove('hidden');
       }
 
       this.showBarcodeStatus('Câmera ativa. Aponte para o código de barras da NF-e', 'success');
@@ -2054,16 +2215,22 @@ class ControleMaterialApp {
       this.codeReader = null;
     }
 
-    const video = document.getElementById('barcodeVideo');
+    const {
+      barcodeVideo: video,
+      btnStartCamera,
+      btnStopCamera,
+      btnSwitchCamera,
+      barcodeResult
+    } = this._getNotaFiscalRefs();
     if (video) {
       video.srcObject = null;
     }
 
     // Atualiza interface
-    document.getElementById('btnStartCamera')?.classList.remove('hidden');
-    document.getElementById('btnStopCamera')?.classList.add('hidden');
-    document.getElementById('btnSwitchCamera')?.classList.add('hidden');
-    document.getElementById('barcodeResult')?.classList.add('hidden');
+    btnStartCamera?.classList.remove('hidden');
+    btnStopCamera?.classList.add('hidden');
+    btnSwitchCamera?.classList.add('hidden');
+    barcodeResult?.classList.add('hidden');
 
     this.hideBarcodeStatus();
     this.barcodeDetected = false;
@@ -2117,7 +2284,10 @@ class ControleMaterialApp {
    * Detecção simulada como fallback
    */
   iniciarDeteccaoSimulada() {
-    const video = document.getElementById('barcodeVideo');
+    const { barcodeVideo: video } = this._getNotaFiscalRefs();
+    if (!video) {
+      return;
+    }
     let tentativas = 0;
 
     const detectar = () => {
@@ -2170,8 +2340,11 @@ class ControleMaterialApp {
   codigoDetectado(codigo) {
     this.barcodeDetected = true;
 
-    document.getElementById('barcodeData').textContent = codigo;
-    document.getElementById('barcodeResult').classList.remove('hidden');
+    const { barcodeData, barcodeResult } = this._getNotaFiscalRefs();
+    if (barcodeData) {
+      barcodeData.textContent = codigo;
+    }
+    barcodeResult?.classList.remove('hidden');
 
     this.showBarcodeStatus('Código detectado! Verifique os dados e clique em "Usar"', 'success');
   }
@@ -2272,44 +2445,85 @@ class ControleMaterialApp {
    * Mostra status da chave
    */
   showChaveStatus(message, type = 'info') {
-    const statusDiv = document.getElementById('chaveStatus');
-    if (statusDiv) {
-      statusDiv.textContent = message;
-      statusDiv.className = `status-message ${type}`;
-      statusDiv.classList.remove('hidden');
-    }
+    const { chaveStatus: statusDiv } = this._getNotaFiscalRefs();
+    this._updateStatusMessage(statusDiv, 'chaveStatusLast', message, type);
   }
 
   /**
    * Oculta status da chave
    */
   hideChaveStatus() {
-    const statusDiv = document.getElementById('chaveStatus');
-    if (statusDiv) {
-      statusDiv.classList.add('hidden');
-    }
+    const { chaveStatus: statusDiv } = this._getNotaFiscalRefs();
+    this._hideStatusMessage(statusDiv, 'chaveStatusLast');
   }
 
   /**
    * Mostra status do código de barras
    */
   showBarcodeStatus(message, type = 'info') {
-    const statusDiv = document.getElementById('barcodeStatus');
-    if (statusDiv) {
-      statusDiv.textContent = message;
-      statusDiv.className = `status-message ${type}`;
-      statusDiv.classList.remove('hidden');
-    }
+    const { barcodeStatus: statusDiv } = this._getNotaFiscalRefs();
+    this._updateStatusMessage(statusDiv, 'barcodeStatusLast', message, type);
   }
 
   /**
    * Oculta status do código de barras
    */
   hideBarcodeStatus() {
-    const statusDiv = document.getElementById('barcodeStatus');
-    if (statusDiv) {
-      statusDiv.classList.add('hidden');
+    const { barcodeStatus: statusDiv } = this._getNotaFiscalRefs();
+    this._hideStatusMessage(statusDiv, 'barcodeStatusLast');
+  }
+
+  _updateStatusMessage(statusDiv, stateKey, message, type) {
+    if (!statusDiv) {
+      return;
     }
+
+    const normalizedMessage = String(message || '');
+    const nextStatus = { message: normalizedMessage, type, hidden: false };
+    const prevStatus = this.notaFiscalUIState[stateKey];
+
+    if (
+      prevStatus &&
+      prevStatus.hidden === false &&
+      prevStatus.message === nextStatus.message &&
+      prevStatus.type === nextStatus.type
+    ) {
+      return;
+    }
+
+    if (statusDiv.textContent !== normalizedMessage) {
+      statusDiv.textContent = normalizedMessage;
+    }
+
+    const className = `status-message ${type}`;
+    if (statusDiv.className !== className) {
+      statusDiv.className = className;
+    }
+
+    if (statusDiv.classList.contains('hidden')) {
+      statusDiv.classList.remove('hidden');
+    }
+
+    this.notaFiscalUIState[stateKey] = nextStatus;
+  }
+
+  _hideStatusMessage(statusDiv, stateKey) {
+    if (!statusDiv) {
+      return;
+    }
+
+    const prevStatus = this.notaFiscalUIState[stateKey];
+    if (prevStatus?.hidden === true && statusDiv.classList.contains('hidden')) {
+      return;
+    }
+
+    statusDiv.classList.add('hidden');
+
+    this.notaFiscalUIState[stateKey] = {
+      message: prevStatus?.message || '',
+      type: prevStatus?.type || 'info',
+      hidden: true
+    };
   }
 
   /**

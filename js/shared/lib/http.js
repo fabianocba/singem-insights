@@ -8,18 +8,47 @@ function toErrorPayload(error) {
   };
 }
 
+function resolveUrl(path) {
+  if (/^https?:\/\//i.test(String(path || ''))) {
+    return String(path);
+  }
+
+  const baseUrl = window.CONFIG?.api?.baseUrl || apiClient.config?.baseUrl || '';
+  return `${baseUrl}${path}`;
+}
+
+function getAuthToken() {
+  return (
+    window.__SINGEM_AUTH?.accessToken ||
+    localStorage.getItem('singem_token') ||
+    sessionStorage.getItem('singem_token') ||
+    null
+  );
+}
+
 export async function httpRequest(path, options = {}) {
   try {
-    const baseUrl = window.CONFIG?.api?.baseUrl || apiClient.config?.baseUrl || '';
-    const url = `${baseUrl}${path}`;
+    const url = resolveUrl(path);
+
+    const token = getAuthToken();
+    const headers = {
+      'Content-Type': 'application/json',
+      ...(options.headers || {})
+    };
+
+    if (token && !headers.Authorization) {
+      headers.Authorization = `Bearer ${token}`;
+    }
+
+    let body;
+    if (options.body !== undefined) {
+      body = options.rawBody ? options.body : JSON.stringify(options.body);
+    }
 
     const response = await fetch(url, {
       method: options.method || 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        ...(options.headers || {})
-      },
-      body: options.body ? JSON.stringify(options.body) : undefined,
+      headers,
+      body,
       signal: options.signal
     });
 

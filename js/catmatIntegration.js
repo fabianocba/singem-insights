@@ -5,9 +5,7 @@
 
 import { debounce } from './utils/throttle.js';
 import { showLoading, hideLoading, notifySuccess, notifyError, notifyInfo } from './ui/feedback.js';
-
-// URL base da API (usa URL do servidor ou localhost)
-const API_BASE = window.SINGEM_API_URL || '';
+import { httpRequest } from './shared/lib/http.js';
 
 /**
  * Configuração do módulo
@@ -44,23 +42,18 @@ export async function searchCatmat(query, { offset = 0, limite = config.maxResul
   state.searchAbortController = new AbortController();
 
   try {
-    const token = localStorage.getItem('singem_token') || sessionStorage.getItem('singem_token');
-    const response = await fetch(
-      `${API_BASE}/api/catmat/search?q=${encodeURIComponent(query)}&limite=${limite}&offset=${offset}`,
+    const response = await httpRequest(
+      `/api/catmat/search?q=${encodeURIComponent(query)}&limite=${limite}&offset=${offset}`,
       {
-        signal: state.searchAbortController.signal,
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
+        signal: state.searchAbortController.signal
       }
     );
 
     if (!response.ok) {
-      throw new Error('Erro na busca CATMAT');
+      throw new Error(response.error?.message || 'Erro na busca CATMAT');
     }
 
-    const result = await response.json();
+    const result = response.data || {};
     return {
       ...result,
       offset,
@@ -82,19 +75,13 @@ export async function searchCatmat(query, { offset = 0, limite = config.maxResul
  */
 export async function getCatmatByCodigo(codigo) {
   try {
-    const token = localStorage.getItem('singem_token') || sessionStorage.getItem('singem_token');
-    const response = await fetch(`${API_BASE}/api/catmat/${codigo}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
-    });
+    const response = await httpRequest(`/api/catmat/${codigo}`);
 
     if (!response.ok) {
       return null;
     }
 
-    const data = await response.json();
+    const data = response.data || {};
     return data.dados;
   } catch (err) {
     console.error('[CATMAT] Erro ao buscar código:', err);
@@ -108,22 +95,16 @@ export async function getCatmatByCodigo(codigo) {
  * @returns {Promise<Object>}
  */
 export async function criarPedidoCatalogacao(dados) {
-  const token = localStorage.getItem('singem_token') || sessionStorage.getItem('singem_token');
-  const response = await fetch(`${API_BASE}/api/catalogacao-pedidos`, {
+  const response = await httpRequest('/api/catalogacao-pedidos', {
     method: 'POST',
-    headers: {
-      Authorization: `Bearer ${token}`,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(dados)
+    body: dados
   });
 
   if (!response.ok) {
-    const err = await response.json();
-    throw new Error(err.erro || 'Erro ao criar pedido');
+    throw new Error(response.error?.message || 'Erro ao criar pedido');
   }
 
-  return await response.json();
+  return response.data;
 }
 
 /**
@@ -413,11 +394,12 @@ export function initCatmatAutocomplete(inputElement, onSelect) {
           items[currentIndex - 1]?.scrollIntoView({ block: 'nearest' });
         }
         break;
-      case 'Enter':
+      case 'Enter': {
         e.preventDefault();
         const selectedItem = items[currentIndex >= 0 ? currentIndex : 0];
         selectedItem?.click();
         break;
+      }
       case 'Escape':
         dropdown.style.display = 'none';
         break;

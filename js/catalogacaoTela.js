@@ -4,8 +4,7 @@
  */
 
 import { showLoading, hideLoading, notifySuccess, notifyError } from './ui/feedback.js';
-
-const API_BASE = window.SINGEM_API_URL || '';
+import { httpRequest } from './shared/lib/http.js';
 
 /**
  * Estado da tela
@@ -28,7 +27,6 @@ const state = {
  */
 export async function carregarPedidos(filtros = {}) {
   try {
-    const token = localStorage.getItem('singem_token') || sessionStorage.getItem('singem_token');
     const params = new URLSearchParams({
       ...state.filtros,
       ...filtros,
@@ -36,18 +34,12 @@ export async function carregarPedidos(filtros = {}) {
       offset: (state.paginacao.pagina - 1) * state.paginacao.limite
     });
 
-    const response = await fetch(`${API_BASE}/api/catalogacao-pedidos?${params}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
-    });
-
+    const response = await httpRequest(`/api/catalogacao-pedidos?${params.toString()}`);
     if (!response.ok) {
-      throw new Error('Erro ao carregar pedidos');
+      throw new Error(response.error?.message || 'Erro ao carregar pedidos');
     }
 
-    const result = await response.json();
+    const result = response.data || {};
     state.pedidos = result.dados || [];
     state.paginacao.total = result.paginacao?.total || 0;
 
@@ -58,26 +50,32 @@ export async function carregarPedidos(filtros = {}) {
   }
 }
 
+export async function excluirPedido(id) {
+  const response = await httpRequest(`/api/catalogacao-pedidos/${id}`, {
+    method: 'DELETE'
+  });
+
+  if (!response.ok) {
+    throw new Error(response.error?.message || 'Erro ao excluir pedido');
+  }
+
+  return response.data;
+}
+
 /**
  * Atualiza status de um pedido
  */
 export async function atualizarStatusPedido(id, novoStatus, dados = {}) {
-  const token = localStorage.getItem('singem_token') || sessionStorage.getItem('singem_token');
-  const response = await fetch(`${API_BASE}/api/catalogacao-pedidos/${id}/status`, {
+  const response = await httpRequest(`/api/catalogacao-pedidos/${id}/status`, {
     method: 'PATCH',
-    headers: {
-      Authorization: `Bearer ${token}`,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({ status: novoStatus, ...dados })
+    body: { status: novoStatus, ...dados }
   });
 
   if (!response.ok) {
-    const err = await response.json();
-    throw new Error(err.erro || 'Erro ao atualizar status');
+    throw new Error(response.error?.message || 'Erro ao atualizar status');
   }
 
-  return await response.json();
+  return response.data;
 }
 
 /**
@@ -496,7 +494,7 @@ function bindEventos(container, tabelaContainer) {
     }
 
     const id = btn.dataset.id;
-    const pedido = state.pedidos.find((p) => p.id == id);
+    const pedido = state.pedidos.find((p) => String(p.id) === String(id));
 
     if (btn.classList.contains('btn-ver')) {
       abrirModalDetalhes(pedido);
@@ -553,11 +551,7 @@ function bindEventos(container, tabelaContainer) {
       }
       try {
         showLoading('Excluindo...');
-        const token = localStorage.getItem('singem_token') || sessionStorage.getItem('singem_token');
-        await fetch(`${API_BASE}/api/catalogacao-pedidos/${id}`, {
-          method: 'DELETE',
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        await excluirPedido(id);
         await carregarPedidos();
         renderTabela(tabelaContainer);
         hideLoading();
@@ -602,5 +596,6 @@ if (typeof window !== 'undefined') {
 export default {
   initTelaCatalogacao,
   carregarPedidos,
-  atualizarStatusPedido
+  atualizarStatusPedido,
+  excluirPedido
 };

@@ -11,6 +11,8 @@
  */
 export async function getNFs(params = {}) {
   const { dateFrom, dateTo, fornecedor, empenhoId, status } = params;
+  const fornecedorTermo = fornecedor ? normalizeText(fornecedor) : '';
+  const fornecedorDigits = fornecedor ? onlyDigits(fornecedor) : '';
 
   if (!window.dbManager?.db) {
     console.warn('[ReportRepo] dbManager não inicializado');
@@ -33,9 +35,8 @@ export async function getNFs(params = {}) {
 
       // Filtro por fornecedor (nome ou CNPJ)
       if (fornecedor) {
-        const termo = normalizeText(fornecedor);
-        const matchNome = normalizeText(nf.fornecedorNome).includes(termo);
-        const matchCNPJ = (nf.fornecedorCNPJ || '').includes(termo.replace(/\D/g, ''));
+        const matchNome = nf.fornecedorNomeNorm.includes(fornecedorTermo);
+        const matchCNPJ = nf.fornecedorCNPJDigits.includes(fornecedorDigits);
         if (!matchNome && !matchCNPJ) {
           return false;
         }
@@ -107,6 +108,8 @@ export async function getNFItemsByNFIds(nfIds) {
  */
 export async function getEmpenhos(params = {}) {
   const { ano, fornecedor, subelemento, status } = params;
+  const fornecedorTermo = fornecedor ? normalizeText(fornecedor) : '';
+  const fornecedorDigits = fornecedor ? onlyDigits(fornecedor) : '';
 
   if (!window.dbManager?.db) {
     console.warn('[ReportRepo] dbManager não inicializado');
@@ -124,9 +127,8 @@ export async function getEmpenhos(params = {}) {
 
       // Filtro por fornecedor
       if (fornecedor) {
-        const termo = normalizeText(fornecedor);
-        const matchNome = normalizeText(emp.fornecedorNome).includes(termo);
-        const matchCNPJ = (emp.fornecedorCNPJ || '').includes(termo.replace(/\D/g, ''));
+        const matchNome = emp.fornecedorNomeNorm.includes(fornecedorTermo);
+        const matchCNPJ = emp.fornecedorCNPJDigits.includes(fornecedorDigits);
         if (!matchNome && !matchCNPJ) {
           return false;
         }
@@ -282,13 +284,18 @@ function normalizeNF(nf) {
     return sum + (parseFloat(it.valorTotal) || parseFloat(it.quantidade) * parseFloat(it.valorUnitario) || 0);
   }, 0);
 
+  const fornecedorCNPJ = nf.cnpjEmitente || nf.cnpjFornecedor || '';
+  const fornecedorNome = nf.nomeEmitente || nf.fornecedor || '';
+
   return {
     id: nf.id,
     numero: nf.numero,
     serie: nf.serie || '1',
     dataISO: nf.dataEmissao || nf.dataEntrada || nf.dataCriacao || '',
-    fornecedorCNPJ: nf.cnpjEmitente || nf.cnpjFornecedor || '',
-    fornecedorNome: nf.nomeEmitente || nf.fornecedor || '',
+    fornecedorCNPJ,
+    fornecedorNome,
+    fornecedorCNPJDigits: onlyDigits(fornecedorCNPJ),
+    fornecedorNomeNorm: normalizeText(fornecedorNome),
     empenhoId: nf.empenhoId || null,
     totalManual,
     somaItens,
@@ -311,14 +318,19 @@ function normalizeEmpenho(emp) {
     subelemento = itens[0]?.subelemento || '';
   }
 
+  const fornecedorNome = emp.fornecedor || emp.fornecedorNome || '';
+  const fornecedorCNPJ = emp.cnpjFornecedor || emp.fornecedorCNPJ || '';
+
   return {
     id: emp.id,
     ano: emp.ano || new Date().getFullYear(),
     numeroNE: emp.numero || '',
     slug: emp.slug || `${emp.ano}-NE-${emp.numero}`,
     subelemento,
-    fornecedorNome: emp.fornecedor || emp.fornecedorNome || '',
-    fornecedorCNPJ: emp.cnpjFornecedor || emp.fornecedorCNPJ || '',
+    fornecedorNome,
+    fornecedorCNPJ,
+    fornecedorNomeNorm: normalizeText(fornecedorNome),
+    fornecedorCNPJDigits: onlyDigits(fornecedorCNPJ),
     valorEmpenhado,
     valorUtilizado: parseFloat(emp.valorUtilizado) || 0,
     saldo: valorEmpenhado - (parseFloat(emp.valorUtilizado) || 0),
@@ -341,6 +353,10 @@ function normalizeText(str) {
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
     .trim();
+}
+
+function onlyDigits(str) {
+  return String(str || '').replace(/\D/g, '');
 }
 
 export { normalizeText, normalizeNF, normalizeEmpenho };

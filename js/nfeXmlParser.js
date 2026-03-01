@@ -203,7 +203,6 @@ function fmtCNPJ(cnpj) {
  */
 function parseNFeProc(doc) {
   // Localiza elementos principais
-  const nfeProc = doc.getElementsByTagNameNS(NFE_NS, 'nfeProc')[0] || doc.documentElement;
   const nfe = doc.getElementsByTagNameNS(NFE_NS, 'NFe')[0];
   const infNFe = doc.getElementsByTagNameNS(NFE_NS, 'infNFe')[0];
 

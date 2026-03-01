@@ -5,18 +5,18 @@ const FALLBACK = Object.freeze({
   buildTimestamp: ''
 });
 
-async function loadMeta() {
+function loadMetaSync() {
   try {
-    const res = await fetch(new URL('./version.json', import.meta.url), { cache: 'no-store' });
-    if (!res.ok) return FALLBACK;
-    const json = await res.json();
-    return { ...FALLBACK, ...json };
+    if (typeof window !== 'undefined' && window.__SINGEM_VERSION_META) {
+      return { ...FALLBACK, ...window.__SINGEM_VERSION_META };
+    }
   } catch {
-    return FALLBACK;
+    // sem impacto: segue fallback
   }
+  return FALLBACK;
 }
 
-const raw = await loadMeta();
+const raw = loadMetaSync();
 
 function safeIso(value) {
   const parsed = Date.parse(value || '');
@@ -53,7 +53,9 @@ export const VERSION = Object.freeze({
 });
 
 export function renderVersionUI(targetId = 'appVersion') {
-  if (typeof document === 'undefined') return;
+  if (typeof document === 'undefined') {
+    return;
+  }
   const el = document.getElementById(targetId);
   if (el) {
     el.textContent = VERSION_DISPLAY;

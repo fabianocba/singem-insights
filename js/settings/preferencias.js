@@ -520,174 +520,7 @@ class SettingsPreferencias {
 
       console.log('[Preferencias] 📄 Arquivo selecionado:', file.name, file.size, 'bytes');
       this._showStatus(statusEl, 'info', '⏳ Processando backup...');
-
-      try {
-        if (this.serverMode) {
-          this._showStatus(
-            statusEl,
-            'warning',
-            '⚠️ Importação local desativada no modo PostgreSQL/VPS. Use rotina de restauração do servidor.'
-          );
-          input.remove();
-          return;
-        }
-
-        // Lê o arquivo
-        const text = await file.text();
-        const backup = JSON.parse(text);
-
-        console.log('[Preferencias] 📦 Backup carregado, chaves:', Object.keys(backup));
-
-        // Detectar quantidade de dados em várias estruturas possíveis
-        const numEmpenhos =
-          backup.data?.empenhos?.length ||
-          backup.indexedDB?.empenhos?.length ||
-          backup.stores?.empenhos?.length ||
-          backup.empenhos?.length ||
-          0;
-        const numNFs =
-          backup.data?.notasFiscais?.length ||
-          backup.indexedDB?.notasFiscais?.length ||
-          backup.stores?.notasFiscais?.length ||
-          backup.notasFiscais?.length ||
-          0;
-        const numUnidades =
-          backup.data?.unidades?.length ||
-          backup.indexedDB?.config?.find((c) => c.id === 'todasUnidades')?.unidades?.length ||
-          0;
-        const numUsuarios =
-          backup.data?.usuarios?.length ||
-          backup.indexedDB?.config?.find((c) => c.id === 'usuarios')?.usuarios?.length ||
-          0;
-        const hasStorage = !!backup.storage;
-        const storageInfo = backup.storage?.unidade || 'Não configurado';
-
-        console.log('[Preferencias] 📊 Backup contém:', {
-          empenhos: numEmpenhos,
-          notasFiscais: numNFs,
-          unidades: numUnidades,
-          usuarios: numUsuarios,
-          hasStorage
-        });
-
-        // Permitir backup mesmo se não tiver empenhos/NFs (pode ter apenas configurações)
-        const totalDados = numEmpenhos + numNFs + numUnidades + numUsuarios;
-        if (totalDados === 0 && !hasStorage) {
-          this._showStatus(statusEl, 'error', '⚠️ Backup vazio ou formato não reconhecido');
-          input.remove();
-          return;
-        }
-
-        // Montar mensagem de confirmação detalhada
-        let confirmMsg = `📥 Importar Backup?\n\n`;
-        confirmMsg += `📋 Empenhos: ${numEmpenhos}\n`;
-        confirmMsg += `📄 Notas Fiscais: ${numNFs}\n`;
-        if (numUnidades > 0) {
-          confirmMsg += `🏢 Unidades: ${numUnidades}\n`;
-        }
-        if (numUsuarios > 0) {
-          confirmMsg += `👤 Usuários: ${numUsuarios}\n`;
-        }
-        if (hasStorage) {
-          confirmMsg += `\n📁 Config Storage: ${storageInfo}\n`;
-        }
-        if (backup.meta?.exportedAt) {
-          const dataBackup = new Date(backup.meta.exportedAt).toLocaleString('pt-BR');
-          confirmMsg += `\n📅 Data do backup: ${dataBackup}`;
-        }
-        confirmMsg += `\n\nModo: MESCLAR (adiciona sem duplicar)\n\nContinuar?`;
-
-        const confirmar = confirm(confirmMsg);
-
-        if (!confirmar) {
-          this._showStatus(statusEl, 'info', '❌ Import cancelado');
-          input.remove();
-          return;
-        }
-
-        // USAR DIRETAMENTE dbManager.importBackup() - FONTE ÚNICA DE VERDADE
-        if (!window.dbManager || !window.dbManager.db) {
-          throw new Error('Banco de dados não está pronto. Aguarde e tente novamente.');
-        }
-
-        console.log('[Preferencias] 🚀 Chamando dbManager.importBackup()...');
-        const result = await window.dbManager.importBackup(backup, 'merge');
-
-        console.log('[Preferencias] ✅ Resultado da importação:', result);
-
-        if (result.success) {
-          // Disparar evento global para atualizar UI
-          console.log('[Preferencias] 📡 Disparando evento dataImported...');
-          window.dispatchEvent(new CustomEvent('dataImported', { detail: result }));
-
-          // Montar mensagem de sucesso
-          let successMsg = `✅ Backup importado! ${result.total} registros`;
-          if (result.imported.empenhos) {
-            successMsg += `, ${result.imported.empenhos} empenhos`;
-          }
-          if (result.imported.notasFiscais) {
-            successMsg += `, ${result.imported.notasFiscais} NFs`;
-          }
-          if (result.imported.unidades) {
-            successMsg += `, ${result.imported.unidades} unidades`;
-          }
-          if (result.imported.usuarios) {
-            successMsg += `, ${result.imported.usuarios} usuários`;
-          }
-
-          this._showStatus(statusEl, 'success', successMsg);
-
-          // Se backup tinha storage, avisar sobre reautorização
-          if (result.storage) {
-            console.log('[Preferencias] 📁 Backup tinha config de storage:', result.storage);
-            setTimeout(() => {
-              alert(
-                '📁 Configuração de Pasta Detectada\n\n' +
-                  'O backup continha configuração de pasta de armazenamento.\n\n' +
-                  `Pasta: ${result.storage.rootFolderName || 'SINGEM'}\n` +
-                  `Unidade: ${result.storage.unidade || 'Não definida'}\n\n` +
-                  'Para restaurar o acesso à pasta, vá em:\n' +
-                  'Configurações → Arquivos → Configurar Pasta'
-              );
-            }, 100);
-          }
-
-          // Verificar se precisamos alertar sobre arquivos
-          if ((result.imported.empenhos || 0) > 0 && (result.imported.arquivos || 0) === 0) {
-            console.warn('[Preferencias] ⚠️ Empenhos importados mas sem arquivos vinculados!');
-            setTimeout(
-              () => {
-                alert(
-                  '⚠️ Atenção!\n\n' +
-                    'Os empenhos foram importados, mas sem arquivos PDF vinculados.\n\n' +
-                    'Na página principal, os empenhos só aparecem quando têm um PDF de Nota de Empenho.\n\n' +
-                    'Use o botão "Verificar Dados" para confirmar que os dados estão no banco.'
-                );
-              },
-              result.storage ? 2000 : 100
-            );
-          }
-        } else {
-          this._showStatus(statusEl, 'error', `❌ Erros: ${result.errors.join(', ')}`);
-        }
-
-        // Recarregar para aplicar alterações
-        if (result.total > 0 || result.imported.unidades || result.imported.usuarios) {
-          setTimeout(
-            () => {
-              if (confirm('✅ Importação concluída!\n\nDeseja recarregar para garantir que tudo está atualizado?')) {
-                window.location.reload();
-              }
-            },
-            result.storage ? 2500 : 500
-          );
-        }
-      } catch (error) {
-        console.error('[Preferencias] ❌ Erro ao importar:', error);
-        this._showStatus(statusEl, 'error', '❌ Erro: ' + error.message);
-      }
-
-      input.remove();
+      await this._processarImportacaoBackup(statusEl, input, file);
     });
 
     // Adiciona ao body
@@ -698,6 +531,179 @@ class SettingsPreferencias {
     console.log('[Preferencias] 🖱️ Disparando click no input...');
     input.click();
     console.log('[Preferencias] ✅ Click disparado');
+  }
+
+  async _processarImportacaoBackup(statusEl, input, file) {
+    try {
+      if (this.serverMode) {
+        this._showStatus(
+          statusEl,
+          'warning',
+          '⚠️ Importação local desativada no modo PostgreSQL/VPS. Use rotina de restauração do servidor.'
+        );
+        return;
+      }
+
+      const text = await file.text();
+      const backup = JSON.parse(text);
+
+      console.log('[Preferencias] 📦 Backup carregado, chaves:', Object.keys(backup));
+
+      const resumo = this._resumirConteudoBackup(backup);
+
+      console.log('[Preferencias] 📊 Backup contém:', resumo);
+
+      if (resumo.totalDados === 0 && !resumo.hasStorage) {
+        this._showStatus(statusEl, 'error', '⚠️ Backup vazio ou formato não reconhecido');
+        return;
+      }
+
+      const confirmMsg = this._montarConfirmacaoImportacao(backup, resumo);
+      const confirmar = confirm(confirmMsg);
+
+      if (!confirmar) {
+        this._showStatus(statusEl, 'info', '❌ Import cancelado');
+        return;
+      }
+
+      if (!window.dbManager || !window.dbManager.db) {
+        throw new Error('Banco de dados não está pronto. Aguarde e tente novamente.');
+      }
+
+      console.log('[Preferencias] 🚀 Chamando dbManager.importBackup()...');
+      const result = await window.dbManager.importBackup(backup, 'merge');
+
+      console.log('[Preferencias] ✅ Resultado da importação:', result);
+
+      if (result.success) {
+        this._finalizarImportacaoComSucesso(statusEl, result);
+      } else {
+        this._showStatus(statusEl, 'error', `❌ Erros: ${result.errors.join(', ')}`);
+      }
+
+      if (result.total > 0 || result.imported.unidades || result.imported.usuarios) {
+        setTimeout(
+          () => {
+            if (confirm('✅ Importação concluída!\n\nDeseja recarregar para garantir que tudo está atualizado?')) {
+              window.location.reload();
+            }
+          },
+          result.storage ? 2500 : 500
+        );
+      }
+    } catch (error) {
+      console.error('[Preferencias] ❌ Erro ao importar:', error);
+      this._showStatus(statusEl, 'error', '❌ Erro: ' + error.message);
+    } finally {
+      input.remove();
+    }
+  }
+
+  _resumirConteudoBackup(backup) {
+    const numEmpenhos =
+      backup.data?.empenhos?.length ||
+      backup.indexedDB?.empenhos?.length ||
+      backup.stores?.empenhos?.length ||
+      backup.empenhos?.length ||
+      0;
+    const numNFs =
+      backup.data?.notasFiscais?.length ||
+      backup.indexedDB?.notasFiscais?.length ||
+      backup.stores?.notasFiscais?.length ||
+      backup.notasFiscais?.length ||
+      0;
+    const numUnidades =
+      backup.data?.unidades?.length ||
+      backup.indexedDB?.config?.find((c) => c.id === 'todasUnidades')?.unidades?.length ||
+      0;
+    const numUsuarios =
+      backup.data?.usuarios?.length ||
+      backup.indexedDB?.config?.find((c) => c.id === 'usuarios')?.usuarios?.length ||
+      backup.indexedDB?.config?.find((c) => c.id === 'usuarios')?.usuarios?.length ||
+      0;
+    const hasStorage = !!backup.storage;
+    const storageInfo = backup.storage?.unidade || 'Não configurado';
+
+    return {
+      empenhos: numEmpenhos,
+      notasFiscais: numNFs,
+      unidades: numUnidades,
+      usuarios: numUsuarios,
+      hasStorage,
+      storageInfo,
+      totalDados: numEmpenhos + numNFs + numUnidades + numUsuarios
+    };
+  }
+
+  _montarConfirmacaoImportacao(backup, resumo) {
+    let confirmMsg = `📥 Importar Backup?\n\n`;
+    confirmMsg += `📋 Empenhos: ${resumo.empenhos}\n`;
+    confirmMsg += `📄 Notas Fiscais: ${resumo.notasFiscais}\n`;
+    if (resumo.unidades > 0) {
+      confirmMsg += `🏢 Unidades: ${resumo.unidades}\n`;
+    }
+    if (resumo.usuarios > 0) {
+      confirmMsg += `👤 Usuários: ${resumo.usuarios}\n`;
+    }
+    if (resumo.hasStorage) {
+      confirmMsg += `\n📁 Config Storage: ${resumo.storageInfo}\n`;
+    }
+    if (backup.meta?.exportedAt) {
+      const dataBackup = new Date(backup.meta.exportedAt).toLocaleString('pt-BR');
+      confirmMsg += `\n📅 Data do backup: ${dataBackup}`;
+    }
+    confirmMsg += `\n\nModo: MESCLAR (adiciona sem duplicar)\n\nContinuar?`;
+    return confirmMsg;
+  }
+
+  _finalizarImportacaoComSucesso(statusEl, result) {
+    console.log('[Preferencias] 📡 Disparando evento dataImported...');
+    window.dispatchEvent(new CustomEvent('dataImported', { detail: result }));
+
+    let successMsg = `✅ Backup importado! ${result.total} registros`;
+    if (result.imported.empenhos) {
+      successMsg += `, ${result.imported.empenhos} empenhos`;
+    }
+    if (result.imported.notasFiscais) {
+      successMsg += `, ${result.imported.notasFiscais} NFs`;
+    }
+    if (result.imported.unidades) {
+      successMsg += `, ${result.imported.unidades} unidades`;
+    }
+    if (result.imported.usuarios) {
+      successMsg += `, ${result.imported.usuarios} usuários`;
+    }
+
+    this._showStatus(statusEl, 'success', successMsg);
+
+    if (result.storage) {
+      console.log('[Preferencias] 📁 Backup tinha config de storage:', result.storage);
+      setTimeout(() => {
+        alert(
+          '📁 Configuração de Pasta Detectada\n\n' +
+            'O backup continha configuração de pasta de armazenamento.\n\n' +
+            `Pasta: ${result.storage.rootFolderName || 'SINGEM'}\n` +
+            `Unidade: ${result.storage.unidade || 'Não definida'}\n\n` +
+            'Para restaurar o acesso à pasta, vá em:\n' +
+            'Configurações → Arquivos → Configurar Pasta'
+        );
+      }, 100);
+    }
+
+    if ((result.imported.empenhos || 0) > 0 && (result.imported.arquivos || 0) === 0) {
+      console.warn('[Preferencias] ⚠️ Empenhos importados mas sem arquivos vinculados!');
+      setTimeout(
+        () => {
+          alert(
+            '⚠️ Atenção!\n\n' +
+              'Os empenhos foram importados, mas sem arquivos PDF vinculados.\n\n' +
+              'Na página principal, os empenhos só aparecem quando têm um PDF de Nota de Empenho.\n\n' +
+              'Use o botão "Verificar Dados" para confirmar que os dados estão no banco.'
+          );
+        },
+        result.storage ? 2000 : 100
+      );
+    }
   }
 
   /**

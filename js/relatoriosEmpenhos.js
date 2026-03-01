@@ -4,7 +4,7 @@
  * @version 1.0.0
  */
 
-import { emit, on } from './core/eventBus.js';
+import { emit } from './core/eventBus.js';
 
 /**
  * Configuração dos tipos de relatório disponíveis
@@ -64,6 +64,18 @@ const estadoRelatorio = {
   ordenacao: 'recente'
 };
 
+function buildRelatorioSearchKey(emp) {
+  return [
+    String(emp.ano || ''),
+    String(emp.numero || ''),
+    String(emp.fornecedor || ''),
+    String(emp.processoSuap || emp.processo || ''),
+    String(emp.cnpjDigits || emp.cnpjFornecedor || '')
+  ]
+    .join(' ')
+    .toLowerCase();
+}
+
 // Flag de debug para os relatórios
 const DEBUG_REL_EMP = false;
 
@@ -95,12 +107,13 @@ export function inicializarRelatorios() {
  * Configura eventos dos botões de tipo de relatório
  */
 function setupEventosTipoRelatorio() {
-  document.querySelectorAll('.btn-tipo-relatorio').forEach((btn) => {
+  const botoesTipo = Array.from(document.querySelectorAll('.btn-tipo-relatorio'));
+  botoesTipo.forEach((btn) => {
     btn.addEventListener('click', async (e) => {
       const tipo = e.currentTarget.dataset.tipo;
 
       // Atualizar visual dos botões
-      document.querySelectorAll('.btn-tipo-relatorio').forEach((b) => b.classList.remove('active'));
+      botoesTipo.forEach((b) => b.classList.remove('active'));
       e.currentTarget.classList.add('active');
 
       // Atualizar tipo atual
@@ -238,7 +251,9 @@ function setupDelegacaoEventosRelatorio() {
  */
 async function carregarAnosDisponiveis() {
   try {
-    const empenhos = await window.dbManager.buscarEmpenhos(true);
+    const empenhos = estadoRelatorio.empenhos.length
+      ? estadoRelatorio.empenhos
+      : await window.dbManager.buscarEmpenhos(true);
     const anos = [...new Set(empenhos.map((e) => e.ano).filter(Boolean))].sort((a, b) => b - a);
 
     const selectAno = document.getElementById('filtroAnoRelatorio');
@@ -280,8 +295,7 @@ export async function carregarRelatorioEmpenhos() {
     // Atualizar filtro de anos
     await carregarAnosDisponiveis();
 
-    // Renderizar resumo e lista
-    await renderizarResumoRelatorio();
+    // Renderizar lista (inclui atualização de resumo)
     await renderizarListaRelatorio();
 
     console.log('[Relatórios] ✅ Relatório carregado:', estadoRelatorio.empenhos.length, 'empenhos');
@@ -324,7 +338,8 @@ async function calcularSaldosEmpenhos(empenhos) {
       ...emp,
       valorUtilizado,
       saldoDisponivel,
-      percentualUtilizado
+      percentualUtilizado,
+      searchKey: emp.searchKey || buildRelatorioSearchKey(emp)
     });
   }
 
@@ -410,16 +425,8 @@ function filtrarEmpenhos() {
   if (estadoRelatorio.filtros.busca) {
     const termo = estadoRelatorio.filtros.busca;
     resultado = resultado.filter((emp) => {
-      const campos = [
-        String(emp.ano || ''),
-        String(emp.numero || ''),
-        String(emp.fornecedor || ''),
-        String(emp.processoSuap || emp.processo || ''),
-        String(emp.cnpjDigits || emp.cnpjFornecedor || '')
-      ]
-        .join(' ')
-        .toLowerCase();
-      return campos.includes(termo);
+      const searchKey = emp.searchKey || buildRelatorioSearchKey(emp);
+      return searchKey.includes(termo);
     });
   }
 
@@ -435,32 +442,26 @@ function filtrarEmpenhos() {
 function ordenarEmpenhos(empenhos) {
   const ordenacao = estadoRelatorio.ordenacao;
 
-  return [...empenhos].sort((a, b) => {
-    switch (ordenacao) {
-      case 'recente':
-        return new Date(b.dataEmpenho || b.dataCriacao || 0) - new Date(a.dataEmpenho || a.dataCriacao || 0);
-      case 'antigo':
-        return new Date(a.dataEmpenho || a.dataCriacao || 0) - new Date(b.dataEmpenho || b.dataCriacao || 0);
-      case 'numero': {
-        const anoA = parseInt(a.ano) || 0;
-        const anoB = parseInt(b.ano) || 0;
-        if (anoB !== anoA) {
-          return anoB - anoA;
-        }
-        return (parseInt(b.numero) || 0) - (parseInt(a.numero) || 0);
+  const comparadores = {
+    recente: (a, b) => new Date(b.dataEmpenho || b.dataCriacao || 0) - new Date(a.dataEmpenho || a.dataCriacao || 0),
+    antigo: (a, b) => new Date(a.dataEmpenho || a.dataCriacao || 0) - new Date(b.dataEmpenho || b.dataCriacao || 0),
+    numero: (a, b) => {
+      const anoA = parseInt(a.ano) || 0;
+      const anoB = parseInt(b.ano) || 0;
+      if (anoB !== anoA) {
+        return anoB - anoA;
       }
-      case 'valor-desc':
-        return (b.valorTotalEmpenho ?? b.valorTotal ?? 0) - (a.valorTotalEmpenho ?? a.valorTotal ?? 0);
-      case 'valor-asc':
-        return (a.valorTotalEmpenho ?? a.valorTotal ?? 0) - (b.valorTotalEmpenho ?? b.valorTotal ?? 0);
-      case 'saldo-desc':
-        return (b.saldoDisponivel ?? 0) - (a.saldoDisponivel ?? 0);
-      case 'saldo-asc':
-        return (a.saldoDisponivel ?? 0) - (b.saldoDisponivel ?? 0);
-      default:
-        return 0;
-    }
-  });
+      return (parseInt(b.numero) || 0) - (parseInt(a.numero) || 0);
+    },
+    'valor-desc': (a, b) => (b.valorTotalEmpenho ?? b.valorTotal ?? 0) - (a.valorTotalEmpenho ?? a.valorTotal ?? 0),
+    'valor-asc': (a, b) => (a.valorTotalEmpenho ?? a.valorTotal ?? 0) - (b.valorTotalEmpenho ?? b.valorTotal ?? 0),
+    'saldo-desc': (a, b) => (b.saldoDisponivel ?? 0) - (a.saldoDisponivel ?? 0),
+    'saldo-asc': (a, b) => (a.saldoDisponivel ?? 0) - (b.saldoDisponivel ?? 0)
+  };
+
+  const comparar = comparadores[ordenacao] || (() => 0);
+
+  return [...empenhos].sort((a, b) => comparar(a, b));
 }
 
 /**

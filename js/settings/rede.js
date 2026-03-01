@@ -3,12 +3,29 @@
  * Gerencia configurações de rede para compartilhamento em LAN
  */
 
+import { httpRequest } from '../shared/lib/http.js';
+import { notifyError, notifyInfo, notifySuccess, notifyWarning } from '../ui/feedback.js';
+
 class SettingsRede {
   constructor() {
     this.config = null;
     this.servidorAtivo = false;
     this.healthCheckInterval = null;
     this.init();
+  }
+
+  async verificarHealth(urlBase, timeoutMs = 5000) {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
+    try {
+      return await httpRequest(`${urlBase}/health`, {
+        method: 'GET',
+        signal: controller.signal
+      });
+    } finally {
+      clearTimeout(timeoutId);
+    }
   }
 
   init() {
@@ -82,18 +99,18 @@ class SettingsRede {
 
       // Validações
       if (habilitado && !ip) {
-        alert('❌ Informe o IP do servidor!');
+        notifyError('Informe o IP do servidor!');
         return;
       }
 
       if (habilitado && !porta) {
-        alert('❌ Informe a porta do servidor!');
+        notifyError('Informe a porta do servidor!');
         return;
       }
 
       // Valida IP
       if (habilitado && !this.validarIP(ip)) {
-        alert('❌ IP inválido! Use o formato xxx.xxx.xxx.xxx');
+        notifyError('IP inválido! Use o formato xxx.xxx.xxx.xxx');
         return;
       }
 
@@ -119,10 +136,10 @@ class SettingsRede {
         this.pararHealthCheck();
       }
 
-      alert('✅ Configurações de rede salvas com sucesso!');
+      notifySuccess('Configurações de rede salvas com sucesso!');
     } catch (error) {
       console.error('Erro ao salvar configurações:', error);
-      alert('❌ Erro ao salvar: ' + error.message);
+      notifyError('Erro ao salvar: ' + error.message);
     }
   }
 
@@ -161,7 +178,7 @@ class SettingsRede {
       const ipInput = document.getElementById('ipServidor');
       if (!ipInput.value) {
         ipInput.value = '192.168.1.100'; // IP padrão sugerido
-        alert(
+        notifyWarning(
           '⚠️ Não foi possível detectar o IP automaticamente.\n\nIP padrão sugerido: 192.168.1.100\n\nVerifique e ajuste conforme necessário.'
         );
       }
@@ -183,37 +200,33 @@ class SettingsRede {
   async testarConexao() {
     try {
       if (!this.config || !this.config.habilitado) {
-        alert('⚠️ Configure e salve as configurações de rede primeiro!');
+        notifyWarning('Configure e salve as configurações de rede primeiro!');
         return;
       }
-
-      const url = `${this.config.urlBase}/health`;
 
       const statusDiv = document.getElementById('statusConexao');
       if (statusDiv) {
         statusDiv.innerHTML = '<div class="loading">🔄 Testando conexão...</div>';
       }
 
-      const response = await fetch(url, {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
-        timeout: 5000
-      });
+      const response = await this.verificarHealth(this.config.urlBase, 5000);
 
       if (response.ok) {
-        const data = await response.json();
+        const data = response.data || {};
         this.servidorAtivo = true;
         this.atualizarStatus(true, data);
-        alert(`✅ CONEXÃO OK!\n\nServidor: ${data.version || 'SINGEM Server'}\nStatus: ${data.status}`);
+        notifySuccess(`Conexão OK! Servidor: ${data.version || 'SINGEM Server'} • Status: ${data.status || 'OK'}`);
       } else {
         this.servidorAtivo = false;
         this.atualizarStatus(false);
-        alert(`❌ CONEXÃO FALHOU!\n\nCódigo HTTP: ${response.status}\n\nVerifique se o servidor está rodando.`);
+        notifyError(
+          `❌ CONEXÃO FALHOU!\n\nCódigo HTTP: ${response.error?.status || 0}\n\nVerifique se o servidor está rodando.`
+        );
       }
     } catch (error) {
       this.servidorAtivo = false;
       this.atualizarStatus(false);
-      alert(
+      notifyError(
         `❌ ERRO DE CONEXÃO!\n\n${error.message}\n\nVerifique:\n• Servidor está rodando?\n• IP e porta corretos?\n• Firewall liberado?`
       );
     }
@@ -232,11 +245,10 @@ class SettingsRede {
       }
 
       try {
-        const url = `${this.config.urlBase}/health`;
-        const response = await fetch(url, { method: 'GET', timeout: 3000 });
+        const response = await this.verificarHealth(this.config.urlBase, 3000);
 
         if (response.ok) {
-          const data = await response.json();
+          const data = response.data || {};
           this.servidorAtivo = true;
           this.atualizarStatus(true, data);
         } else {
@@ -303,7 +315,7 @@ class SettingsRede {
    * Inicia servidor Node.js (placeholder - requer implementação backend)
    */
   async iniciarServidor() {
-    alert(
+    notifyInfo(
       `⚠️ FUNCIONALIDADE EM DESENVOLVIMENTO\n\nPara iniciar o servidor:\n\n1. Abra o terminal no diretório server/\n2. Execute: npm install\n3. Execute: npm start\n\nO servidor ficará disponível em:\n${
         this.config?.urlBase || 'http://localhost:3000'
       }`
@@ -314,7 +326,7 @@ class SettingsRede {
    * Para servidor Node.js (placeholder)
    */
   async pararServidor() {
-    alert('⚠️ Para parar o servidor, pressione Ctrl+C no terminal onde ele está rodando.');
+    notifyInfo('Para parar o servidor, pressione Ctrl+C no terminal onde ele está rodando.');
   }
 
   /**
