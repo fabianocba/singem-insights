@@ -1,5 +1,5 @@
 import { APP_VERSION, APP_BUILD, VERSION_DISPLAY } from './core/version.js';
-import { initVersionFooter } from './core/version-footer.js';
+import { initVersionUI } from './core/version-ui.js';
 
 const RELOAD_KEY = 'singem:swReloadedAt';
 const RELOAD_TTL = 10000;
@@ -19,7 +19,8 @@ function canReload() {
 function postSW(worker, payload) {
   return new Promise((resolve) => {
     if (!worker) {
-      return resolve({ ok: false });
+      resolve({ ok: false });
+      return;
     }
     const channel = new MessageChannel();
     channel.port1.onmessage = (event) => resolve(event.data || { ok: true });
@@ -44,9 +45,13 @@ export async function registerServiceWorker() {
   }
 
   regOnce = (async () => {
-    console.info('[VM]', VERSION_DISPLAY);
+    const versionMeta = window.__SINGEM_VERSION_META || {};
+    const swVersion = String(versionMeta.version || APP_VERSION || '0.0.0');
+    const swBuild = String(versionMeta.build || APP_BUILD || 'local');
 
-    const swUrl = `/sw.js?v=${encodeURIComponent(APP_VERSION)}&b=${encodeURIComponent(APP_BUILD)}`;
+    console.info('[VM]', `${versionMeta.name || 'SINGEM'} v${swVersion} • build ${swBuild}`);
+
+    const swUrl = `/sw.js?v=${encodeURIComponent(swVersion)}&b=${encodeURIComponent(swBuild)}`;
     const registration = await navigator.serviceWorker.register(swUrl, { updateViaCache: 'none' });
 
     registration.addEventListener('updatefound', () => {
@@ -103,11 +108,14 @@ window.SINGEM_CACHE = {
 if (typeof window !== 'undefined') {
   window.addEventListener('DOMContentLoaded', () => {
     renderVersionInUI();
-    initVersionFooter().catch((error) => {
-      console.warn('[VM] Falha ao renderizar rodapé de versão:', error);
-    });
-    registerServiceWorker().catch((error) => {
-      console.warn('[VM] Falha ao registrar Service Worker:', error);
-    });
+    initVersionUI()
+      .catch((error) => {
+        console.warn('[VM] Falha ao renderizar versão via API:', error);
+      })
+      .finally(() => {
+        registerServiceWorker().catch((error) => {
+          console.warn('[VM] Falha ao registrar Service Worker:', error);
+        });
+      });
   });
 }

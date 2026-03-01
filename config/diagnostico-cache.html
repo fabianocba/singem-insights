@@ -92,7 +92,9 @@
       <h2>🔧 Ações</h2>
       <button onclick="runTests()">🔄 Executar Testes Novamente</button>
       <button onclick="clearCache()">🗑️ Limpar Cache do Navegador</button>
-      <button onclick="window.location.href='configuracoes.html'">➡️ Ir para Configurações</button>
+      <button onclick="window.location.href = 'configuracoes.html'">
+        ➡️ Ir para Configurações
+      </button>
 
       <h2>📊 Informações Técnicas</h2>
       <pre id="technical-info"></pre>
@@ -207,5 +209,23 @@
 
     <!-- Carrega db.js para teste -->
     <script src="../js/db.js?v=20251105-002"></script>
+
+    <footer
+      id="app-version-container"
+      style="
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        padding: 6px 10px;
+        font-size: 12px;
+        text-align: center;
+        z-index: 9999;
+        background: #fff;
+        border-top: 1px solid #ddd;
+      "
+    >
+      <small id="app-version">Versão: carregando...</small>
+    </footer>
   </body>
 </html>

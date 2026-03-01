@@ -197,7 +197,7 @@
             style="display: none"
             onchange="importarBackup(event)"
           />
-          <button class="btn btn-warning" onclick="window.location.href='../index.html'">
+          <button class="btn btn-warning" onclick="window.location.href = '../index.html'">
             ← Voltar
           </button>
         </div>
@@ -425,5 +425,23 @@
       // Inicializa ao carregar
       window.addEventListener('load', init);
     </script>
+
+    <footer
+      id="app-version-container"
+      style="
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        padding: 6px 10px;
+        font-size: 12px;
+        text-align: center;
+        z-index: 9999;
+        background: #fff;
+        border-top: 1px solid #ddd;
+      "
+    >
+      <small id="app-version">Versão: carregando...</small>
+    </footer>
   </body>
 </html>
