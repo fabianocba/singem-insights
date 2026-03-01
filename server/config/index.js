@@ -59,6 +59,87 @@ const config = {
     retryBaseDelayMs: Number(process.env.COMPRAS_API_RETRY_BASE_DELAY_MS || 500),
     rateLimitMs: Number(process.env.COMPRAS_API_RATE_LIMIT_MS || 250)
   },
+  comprasGov: {
+    baseUrl:
+      process.env.COMPRASGOV_BASE_URL || process.env.COMPRAS_API_BASE_URL || 'https://dadosabertos.compras.gov.br',
+    timeoutMs: Number(process.env.COMPRASGOV_TIMEOUT_MS || process.env.COMPRAS_API_TIMEOUT_MS || 10000),
+    maxRetries: Number(process.env.COMPRASGOV_MAX_RETRIES || process.env.COMPRAS_API_MAX_RETRIES || 3),
+    retryBaseDelayMs: Number(
+      process.env.COMPRASGOV_RETRY_BASE_DELAY_MS || process.env.COMPRAS_API_RETRY_BASE_DELAY_MS || 400
+    ),
+    rateLimitMs: Number(process.env.COMPRASGOV_RATE_LIMIT_MS || process.env.COMPRAS_API_RATE_LIMIT_MS || 250),
+    cacheEnabled: parseBoolean(process.env.COMPRASGOV_CACHE_ENABLED, true),
+    cacheTtlCatalogSeconds: Number(process.env.COMPRASGOV_CACHE_TTL_CATALOGO_SECONDS || 86400),
+    cacheTtlPesquisaPrecoSeconds: Number(process.env.COMPRASGOV_CACHE_TTL_PESQUISA_SECONDS || 21600),
+    cacheTtlFornecedorUasgSeconds: Number(process.env.COMPRASGOV_CACHE_TTL_FORNECEDOR_UASG_SECONDS || 43200),
+    cacheTtlDefaultSeconds: Number(process.env.COMPRASGOV_CACHE_TTL_DEFAULT_SECONDS || 3600),
+    maxPageSize: Number(process.env.COMPRASGOV_MAX_PAGE_SIZE || 500),
+    maxAutoPages: Number(process.env.COMPRASGOV_MAX_AUTO_PAGES || 20),
+    auditEnabled: parseBoolean(process.env.COMPRASGOV_AUDIT_ENABLED, true),
+    snapshotEnabled: parseBoolean(process.env.COMPRASGOV_SNAPSHOT_ENABLED, true),
+    endpoints: {
+      catalogoMaterial: {
+        itens: process.env.COMPRASGOV_ENDPOINT_CATALOGO_MATERIAL_ITENS || '/modulo-material/4_consultarItemMaterial',
+        grupos: process.env.COMPRASGOV_ENDPOINT_CATALOGO_MATERIAL_GRUPOS || '/modulo-material/1_consultarGrupoMaterial',
+        classes:
+          process.env.COMPRASGOV_ENDPOINT_CATALOGO_MATERIAL_CLASSES || '/modulo-material/2_consultarClasseMaterial'
+      },
+      catalogoServico: {
+        itens: process.env.COMPRASGOV_ENDPOINT_CATALOGO_SERVICO_ITENS || '/modulo-servico/6_consultarItemServico',
+        grupos: process.env.COMPRASGOV_ENDPOINT_CATALOGO_SERVICO_GRUPOS || '/modulo-servico/3_consultarGrupoServico',
+        classes: process.env.COMPRASGOV_ENDPOINT_CATALOGO_SERVICO_CLASSES || '/modulo-servico/4_consultarClasseServico'
+      },
+      pesquisaPreco: {
+        material:
+          process.env.COMPRASGOV_ENDPOINT_PESQUISA_PRECO_MATERIAL || '/modulo-pesquisa-preco/1_consultarMaterial',
+        servico: process.env.COMPRASGOV_ENDPOINT_PESQUISA_PRECO_SERVICO || '/modulo-pesquisa-preco/3_consultarServico'
+      },
+      uasgOrgao: {
+        consulta: process.env.COMPRASGOV_ENDPOINT_UASG || '/modulo-uasg/1_consultarUasg'
+      },
+      fornecedor: {
+        consulta: process.env.COMPRASGOV_ENDPOINT_FORNECEDOR || '/modulo-fornecedor/1_consultarFornecedor'
+      },
+      contratacoes: {
+        consulta:
+          process.env.COMPRASGOV_ENDPOINT_CONTRATACOES || '/modulo-contratacoes/1_consultarContratacoes_PNCP_14133'
+      },
+      arp: {
+        consulta: process.env.COMPRASGOV_ENDPOINT_ARP || '/modulo-arp/2_consultarARPItem'
+      },
+      contratos: {
+        consulta: process.env.COMPRASGOV_ENDPOINT_CONTRATOS || '/modulo-contratos/1_consultarContratos'
+      },
+      legado: {
+        licitacoes: process.env.COMPRASGOV_ENDPOINT_LEGADO_LICITACOES || '/modulo-legado/1_consultarLicitacao',
+        itens: process.env.COMPRASGOV_ENDPOINT_LEGADO_ITENS || '/modulo-legado/2_consultarItemLicitacao'
+      },
+      ocds: {
+        consulta: process.env.COMPRASGOV_ENDPOINT_OCDS || '/modulo-ocds/1_releases'
+      }
+    }
+  },
+  dadosGovCkan: {
+    baseUrl: process.env.DADOSGOV_CKAN_BASE_URL || 'https://dados.gov.br/api/3/action',
+    timeoutMs: Number(process.env.DADOSGOV_CKAN_TIMEOUT_MS || 12000),
+    cacheEnabled: parseBoolean(process.env.DADOSGOV_CKAN_CACHE_ENABLED, true),
+    cacheTtlSeconds: Number(process.env.DADOSGOV_CKAN_CACHE_TTL_SECONDS || 300),
+    maxRetries: Number(process.env.DADOSGOV_CKAN_MAX_RETRIES || 3),
+    retryBaseDelayMs: Number(process.env.DADOSGOV_CKAN_RETRY_BASE_DELAY_MS || 400),
+    maxDownloadBytes: Number(process.env.DADOSGOV_CKAN_MAX_DOWNLOAD_BYTES || 20971520)
+  },
+  integracoes: {
+    auditEnabled: parseBoolean(process.env.INTEGRACOES_AUDIT_ENABLED, true),
+    cacheEnabled: parseBoolean(process.env.INTEGRACOES_CACHE_ENABLED, true),
+    cacheTtlCatalogSeconds: Number(process.env.INTEGRACOES_CACHE_TTL_CATALOGO_SECONDS || 86400),
+    cacheTtlPesquisaSeconds: Number(process.env.INTEGRACOES_CACHE_TTL_PESQUISA_SECONDS || 21600),
+    cacheTtlFornecedorUasgSeconds: Number(process.env.INTEGRACOES_CACHE_TTL_FORNECEDOR_UASG_SECONDS || 43200),
+    syncMaxPages: Number(process.env.INTEGRACOES_SYNC_MAX_PAGES || 20),
+    syncPageSize: Number(process.env.INTEGRACOES_SYNC_PAGE_SIZE || 100)
+  },
+  priceSnapshot: {
+    enabled: parseBoolean(process.env.PRICE_SNAPSHOT_ENABLED, true)
+  },
   catmatCacheTtlHours: Number(process.env.CATMAT_CACHE_TTL_HOURS || 168),
   catmatObrigatorioNF: parseBoolean(process.env.CATMAT_OBRIGATORIO_NF, false),
   catmatObrigatorioEmpenho: parseBoolean(process.env.CATMAT_OBRIGATORIO_EMPENHO, false),

@@ -92,46 +92,85 @@ if ($LASTEXITCODE -ne 0) {
     exit 1
 }
 
-$dirtyPaths = @(
-    git status --porcelain |
-    Where-Object { $_ -and $_.Length -ge 4 } |
-    ForEach-Object { $_.Substring(3).Trim().Replace('\\', '/') }
-)
+$originalBranch = git branch --show-current
+if (-not $originalBranch) {
+    Write-Host "Falha ao identificar branch atual."
+    exit 1
+}
 
-$dirtyFiles = @(
-    $dirtyPaths |
-    Where-Object {
-        $_ -ne "js/core/version.json" -and
-        $_ -ne $CurrentScriptGitPath
+git show-ref --verify --quiet refs/heads/dev
+$localDevExists = ($LASTEXITCODE -eq 0)
+
+$originDevHash = git rev-parse origin/dev
+if ($LASTEXITCODE -ne 0 -or -not $originDevHash) {
+    Write-Host "Falha ao obter hash de origin/dev"
+    exit 1
+}
+
+$needSync = $true
+if ($localDevExists) {
+    $localDevHash = git rev-parse dev
+    if ($LASTEXITCODE -eq 0 -and $localDevHash -eq $originDevHash) {
+        $needSync = $false
     }
-)
-
-if ($dirtyPaths.Count -gt 0 -and $dirtyFiles.Count -eq 0) {
-    Write-Host "Aviso: somente arquivos ignorados no pré-check foram alterados (version.json/start-dev). Seguindo..."
-    Write-Host ""
 }
 
-if ($dirtyFiles) {
-    Write-Host ""
-    Write-Host "Repo sujo (exceto version.json):"
-    $dirtyFiles
-    Write-Host ""
-    exit 1
-}
+if (-not $needSync) {
+    Write-Host "origin/dev sem novidades. Seguindo sem travar por alterações locais."
+} else {
+    $hasLocalChanges = ((git status --porcelain) | Measure-Object).Count -gt 0
+    $stashCreated = $false
 
-git switch dev
-if ($LASTEXITCODE -ne 0) {
-    Write-Host "Falha ao trocar para branch dev"
-    exit 1
-}
+    if ($hasLocalChanges) {
+        Write-Host "Alterações locais detectadas. Salvando temporariamente (git stash)..."
+        $stashMessage = "start-dev autostash " + (Get-Date -Format "yyyy-MM-ddTHH:mm:ss")
+        git stash push -u -m $stashMessage
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host "Falha ao salvar alterações locais com git stash"
+            exit 1
+        }
+        $stashCreated = $true
+    }
 
-git merge --ff-only origin/dev
-if ($LASTEXITCODE -ne 0) {
-    Write-Host "Falha no fast-forward com origin/dev. Resolva merge/rebase e rode novamente."
-    exit 1
-}
+    if (-not $localDevExists) {
+        git switch -c dev --track origin/dev
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host "Falha ao criar branch dev local a partir de origin/dev"
+            exit 1
+        }
+    } else {
+        git switch dev
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host "Falha ao trocar para branch dev"
+            exit 1
+        }
 
-Write-Host "Repo sincronizado com origin/dev"
+        git merge --ff-only origin/dev
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host "Falha no fast-forward com origin/dev. Resolva merge/rebase e rode novamente."
+            exit 1
+        }
+    }
+
+    if ($originalBranch -ne "dev") {
+        git switch $originalBranch
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host "Falha ao retornar para branch original: $originalBranch"
+            exit 1
+        }
+    }
+
+    if ($stashCreated) {
+        Write-Host "Restaurando alterações locais (git stash pop)..."
+        git stash pop
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host "A restauração do stash encontrou conflitos. Resolva os conflitos e continue."
+            exit 1
+        }
+    }
+
+    Write-Host "Repo sincronizado com origin/dev e alterações locais restauradas"
+}
 Write-Host ""
 
 # ==============================

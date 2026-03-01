@@ -1,5 +1,6 @@
 import { APP_VERSION, APP_BUILD, VERSION_DISPLAY } from './core/version.js';
 import { initVersionUI } from './core/version-ui.js';
+import { API_BASE_URL } from './shared/lib/http.js';
 
 const RELOAD_KEY = 'singem:swReloadedAt';
 const RELOAD_TTL = 10000;
@@ -36,6 +37,23 @@ function renderVersionInUI() {
   }
 }
 
+async function canRegisterServiceWorker(swUrl) {
+  const isLocalhost = ['localhost', '127.0.0.1'].includes(window.location.hostname);
+  const forceEnableInDev = window.__ENABLE_SW_DEV__ === true;
+
+  if (isLocalhost && !forceEnableInDev) {
+    console.info('[VM] SW desabilitado em localhost');
+    return false;
+  }
+
+  try {
+    const response = await fetch(swUrl, { method: 'HEAD', cache: 'no-store' });
+    return response.ok;
+  } catch {
+    return false;
+  }
+}
+
 export async function registerServiceWorker() {
   if (!('serviceWorker' in navigator)) {
     return null;
@@ -52,6 +70,12 @@ export async function registerServiceWorker() {
     console.info('[VM]', `${versionMeta.name || 'SINGEM'} v${swVersion} • build ${swBuild}`);
 
     const swUrl = `/sw.js?v=${encodeURIComponent(swVersion)}&b=${encodeURIComponent(swBuild)}`;
+    const swAvailable = await canRegisterServiceWorker(swUrl);
+    if (!swAvailable) {
+      console.warn('[VM] SW não disponível para registro:', swUrl);
+      return null;
+    }
+
     const registration = await navigator.serviceWorker.register(swUrl, { updateViaCache: 'none' });
 
     registration.addEventListener('updatefound', () => {
@@ -106,6 +130,8 @@ window.SINGEM_CACHE = {
 };
 
 if (typeof window !== 'undefined') {
+  window.__API_BASE_URL__ = window.__API_BASE_URL__ || API_BASE_URL;
+
   window.addEventListener('DOMContentLoaded', () => {
     renderVersionInUI();
     initVersionUI()

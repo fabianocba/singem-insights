@@ -106,6 +106,12 @@ async function request(endpoint, options = {}) {
       // Token expirado - tenta refresh
       if (response.status === 401) {
         const data = await response.json().catch(() => ({}));
+        const isLoginRequest = endpoint === '/api/auth/login';
+
+        // No login, 401 normalmente significa credencial inválida
+        if (isLoginRequest) {
+          return handleResponse(response, data);
+        }
 
         if (data.code === 'TOKEN_EXPIRED' && getRefreshToken()) {
           const refreshed = await refreshAccessToken();
@@ -144,20 +150,30 @@ async function request(endpoint, options = {}) {
   throw lastError;
 }
 
-async function handleResponse(response) {
+function unwrapSuccessPayload(data) {
+  if (data && typeof data === 'object' && data.status === 'success' && Object.hasOwn(data, 'data')) {
+    return data.data;
+  }
+
+  return data;
+}
+
+async function handleResponse(response, parsedData = undefined) {
   const contentType = response.headers.get('content-type');
   const isJson = contentType && contentType.includes('application/json');
 
-  const data = isJson ? await response.json() : await response.text();
+  const data = parsedData !== undefined ? parsedData : isJson ? await response.json() : await response.text();
 
   if (!response.ok) {
-    const error = new Error(data.erro || data.message || `HTTP ${response.status}`);
+    const errorMessage =
+      data?.erro || data?.message || data?.error?.message || data?.error || `HTTP ${response.status}`;
+    const error = new Error(errorMessage);
     error.status = response.status;
     error.data = data;
     throw error;
   }
 
-  return data;
+  return unwrapSuccessPayload(data);
 }
 
 function isNetworkError(err) {
@@ -220,12 +236,17 @@ const apiClient = {
       body: { login, senha }
     });
 
+    const usuario = data.usuario || data.user || null;
+
     setTokens(data.accessToken, data.refreshToken);
-    setStoredUser(data.usuario);
+    setStoredUser(usuario);
 
-    window.dispatchEvent(new CustomEvent('singem:auth:login', { detail: data.usuario }));
+    window.dispatchEvent(new CustomEvent('singem:auth:login', { detail: usuario }));
 
-    return data;
+    return {
+      ...data,
+      usuario
+    };
   },
 
   async logout() {

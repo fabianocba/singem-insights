@@ -1,5 +1,23 @@
 import apiClient from '../../services/apiClient.js';
 
+const IS_LOCALHOST = typeof window !== 'undefined' && ['localhost', '127.0.0.1'].includes(window.location.hostname);
+
+export const API_BASE_URL = (() => {
+  if (typeof window === 'undefined') {
+    return '';
+  }
+
+  if (window.__API_BASE_URL__) {
+    return String(window.__API_BASE_URL__);
+  }
+
+  if (IS_LOCALHOST) {
+    return window.CONFIG?.api?.baseUrl || apiClient.config?.baseUrl || 'http://localhost:3000';
+  }
+
+  return window.CONFIG?.api?.baseUrl || apiClient.config?.baseUrl || '';
+})();
+
 function toErrorPayload(error) {
   return {
     message: error?.message || 'Erro inesperado na comunicação',
@@ -13,8 +31,11 @@ function resolveUrl(path) {
     return String(path);
   }
 
-  const baseUrl = window.CONFIG?.api?.baseUrl || apiClient.config?.baseUrl || '';
-  return `${baseUrl}${path}`;
+  return `${API_BASE_URL}${path}`;
+}
+
+export function resolveApiUrl(path) {
+  return resolveUrl(path);
 }
 
 function getAuthToken() {

@@ -58,6 +58,12 @@ class SettingsManager {
       tabRede.style.display = 'none';
     }
 
+    // Oculta aba de Integrações
+    const tabIntegracoes = document.querySelector('[data-tab="integracoes"]');
+    if (tabIntegracoes) {
+      tabIntegracoes.style.display = 'none';
+    }
+
     // Desabilita edição da Unidade Orçamentária
     const formUnidade = document.getElementById('formUnidade');
     if (formUnidade) {
@@ -185,6 +191,11 @@ class SettingsManager {
       case 'diagnostico':
         if (window.settingsDiagnostico) {
           await window.settingsDiagnostico.load();
+        }
+        break;
+      case 'integracoes':
+        if (window.settingsIntegracoes) {
+          await window.settingsIntegracoes.load();
         }
         break;
     }

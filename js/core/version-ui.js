@@ -1,3 +1,5 @@
+import { resolveApiUrl } from '../shared/lib/http.js';
+
 function formatVersionText(payload) {
   return `${payload.name} v${payload.version} • ${payload.channel} • build ${payload.build} • ${payload.buildTimestamp}`;
 }
@@ -26,17 +28,7 @@ async function fetchVersion(url) {
 }
 
 async function loadVersionFromApi() {
-  try {
-    return await fetchVersion('/api/version');
-  } catch (error) {
-    const isStaticDev = window.location.port === '8000';
-    if (!isStaticDev) {
-      throw error;
-    }
-
-    const fallbackUrl = `${window.location.protocol}//${window.location.hostname}:3000/api/version`;
-    return fetchVersion(fallbackUrl);
-  }
+  return fetchVersion(resolveApiUrl('/api/version'));
 }
 
 export async function initVersionUI(targetId = 'app-version') {

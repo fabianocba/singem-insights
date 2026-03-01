@@ -18,6 +18,7 @@ const APP_SHELL = [
 
 const isApiReq = (url) => url.port === '3000' || url.pathname.startsWith('/api/');
 const isNeverCachedEndpoint = (url) => url.pathname === '/api/version' || url.pathname === '/health';
+const isDevNoiseAsset = (url) => url.pathname === '/favicon.ico';
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
@@ -129,14 +130,21 @@ self.addEventListener('fetch', (event) => {
   }
 
   const url = new URL(request.url);
+
+  if (isApiReq(url)) {
+    event.respondWith(fetch(request));
+    return;
+  }
+
+  if (isDevNoiseAsset(url)) {
+    return;
+  }
+
   if (url.origin !== self.location.origin) {
     return;
   }
   if (isNeverCachedEndpoint(url)) {
     event.respondWith(fetch(request, { cache: 'no-store' }));
-    return;
-  }
-  if (isApiReq(url)) {
     return;
   }
 

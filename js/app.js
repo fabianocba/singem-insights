@@ -425,18 +425,22 @@ class ControleMaterialApp {
       this.realizarLogout();
     });
 
-    // Botão de login
-    document.getElementById('btnLogin')?.addEventListener('click', (e) => {
-      console.log('[BTN_LOGIN] 🖱️ Clique detectado no botão de login');
-      console.log('[BTN_LOGIN] 🎯 Event target:', e.target);
-      console.log('[BTN_LOGIN] 🔓 Botão desabilitado?', e.target.disabled);
-      this.realizarLogin();
+    // Submit do formulário de login (compatível com password managers)
+    const loginForm = document.getElementById('loginForm') || document.getElementById('formLogin');
+    loginForm?.addEventListener('submit', (e) => {
+      e.preventDefault();
+      this.realizarLogin(e);
     });
 
-    // Enter no campo de senha
-    document.getElementById('loginSenha')?.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') {
-        this.realizarLogin();
+    window.addEventListener('singem:auth:logout', (event) => {
+      const motivo = event?.detail?.reason;
+      if (motivo === 'token_invalid') {
+        const errorDiv = document.getElementById('loginError');
+        if (errorDiv) {
+          errorDiv.textContent = '⏱️ Sessão expirada. Faça login novamente.';
+          errorDiv.classList.remove('hidden');
+        }
+        console.warn('[AUTH] Sessão expirada detectada (token inválido/expirado).');
       }
     });
 
@@ -1723,9 +1727,13 @@ class ControleMaterialApp {
   /**
    * Realiza login do usuário
    */
-  async realizarLogin() {
-    const usuario = document.getElementById('loginUsuario')?.value.trim();
-    const senha = document.getElementById('loginSenha')?.value;
+  async realizarLogin(event) {
+    const form =
+      event?.currentTarget instanceof HTMLFormElement
+        ? event.currentTarget
+        : document.getElementById('loginForm') || document.getElementById('formLogin');
+    const usuario = form?.elements?.username?.value?.trim() || document.getElementById('loginUsuario')?.value.trim();
+    const senha = form?.elements?.password?.value || document.getElementById('loginSenha')?.value;
     const errorDiv = document.getElementById('loginError');
     const btnLogin = document.getElementById('btnLogin');
 
@@ -1771,8 +1779,17 @@ class ControleMaterialApp {
 
       await this.salvarDadosLembradosPosLogin(usuario, '');
 
-      document.getElementById('loginUsuario').value = '';
-      document.getElementById('loginSenha').value = '';
+      if (form?.elements?.username) {
+        form.elements.username.value = '';
+      } else if (document.getElementById('loginUsuario')) {
+        document.getElementById('loginUsuario').value = '';
+      }
+
+      if (form?.elements?.password) {
+        form.elements.password.value = '';
+      } else if (document.getElementById('loginSenha')) {
+        document.getElementById('loginSenha').value = '';
+      }
 
       await this.carregarDadosIniciais();
       this.atualizarUsuarioHeader();
@@ -1785,9 +1802,11 @@ class ControleMaterialApp {
       return;
     } catch (error) {
       console.error('❌ Erro no login:', error);
+      const mensagemErroLogin = this.formatarMensagemErroLogin(error);
+      console.warn('[AUTH][LOGIN] Falha de autenticação:', mensagemErroLogin);
 
       if (errorDiv) {
-        errorDiv.textContent = error?.message || 'Erro ao realizar login. Tente novamente.';
+        errorDiv.textContent = mensagemErroLogin;
         errorDiv.classList.remove('hidden');
       }
 
@@ -1797,6 +1816,24 @@ class ControleMaterialApp {
         btnLogin.textContent = '🔐 Entrar';
       }
     }
+  }
+
+  formatarMensagemErroLogin(error) {
+    const mensagemOriginal = String(error?.message || '').toLowerCase();
+
+    if (error?.status === 401) {
+      if (mensagemOriginal.includes('sessão expirada') || mensagemOriginal.includes('sessao expirada')) {
+        return '⏱️ Sessão expirada. Faça login novamente.';
+      }
+
+      return '❌ Usuário ou senha inválidos. Verifique e tente novamente.';
+    }
+
+    if (mensagemOriginal.includes('failed to fetch') || mensagemOriginal.includes('timeout')) {
+      return '🌐 Não foi possível conectar ao servidor. Verifique se o backend está ativo.';
+    }
+
+    return error?.message || 'Erro ao realizar login. Tente novamente.';
   }
 
   /**
@@ -1817,8 +1854,9 @@ class ControleMaterialApp {
     this.usuarioLogado = null;
 
     // Limpa campos de login
-    const usuarioInput = document.getElementById('loginUsuario');
-    const senhaInput = document.getElementById('loginSenha');
+    const loginForm = document.getElementById('loginForm') || document.getElementById('formLogin');
+    const usuarioInput = loginForm?.elements?.username || document.getElementById('loginUsuario');
+    const senhaInput = loginForm?.elements?.password || document.getElementById('loginSenha');
     const errorDiv = document.getElementById('loginError');
 
     if (usuarioInput) {

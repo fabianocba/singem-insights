@@ -58,49 +58,54 @@
 
             <div class="login-box">
               <h2>Entrar no Sistema</h2>
+              <form id="loginForm" method="POST" autocomplete="on">
+                <div class="form-group">
+                  <label for="loginUsuario">Usuário</label>
+                  <input
+                    type="text"
+                    id="loginUsuario"
+                    name="username"
+                    placeholder="Digite seu login"
+                    autocomplete="username"
+                  />
+                </div>
 
-              <div class="form-group">
-                <label for="loginUsuario">Usuário</label>
-                <input
-                  type="text"
-                  id="loginUsuario"
-                  placeholder="Digite seu login"
-                  autocomplete="username"
-                />
-              </div>
+                <div class="form-group">
+                  <label for="loginSenha">Senha</label>
+                  <input
+                    type="password"
+                    id="loginSenha"
+                    name="password"
+                    placeholder="Digite sua senha"
+                    autocomplete="current-password"
+                  />
+                </div>
 
-              <div class="form-group">
-                <label for="loginSenha">Senha</label>
-                <input
-                  type="password"
-                  id="loginSenha"
-                  placeholder="Digite sua senha"
-                  autocomplete="current-password"
-                />
-              </div>
+                <div class="remember-block">
+                  <label class="remember-option">
+                    <input type="checkbox" id="rememberUser" />
+                    <span>Lembrar meu usuário</span>
+                  </label>
+                  <label class="remember-option">
+                    <input type="checkbox" id="rememberPass" />
+                    <span>Salvar senha neste dispositivo (menos seguro)</span>
+                  </label>
+                  <div class="remember-warning">Use apenas em computador pessoal.</div>
+                  <button type="button" id="btnClearRemember" class="btn-link">
+                    Esquecer neste dispositivo
+                  </button>
+                </div>
 
-              <div class="remember-block">
-                <label class="remember-option">
-                  <input type="checkbox" id="rememberUser" />
-                  <span>Lembrar meu usuário</span>
-                </label>
-                <label class="remember-option">
-                  <input type="checkbox" id="rememberPass" />
-                  <span>Salvar senha neste dispositivo (menos seguro)</span>
-                </label>
-                <div class="remember-warning">Use apenas em computador pessoal.</div>
-                <button type="button" id="btnClearRemember" class="btn-link">
-                  Esquecer neste dispositivo
+                <div class="recover-link">
+                  <button type="button" id="btnRecuperarSenha" class="btn-link">
+                    Esqueci minha senha / Recuperar acesso
+                  </button>
+                </div>
+
+                <button id="btnLogin" type="submit" class="btn btn-primary btn-block">
+                  🔐 Entrar
                 </button>
-              </div>
-
-              <div class="recover-link">
-                <button type="button" id="btnRecuperarSenha" class="btn-link">
-                  Esqueci minha senha / Recuperar acesso
-                </button>
-              </div>
-
-              <button id="btnLogin" class="btn btn-primary btn-block">🔐 Entrar</button>
+              </form>
 
               <!-- Separador -->
               <div

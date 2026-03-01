@@ -22,6 +22,9 @@ const syncRoutes = require('./routes/sync.routes');
 const catmatRoutes = require('./src/routes/catmat.routes');
 const catalogacaoRoutes = require('./routes/catalogacao.routes');
 const integrationsRoutes = require('./routes/integrations.routes');
+const comprasGovRoutes = require('./routes/comprasgov.routes');
+const dadosGovRoutes = require('./routes/dadosgov.routes');
+const integracoesAdminRoutes = require('./routes/integracoes-admin.routes');
 
 const { router: nfeRoutes, setNfeService } = require('./routes/nfe.routes');
 const { router: nfeRoutesV2, setNfeService: setNfeServiceV2 } = require('./routes/nfe.routes.v2');
@@ -87,6 +90,9 @@ function createApp({ nodeEnv, bodyLimit, corsOrigins, trustProxy, nfeService, nf
   app.use('/api/catmat', catmatRoutes);
   app.use('/api/catalogacao-pedidos', catalogacaoRoutes);
   app.use('/api/integrations', integrationsRoutes);
+  app.use('/api/integracoes', integracoesAdminRoutes);
+  app.use('/api/integracoes/comprasgov', comprasGovRoutes);
+  app.use('/api/integracoes/dadosgov', dadosGovRoutes);
 
   app.get('/health', async (req, res) => {
     setNoCacheHeaders(res);
@@ -160,6 +166,9 @@ function createApp({ nodeEnv, bodyLimit, corsOrigins, trustProxy, nfeService, nf
     '/api/catmat',
     '/api/catalogacao-pedidos',
     '/api/integrations',
+    '/api/integracoes',
+    '/api/integracoes/comprasgov',
+    '/api/integracoes/dadosgov',
     '/api/version',
     '/api/nfe',
     '/api/nfe/v2',

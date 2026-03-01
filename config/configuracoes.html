@@ -358,6 +358,7 @@
         <button class="tab-button" data-tab="usuarios">👥 Usuários</button>
         <button class="tab-button" data-tab="arquivos">📁 Arquivos</button>
         <button class="tab-button" data-tab="rede">🌐 Rede/LAN</button>
+        <button class="tab-button" data-tab="integracoes">🔗 Integrações</button>
         <button class="tab-button" data-tab="preferencias">🎨 Preferências</button>
         <button class="tab-button" data-tab="diagnostico">🔍 Diagnóstico</button>
       </div>
@@ -1186,6 +1187,61 @@
         </div>
       </div>
 
+      <!-- Tab: Integrações -->
+      <div id="tabIntegracoes" class="tab-content">
+        <div class="panel">
+          <div class="panel-header">🔗 Painel Administrativo de Integrações</div>
+
+          <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 15px">
+            <button type="button" id="btnIntegracoesRefresh" class="btn btn-primary">🔄 Atualizar Painel</button>
+            <select id="integracoesTipoSync" class="form-control" style="max-width: 240px">
+              <option value="all">Sync: Todos</option>
+              <option value="catmat">Sync: CATMAT</option>
+              <option value="catser">Sync: CATSER</option>
+              <option value="uasg">Sync: UASG</option>
+              <option value="fornecedor">Sync: Fornecedor</option>
+            </select>
+            <button type="button" id="btnIntegracoesSync" class="btn btn-secondary">▶️ Rodar Sync agora</button>
+            <button type="button" id="btnIntegracoesClearCache" class="btn btn-danger">🧹 Limpar Cache</button>
+          </div>
+
+          <div id="integracoesStatus" class="loading">Carregando status das integrações...</div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">📊 Últimos Sync Jobs</div>
+          <div id="integracoesSyncJobs" class="loading">Carregando sync jobs...</div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">🧾 Últimos 20 logs de auditoria</div>
+          <div id="integracoesLogs" class="loading">Carregando logs...</div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">📄 Pesquisa de Preço — Relatório Oficial</div>
+          <div class="grid-2" style="align-items: end">
+            <div class="form-group">
+              <label for="integracoesSnapshotId">Snapshot ID</label>
+              <input type="number" id="integracoesSnapshotId" placeholder="Informe o ID do snapshot" />
+            </div>
+
+            <div class="form-group">
+              <label for="integracoesSnapshotFormato">Formato</label>
+              <select id="integracoesSnapshotFormato">
+                <option value="html">HTML (imprimível)</option>
+                <option value="pdf">PDF simples</option>
+                <option value="json">JSON</option>
+              </select>
+            </div>
+          </div>
+
+          <button type="button" id="btnGerarRelatorioOficialPreco" class="btn btn-primary">
+            Gerar Relatório Oficial de Pesquisa de Preço
+          </button>
+        </div>
+      </div>
+
       <!-- Tab: Diagnóstico -->
       <div id="tabDiagnostico" class="tab-content">
         <div class="panel">
@@ -1324,6 +1380,7 @@
     <script type="module" src="../js/settings/usuarios.js"></script>
     <script type="module" src="../js/settings/arquivos.js"></script>
     <script type="module" src="../js/settings/rede.js"></script>
+    <script type="module" src="../js/settings/integracoes.js"></script>
     <script type="module" src="../js/settings/preferencias.js"></script>
     <script type="module" src="../js/settings/backup.js"></script>
     <script type="module" src="../js/settings/diagnostico.js"></script>
