@@ -13,10 +13,11 @@ const APP_SHELL = [
   '/js/app.js',
   '/js/versionManager.js',
   '/js/core/version.js',
-  '/js/core/version.json'
+  '/js/core/version-ui.js'
 ];
 
 const isApiReq = (url) => url.port === '3000' || url.pathname.startsWith('/api/');
+const isNeverCachedEndpoint = (url) => url.pathname === '/api/version' || url.pathname === '/health';
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
@@ -129,6 +130,10 @@ self.addEventListener('fetch', (event) => {
 
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) {
+    return;
+  }
+  if (isNeverCachedEndpoint(url)) {
+    event.respondWith(fetch(request, { cache: 'no-store' }));
     return;
   }
   if (isApiReq(url)) {

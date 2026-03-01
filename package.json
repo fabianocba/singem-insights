@@ -5,6 +5,7 @@
   "main": "index.html",
   "type": "module",
   "scripts": {
+    "version:bump": "node ./scripts/bump-version.js",
     "scan:orphans": "node ./scripts/scan-refs.cjs",
     "serve": "python -m http.server 8000",
     "serve:dev": "python -m http.server 8000 --bind localhost",
