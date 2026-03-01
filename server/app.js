@@ -1,6 +1,4 @@
 const path = require('path');
-const fs = require('fs');
-const { execSync } = require('child_process');
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
@@ -12,6 +10,7 @@ const requestLogger = require('./middlewares/requestLogger');
 const errorHandler = require('./middlewares/errorHandler');
 const AppError = require('./utils/appError');
 const { createApiLimiter } = require('./middleware/rateLimit');
+const { readVersion } = require('./utils/version');
 
 const authRoutes = require('./modules/auth/auth.routes');
 const govbrRoutes = require('./routes/govbr.routes');
@@ -27,43 +26,10 @@ const integrationsRoutes = require('./routes/integrations.routes');
 const { router: nfeRoutes, setNfeService } = require('./routes/nfe.routes');
 const { router: nfeRoutesV2, setNfeService: setNfeServiceV2 } = require('./routes/nfe.routes.v2');
 
-function readJsonSafe(filePath) {
-  try {
-    const content = fs.readFileSync(filePath, 'utf8').replace(/^\uFEFF/, '');
-    return JSON.parse(content);
-  } catch {
-    return {};
-  }
-}
-
-function resolveGitCommitShort() {
-  try {
-    return execSync('git rev-parse --short HEAD', {
-      cwd: path.resolve(__dirname, '..'),
-      stdio: ['ignore', 'pipe', 'ignore']
-    })
-      .toString()
-      .trim();
-  } catch {
-    return 'unknown';
-  }
-}
-
-function loadVersionInfo(nodeEnv) {
-  const versionJsonPath = path.resolve(__dirname, '..', 'js', 'core', 'version.json');
-  const serverPackagePath = path.resolve(__dirname, 'package.json');
-
-  const coreVersion = readJsonSafe(versionJsonPath);
-  const serverPackage = readJsonSafe(serverPackagePath);
-
-  return {
-    name: String(coreVersion.name || 'SINGEM'),
-    version: String(serverPackage.version || coreVersion.version || '0.0.0'),
-    build: String(coreVersion.build || 'local'),
-    buildTimestamp: String(coreVersion.buildTimestamp || new Date().toISOString()),
-    gitCommit: resolveGitCommitShort(),
-    nodeEnv: nodeEnv === 'production' ? 'production' : 'development'
-  };
+function setNoCacheHeaders(res) {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
 }
 
 function createApp({ nodeEnv, bodyLimit, corsOrigins, trustProxy, nfeService, nfeServiceV2 }) {
@@ -123,14 +89,22 @@ function createApp({ nodeEnv, bodyLimit, corsOrigins, trustProxy, nfeService, nf
   app.use('/api/integrations', integrationsRoutes);
 
   app.get('/health', async (req, res) => {
+    setNoCacheHeaders(res);
+
     const dbStatus = await db.healthCheck().catch((error) => ({
       ok: false,
       error: error?.message || 'Falha no healthcheck do PostgreSQL'
     }));
 
+    const versionInfo = readVersion();
+
     const response = {
       status: dbStatus.ok ? 'OK' : 'DEGRADED',
-      version: '2.0.0',
+      name: versionInfo.name,
+      version: versionInfo.version,
+      channel: versionInfo.channel,
+      build: versionInfo.build,
+      buildTimestamp: versionInfo.buildTimestamp,
       sistema: 'SINGEM',
       database: dbStatus.ok ? 'conectado' : 'desconectado',
       nfeService: nfeService ? 'ativo' : 'inativo',
@@ -145,25 +119,27 @@ function createApp({ nodeEnv, bodyLimit, corsOrigins, trustProxy, nfeService, nf
   });
 
   app.get('/api/info', (_req, res) => {
+    const versionInfo = readVersion();
+
     return res.json({
       nome: 'SINGEM Server',
-      versao: '2.0.0',
+      versao: versionInfo.version,
       sistema: 'Sistema Institucional de Gestão de Material',
       instituicao: 'IF Baiano'
     });
   });
 
   app.get('/api/version', (_req, res) => {
-    const info = loadVersionInfo(nodeEnv);
+    setNoCacheHeaders(res);
+
+    const info = readVersion();
+
     return res.json({
-      backend: {
-        version: info.version,
-        build: info.build,
-        commit: info.gitCommit,
-        env: info.nodeEnv
-      },
-      timestamp: new Date().toISOString(),
+      ok: true,
       name: info.name,
+      version: info.version,
+      channel: info.channel,
+      build: info.build,
       buildTimestamp: info.buildTimestamp
     });
   });
