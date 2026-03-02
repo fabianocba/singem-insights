@@ -887,7 +887,7 @@ class SettingsUnidade {
   }
 
   /**
-   * Obtém unidade orçamentária principal do IndexedDB
+   * Obtém unidade orçamentária principal da base de configuração
    */
   async getUnidadeOrcamentaria() {
     try {
@@ -961,7 +961,7 @@ class SettingsUnidade {
   }
 
   /**
-   * Salva todas as unidades no IndexedDB
+   * Salva todas as unidades na base de configuração
    */
   async salvarTodasUnidades() {
     try {
@@ -974,7 +974,7 @@ class SettingsUnidade {
         dataAtualizacao: new Date().toISOString()
       };
       await window.dbManager.update('config', data);
-      console.log('✅ Todas as unidades salvas no IndexedDB');
+      console.log('✅ Todas as unidades salvas na base de configuração');
     } catch (error) {
       console.error('❌ Erro ao salvar unidades:', error);
       throw new Error(`Falha ao salvar unidades: ${error.message}`);
@@ -995,7 +995,7 @@ class SettingsUnidade {
         id: 'unidadeOrcamentaria' // ID fixo para leitura global
       };
       await window.dbManager.update('config', data);
-      console.log('✅ Unidade principal salva no IndexedDB');
+      console.log('✅ Unidade principal salva na base de configuração');
     } catch (error) {
       console.error('❌ Erro ao salvar unidade principal:', error);
       throw new Error(`Falha ao salvar unidade principal: ${error.message}`);

@@ -23,14 +23,6 @@ const authState = {
 
 window.__SINGEM_AUTH = authState;
 
-try {
-  localStorage.removeItem('singem_access_token');
-  localStorage.removeItem('singem_refresh_token');
-  localStorage.removeItem('singem_user');
-} catch {
-  // sem impacto em ambientes com storage bloqueado
-}
-
 // ============================================================================
 // GERENCIAMENTO DE TOKENS
 // ============================================================================

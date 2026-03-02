@@ -44,6 +44,7 @@ class AuditLogger {
     this.dbName = 'SINGEMDB';
     this.storeName = 'auditLogs';
     this.maxLogs = 10000; // Máximo de logs armazenados
+    this.tempLogs = [];
   }
 
   /**
@@ -76,7 +77,6 @@ class AuditLogger {
         await window.dbManager.add(this.storeName, logEntry);
         console.log(`📝 Audit Log: ${eventType}`, logEntry);
       } else {
-        // Fallback: armazenar em localStorage temporariamente
         this._saveTempLog(logEntry);
       }
 
@@ -88,19 +88,17 @@ class AuditLogger {
   }
 
   /**
-   * Salva log temporário em localStorage quando DB não está disponível
+   * Salva log temporário em memória quando DB não está disponível
    * @private
    */
   _saveTempLog(logEntry) {
     try {
-      const tempLogs = JSON.parse(localStorage.getItem('tempAuditLogs') || '[]');
-      tempLogs.push(logEntry);
+      this.tempLogs.push(logEntry);
       // Manter apenas últimos 100 logs temporários
-      if (tempLogs.length > 100) {
-        tempLogs.shift();
+      if (this.tempLogs.length > 100) {
+        this.tempLogs.shift();
       }
-      localStorage.setItem('tempAuditLogs', JSON.stringify(tempLogs));
-      console.warn('⚠️ Audit log salvo temporariamente em localStorage');
+      console.warn('⚠️ Audit log salvo temporariamente em memória');
     } catch (error) {
       console.error('❌ Erro ao salvar log temporário:', error);
     }
@@ -147,8 +145,7 @@ class AuditLogger {
     try {
       if (!window.dbManager) {
         console.warn('⚠️ DB não disponível, retornando logs temporários');
-        const tempLogs = JSON.parse(localStorage.getItem('tempAuditLogs') || '[]');
-        return this._applyFilters(tempLogs, filters);
+        return this._applyFilters(this.tempLogs, filters);
       }
 
       let logs = await window.dbManager.getAll(this.storeName);

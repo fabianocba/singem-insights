@@ -480,7 +480,7 @@ class SettingsUsuarios {
         return;
       }
 
-      // Remove do IndexedDB
+      // Remove da base de configuração
       await this.deleteUsuario(id);
 
       // Remove da lista
@@ -815,7 +815,7 @@ class SettingsUsuarios {
   }
 
   /**
-   * Obtém lista de usuários do IndexedDB
+   * Obtém lista de usuários da base de configuração
    */
   async getUsuarios() {
     try {
@@ -831,7 +831,7 @@ class SettingsUsuarios {
   }
 
   /**
-   * Salva lista de usuários no IndexedDB
+   * Salva lista de usuários na base de configuração
    */
   async saveUsuarios(usuarios) {
     try {
@@ -843,7 +843,7 @@ class SettingsUsuarios {
         usuarios: usuarios,
         dataAtualizacao: new Date().toISOString()
       });
-      console.log('✅ Usuários salvos no IndexedDB');
+      console.log('✅ Usuários salvos na base de configuração');
     } catch (error) {
       console.error('Erro ao salvar usuários:', error);
       throw error;
@@ -851,7 +851,7 @@ class SettingsUsuarios {
   }
 
   /**
-   * Remove usuário do IndexedDB
+   * Remove usuário da base de configuração
    */
   async deleteUsuario(id) {
     try {

@@ -604,44 +604,13 @@
       <!-- Tab: Arquivos -->
       <div id="tabArquivos" class="tab-content">
         <div class="panel">
-          <div class="panel-header">📁 Configuração de Armazenamento</div>
+          <div class="panel-header">📊 Armazenamento (Banco/API)</div>
 
           <div id="statusConfigPastas" class="mb-3">
             <div class="alert alert-info">
-              ℹ️ <strong>Não Configurado</strong><br />
-              Clique em "Configurar Pasta Principal" para começar
+              ℹ️ <strong>Modo Banco/API Ativo</strong><br />
+              O armazenamento local por pastas foi removido.
             </div>
-          </div>
-
-          <div
-            class="form-actions"
-            style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px"
-          >
-            <button type="button" id="btnConfigurarPastaPrincipal" class="btn btn-primary">
-              📂 Configurar Pasta Principal
-            </button>
-            <button type="button" id="btnCriarEstrutura" class="btn btn-secondary">
-              🏗️ Criar Estrutura de Pastas
-            </button>
-            <button
-              type="button"
-              id="btnValidarEstrutura"
-              class="btn btn-outline"
-              style="background: #17a2b8; color: white"
-            >
-              🔍 Validar Pasta Existente
-            </button>
-            <button type="button" id="btnAbrirPastaRaiz" class="btn btn-outline">
-              📂 Abrir Pasta Raiz
-            </button>
-            <button
-              type="button"
-              id="btnResetarConfigPastas"
-              class="btn btn-danger"
-              style="margin-left: auto"
-            >
-              🗑️ Resetar Configuração
-            </button>
           </div>
         </div>
 
@@ -649,19 +618,10 @@
           <div class="panel-header">📖 Como Funciona</div>
 
           <div style="background: #f8f9fa; padding: 20px; border-radius: 8px">
-            <h4 style="margin-top: 0">📋 Estrutura Automática de Pastas</h4>
+            <h4 style="margin-top: 0">📋 Operação em Banco/API</h4>
 
-            <p><strong>1. Configurar Pasta Principal:</strong></p>
-            <p>Escolha onde os documentos serão salvos (Ex: "Documentos", "D:\Arquivos", etc.)</p>
-
-            <p style="margin-top: 15px"><strong>2. Opções de Estrutura:</strong></p>
-            <ul style="margin-left: 20px">
-              <li>🏗️ <strong>Criar Nova:</strong> Cria automaticamente a estrutura de pastas</li>
-              <li>
-                🔍 <strong>Validar Existente:</strong> Detecta e usa pastas criadas manualmente ou
-                de versões anteriores
-              </li>
-            </ul>
+            <p>Empenhos, Notas Fiscais e anexos são persistidos no banco de dados.</p>
+            <p>Não há configuração de pastas locais neste modo.</p>
 
             <p style="margin-top: 15px"><strong>3. Estrutura Automática:</strong></p>
             <p>O sistema cria/detecta a seguinte estrutura:</p>

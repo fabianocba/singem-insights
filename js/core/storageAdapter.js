@@ -15,6 +15,7 @@ export const DATA_VERSION = '1.0.0';
 class StorageAdapter {
   constructor() {
     this.DATA_VERSION_KEY = 'SINGEM_data_version';
+    this.runtimeDataVersion = DATA_VERSION;
   }
 
   // ==========================================================================
@@ -28,15 +29,8 @@ class StorageAdapter {
    * @returns {Promise<any>}
    */
   async get(key, source = 'auto') {
-    if (source === 'localStorage' || source === 'auto') {
-      const value = localStorage.getItem(key);
-      if (value !== null) {
-        try {
-          return JSON.parse(value);
-        } catch {
-          return value;
-        }
-      }
+    if (source === 'localStorage') {
+      return null;
     }
 
     if (source === 'indexedDB' || source === 'auto') {
@@ -60,10 +54,8 @@ class StorageAdapter {
    * @returns {Promise<void>}
    */
   async set(key, value, target = 'localStorage') {
-    const serialized = typeof value === 'string' ? value : JSON.stringify(value);
-
-    if (target === 'localStorage' || target === 'both') {
-      localStorage.setItem(key, serialized);
+    if (target === 'localStorage') {
+      return;
     }
 
     if (target === 'indexedDB' || target === 'both') {
@@ -80,8 +72,8 @@ class StorageAdapter {
    * @returns {Promise<void>}
    */
   async remove(key, source = 'both') {
-    if (source === 'localStorage' || source === 'both') {
-      localStorage.removeItem(key);
+    if (source === 'localStorage') {
+      return;
     }
 
     if (source === 'indexedDB' || source === 'both') {
@@ -104,10 +96,7 @@ class StorageAdapter {
       }
     };
 
-    // LocalStorage
-    for (let i = 0; i < localStorage.length; i++) {
-      result.localStorage.push(localStorage.key(i));
-    }
+    // LocalStorage desativado por política server-only
 
     // IndexedDB
     if (window.dbManager?.db) {
@@ -146,30 +135,6 @@ class StorageAdapter {
       localStorage: {},
       indexedDB: {}
     };
-
-    // =======================================================================
-    // 1. Exportar LocalStorage (apenas chaves do SINGEM)
-    // =======================================================================
-    const SINGEMKeys = [
-      'session',
-      'SINGEM_app_version',
-      'SINGEM_data_version',
-      'SINGEM_logs',
-      'SINGEM_auth_flags',
-      'SINGEM_auth_login'
-      // NÃO exportar SINGEM_auth_pass (senha)
-    ];
-
-    for (const key of SINGEMKeys) {
-      const value = localStorage.getItem(key);
-      if (value !== null) {
-        try {
-          backup.localStorage[key] = JSON.parse(value);
-        } catch {
-          backup.localStorage[key] = value;
-        }
-      }
-    }
 
     // =======================================================================
     // 2. Exportar IndexedDB (ControleMaterialDB)
@@ -235,27 +200,7 @@ class StorageAdapter {
 
     try {
       // =====================================================================
-      // 1. Importar LocalStorage
-      // =====================================================================
-      if (backup.localStorage) {
-        for (const [key, value] of Object.entries(backup.localStorage)) {
-          // Pular chaves sensíveis
-          if (key.includes('pass') || key.includes('senha')) {
-            continue;
-          }
-
-          try {
-            const serialized = typeof value === 'string' ? value : JSON.stringify(value);
-            localStorage.setItem(key, serialized);
-            result.imported.localStorage++;
-          } catch (e) {
-            result.errors.push(`localStorage.${key}: ${e.message}`);
-          }
-        }
-      }
-
-      // =====================================================================
-      // 2. Importar IndexedDB
+      // 1. Importar IndexedDB
       // =====================================================================
       console.log('[StorageAdapter] 🔍 Verificando backup.indexedDB:', Object.keys(backup.indexedDB || {}));
       console.log('[StorageAdapter] 🔍 dbManager disponível:', !!window.dbManager?.db);
@@ -301,9 +246,9 @@ class StorageAdapter {
       }
 
       // =====================================================================
-      // 3. Atualizar versão dos dados
+      // 2. Atualizar versão dos dados em memória
       // =====================================================================
-      localStorage.setItem(this.DATA_VERSION_KEY, DATA_VERSION);
+      this.runtimeDataVersion = DATA_VERSION;
 
       console.log('[StorageAdapter] ✅ Importação concluída:', result.imported);
     } catch (error) {
@@ -437,7 +382,7 @@ class StorageAdapter {
    * @returns {Promise<Object>}
    */
   async checkAndMigrate() {
-    const currentVersion = localStorage.getItem(this.DATA_VERSION_KEY);
+    const currentVersion = this.runtimeDataVersion;
     const result = {
       previousVersion: currentVersion,
       currentVersion: DATA_VERSION,
@@ -460,8 +405,8 @@ class StorageAdapter {
         result.migrations.push('null → 1.0.0');
       }
 
-      // Atualizar versão
-      localStorage.setItem(this.DATA_VERSION_KEY, DATA_VERSION);
+      // Atualizar versão em memória
+      this.runtimeDataVersion = DATA_VERSION;
 
       console.log('[StorageAdapter] ✅ Migração concluída');
     } catch (error) {
@@ -553,20 +498,6 @@ class StorageAdapter {
       localStorage: 0,
       indexedDB: {}
     };
-
-    // Limpar localStorage (apenas chaves SINGEM)
-    const keysToRemove = [];
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i);
-      if (key?.startsWith('SINGEM_') || key === 'session') {
-        keysToRemove.push(key);
-      }
-    }
-
-    for (const key of keysToRemove) {
-      localStorage.removeItem(key);
-      result.localStorage++;
-    }
 
     // Limpar IndexedDB
     if (window.dbManager?.db) {

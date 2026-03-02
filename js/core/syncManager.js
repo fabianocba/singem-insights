@@ -26,28 +26,24 @@ const SYNC_CONFIG = {
 let isOnline = navigator.onLine;
 let syncInProgress = false;
 let _lastSyncTime = null;
+let pendingOperationsQueue = [];
 
 // ============================================================================
 // FILA DE OPERAÇÕES PENDENTES
 // ============================================================================
 
 /**
- * Obtém operações pendentes do localStorage
+ * Obtém operações pendentes em memória
  */
 function getPendingOperations() {
-  try {
-    const ops = localStorage.getItem(SYNC_CONFIG.pendingQueueKey);
-    return ops ? JSON.parse(ops) : [];
-  } catch {
-    return [];
-  }
+  return [...pendingOperationsQueue];
 }
 
 /**
- * Salva operações pendentes no localStorage
+ * Salva operações pendentes em memória
  */
 function savePendingOperations(ops) {
-  localStorage.setItem(SYNC_CONFIG.pendingQueueKey, JSON.stringify(ops));
+  pendingOperationsQueue = Array.isArray(ops) ? [...ops] : [];
 }
 
 /**
@@ -91,7 +87,7 @@ function dequeueOperation(opId) {
  * Limpa toda a fila
  */
 function clearPendingQueue() {
-  localStorage.removeItem(SYNC_CONFIG.pendingQueueKey);
+  pendingOperationsQueue = [];
 }
 
 // ============================================================================

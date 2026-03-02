@@ -385,130 +385,11 @@
             <h2>📝 Gerenciamento de Empenhos</h2>
           </div>
 
-          <!-- ✅ MENSAGEM DE CONFIGURAÇÃO DE PASTA -->
-          <div
-            id="fs-config-message"
-            style="
-              display: none;
-              background: #fff3cd;
-              border: 1px solid #ffc107;
-              border-radius: 8px;
-              padding: 15px;
-              margin: 15px 0;
-              animation: slideDown 0.3s;
-            "
-          >
-            <div style="display: flex; align-items: center; gap: 10px">
-              <span style="font-size: 24px">⚠️</span>
-              <div style="flex: 1">
-                <strong>Pasta não configurada</strong>
-                <p style="margin: 5px 0 0 0; font-size: 14px; color: #856404">
-                  Para salvar PDFs automaticamente no seu computador, clique no botão abaixo para
-                  selecionar uma pasta.
-                  <br />Sem configurar, os arquivos serão baixados normalmente.
-                </p>
-              </div>
-              <button
-                onclick="
-                  window.fsManager
-                    ?.selectMainDirectory()
-                    .then(
-                      (ok) =>
-                        ok && (document.getElementById('fs-config-message').style.display = 'none')
-                    )
-                "
-                style="
-                  background: #28a745;
-                  color: white;
-                  border: none;
-                  padding: 10px 20px;
-                  border-radius: 5px;
-                  cursor: pointer;
-                  white-space: nowrap;
-                "
-              >
-                📁 Selecionar Pasta
-              </button>
-            </div>
-          </div>
-
           <!-- Abas de navegação -->
           <div class="tabs-container">
             <button class="tab-btn active" data-tab="cadastro">📝 Novo Cadastro</button>
             <button class="tab-btn" data-tab="controle-saldos">📊 Controle de Saldos</button>
             <button class="tab-btn" data-tab="relatorio">📋 Relatório de Empenhos</button>
-
-            <!-- ✅ BOTÃO PARA SELECIONAR PASTA PRINCIPAL -->
-            <button
-              id="btnSelectMainDir"
-              onclick="
-                window.fsManager
-                  ?.selectMainDirectory()
-                  .then((ok) => {
-                    if (ok) {
-                      alert(
-                        '✅ Pasta configurada com sucesso!\n\n🧪 Teste de escrita realizado automaticamente.\n\nVerifique o arquivo SINGEM_test.txt na pasta selecionada.\n\nOs próximos arquivos serão salvos automaticamente.'
-                      );
-                      document.getElementById('fs-config-message').style.display = 'none';
-                    }
-                  })
-                  .catch((err) => {
-                    alert('❌ Erro ao configurar pasta:\n\n' + err.message);
-                  })
-              "
-              style="
-                margin-left: auto;
-                background: linear-gradient(135deg, #1976d2, #1565c0);
-                color: white;
-                border: none;
-                padding: 10px 20px;
-                border-radius: 5px;
-                cursor: pointer;
-                font-weight: 600;
-                display: flex;
-                align-items: center;
-                gap: 8px;
-              "
-              title="Selecione a pasta onde os PDFs serão salvos automaticamente"
-            >
-              📁 Selecionar Pasta Principal
-            </button>
-
-            <!-- ✅ BOTÃO PARA TESTAR PASTA (opcional) -->
-            <button
-              id="btnTestDir"
-              onclick="
-                window.fsManager
-                  ?.testWriteAccess()
-                  .then(() => {
-                    alert(
-                      '✅ Teste bem-sucedido!\n\nA pasta está configurada corretamente.\nArquivo de teste criado: SINGEM_test.txt'
-                    );
-                  })
-                  .catch((err) => {
-                    alert(
-                      '❌ Erro no teste:\n\n' +
-                        err.message +
-                        '\n\nClique em Selecionar Pasta Principal primeiro.'
-                    );
-                  })
-              "
-              style="
-                background: #6c757d;
-                color: white;
-                border: none;
-                padding: 10px 16px;
-                border-radius: 5px;
-                cursor: pointer;
-                font-weight: 600;
-                display: flex;
-                align-items: center;
-                gap: 6px;
-              "
-              title="Testar se a pasta configurada está funcionando"
-            >
-              🧪 Testar Pasta
-            </button>
           </div>
 
           <!-- Conteúdo: Cadastro -->
@@ -1396,20 +1277,11 @@
           </div>
 
           <div class="reports-container">
-            <!-- Acesso Rápido às Pastas (somente visualização) -->
+            <!-- Acesso a Arquivos (modo banco/API) -->
             <div class="file-management-section">
-              <h3>📁 Acesso Rápido às Pastas</h3>
-              <p class="nf-warning-text">
-                ⚙️ Para configurar a estrutura de pastas, vá em
-                <strong>Configurações → Arquivos</strong>
-              </p>
+              <h3>📊 Arquivos e Estatísticas</h3>
+              <p class="nf-warning-text">O armazenamento está em modo banco/API.</p>
               <div class="file-management-actions">
-                <button id="btnAbrirPastaEmpenhos" class="btn btn-outline">
-                  📝 Abrir Pasta Empenhos
-                </button>
-                <button id="btnAbrirPastaNotasFiscais" class="btn btn-outline">
-                  📄 Abrir Pasta Notas Fiscais
-                </button>
                 <button id="btnEstatisticasArquivos" class="btn btn-outline">
                   📊 Estatísticas
                 </button>
@@ -1578,11 +1450,8 @@
     <!-- 📎 Anexar PDF da NE -->
     <script src="js/anexarPdfNE.js" defer></script>
 
-    <!-- Proteção e Integridade de Pastas -->
+    <!-- Proteção de dados -->
     <script src="js/core/protection.js" defer></script>
-    <script src="js/core/integrity.js" defer></script>
-    <script src="js/core/trashManager.js" defer></script>
-    <script src="js/core/fsManagerLegacy.js" defer></script>
 
     <!-- 🔒 SISTEMA DE BACKUP E RESTAURAÇÃO -->
     <script src="js/core/dataBackup.js" defer></script>
@@ -1597,7 +1466,6 @@
     <!-- ========================================== -->
     <!-- ✅ FORMATADORES BRASILEIROS (antes do app.js) -->
     <script type="module" src="js/utils/formatters.js"></script>
-    <script src="js/fsRoot.js" defer></script>
     <!-- Validador de NF (antes do app.js) -->
     <script src="js/nfValidator.js" defer></script>
     <script type="module" src="js/app.js"></script>

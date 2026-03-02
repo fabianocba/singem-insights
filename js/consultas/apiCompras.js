@@ -1,386 +1,366 @@
 /**
  * apiCompras.js
- * Cliente para APIs públicas do Compras.gov.br (Dados Abertos)
- * Documentação: https://dadosabertos.compras.gov.br/swagger-ui/index.html
- *
- * NOTA: Usa proxy local para evitar bloqueio CORS
- * - Navegador chama: /api/modulo-material/material/1
- * - Proxy redireciona para: https://dadosabertos.compras.gov.br/modulo-material/material/1
- *
- * MODO DEMO: Se API estiver fora do ar, usa dados de exemplo (dadosMock.js)
+ * Cliente de Consultas Diversas em modo real (backend de integrações + fallback API pública).
  */
 
-import * as Mock from './dadosMock.js';
+import { httpRequest } from '../shared/lib/http.js';
 
-const API_BASE = '/api';
+const BACKEND_BASE = '/api/integracoes/comprasgov';
+const PUBLIC_API_BASE = 'https://dadosabertos.compras.gov.br';
 
-// Carrega preferência de modo demo do localStorage
-let MODO_DEMO = localStorage.getItem('consultasAPIModoDEMO') === 'true' || false;
-
-/**
- * Timeout padrão para requisições (30 segundos)
- */
 const REQUEST_TIMEOUT = 30000;
-
-/**
- * Número máximo de tentativas em caso de erro 429/500
- */
 const MAX_RETRIES = 3;
-
-/**
- * Delay base para backoff exponencial (ms)
- */
 const BACKOFF_BASE = 1000;
 
-/**
- * Requisição HTTP com timeout e retry exponencial
- * @param {string} url - URL completa
- * @param {number} attempt - Tentativa atual (1-indexed)
- * @returns {Promise<Object>} Resposta JSON
- */
-async function fetchWithRetry(url, attempt = 1) {
-  console.log(`🌐 Fazendo requisição: ${url}`);
-  console.log(`   Tentativa: ${attempt}/${MAX_RETRIES}`);
+function buildQueryString(params = {}) {
+  const filtered = Object.entries(params)
+    .filter(([_, value]) => value !== undefined && value !== null && value !== '')
+    .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`);
 
+  return filtered.length > 0 ? `?${filtered.join('&')}` : '';
+}
+
+async function fetchWithRetry(url, attempt = 1) {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT);
 
   try {
     const response = await fetch(url, {
       signal: controller.signal,
-      mode: 'cors', // Explicitamente permite CORS
+      mode: 'cors',
       headers: {
-        Accept: 'application/json'
+        Accept: 'application/json',
+        'X-Requested-With': 'SINGEM-Consultas'
       }
     });
+
     clearTimeout(timeoutId);
 
-    console.log(`✅ Resposta recebida - Status: ${response.status}`);
-
-    // Sucesso
     if (response.ok) {
-      const data = await response.json();
-      console.log(`✅ Dados parseados com sucesso`);
-      return data;
+      return response.json();
     }
 
-    // Rate limit ou erro de servidor - retry com backoff
     if ((response.status === 429 || response.status >= 500) && attempt < MAX_RETRIES) {
-      const delay = BACKOFF_BASE * Math.pow(2, attempt - 1);
-      console.warn(`⚠️ Erro ${response.status} - retry ${attempt}/${MAX_RETRIES} após ${delay}ms`);
+      const delay = BACKOFF_BASE * 2 ** (attempt - 1);
       await new Promise((resolve) => setTimeout(resolve, delay));
       return fetchWithRetry(url, attempt + 1);
     }
 
-    // Erro definitivo
-    const errorMsg = `HTTP ${response.status}: ${response.statusText}`;
-    console.error(`❌ Erro HTTP: ${errorMsg}`);
-    throw new Error(errorMsg);
+    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
   } catch (error) {
     clearTimeout(timeoutId);
 
     if (error.name === 'AbortError') {
-      const timeoutMsg = 'Requisição excedeu o tempo limite (30s)';
-      console.error(`⏱️ Timeout: ${timeoutMsg}`);
-      throw new Error(timeoutMsg);
+      throw new Error('Requisição excedeu o tempo limite (30s)');
     }
 
-    // Erro de rede (CORS, conexão, etc)
-    if (error.message === 'Failed to fetch') {
-      console.error('❌ Erro de rede ou CORS');
-      console.error('   Possíveis causas:');
-      console.error('   1. Sem conexão com a internet');
-      console.error('   2. API do Compras.gov.br fora do ar');
-      console.error('   3. Bloqueio de CORS (menos provável - API pública)');
-      console.error('   4. Firewall bloqueando a requisição');
-
-      throw new Error(
-        'Erro ao conectar com a API do Compras.gov.br\n\n' +
-          'Verifique:\n' +
-          '• Sua conexão com a internet\n' +
-          '• Se o site https://dadosabertos.compras.gov.br está acessível'
-      );
-    }
-
-    console.error(`❌ Erro inesperado:`, error);
     throw error;
   }
 }
 
-/**
- * Constrói query string a partir de objeto de parâmetros
- * @param {Object} params - Parâmetros { key: value }
- * @returns {string} Query string (ex: "?param1=val1&param2=val2")
- */
-function buildQueryString(params) {
-  const filtered = Object.entries(params)
-    .filter(([_, value]) => value !== undefined && value !== null && value !== '')
-    .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`);
+function normalizeResponse(rawData) {
+  const root = rawData?.data && rawData?.success !== undefined ? rawData.data : rawData;
+  const metadataSource = root?._metadata || root?.metadata || {};
 
-  return filtered.length > 0 ? '?' + filtered.join('&') : '';
+  const items = Array.isArray(root?.resultado)
+    ? root.resultado
+    : Array.isArray(root?.itens)
+      ? root.itens
+      : Array.isArray(root?.items)
+        ? root.items
+        : Array.isArray(root?.data)
+          ? root.data
+          : root?._embedded && typeof root._embedded === 'object'
+            ? Object.values(root._embedded).find(Array.isArray) || []
+            : Array.isArray(root)
+              ? root
+              : [];
+
+  const totalRecords =
+    root?.totalRegistros ?? metadataSource?.totalRegistros ?? metadataSource?.totalRecords ?? root?.total ?? 0;
+  const totalPages = root?.totalPaginas ?? metadataSource?.totalPaginas ?? metadataSource?.totalPages ?? 1;
+
+  return {
+    _metadata: {
+      totalRecords: Number(totalRecords || 0),
+      totalPages: Math.max(1, Number(totalPages || 1))
+    },
+    items,
+    _raw: root
+  };
 }
 
-/**
- * Consulta itens de material do catálogo
- * @param {Object} filters - { pagina, codigoGrupo, codigoClasse, codigoPdm, status }
- * @returns {Promise<Object>} { _metadata, itens }
- */
+async function requestBackend(path, params = {}) {
+  const response = await httpRequest(`${BACKEND_BASE}${path}${buildQueryString(params)}`, { method: 'GET' });
+
+  if (!response.ok) {
+    const err = new Error(response.error?.message || 'Falha na API de integrações');
+    err.status = response.error?.status || 0;
+    throw err;
+  }
+
+  return normalizeResponse(response.data);
+}
+
+async function requestPublic(path, params = {}) {
+  const data = await fetchWithRetry(`${PUBLIC_API_BASE}${path}${buildQueryString(params)}`);
+  return normalizeResponse(data);
+}
+
+async function requestReal({ backendPath, backendParams, publicPath, publicParams }) {
+  try {
+    return await requestBackend(backendPath, backendParams);
+  } catch (error) {
+    const canFallbackToPublic = [0, 401, 403, 404, 429, 500, 502, 503, 504].includes(Number(error.status || 0));
+    if (!canFallbackToPublic) {
+      throw error;
+    }
+
+    return requestPublic(publicPath, publicParams);
+  }
+}
+
 export async function getMateriais(filters = {}) {
-  // Se modo demo ativo, retorna dados mock
-  if (MODO_DEMO) {
-    console.warn('⚠️ MODO DEMO: Retornando dados de exemplo (API indisponível)');
-    return Promise.resolve(Mock.MOCK_MATERIAIS);
-  }
+  const { pagina = 1, codigoGrupo, codigoClasse, codigoPdm, status, descricao } = filters;
 
-  const { pagina = 1, codigoGrupo, codigoClasse, codigoPdm, status } = filters;
-
-  const params = buildQueryString({
-    codigoGrupo,
-    codigoClasse,
-    codigoPdm,
-    status
+  return requestReal({
+    backendPath: '/catmat/itens',
+    backendParams: {
+      pagina,
+      tamanhoPagina: 30,
+      codigoGrupo,
+      codigoClasse,
+      codigoPdm,
+      status,
+      descricao,
+      nome: descricao
+    },
+    publicPath: `/modulo-material/material/${pagina}`,
+    publicParams: {
+      codigoGrupo,
+      codigoClasse,
+      codigoPdm,
+      status,
+      descricao,
+      nome: descricao
+    }
   });
-
-  const url = `${API_BASE}/modulo-material/material/${pagina}${params}`;
-
-  try {
-    return await fetchWithRetry(url);
-  } catch (error) {
-    // Se falhar, ativa modo demo e retorna dados mock
-    console.error('❌ API falhou. Ativando MODO DEMO...');
-    MODO_DEMO = true;
-    return Mock.MOCK_MATERIAIS;
-  }
 }
 
-/**
- * Consulta itens de serviço do catálogo
- * @param {Object} filters - { pagina, codigoGrupo, codigoClasse, status }
- * @returns {Promise<Object>} { _metadata, itens }
- */
 export async function getServicos(filters = {}) {
-  if (MODO_DEMO) {
-    console.warn('⚠️ MODO DEMO: Retornando dados de exemplo');
-    return Promise.resolve(Mock.MOCK_SERVICOS);
-  }
+  const { pagina = 1, codigoGrupo, codigoClasse, status, descricao } = filters;
 
-  const { pagina = 1, codigoGrupo, codigoClasse, status } = filters;
-
-  const params = buildQueryString({
-    codigoGrupo,
-    codigoClasse,
-    status
+  return requestReal({
+    backendPath: '/catser/itens',
+    backendParams: {
+      pagina,
+      tamanhoPagina: 30,
+      codigoGrupo,
+      codigoClasse,
+      status,
+      descricao,
+      nome: descricao
+    },
+    publicPath: `/modulo-servico/servico/${pagina}`,
+    publicParams: {
+      codigoGrupo,
+      codigoClasse,
+      status,
+      descricao,
+      nome: descricao
+    }
   });
-
-  const url = `${API_BASE}/modulo-servico/servico/${pagina}${params}`;
-
-  try {
-    return await fetchWithRetry(url);
-  } catch (error) {
-    console.error('❌ API falhou. Ativando MODO DEMO...');
-    MODO_DEMO = true;
-    return Mock.MOCK_SERVICOS;
-  }
 }
 
-/**
- * Consulta unidades UASG
- * @param {Object} filters - { pagina, codigoUasg, uf, status }
- * @returns {Promise<Object>} { _metadata, itens }
- */
 export async function getUASG(filters = {}) {
-  if (MODO_DEMO) {
-    console.warn('⚠️ MODO DEMO: Retornando dados de exemplo');
-    return Promise.resolve(Mock.MOCK_UASG);
-  }
+  const { pagina = 1, codigoUasg, uf, status, nomeUasg, nomeOrgao } = filters;
 
-  const { pagina = 1, codigoUasg, uf, status } = filters;
-
-  const params = buildQueryString({
-    codigoUasg,
-    uf,
-    status
+  return requestReal({
+    backendPath: '/uasg',
+    backendParams: {
+      pagina,
+      tamanhoPagina: 30,
+      codigoUasg,
+      uf,
+      statusUasg: status,
+      nomeUasg,
+      nomeOrgao
+    },
+    publicPath: `/modulo-uasg/uasg/${pagina}`,
+    publicParams: {
+      codigoUasg,
+      uf,
+      status,
+      nomeUasg,
+      nomeOrgao
+    }
   });
-
-  const url = `${API_BASE}/modulo-uasg/uasg/${pagina}${params}`;
-
-  try {
-    return await fetchWithRetry(url);
-  } catch (error) {
-    console.error('❌ API falhou. Ativando MODO DEMO...');
-    MODO_DEMO = true;
-    return Mock.MOCK_UASG;
-  }
 }
 
-/**
- * Consulta itens de ARP (Atas de Registro de Preço)
- * @param {Object} filters - { pagina, numeroAta, anoAta, orgao, codigoItem }
- * @returns {Promise<Object>} { _metadata, itens }
- */
 export async function getARP(filters = {}) {
-  if (MODO_DEMO) {
-    console.warn('⚠️ MODO DEMO: Retornando dados de exemplo');
-    return Promise.resolve(Mock.MOCK_ARP);
-  }
+  const { pagina = 1, numeroAta, anoAta, orgao, codigoItem, descricaoItem, fornecedor } = filters;
 
-  const { pagina = 1, numeroAta, anoAta, orgao, codigoItem } = filters;
-
-  const params = buildQueryString({
-    numeroAta,
-    anoAta,
-    orgao,
-    codigoItem
+  return requestReal({
+    backendPath: '/arp',
+    backendParams: {
+      pagina,
+      tamanhoPagina: 30,
+      numeroAta,
+      anoAta,
+      orgao,
+      codigoItem,
+      descricaoItem,
+      fornecedor
+    },
+    publicPath: `/modulo-arp/arp-item/${pagina}`,
+    publicParams: {
+      numeroAta,
+      anoAta,
+      orgao,
+      codigoItem,
+      descricaoItem,
+      fornecedor
+    }
   });
-
-  const url = `${API_BASE}/modulo-arp/arp-item/${pagina}${params}`;
-
-  try {
-    return await fetchWithRetry(url);
-  } catch (error) {
-    console.error('❌ API falhou. Ativando MODO DEMO...');
-    MODO_DEMO = true;
-    return Mock.MOCK_ARP;
-  }
 }
 
-/**
- * Consulta contratações PNCP (Lei 14.133/2021)
- * @param {Object} filters - { pagina, cnpjOrgao, ano, modalidade, situacao }
- * @returns {Promise<Object>} { _metadata, itens }
- */
 export async function getPNCP(filters = {}) {
-  if (MODO_DEMO) {
-    console.warn('⚠️ MODO DEMO: PNCP não disponível em modo demo');
-    return Promise.resolve({
-      _metadata: { totalRegistros: 0 },
-      _embedded: { itens: [] }
-    });
-  }
+  const { pagina = 1, cnpjOrgao, ano, modalidade, situacao, objeto } = filters;
 
-  const { pagina = 1, cnpjOrgao, ano, modalidade, situacao } = filters;
-
-  const params = buildQueryString({
-    cnpjOrgao,
-    ano,
-    modalidade,
-    situacao
+  return requestReal({
+    backendPath: '/contratacoes',
+    backendParams: {
+      pagina,
+      tamanhoPagina: 30,
+      cnpjOrgao,
+      ano,
+      modalidade,
+      situacao,
+      objeto
+    },
+    publicPath: `/pncp/v1/contratacoes/${pagina}`,
+    publicParams: {
+      cnpjOrgao,
+      ano,
+      modalidade,
+      situacao,
+      objeto
+    }
   });
-
-  const url = `${API_BASE}/pncp/v1/contratacoes/${pagina}${params}`;
-  return await fetchWithRetry(url);
 }
 
-/**
- * Consulta licitações legado (sistema antigo)
- * @param {Object} filters - { pagina, uasg, modalidade, ano }
- * @returns {Promise<Object>} { _metadata, itens }
- */
 export async function getLegadoLicitacoes(filters = {}) {
-  const { pagina = 1, uasg, modalidade, ano } = filters;
+  const { pagina = 1, uasg, modalidade, ano, objeto } = filters;
 
-  const params = buildQueryString({
-    uasg,
-    modalidade,
-    ano
+  return requestReal({
+    backendPath: '/legado/licitacoes',
+    backendParams: {
+      pagina,
+      tamanhoPagina: 30,
+      uasg,
+      modalidade,
+      ano,
+      objeto
+    },
+    publicPath: `/licitacoes/v1/licitacoes/${pagina}`,
+    publicParams: {
+      uasg,
+      modalidade,
+      ano,
+      objeto
+    }
   });
-
-  const url = `${API_BASE}/licitacoes/v1/licitacoes/${pagina}${params}`;
-  return await fetchWithRetry(url);
 }
 
-/**
- * Consulta itens de licitação legado
- * @param {Object} filters - { pagina, uasg, modalidade, numeroLicitacao }
- * @returns {Promise<Object>} { _metadata, itens }
- */
 export async function getLegadoItens(filters = {}) {
-  const { pagina = 1, uasg, modalidade, numeroLicitacao } = filters;
+  const { pagina = 1, uasg, modalidade, numeroLicitacao, descricao } = filters;
 
-  const params = buildQueryString({
-    uasg,
-    modalidade,
-    numeroLicitacao
+  return requestReal({
+    backendPath: '/legado/itens',
+    backendParams: {
+      pagina,
+      tamanhoPagina: 30,
+      uasg,
+      modalidade,
+      numeroLicitacao,
+      descricao,
+      nome: descricao
+    },
+    publicPath: `/licitacoes/v1/licitacoes-itens/${pagina}`,
+    publicParams: {
+      uasg,
+      modalidade,
+      numeroLicitacao,
+      descricao,
+      nome: descricao
+    }
+  });
+}
+
+export async function getGruposMaterial() {
+  const data = await requestReal({
+    backendPath: '/catmat/grupos',
+    backendParams: { tamanhoPagina: 100 },
+    publicPath: '/modulo-material/grupo-material',
+    publicParams: {}
   });
 
-  const url = `${API_BASE}/licitacoes/v1/licitacoes-itens/${pagina}${params}`;
-  return await fetchWithRetry(url);
+  return data.items || [];
 }
 
-/**
- * Consulta grupos de material (auxiliar para filtros)
- * @returns {Promise<Array>} Lista de grupos
- */
-export async function getGruposMaterial() {
-  const url = `${API_BASE}/modulo-material/grupo-material`;
-  const data = await fetchWithRetry(url);
-  return data._embedded?.grupoMateriais || [];
-}
-
-/**
- * Consulta classes de material por grupo (auxiliar para filtros)
- * @param {string} codigoGrupo - Código do grupo
- * @returns {Promise<Array>} Lista de classes
- */
 export async function getClassesMaterial(codigoGrupo) {
   if (!codigoGrupo) {
     return [];
   }
-  const url = `${API_BASE}/modulo-material/classe-material?codigoGrupo=${codigoGrupo}`;
-  const data = await fetchWithRetry(url);
-  return data._embedded?.classeMateriais || [];
+
+  const data = await requestReal({
+    backendPath: '/catmat/classes',
+    backendParams: { codigoGrupo, tamanhoPagina: 100 },
+    publicPath: '/modulo-material/classe-material',
+    publicParams: { codigoGrupo }
+  });
+
+  return data.items || [];
 }
 
-/**
- * Consulta grupos de serviço (auxiliar para filtros)
- * @returns {Promise<Array>} Lista de grupos
- */
 export async function getGruposServico() {
-  const url = `${API_BASE}/modulo-servico/grupo-servico`;
-  const data = await fetchWithRetry(url);
-  return data._embedded?.grupoServicos || [];
+  const data = await requestReal({
+    backendPath: '/catser/grupos',
+    backendParams: { tamanhoPagina: 100 },
+    publicPath: '/modulo-servico/grupo-servico',
+    publicParams: {}
+  });
+
+  return data.items || [];
 }
 
-/**
- * Consulta classes de serviço por grupo (auxiliar para filtros)
- * @param {string} codigoGrupo - Código do grupo
- * @returns {Promise<Array>} Lista de classes
- */
 export async function getClassesServico(codigoGrupo) {
   if (!codigoGrupo) {
     return [];
   }
-  const url = `${API_BASE}/modulo-servico/classe-servico?codigoGrupo=${codigoGrupo}`;
-  const data = await fetchWithRetry(url);
-  return data._embedded?.classeServicos || [];
+
+  const data = await requestReal({
+    backendPath: '/catser/classes',
+    backendParams: { codigoGrupo, tamanhoPagina: 100 },
+    publicPath: '/modulo-servico/classe-servico',
+    publicParams: { codigoGrupo }
+  });
+
+  return data.items || [];
 }
 
-/**
- * Ativa/Desativa modo DEMO (dados mockados)
- * @param {boolean} ativar - true para ativar, false para desativar
- */
-export function setModoDemo(ativar) {
-  MODO_DEMO = ativar;
-  localStorage.setItem('consultasAPIModoDEMO', ativar ? 'true' : 'false');
-  console.log(`🎭 Modo DEMO ${ativar ? 'ATIVADO' : 'DESATIVADO'}`);
+export function setModoDemo() {
+  return false;
 }
 
-/**
- * Verifica se está em modo DEMO
- * @returns {boolean}
- */
 export function isModoDemo() {
-  return MODO_DEMO;
+  return false;
 }
 
-/**
- * Retorna status da API
- * @returns {Object} Status da conexão com API
- */
 export function getAPIStatus() {
   return {
-    modoDemo: MODO_DEMO,
-    apiBase: API_BASE,
-    descricao: MODO_DEMO ? '🎭 Modo Demonstração (Dados de Exemplo)' : '🌐 Conectado à API do Compras.gov.br'
+    modoDemo: false,
+    apiBase: BACKEND_BASE,
+    descricao: '🌐 Modo real (Backend + fallback API oficial)'
   };
 }

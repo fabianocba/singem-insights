@@ -1,6 +1,8 @@
+const memoryStore = new Map();
+
 export function getLocalJson(key, fallback = null) {
   try {
-    const raw = localStorage.getItem(key);
+    const raw = memoryStore.get(key);
     return raw ? JSON.parse(raw) : fallback;
   } catch {
     return fallback;
@@ -9,7 +11,7 @@ export function getLocalJson(key, fallback = null) {
 
 export function setLocalJson(key, value) {
   try {
-    localStorage.setItem(key, JSON.stringify(value));
+    memoryStore.set(key, JSON.stringify(value));
     return true;
   } catch {
     return false;

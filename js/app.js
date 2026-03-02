@@ -127,7 +127,6 @@ class ControleMaterialApp {
       }
       console.log('✅ API PostgreSQL disponível');
 
-      // ============================================================================
       // INFRAESTRUTURA ENTERPRISE - Event Listeners
       // ============================================================================
       this.setupInfrastructureListeners();
@@ -138,19 +137,7 @@ class ControleMaterialApp {
         console.error('❌ Erro ao processar fila:', err);
       });
 
-      // Restaura referência da pasta principal configurada (se existir)
-      if (window.fsManager && window.fsManager.isFileSystemAPISupported()) {
-        try {
-          const restored = await window.fsManager.restoreFolderReference();
-          if (restored) {
-            console.log('✅ Pasta principal restaurada:', window.fsManager.mainDirectoryHandle.name);
-          } else {
-            console.log('ℹ️ Nenhuma pasta principal configurada anteriormente');
-          }
-        } catch (error) {
-          console.warn('⚠️ Erro ao restaurar pasta principal:', error);
-        }
-      }
+      console.log('ℹ️ Restauração de diretório externo desativada (modo banco/API).');
 
       // Carrega dados da unidade orçamentária
       await this.carregarDadosUnidade();
@@ -215,9 +202,10 @@ class ControleMaterialApp {
       console.log('[OAuth] Tokens recebidos, autenticando...');
 
       try {
-        // Salva tokens
-        localStorage.setItem('singem_token', accessToken);
-        localStorage.setItem('singem_refresh_token', refreshToken);
+        if (window.__SINGEM_AUTH) {
+          window.__SINGEM_AUTH.accessToken = accessToken;
+          window.__SINGEM_AUTH.refreshToken = refreshToken;
+        }
 
         // Valida token e obtém dados do usuário
         const apiClient = (await import('./services/apiClient.js')).default;
@@ -236,8 +224,10 @@ class ControleMaterialApp {
         }
       } catch (err) {
         console.error('[OAuth] Erro ao validar token:', err);
-        localStorage.removeItem('singem_token');
-        localStorage.removeItem('singem_refresh_token');
+        if (window.__SINGEM_AUTH) {
+          window.__SINGEM_AUTH.accessToken = null;
+          window.__SINGEM_AUTH.refreshToken = null;
+        }
         this.showError('Sessão inválida. Faça login novamente.');
       }
     }
@@ -2698,17 +2688,11 @@ class ControleMaterialApp {
   }
 
   /**
-   * Salva arquivo de empenho no sistema de arquivos
-   * ✅ VERSÃO CORRIGIDA - Usa saveFileWithFallback (sem SecurityError)
+   * Registra metadados de arquivo de empenho para persistência em banco
    * @private
    */
   async _salvarArquivoEmpenho(file, textContent, extractedData) {
-    console.log('[APP] 💾 Iniciando salvamento de empenho...');
-
-    if (!window.fsManager || !window.fsManager.isFileSystemAPISupported()) {
-      console.warn('[APP] ⚠️ File System Access API não suportada');
-      return null;
-    }
+    console.log('[APP] 💾 Registrando arquivo de empenho para persistência em banco...');
 
     try {
       // Preparar metadados para nome do arquivo
@@ -2720,24 +2704,21 @@ class ControleMaterialApp {
 
       console.log('[APP] 📋 Metadados:', metadados);
 
-      // ✅ USA NOVA FUNÇÃO COM FALLBACK AUTOMÁTICO
-      // Não chama showDirectoryPicker() automaticamente
-      // Faz fallback para download se necessário
-      const result = await window.fsManager.saveFileWithFallback(file, 'empenhos', textContent, metadados);
+      const ano = extractedData?.ano || new Date().getFullYear();
+      const numero = String(extractedData?.numero || 'SEM_NUMERO').replace(/\D/g, '') || 'SEM_NUMERO';
 
-      console.log('[APP] ✅ Salvamento concluído:', result.method);
+      const result = {
+        originalName: file?.name || `NE_${ano}_${numero}.pdf`,
+        savedName: file?.name || `NE_${ano}_${numero}.pdf`,
+        folderType: 'empenhos',
+        year: parseInt(ano, 10) || new Date().getFullYear(),
+        size: file?.size || 0,
+        timestamp: new Date().toISOString(),
+        path: `db://empenhos/${ano}/${numero}`,
+        method: 'database'
+      };
 
-      // Mostrar mensagem apropriada ao usuário
-      if (result.method === 'download') {
-        this.showInfo(
-          '📥 Arquivo baixado automaticamente!\n\n' +
-            'Para salvar automaticamente na pasta local:\n' +
-            '1. Clique no botão "📁 Selecionar Pasta Principal"\n' +
-            '2. Escolha onde deseja salvar os arquivos\n' +
-            '3. Os próximos arquivos serão salvos automaticamente'
-        );
-      }
-
+      console.log('[APP] ✅ Registro preparado para banco:', result.method);
       return result;
     } catch (error) {
       console.error('[APP] ❌ Erro ao salvar arquivo:', error);
@@ -3759,53 +3740,6 @@ class ControleMaterialApp {
    * Configura botões de gerenciamento de arquivos
    */
   setupFileManagementButtons() {
-    // Configurar pasta principal
-    document.getElementById('btnConfigurarPasta')?.addEventListener('click', async () => {
-      try {
-        if (!window.fsManager.isFileSystemAPISupported()) {
-          this.showError('File System Access API não suportada neste navegador');
-          return;
-        }
-
-        const sucesso = await window.fsManager.selectMainDirectory();
-        if (sucesso) {
-          this.showSuccess('Pasta principal configurada com sucesso!');
-          await this.atualizarEstatisticasArquivos();
-        }
-      } catch (error) {
-        console.error('Erro ao configurar pasta:', error);
-        this.showError('Erro ao configurar pasta: ' + error.message);
-      }
-    });
-
-    // Abrir pasta de empenhos
-    document.getElementById('btnAbrirPastaEmpenhos')?.addEventListener('click', async () => {
-      try {
-        if (!window.fsManager.mainDirectoryHandle) {
-          this.showError('Configure primeiro a pasta principal');
-          return;
-        }
-        await window.fsManager.openFolder('empenhos');
-      } catch (error) {
-        console.error('Erro ao abrir pasta:', error);
-        this.showError('Erro ao abrir pasta: ' + error.message);
-      }
-    });
-
-    // Abrir pasta de notas fiscais
-    document.getElementById('btnAbrirPastaNotasFiscais')?.addEventListener('click', async () => {
-      try {
-        if (!window.fsManager.mainDirectoryHandle) {
-          this.showError('Configure primeiro a pasta principal');
-          return;
-        }
-        await window.fsManager.openFolder('notasFiscais');
-      } catch (error) {
-        console.error('Erro ao abrir pasta:', error);
-        this.showError('Erro ao abrir pasta: ' + error.message);
-      }
-    });
-
     // Mostrar estatísticas de arquivos
     document.getElementById('btnEstatisticasArquivos')?.addEventListener('click', async () => {
       await this.mostrarEstatisticasArquivos();
@@ -3823,43 +3757,7 @@ class ControleMaterialApp {
       // Carrega fornecedores para filtros
       await this.carregarFornecedoresFiltro();
 
-      // Sincronização automática silenciosa ao iniciar
-      if (window.fsManager && window.fsManager.mainDirectoryHandle) {
-        try {
-          // Verificar integridade das pastas
-          const status = await window.fsManager.verificarIntegridadePastas();
-
-          // Verificar se precisa reparar (pasta da unidade não existe ou sem anos)
-          const precisaReparar = !status.pastaUnidadeExiste || Object.keys(status.anos || {}).length === 0;
-
-          if (precisaReparar) {
-            console.warn('⚠️ Estrutura de pastas corrompida - reparando...');
-            await window.fsManager.repararEstruturaPastas();
-          }
-
-          // Sincronizar arquivos silenciosamente
-          const resultado = await window.fsManager.sincronizarArquivos();
-
-          const totalRemovidos = resultado.empenhos.removidos + resultado.notasFiscais.removidos;
-          if (totalRemovidos > 0) {
-            console.warn(
-              `⚠️ Sincronização: ${totalRemovidos} arquivo(s) deletado(s) externamente foram atualizados no banco`
-            );
-
-            // Notificar usuário se houver arquivos deletados
-            setTimeout(() => {
-              this.showInfo(
-                `🔄 Sincronização automática:\n${totalRemovidos} arquivo(s) deletado(s) externamente foram detectados e atualizados.`
-              );
-            }, 2000);
-          } else {
-            console.log('✅ Sincronização automática: todos os arquivos estão íntegros');
-          }
-        } catch (syncError) {
-          console.error('Erro na sincronização automática:', syncError);
-          // Não bloqueia a inicialização
-        }
-      }
+      console.log('[APP] ℹ️ Sincronização de diretórios externos desativada (modo banco/API).');
     } catch (error) {
       console.error('Erro ao carregar dados iniciais:', error);
     }
@@ -4119,6 +4017,10 @@ class ControleMaterialApp {
         empenho.pdfFileName = this._anexoPdfNEPendente.savedName;
         empenho.pdfAttachedAt = Date.now();
         empenho.pdfPath = this._anexoPdfNEPendente.path;
+        empenho.pdfData = this._anexoPdfNEPendente.pdfData || null;
+        empenho.pdfMimeType = this._anexoPdfNEPendente.mimeType || 'application/pdf';
+        empenho.pdfOriginalName = this._anexoPdfNEPendente.originalName || this._anexoPdfNEPendente.savedName;
+        empenho.pdfSize = this._anexoPdfNEPendente.size || 0;
         console.log('[APP] 📎 PDF anexado incluído:', empenho.pdfFileName);
       } else if (this.empenhoDraft.header.id) {
         // Manter dados do PDF se empenho já existia
@@ -4127,6 +4029,10 @@ class ControleMaterialApp {
           empenho.pdfFileName = empenhoExistente.pdfFileName;
           empenho.pdfAttachedAt = empenhoExistente.pdfAttachedAt;
           empenho.pdfPath = empenhoExistente.pdfPath;
+          empenho.pdfData = empenhoExistente.pdfData;
+          empenho.pdfMimeType = empenhoExistente.pdfMimeType;
+          empenho.pdfOriginalName = empenhoExistente.pdfOriginalName;
+          empenho.pdfSize = empenhoExistente.pdfSize;
           console.log('[APP] 📎 PDF existente mantido:', empenho.pdfFileName);
         }
       }
@@ -4487,7 +4393,7 @@ class ControleMaterialApp {
   }
 
   /**
-   * Salva arquivo físico da nota fiscal
+   * Registra metadados de arquivo de nota fiscal para persistência em banco
    * @private
    */
   async _salvarArquivoNotaFiscal(id, notaFiscal) {
@@ -4507,18 +4413,24 @@ class ControleMaterialApp {
         data: notaFiscal.dataNotaFiscal
       };
 
-      const arquivoInfo = await window.fsManager.saveFile(
-        this.currentNotaFiscal.file,
-        'notasFiscais',
-        this.currentNotaFiscal.textContent,
+      const anoNota = String(notaFiscal.dataNotaFiscal || '').slice(0, 4) || new Date().getFullYear();
+      const numeroNota = String(notaFiscal.numero || 'SEM_NUMERO').replace(/\D/g, '') || 'SEM_NUMERO';
+      const arquivoInfo = {
+        originalName: this.currentNotaFiscal.file.name,
+        savedName: this.currentNotaFiscal.file.name,
+        folderType: 'notasFiscais',
+        year: parseInt(anoNota, 10) || new Date().getFullYear(),
+        size: this.currentNotaFiscal.file.size || 0,
+        timestamp: new Date().toISOString(),
+        path: `db://notasFiscais/${anoNota}/${numeroNota}`,
         metadados
-      );
+      };
 
       arquivoInfo.documentoId = id;
       await window.dbManager.salvarArquivo(arquivoInfo);
-      console.log('✅ Arquivo de Nota Fiscal salvo:', arquivoInfo);
+      console.log('✅ Arquivo de Nota Fiscal registrado no banco:', arquivoInfo);
     } catch (fileError) {
-      console.warn('⚠️ Erro ao salvar arquivo físico (NF foi salva no banco):', fileError);
+      console.warn('⚠️ Erro ao registrar metadados do arquivo de NF no banco:', fileError);
     }
   }
 
@@ -7698,7 +7610,7 @@ ${details.stack || 'Não disponível'}</div>
 
   /**
    * Exclui um documento (empenho ou NF) do sistema de forma segura
-   * Remove arquivo físico E registro do banco de dados
+   * Remove registros do banco de dados
    * @param {number} documentoId - ID do documento
    * @param {string} tipo - Tipo ('empenho' ou 'notaFiscal')
    */
@@ -7709,7 +7621,6 @@ ${details.stack || 'Não disponível'}</div>
       `⚠️ ATENÇÃO!\n\n` +
         `Deseja realmente excluir este ${tipoNome}?\n\n` +
         `Esta ação irá:\n` +
-        `• Excluir o arquivo PDF da pasta\n` +
         `• Remover o registro do banco de dados\n` +
         `${tipo === 'empenho' ? '• Remover os saldos relacionados\n' : ''}` +
         `\n⚠️ Esta operação NÃO pode ser desfeita!`
@@ -7722,40 +7633,23 @@ ${details.stack || 'Não disponível'}</div>
     try {
       this.showLoading('Excluindo documento...');
 
-      // Verificar se tem fsManager configurado
-      if (!window.fsManager || !window.fsManager.mainDirectoryHandle) {
-        // Se não tem pasta configurada, apenas excluir do banco
-        if (tipo === 'empenho') {
-          await window.dbManager.delete('empenhos', documentoId);
-          const saldos = await window.dbManager.getByIndex('saldosEmpenhos', 'empenhoId', documentoId);
-          for (const saldo of saldos) {
-            await window.dbManager.delete('saldosEmpenhos', saldo.id);
-          }
-        } else {
-          await window.dbManager.delete('notasFiscais', documentoId);
+      if (tipo === 'empenho') {
+        await window.dbManager.delete('empenhos', documentoId);
+        const saldos = await window.dbManager.getByIndex('saldosEmpenhos', 'empenhoId', documentoId);
+        for (const saldo of saldos) {
+          await window.dbManager.delete('saldosEmpenhos', saldo.id);
         }
-
-        this.showSuccess('Registro excluído do banco de dados');
-        return;
+      } else {
+        await window.dbManager.delete('notasFiscais', documentoId);
       }
 
-      // Exclusão completa (arquivo + banco)
-      const resultado = await window.fsManager.excluirDocumento(documentoId, tipo);
-
-      if (resultado.sucesso) {
-        let mensagem = `✅ ${tipoNome} excluído com sucesso!\n\n`;
-
-        if (resultado.arquivoExcluido) {
-          mensagem += `📁 Arquivo removido: ${resultado.caminhoArquivo}`;
-        } else {
-          mensagem += `ℹ️ Registro removido do banco de dados`;
-        }
-
-        this.showSuccess(mensagem);
-
-        // Recarregar listas
-        await this.carregarEmpenhosSelect();
+      const arquivos = await window.dbManager.getByIndex('arquivos', 'documentoId', documentoId);
+      for (const arquivo of arquivos || []) {
+        await window.dbManager.delete('arquivos', arquivo.id);
       }
+
+      this.showSuccess(`${tipoNome} excluído com sucesso do banco de dados.`);
+      await this.carregarEmpenhosSelect();
     } catch (error) {
       console.error('Erro ao excluir documento:', error);
       this.showError(`Erro ao excluir ${tipoNome}: ${error.message}`);
@@ -7766,169 +7660,28 @@ ${details.stack || 'Não disponível'}</div>
 
   /**
    * Sincroniza arquivos do sistema com banco de dados
-   * Detecta arquivos deletados externamente e atualiza registros
+   * (Desativado no modo banco/API)
    */
   async sincronizarArquivos() {
-    if (!window.fsManager || !window.fsManager.mainDirectoryHandle) {
-      alert('⚠️ Nenhuma pasta configurada para sincronização');
-      return;
-    }
-
-    const confirmacao = confirm(
-      `🔄 SINCRONIZAR ARQUIVOS\n\n` +
-        `Esta operação irá:\n` +
-        `• Verificar todos os arquivos registrados\n` +
-        `• Detectar arquivos deletados externamente\n` +
-        `• Atualizar registros do banco de dados\n\n` +
-        `Deseja continuar?`
-    );
-
-    if (!confirmacao) {
-      return;
-    }
-
-    try {
-      this.showLoading('Sincronizando arquivos...');
-
-      const resultado = await window.fsManager.sincronizarArquivos();
-
-      let mensagem = `✅ Sincronização concluída!\n\n`;
-      mensagem += `📋 EMPENHOS:\n`;
-      mensagem += `  • Verificados: ${resultado.empenhos.verificados}\n`;
-      mensagem += `  • Removidos: ${resultado.empenhos.removidos}\n\n`;
-      mensagem += `📄 NOTAS FISCAIS:\n`;
-      mensagem += `  • Verificados: ${resultado.notasFiscais.verificados}\n`;
-      mensagem += `  • Removidos: ${resultado.notasFiscais.removidos}\n`;
-
-      if (resultado.empenhos.removidos > 0 || resultado.notasFiscais.removidos > 0) {
-        mensagem += `\n⚠️ ARQUIVOS DELETADOS EXTERNAMENTE:\n`;
-
-        resultado.empenhos.arquivos.forEach((item) => {
-          mensagem += `  • Empenho ${item.numero} (ID: ${item.id})\n`;
-        });
-
-        resultado.notasFiscais.arquivos.forEach((item) => {
-          mensagem += `  • NF ${item.numero} (ID: ${item.id})\n`;
-        });
-
-        mensagem += `\n💡 Os registros foram marcados como "arquivo deletado".\nVocê pode visualizá-los ou excluí-los permanentemente do banco.`;
-      }
-
-      alert(mensagem);
-
-      // Se houver arquivos deletados, oferecer limpeza
-      if (resultado.empenhos.removidos > 0 || resultado.notasFiscais.removidos > 0) {
-        const limpar = confirm(
-          `🗑️ LIMPAR REGISTROS DELETADOS\n\n` +
-            `Deseja excluir permanentemente do banco de dados os registros de arquivos deletados?\n\n` +
-            `⚠️ Esta ação NÃO pode ser desfeita!`
-        );
-
-        if (limpar) {
-          await this.limparRegistrosDeletados();
-        }
-      }
-
-      this.hideLoading();
-    } catch (error) {
-      console.error('Erro ao sincronizar:', error);
-      this.showError(`Erro na sincronização: ${error.message}`);
-      this.hideLoading();
-    }
+    alert('ℹ️ Sincronização de diretórios externos desativada. O sistema opera com persistência em banco/API.');
   }
 
   /**
    * Verifica integridade das pastas configuradas
+   * (Desativado no modo banco/API)
    */
   async verificarIntegridadePastas() {
-    if (!window.fsManager || !window.fsManager.mainDirectoryHandle) {
-      alert('⚠️ Nenhuma pasta configurada');
-      return;
-    }
-
-    try {
-      this.showLoading('Verificando integridade...');
-
-      const status = await window.fsManager.verificarIntegridadePastas();
-
-      if (status.erro) {
-        alert(`❌ Erro: ${status.erro}`);
-        this.hideLoading();
-        return;
-      }
-
-      let mensagem = `📂 ESTRUTURA DE PASTAS\n\n`;
-      mensagem += `Pasta Principal: ${status.pastaPrincipal}\n`;
-      mensagem += `Unidade: ${status.unidade}\n\n`;
-
-      if (!status.pastaUnidadeExiste) {
-        mensagem += `❌ PASTA DA UNIDADE NÃO EXISTE\n`;
-        mensagem += `A pasta "${status.unidade}" foi deletada externamente!\n`;
-      } else if (Object.keys(status.anos).length === 0) {
-        mensagem += `⚠️ Nenhum ano encontrado dentro da pasta da unidade\n`;
-      } else {
-        mensagem += `Anos encontrados:\n`;
-        for (const [ano, infoAno] of Object.entries(status.anos)) {
-          mensagem += `\n📅 ${ano}:\n`;
-          if (Object.keys(infoAno.subpastas).length === 0) {
-            mensagem += `  ⚠️ Nenhuma subpasta encontrada\n`;
-          } else {
-            for (const [tipo, infoTipo] of Object.entries(infoAno.subpastas)) {
-              mensagem += `  ✅ ${tipo} (${infoTipo.quantidadeArquivos} arquivos)\n`;
-            }
-          }
-        }
-      }
-
-      // Verificar se precisa reparar
-      const precisaReparar = !status.pastaUnidadeExiste || Object.keys(status.anos).length === 0;
-
-      if (precisaReparar) {
-        mensagem += `\n⚠️ Estrutura incompleta detectada!`;
-
-        const reparar = confirm(mensagem + `\n\nDeseja reparar a estrutura de pastas?`);
-
-        if (reparar) {
-          await this.repararEstrutura();
-        }
-      } else {
-        alert(mensagem + `\n\n✅ Estrutura íntegra!`);
-      }
-
-      this.hideLoading();
-    } catch (error) {
-      console.error('Erro ao verificar integridade:', error);
-      this.showError(`Erro na verificação: ${error.message}`);
-      this.hideLoading();
-    }
+    alert(
+      'ℹ️ Verificação de integridade de diretórios externos desativada. O sistema opera com persistência em banco/API.'
+    );
   }
 
   /**
    * Repara estrutura de pastas deletadas
+   * (Desativado no modo banco/API)
    */
   async repararEstrutura() {
-    try {
-      this.showLoading('Reparando estrutura...');
-
-      const pastasRecriadas = await window.fsManager.repararEstruturaPastas();
-
-      if (pastasRecriadas.length > 0) {
-        let mensagem = `✅ Estrutura reparada!\n\n`;
-        mensagem += `Pastas recriadas:\n`;
-        pastasRecriadas.forEach((pasta) => {
-          mensagem += `  • ${pasta}\n`;
-        });
-        alert(mensagem);
-      } else {
-        alert('✅ Nenhuma pasta precisou ser recriada');
-      }
-
-      this.hideLoading();
-    } catch (error) {
-      console.error('Erro ao reparar:', error);
-      this.showError(`Erro no reparo: ${error.message}`);
-      this.hideLoading();
-    }
+    alert('ℹ️ Reparo de estrutura de diretórios externos desativado. O sistema opera com persistência em banco/API.');
   }
 
   /**
@@ -8249,25 +8002,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Aguarda repository estar pronto (com retry)
     await waitForRepository();
 
-    // Garantir pasta raiz (auto-reconexão) antes de instanciar a app
-    try {
-      if (window.FSRoot) {
-        const root = await window.FSRoot.ensureRootDirOrPrompt();
-        if (!root) {
-          const el = document.getElementById('fs-config-message');
-          if (el) {
-            el.style.display = 'block';
-          }
-        } else {
-          const el = document.getElementById('fs-config-message');
-          if (el) {
-            el.style.display = 'none';
-          }
-        }
-      }
-    } catch (e) {
-      console.warn('[Bootstrap] erro ao garantir pasta raiz:', e);
-    }
+    console.log('[Bootstrap] ℹ️ Fluxo de diretório externo removido (modo banco/API).');
 
     // Expor globalmente APÓS validação
     console.log('[Bootstrap] 🔧 Expondo módulos globalmente...');

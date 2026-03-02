@@ -244,8 +244,8 @@ class BackupManager {
         if (result.success) {
           this._showSuccess(
             `Backup importado com sucesso!\n` +
-              `LocalStorage: ${result.imported.localStorage} itens\n` +
-              `IndexedDB: ${JSON.stringify(result.imported.indexedDB)}`
+              `Storage web local: ${result.imported.localStorage} itens\n` +
+              `Base local legada: ${JSON.stringify(result.imported.indexedDB)}`
           );
 
           // Recarregar página para aplicar mudanças
@@ -281,8 +281,8 @@ class BackupManager {
       // Detectar armazenamento
       const storageInfo = {
         localStorage: {
-          usado: localStorage.length > 0,
-          chaves: localStorage.length
+          usado: false,
+          chaves: 0
         },
         indexedDB: {
           usado: !!window.dbManager?.db,
@@ -318,18 +318,18 @@ class BackupManager {
             <h5>💾 Armazenamento</h5>
             <table class="table" style="width: 100%; margin-bottom: 20px;">
               <tr>
-                <td>LocalStorage</td>
+                <td>Storage web local</td>
                 <td>${storageInfo.localStorage.usado ? '✅ Em uso' : '❌ Não usado'}</td>
                 <td>${storageInfo.localStorage.chaves} chaves</td>
               </tr>
               <tr>
-                <td>IndexedDB</td>
+                <td>Base local legada</td>
                 <td>${storageInfo.indexedDB.usado ? '✅ Em uso' : '❌ Não usado'}</td>
                 <td>${storageInfo.indexedDB.banco} v${storageInfo.indexedDB.versao}</td>
               </tr>
             </table>
 
-            <h5>🗃️ Stores do IndexedDB</h5>
+            <h5>🗃️ Stores da base local legada</h5>
             <div style="background: #f5f5f5; padding: 10px; border-radius: 5px; font-family: monospace; font-size: 12px;">
               ${storageInfo.indexedDB.stores.join(', ') || 'Nenhuma store encontrada'}
             </div>

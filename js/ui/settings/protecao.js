@@ -189,127 +189,24 @@ class ProtecaoUI {
    * Visualiza lixeira
    */
   async handleViewTrash() {
-    try {
-      const items = await window.fsManager.listTrashItems();
-
-      if (items.length === 0) {
-        this.showMessage('ℹ️ Lixeira vazia', 'info');
-        return;
-      }
-
-      const html = `
-        <div class="trash-modal">
-          <h3>🗑️ Lixeira (${items.length} item(ns))</h3>
-          <table>
-            <thead>
-              <tr>
-                <th>Arquivo</th>
-                <th>Tipo</th>
-                <th>Ano</th>
-                <th>Excluído em</th>
-                <th>Ações</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${items
-                .map(
-                  (item) => `
-                <tr>
-                  <td>${item.originalName}</td>
-                  <td>${item.originalType}</td>
-                  <td>${item.year}</td>
-                  <td>${new Date(item.deletedAt).toLocaleString('pt-BR')}</td>
-                  <td>
-                    <button onclick="protecaoUI.restoreFile('${item.year}', '${item.fileName}', '${item.originalType}')">
-                      Restaurar
-                    </button>
-                    <button onclick="protecaoUI.permanentDelete('${item.year}', '${item.fileName}')">
-                      Excluir Definitivo
-                    </button>
-                  </td>
-                </tr>
-              `
-                )
-                .join('')}
-            </tbody>
-          </table>
-        </div>
-      `;
-
-      this.showMessage(html, 'info', true);
-    } catch (error) {
-      this.showMessage(`❌ Erro: ${error.message}`, 'error');
-    }
+    this.showMessage('ℹ️ Lixeira de diretórios externos removida. O sistema opera em modo banco/API.', 'info');
   }
 
   /**
    * Esvazia lixeira
    */
   async handleEmptyTrash() {
-    try {
-      await window.protectionManager.requirePassword('esvaziar a lixeira');
-
-      const items = await window.fsManager.listTrashItems();
-
-      if (items.length === 0) {
-        this.showMessage('ℹ️ Lixeira já está vazia', 'info');
-        return;
-      }
-
-      const confirm = window.confirm(
-        `⚠️ ATENÇÃO\n\n` +
-          `Esta ação irá excluir permanentemente ${items.length} arquivo(s).\n` +
-          `Esta operação NÃO pode ser desfeita!\n\n` +
-          `Deseja continuar?`
-      );
-
-      if (!confirm) {
-        return;
-      }
-
-      let deletedCount = 0;
-
-      for (const item of items) {
-        try {
-          await window.protectionManager.hardDelete(item.year, item.fileName, false);
-          deletedCount++;
-        } catch (error) {
-          console.error(`Erro ao excluir ${item.fileName}:`, error);
-        }
-      }
-
-      this.showMessage(`✅ ${deletedCount} arquivo(s) excluído(s) permanentemente`, 'success');
-    } catch (error) {
-      this.showMessage(`❌ ${error.message}`, 'error');
-    }
+    this.showMessage('ℹ️ Esvaziamento de lixeira local removido no modo banco/API.', 'info');
   }
 
   /**
    * Verifica integridade
    */
   async handleVerifyIntegrity() {
-    try {
-      this.showMessage('🔍 Verificando integridade...', 'info');
-
-      const year = new Date().getFullYear();
-      const report = await window.integrityManager.reconcile(year);
-
-      // Exporta relatório HTML
-      await window.integrityManager.exportReport(report);
-
-      const summary = report.summary;
-      this.showMessage(
-        `✅ Verificação concluída!\n\n` +
-          `Pastas verificadas: ${summary.totalFolders}\n` +
-          `Sem problemas: ${summary.foldersOk}\n` +
-          `Com problemas: ${summary.foldersWithIssues}\n` +
-          `Total de inconsistências: ${summary.totalIssues}\n\n` +
-          `Relatório HTML exportado.`,
-        'success'
-      );
-    } catch (error) {
-      this.showMessage(`❌ Erro: ${error.message}`, 'error');
-    }
+    this.showMessage(
+      'ℹ️ Verificação de integridade de diretórios externos removida. Operação ativa em banco/API.',
+      'info'
+    );
   }
 
   /**

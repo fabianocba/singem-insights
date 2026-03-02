@@ -31,10 +31,9 @@ class BackupManager {
    * Verifica se está em modo DEV
    */
   _checkDevMode() {
-    // Considera DEV se: localhost, 127.0.0.1, ou flag localStorage
+    // Considera DEV apenas em ambiente local
     const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-    const devFlag = !this.serverMode && localStorage.getItem('SINGEM_DEV_MODE') === 'true';
-    return isLocal || devFlag;
+    return isLocal;
   }
 
   /**
@@ -1609,16 +1608,6 @@ class BackupManager {
       await db.delete('config', 'usuarios');
       await db.delete('config', 'preferencias');
       await db.delete('config', 'rede');
-
-      // Limpa localStorage (seletivo)
-      const keysToRemove = [];
-      for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        if (key.startsWith('SINGEM_') || key.startsWith('SINGEM_')) {
-          keysToRemove.push(key);
-        }
-      }
-      keysToRemove.forEach((key) => localStorage.removeItem(key));
 
       this._showStatus(statusEl, 'success', '✅ Todos os dados foram removidos! Recarregando...');
 

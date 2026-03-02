@@ -303,6 +303,7 @@ function validarSequenciaItens(itens) {
  * @param {Object} dadosNfe - Dados extraídos pelo parser
  * @returns {{status: 'OK'|'OK_COM_ALERTAS'|'ERRO', errors: string[], alerts: string[]}}
  */
+// eslint-disable-next-line complexity
 function validarNfeCompleta(dadosNfe) {
   const errors = [];
   const alerts = [];

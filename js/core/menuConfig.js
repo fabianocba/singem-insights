@@ -15,7 +15,7 @@
  */
 
 // Flag para debug de menu (console logs)
-window.DEBUG_MENU = localStorage.getItem('DEBUG_MENU') === 'true';
+window.DEBUG_MENU = window.DEBUG_MENU === true;
 
 /**
  * Configuração consolidada do menu principal
@@ -317,7 +317,7 @@ function handlePreferencesAction(action, _context = {}) {
 function auditMenuStructure() {
   if (!window.DEBUG_MENU) {
     console.log('ℹ️ Para ver o relatório de auditoria, execute:');
-    console.log('   localStorage.setItem("DEBUG_MENU", "true"); location.reload();');
+    console.log('   window.DEBUG_MENU = true; location.reload();');
     return;
   }
 

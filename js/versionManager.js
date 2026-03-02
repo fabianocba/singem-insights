@@ -2,18 +2,16 @@ import { APP_VERSION, APP_BUILD, VERSION_DISPLAY } from './core/version.js';
 import { initVersionUI } from './core/version-ui.js';
 import { API_BASE_URL } from './shared/lib/http.js';
 
-const RELOAD_KEY = 'singem:swReloadedAt';
 const RELOAD_TTL = 10000;
 let regOnce = null;
+let lastReloadAt = 0;
 
 function canReload() {
   const now = Date.now();
-  const last = Number(sessionStorage.getItem(RELOAD_KEY) || 0);
-  if (now - last < RELOAD_TTL) {
+  if (now - lastReloadAt < RELOAD_TTL) {
     return false;
   }
-  sessionStorage.setItem(RELOAD_KEY, String(now));
-  setTimeout(() => sessionStorage.removeItem(RELOAD_KEY), RELOAD_TTL);
+  lastReloadAt = now;
   return true;
 }
 

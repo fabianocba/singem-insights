@@ -64,6 +64,7 @@ function extractMaterialList(payload) {
   return [];
 }
 
+// eslint-disable-next-line complexity
 function normalizeMaterial(raw) {
   if (!raw || typeof raw !== 'object') {
     return null;

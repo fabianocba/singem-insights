@@ -29,13 +29,6 @@ const errorLog = {
     if (this.errors.length > this.maxSize) {
       this.errors.shift();
     }
-
-    // Salva em localStorage para debug
-    try {
-      localStorage.setItem('SINGEM_error_log', JSON.stringify(this.errors.slice(-10)));
-    } catch (e) {
-      // Ignora se localStorage estiver cheio
-    }
   },
 
   getAll() {
@@ -44,7 +37,6 @@ const errorLog = {
 
   clear() {
     this.errors = [];
-    localStorage.removeItem('SINGEM_error_log');
   }
 };
 

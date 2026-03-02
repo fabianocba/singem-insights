@@ -103,7 +103,7 @@ router.post('/', authenticate, async (req, res) => {
 
     console.log(`[Sync] Resultado: ${sucesso} ok, ${erros} erros, ${duplicados} duplicados`);
 
-    res.json({
+    return res.json({
       sucesso: true,
       resumo: { total: operacoes.length, sucesso, erros, duplicados },
       resultados
@@ -111,7 +111,7 @@ router.post('/', authenticate, async (req, res) => {
   } catch (err) {
     await client.query('ROLLBACK');
     console.error('[Sync] Erro ao processar:', err);
-    res.status(500).json({ erro: 'Erro ao processar sincronização' });
+    return res.status(500).json({ erro: 'Erro ao processar sincronização' });
   } finally {
     client.release();
   }

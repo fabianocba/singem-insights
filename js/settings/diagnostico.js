@@ -86,28 +86,28 @@ async function renderStorageStats(containerId) {
           <div style="font-size: 24px; font-weight: bold; color: #2e7d32;">
             ${usage.indexedDB.databases.length}
           </div>
-          <div style="color: #666;">Banco(s) IndexedDB</div>
+          <div style="color: #666;">Base(s) local legada</div>
         </div>
 
         <div style="background: #e3f2fd; padding: 15px; border-radius: 8px; text-align: center;">
           <div style="font-size: 24px; font-weight: bold; color: #1565c0;">
-            ${usage.localStorage.totalKeys}
+            ${usage.localStorage.itemCount}
           </div>
-          <div style="color: #666;">Chaves localStorage</div>
+          <div style="color: #666;">Chaves de storage web</div>
         </div>
 
         <div style="background: #fff3e0; padding: 15px; border-radius: 8px; text-align: center;">
           <div style="font-size: 24px; font-weight: bold; color: #e65100;">
             ${formatBytes(usage.localStorage.totalSize)}
           </div>
-          <div style="color: #666;">Tamanho localStorage</div>
+          <div style="color: #666;">Tamanho de storage web</div>
         </div>
 
         <div style="background: #f3e5f5; padding: 15px; border-radius: 8px; text-align: center;">
           <div style="font-size: 24px; font-weight: bold; color: #7b1fa2;">
-            ${usage.sessionStorage.totalKeys}
+            ${usage.sessionStorage.itemCount}
           </div>
-          <div style="color: #666;">Chaves sessionStorage</div>
+          <div style="color: #666;">Chaves de sessão web</div>
         </div>
       </div>
     `;
@@ -138,7 +138,7 @@ async function renderStorageStats(containerId) {
 }
 
 /**
- * Renderiza detalhes do IndexedDB
+ * Renderiza detalhes da base local legada
  */
 async function renderIndexedDBDetails(containerId) {
   const container = document.getElementById(containerId);
@@ -247,8 +247,8 @@ async function renderIndexedDBDetails(containerId) {
 
     container.innerHTML = html;
   } catch (error) {
-    container.innerHTML = `<div class="status-message error">❌ Erro ao carregar IndexedDB: ${error.message}</div>`;
-    console.error('[Diagnostico] Erro ao renderizar IndexedDB:', error);
+    container.innerHTML = `<div class="status-message error">❌ Erro ao carregar base local legada: ${error.message}</div>`;
+    console.error('[Diagnostico] Erro ao renderizar base local legada:', error);
   }
 }
 
@@ -261,75 +261,8 @@ function renderLocalStorageDetails(containerId) {
     return;
   }
 
-  if (SERVER_MODE) {
-    container.innerHTML =
-      '<div style="color: #666;">Modo servidor ativo: armazenamento local sensível desativado por política.</div>';
-    return;
-  }
-
-  try {
-    const keys = Object.keys(localStorage);
-
-    if (keys.length === 0) {
-      container.innerHTML = '<div style="color: #666;">Nenhuma chave encontrada no localStorage.</div>';
-      return;
-    }
-
-    // Agrupa por prefixo
-    const groups = {};
-    keys.forEach((key) => {
-      const parts = key.split('_');
-      const prefix = parts.length > 1 ? parts[0] : 'outros';
-      if (!groups[prefix]) {
-        groups[prefix] = [];
-      }
-      groups[prefix].push(key);
-    });
-
-    let html = `
-      <div style="font-size: 14px;">
-        <table style="width: 100%; border-collapse: collapse;">
-          <thead>
-            <tr style="background: #e3f2fd;">
-              <th style="padding: 10px; text-align: left;">Chave</th>
-              <th style="padding: 10px; text-align: right;">Tamanho</th>
-              <th style="padding: 10px; text-align: center;">Preview</th>
-            </tr>
-          </thead>
-          <tbody>
-    `;
-
-    keys.sort().forEach((key) => {
-      const value = localStorage.getItem(key) || '';
-      const size = new Blob([value]).size;
-      const preview = value.substring(0, 50) + (value.length > 50 ? '...' : '');
-
-      html += `
-            <tr>
-              <td style="padding: 8px; border-bottom: 1px solid #eee; font-family: monospace; font-size: 12px;">
-                ${escapeHtml(key)}
-              </td>
-              <td style="padding: 8px; text-align: right; border-bottom: 1px solid #eee;">
-                ${formatBytes(size)}
-              </td>
-              <td style="padding: 8px; border-bottom: 1px solid #eee; color: #666; font-size: 11px; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                ${escapeHtml(preview)}
-              </td>
-            </tr>
-      `;
-    });
-
-    html += `
-          </tbody>
-        </table>
-      </div>
-    `;
-
-    container.innerHTML = html;
-  } catch (error) {
-    container.innerHTML = `<div class="status-message error">❌ Erro ao carregar localStorage: ${error.message}</div>`;
-    console.error('[Diagnostico] Erro ao renderizar localStorage:', error);
-  }
+  container.innerHTML =
+    '<div style="color: #666;">Armazenamento local desativado por política. Operação em modo server-only.</div>';
 }
 
 /**
@@ -343,14 +276,14 @@ function renderSystemInfo(containerId) {
 
   const info = {
     'Versão SINGEM': window.APP_VERSION || 'Não definida',
-    'Modo Storage': SERVER_MODE ? 'Servidor (PostgreSQL) ✅' : 'Local (IndexedDB)',
+    'Modo Storage': SERVER_MODE ? 'Servidor (PostgreSQL) ✅' : 'Local legado',
     'User Agent': navigator.userAgent,
     Plataforma: navigator.platform,
     Idioma: navigator.language,
     Online: navigator.onLine ? 'Sim ✅' : 'Não ❌',
     'Cookies habilitados': navigator.cookieEnabled ? 'Sim ✅' : 'Não ❌',
-    'IndexedDB suportado': 'indexedDB' in window ? 'Sim ✅' : 'Não ❌',
-    'localStorage suportado': 'localStorage' in window ? 'Sim ✅' : 'Não ❌',
+    'Storage local legado suportado': 'indexedDB' in window ? 'Sim ✅' : 'Não ❌',
+    'Storage web suportado': 'localStorage' in window ? 'Sim ✅' : 'Não ❌',
     'Service Worker': 'serviceWorker' in navigator ? 'Suportado ✅' : 'Não suportado ❌',
     'Data/Hora atual': new Date().toLocaleString('pt-BR'),
     Timezone: Intl.DateTimeFormat().resolvedOptions().timeZone

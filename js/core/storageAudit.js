@@ -8,7 +8,7 @@
 // ============================================================================
 // CONSTANTES - Chaves conhecidas do sistema
 // ============================================================================
-const KNOWN_KEYS = {
+const _KNOWN_KEYS = {
   localStorage: [
     'session',
     'SINGEM_app_version',
@@ -36,6 +36,8 @@ const KNOWN_KEYS = {
     }
   }
 };
+
+const SERVER_ONLY_MODE = window.CONFIG?.storage?.mode === 'server';
 
 // ============================================================================
 // DETECÇÃO DE ARMAZENAMENTO
@@ -84,38 +86,8 @@ async function detectLocalStorage() {
     items: {}
   };
 
-  try {
-    // Testar disponibilidade
-    localStorage.setItem('__test__', '1');
-    localStorage.removeItem('__test__');
-    result.available = true;
-
-    result.itemCount = localStorage.length;
-
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i);
-      const value = localStorage.getItem(key);
-      const size = key.length + (value?.length || 0);
-
-      result.keys.push(key);
-      result.totalSize += size;
-
-      // Classificar como conhecido ou desconhecido
-      if (KNOWN_KEYS.localStorage.includes(key) || key.startsWith('SINGEM_')) {
-        result.knownKeys.push(key);
-      } else {
-        result.unknownKeys.push(key);
-      }
-
-      // Armazenar metadados (não valor completo para segurança)
-      result.items[key] = {
-        size,
-        type: detectValueType(value),
-        preview: value?.substring(0, 50) + (value?.length > 50 ? '...' : '')
-      };
-    }
-  } catch (e) {
-    result.error = e.message;
+  if (SERVER_ONLY_MODE) {
+    return result;
   }
 
   return result;
@@ -132,21 +104,8 @@ function detectSessionStorage() {
     totalSize: 0
   };
 
-  try {
-    sessionStorage.setItem('__test__', '1');
-    sessionStorage.removeItem('__test__');
-    result.available = true;
-
-    result.itemCount = sessionStorage.length;
-
-    for (let i = 0; i < sessionStorage.length; i++) {
-      const key = sessionStorage.key(i);
-      const value = sessionStorage.getItem(key);
-      result.keys.push(key);
-      result.totalSize += key.length + (value?.length || 0);
-    }
-  } catch (e) {
-    result.error = e.message;
+  if (SERVER_ONLY_MODE) {
+    return result;
   }
 
   return result;
@@ -267,8 +226,8 @@ async function detectCacheAPI() {
  */
 function detectFileSystemAPI() {
   return {
-    available: 'showDirectoryPicker' in window,
-    note: 'Requer interação do usuário para acesso'
+    available: false,
+    note: 'Modo banco/API ativo'
   };
 }
 
@@ -310,7 +269,7 @@ function countRecordsInStore(db, storeName) {
 /**
  * Detecta o tipo de valor armazenado
  */
-function detectValueType(value) {
+function _detectValueType(value) {
   if (!value) {
     return 'empty';
   }
@@ -346,17 +305,17 @@ export async function printStorageReport() {
     // Resumo
     console.group('📊 RESUMO');
     console.table({
-      LocalStorage: {
+      'Storage Web': {
         Usado: report.summary.usesLocalStorage ? '✅ Sim' : '❌ Não',
         Chaves: report.localStorage.itemCount,
         Tamanho: formatBytes(report.localStorage.totalSize)
       },
-      SessionStorage: {
+      'Sessão Web': {
         Usado: report.summary.usesSessionStorage ? '✅ Sim' : '❌ Não',
         Chaves: report.sessionStorage.itemCount,
         Tamanho: formatBytes(report.sessionStorage.totalSize)
       },
-      IndexedDB: {
+      'Base Local Legada': {
         Usado: report.summary.usesIndexedDB ? '✅ Sim' : '❌ Não',
         Bancos: report.indexedDB.databases.length,
         Registros: report.indexedDB.totalRecords
@@ -371,18 +330,18 @@ export async function printStorageReport() {
     });
     console.groupEnd();
 
-    // localStorage detalhado
+    // storage web detalhado
     if (report.localStorage.itemCount > 0) {
-      console.group('💾 LocalStorage');
+      console.group('💾 Storage Web');
       console.log('Chaves conhecidas:', report.localStorage.knownKeys);
       console.log('Chaves desconhecidas:', report.localStorage.unknownKeys);
       console.table(report.localStorage.items);
       console.groupEnd();
     }
 
-    // IndexedDB detalhado
+    // base local detalhada
     if (report.indexedDB.databases.length > 0) {
-      console.group('🗃️ IndexedDB');
+      console.group('🗃️ Base Local Legada');
       for (const dbName of report.indexedDB.databases) {
         console.group(`📁 ${dbName}`);
         const details = report.indexedDB.details[dbName];

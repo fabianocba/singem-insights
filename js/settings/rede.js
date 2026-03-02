@@ -123,7 +123,7 @@ class SettingsRede {
         dataAtualizacao: new Date().toISOString()
       };
 
-      // Salva no IndexedDB
+      // Salva na base de configuração
       await this.saveConfigRede(config);
 
       this.config = config;
@@ -330,7 +330,7 @@ class SettingsRede {
   }
 
   /**
-   * Obtém configurações do IndexedDB
+   * Obtém configurações da base de configuração
    */
   async getConfigRede() {
     try {
@@ -343,7 +343,7 @@ class SettingsRede {
   }
 
   /**
-   * Salva configurações no IndexedDB
+   * Salva configurações na base de configuração
    */
   async saveConfigRede(config) {
     try {

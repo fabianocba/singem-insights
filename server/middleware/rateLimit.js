@@ -27,7 +27,22 @@ function createApiLimiter() {
   });
 }
 
+function createIntegracoesLimiter() {
+  return rateLimit({
+    windowMs: 1 * 60 * 1000,
+    max: 120,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: {
+      status: 'error',
+      code: 'INTEGRACOES_RATE_LIMITED',
+      message: 'Muitas requisições para endpoints de integração. Aguarde e tente novamente.'
+    }
+  });
+}
+
 module.exports = {
   createAuthLimiter,
-  createApiLimiter
+  createApiLimiter,
+  createIntegracoesLimiter
 };

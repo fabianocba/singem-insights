@@ -56,7 +56,7 @@ const checkService = (req, res, next) => {
       data: null
     });
   }
-  next();
+  return next();
 };
 
 // ==========================================
@@ -104,10 +104,10 @@ router.post('/importar-xml', checkService, upload.single('file'), async (req, re
 
     // Define status HTTP baseado no resultado
     const httpStatus = resultado.status === 'ERRO' ? 400 : 200;
-    res.status(httpStatus).json(resultado);
+    return res.status(httpStatus).json(resultado);
   } catch (error) {
     console.error('[NFE Routes V2] Erro em /importar-xml:', error);
-    res.status(500).json({
+    return res.status(500).json({
       status: 'ERRO',
       errors: [`Erro interno: ${error.message}`],
       alerts: [],
@@ -143,10 +143,10 @@ router.post('/validar', checkService, upload.single('file'), async (req, res) =>
 
     const resultado = await nfeService.validarXml(xmlContent);
     const httpStatus = resultado.status === 'ERRO' ? 400 : 200;
-    res.status(httpStatus).json(resultado);
+    return res.status(httpStatus).json(resultado);
   } catch (error) {
     console.error('[NFE Routes V2] Erro em /validar:', error);
-    res.status(500).json({
+    return res.status(500).json({
       status: 'ERRO',
       errors: [`Erro interno: ${error.message}`],
       alerts: [],
@@ -167,10 +167,10 @@ router.get('/:chave', checkService, async (req, res) => {
     const resultado = await nfeService.obterNfe(chave);
 
     const httpStatus = resultado.status === 'ERRO' ? 404 : 200;
-    res.status(httpStatus).json(resultado);
+    return res.status(httpStatus).json(resultado);
   } catch (error) {
     console.error('[NFE Routes V2] Erro em GET /:chave:', error);
-    res.status(500).json({
+    return res.status(500).json({
       status: 'ERRO',
       errors: [`Erro interno: ${error.message}`],
       alerts: [],
@@ -193,18 +193,17 @@ router.get('/:chave/xml', checkService, async (req, res) => {
     if (resultado.sucesso) {
       res.set('Content-Type', 'application/xml');
       res.set('Content-Disposition', `attachment; filename="${chave}.xml"`);
-      res.send(resultado.xml);
-    } else {
-      res.status(404).json({
-        status: 'ERRO',
-        errors: [resultado.erro],
-        alerts: [],
-        data: null
-      });
+      return res.send(resultado.xml);
     }
+    return res.status(404).json({
+      status: 'ERRO',
+      errors: [resultado.erro],
+      alerts: [],
+      data: null
+    });
   } catch (error) {
     console.error('[NFE Routes V2] Erro em GET /:chave/xml:', error);
-    res.status(500).json({
+    return res.status(500).json({
       status: 'ERRO',
       errors: [`Erro interno: ${error.message}`],
       alerts: [],
@@ -235,7 +234,7 @@ router.get('/', checkService, async (req, res) => {
     const resultado = await nfeService.listarNfes(filtros);
 
     if (resultado.sucesso) {
-      res.json({
+      return res.json({
         status: 'OK',
         errors: [],
         alerts: [],
@@ -244,17 +243,16 @@ router.get('/', checkService, async (req, res) => {
           total: resultado.total
         }
       });
-    } else {
-      res.status(500).json({
-        status: 'ERRO',
-        errors: [resultado.erro],
-        alerts: [],
-        data: null
-      });
     }
+    return res.status(500).json({
+      status: 'ERRO',
+      errors: [resultado.erro],
+      alerts: [],
+      data: null
+    });
   } catch (error) {
     console.error('[NFE Routes V2] Erro em GET /:', error);
-    res.status(500).json({
+    return res.status(500).json({
       status: 'ERRO',
       errors: [`Erro interno: ${error.message}`],
       alerts: [],
@@ -275,23 +273,22 @@ router.delete('/:chave', checkService, async (req, res) => {
     const resultado = await nfeService.removerNfe(chave);
 
     if (resultado.sucesso) {
-      res.json({
+      return res.json({
         status: 'OK',
         errors: [],
         alerts: [],
         data: { removido: true, chave }
       });
-    } else {
-      res.status(400).json({
-        status: 'ERRO',
-        errors: [resultado.erro],
-        alerts: [],
-        data: null
-      });
     }
+    return res.status(400).json({
+      status: 'ERRO',
+      errors: [resultado.erro],
+      alerts: [],
+      data: null
+    });
   } catch (error) {
     console.error('[NFE Routes V2] Erro em DELETE /:chave:', error);
-    res.status(500).json({
+    return res.status(500).json({
       status: 'ERRO',
       errors: [`Erro interno: ${error.message}`],
       alerts: [],

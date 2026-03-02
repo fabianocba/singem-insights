@@ -37,7 +37,7 @@ const checkService = (req, res, next) => {
       codigo: 'SERVICO_NAO_INICIADO'
     });
   }
-  next();
+  return next();
 };
 
 /**
@@ -61,13 +61,12 @@ router.post('/importar', checkService, async (req, res) => {
     const resultado = await nfeService.importarPorChave(chaveAcesso);
 
     if (resultado.sucesso) {
-      res.json(resultado);
-    } else {
-      res.status(400).json(resultado);
+      return res.json(resultado);
     }
+    return res.status(400).json(resultado);
   } catch (error) {
     console.error('[NFE Routes] Erro em /importar:', error);
-    res.status(500).json({
+    return res.status(500).json({
       sucesso: false,
       erro: 'Erro interno ao importar NF-e',
       codigo: 'ERRO_INTERNO'
@@ -95,13 +94,12 @@ router.post('/upload', checkService, upload.single('file'), async (req, res) => 
     const resultado = await nfeService.importarXml(xmlContent);
 
     if (resultado.sucesso) {
-      res.json(resultado);
-    } else {
-      res.status(400).json(resultado);
+      return res.json(resultado);
     }
+    return res.status(400).json(resultado);
   } catch (error) {
     console.error('[NFE Routes] Erro em /upload:', error);
-    res.status(500).json({
+    return res.status(500).json({
       sucesso: false,
       erro: error.message || 'Erro interno ao processar upload',
       codigo: 'ERRO_INTERNO'
@@ -130,13 +128,12 @@ router.post('/upload-text', checkService, async (req, res) => {
     const resultado = await nfeService.importarXml(xml);
 
     if (resultado.sucesso) {
-      res.json(resultado);
-    } else {
-      res.status(400).json(resultado);
+      return res.json(resultado);
     }
+    return res.status(400).json(resultado);
   } catch (error) {
     console.error('[NFE Routes] Erro em /upload-text:', error);
-    res.status(500).json({
+    return res.status(500).json({
       sucesso: false,
       erro: 'Erro interno ao processar XML',
       codigo: 'ERRO_INTERNO'
@@ -157,13 +154,12 @@ router.get('/danfe/:chave', checkService, async (req, res) => {
     const resultado = await nfeService.obterDanfe(chave);
 
     if (resultado.sucesso) {
-      res.sendFile(resultado.caminho);
-    } else {
-      res.status(404).json(resultado);
+      return res.sendFile(resultado.caminho);
     }
+    return res.status(404).json(resultado);
   } catch (error) {
     console.error('[NFE Routes] Erro em /danfe:', error);
-    res.status(500).json({
+    return res.status(500).json({
       sucesso: false,
       erro: 'Erro interno ao obter DANFE',
       codigo: 'ERRO_INTERNO'
@@ -206,10 +202,10 @@ router.get('/xml/:chave', checkService, async (req, res) => {
 router.get('/listar', checkService, async (req, res) => {
   try {
     const resultado = await nfeService.listarImportadas();
-    res.json(resultado);
+    return res.json(resultado);
   } catch (error) {
     console.error('[NFE Routes] Erro em /listar:', error);
-    res.status(500).json({
+    return res.status(500).json({
       sucesso: false,
       erro: 'Erro interno ao listar NF-e',
       codigo: 'ERRO_INTERNO'
@@ -238,13 +234,12 @@ router.post('/consultar-ultimas', checkService, async (req, res) => {
     const resultado = await nfeService.consultarUltimasNfe(cnpj);
 
     if (resultado.sucesso) {
-      res.json(resultado);
-    } else {
-      res.status(400).json(resultado);
+      return res.json(resultado);
     }
+    return res.status(400).json(resultado);
   } catch (error) {
     console.error('[NFE Routes] Erro em /consultar-ultimas:', error);
-    res.status(500).json({
+    return res.status(500).json({
       sucesso: false,
       erro: 'Erro interno ao consultar SEFAZ',
       codigo: 'ERRO_INTERNO'

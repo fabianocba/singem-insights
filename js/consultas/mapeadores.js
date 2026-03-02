@@ -62,6 +62,18 @@ function formatarValor(valor) {
  * @returns {string} "Ativo" ou "Inativo"
  */
 function mapearStatus(status) {
+  const normalized = String(status ?? '')
+    .trim()
+    .toLowerCase();
+
+  if (['ativo', 'active', 'true'].includes(normalized)) {
+    return 'Ativo';
+  }
+
+  if (['inativo', 'inactive', 'false'].includes(normalized)) {
+    return 'Inativo';
+  }
+
   if (status === 1 || status === '1' || status === true) {
     return 'Ativo';
   }
@@ -83,17 +95,17 @@ export function mapearMateriais(itens = []) {
 
   return itens.map((item) => ({
     codigo: item.codigo || item.id || '-',
-    descricao: item.descricao || item.nome || '-',
-    unidade: item.unidadeFornecimento || '-',
-    orgao: `Grupo: ${item.grupoMaterial?.codigo || '-'} | Classe: ${item.classeMaterial?.codigo || '-'}`,
+    descricao: item.descricao || item.nome || item.descricaoItem || '-',
+    unidade: item.unidadeFornecimento || item.unidade || '-',
+    orgao: `Grupo: ${item.grupoMaterial?.codigo || item.codigoGrupo || item.id_grupo || '-'} | Classe: ${item.classeMaterial?.codigo || item.codigoClasse || item.id_classe || '-'}`,
     status: mapearStatus(item.status),
     dataAtualizacao: formatarData(item.dataAtualizacao || item.dataInclusao),
     valor: '-',
     extras: {
-      codigoGrupo: item.grupoMaterial?.codigo,
-      descricaoGrupo: item.grupoMaterial?.descricao,
-      codigoClasse: item.classeMaterial?.codigo,
-      descricaoClasse: item.classeMaterial?.descricao,
+      codigoGrupo: item.grupoMaterial?.codigo || item.codigoGrupo || item.id_grupo,
+      descricaoGrupo: item.grupoMaterial?.descricao || item.descricaoGrupo,
+      codigoClasse: item.classeMaterial?.codigo || item.codigoClasse || item.id_classe,
+      descricaoClasse: item.classeMaterial?.descricao || item.descricaoClasse,
       codigoPdm: item.pdm?.codigo,
       descricaoPdm: item.pdm?.descricao,
       sustentavel: item.sustentavel ? 'Sim' : 'Não'
@@ -113,17 +125,17 @@ export function mapearServicos(itens = []) {
 
   return itens.map((item) => ({
     codigo: item.codigo || item.id || '-',
-    descricao: item.descricao || item.nome || '-',
-    unidade: item.unidadeMedida || '-',
-    orgao: `Grupo: ${item.grupoServico?.codigo || '-'} | Classe: ${item.classeServico?.codigo || '-'}`,
+    descricao: item.descricao || item.nome || item.descricaoItem || '-',
+    unidade: item.unidadeMedida || item.unidade || '-',
+    orgao: `Grupo: ${item.grupoServico?.codigo || item.codigoGrupo || item.id_grupo || '-'} | Classe: ${item.classeServico?.codigo || item.codigoClasse || item.id_classe || '-'}`,
     status: mapearStatus(item.status),
     dataAtualizacao: formatarData(item.dataAtualizacao || item.dataInclusao),
     valor: '-',
     extras: {
-      codigoGrupo: item.grupoServico?.codigo,
-      descricaoGrupo: item.grupoServico?.descricao,
-      codigoClasse: item.classeServico?.codigo,
-      descricaoClasse: item.classeServico?.descricao,
+      codigoGrupo: item.grupoServico?.codigo || item.codigoGrupo || item.id_grupo,
+      descricaoGrupo: item.grupoServico?.descricao || item.descricaoGrupo,
+      codigoClasse: item.classeServico?.codigo || item.codigoClasse || item.id_classe,
+      descricaoClasse: item.classeServico?.descricao || item.descricaoClasse,
       tipoServico: item.tipoServico
     }
   }));

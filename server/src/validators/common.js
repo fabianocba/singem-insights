@@ -5,7 +5,9 @@ const toInt = (defaultValue) =>
     .union([z.string(), z.number()])
     .optional()
     .transform((value) => {
-      if (value === undefined || value === null || value === '') return defaultValue;
+      if (value === undefined || value === null || value === '') {
+        return defaultValue;
+      }
       const parsed = Number.parseInt(String(value), 10);
       return Number.isNaN(parsed) ? defaultValue : parsed;
     });

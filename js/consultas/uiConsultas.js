@@ -31,6 +31,12 @@ const DATASETS = {
     apiFunction: API.getMateriais,
     filters: [
       {
+        name: 'descricao',
+        label: 'Nome/Descrição do Material',
+        type: 'text',
+        placeholder: 'Ex: papel sulfite'
+      },
+      {
         name: 'codigoGrupo',
         label: 'Código do Grupo',
         type: 'text',
@@ -65,6 +71,12 @@ const DATASETS = {
     apiFunction: API.getServicos,
     filters: [
       {
+        name: 'descricao',
+        label: 'Nome/Descrição do Serviço',
+        type: 'text',
+        placeholder: 'Ex: manutenção predial'
+      },
+      {
         name: 'codigoGrupo',
         label: 'Código do Grupo',
         type: 'text',
@@ -92,6 +104,18 @@ const DATASETS = {
     label: 'UASG (Unidades)',
     apiFunction: API.getUASG,
     filters: [
+      {
+        name: 'nomeUasg',
+        label: 'Nome da UASG',
+        type: 'text',
+        placeholder: 'Ex: Instituto Federal'
+      },
+      {
+        name: 'nomeOrgao',
+        label: 'Nome do Órgão',
+        type: 'text',
+        placeholder: 'Ex: Ministério da Educação'
+      },
       {
         name: 'codigoUasg',
         label: 'Código UASG',
@@ -121,6 +145,18 @@ const DATASETS = {
     label: 'ARP – Itens (Atas de Registro de Preços)',
     apiFunction: API.getARP,
     filters: [
+      {
+        name: 'descricaoItem',
+        label: 'Nome/Descrição do Item',
+        type: 'text',
+        placeholder: 'Ex: toner impressora'
+      },
+      {
+        name: 'fornecedor',
+        label: 'Nome do Fornecedor',
+        type: 'text',
+        placeholder: 'Ex: Comércio LTDA'
+      },
       {
         name: 'numeroAta',
         label: 'Número da Ata',
@@ -152,6 +188,12 @@ const DATASETS = {
     apiFunction: API.getPNCP,
     filters: [
       {
+        name: 'objeto',
+        label: 'Nome/Objeto da Contratação',
+        type: 'text',
+        placeholder: 'Ex: aquisição de notebooks'
+      },
+      {
         name: 'cnpjOrgao',
         label: 'CNPJ do Órgão',
         type: 'text',
@@ -177,6 +219,12 @@ const DATASETS = {
     apiFunction: API.getLegadoLicitacoes,
     filters: [
       {
+        name: 'objeto',
+        label: 'Nome/Objeto da Licitação',
+        type: 'text',
+        placeholder: 'Ex: material de expediente'
+      },
+      {
         name: 'uasg',
         label: 'Código UASG',
         type: 'text',
@@ -195,6 +243,12 @@ const DATASETS = {
     label: 'Legado – Itens de Licitação',
     apiFunction: API.getLegadoItens,
     filters: [
+      {
+        name: 'descricao',
+        label: 'Nome/Descrição do Item',
+        type: 'text',
+        placeholder: 'Ex: caneta esferográfica'
+      },
       {
         name: 'uasg',
         label: 'Código UASG',
@@ -231,8 +285,8 @@ export function init() {
   console.log('🔎 Tela de consulta encontrada:', !!tela);
 
   attachEventListeners();
-  setupAPIModeToggle(); // Configura controle de modo API
-  updateAPIModeUI(); // Atualiza UI com estado atual
+  setupAPIModeToggle();
+  updateAPIModeUI();
   showMenu(); // Mostra menu inicial
   loadFromLocalStorage();
 
@@ -246,20 +300,8 @@ export function init() {
 function setupAPIModeToggle() {
   const btnToggle = document.getElementById('btnToggleAPIMode');
   if (btnToggle) {
-    btnToggle.addEventListener('click', () => {
-      const novoModo = !API.isModoDemo();
-      API.setModoDemo(novoModo);
-      updateAPIModeUI();
-
-      // Limpa cache ao trocar de modo
-      Cache.limparCache();
-
-      // Mostra mensagem
-      const msg = novoModo
-        ? '🎭 Modo DEMO ativado! Usando dados de exemplo.'
-        : '🌐 Modo PRODUÇÃO ativado! Tentará usar API real.';
-      alert(msg);
-    });
+    btnToggle.disabled = true;
+    btnToggle.title = 'Modo demo desativado. Consultas operam somente em modo real.';
   }
 }
 
@@ -271,15 +313,8 @@ function updateAPIModeUI() {
   const btnToggle = document.getElementById('btnToggleAPIMode');
 
   if (statusText && btnToggle) {
-    const isDemoMode = API.isModoDemo();
-
-    if (isDemoMode) {
-      statusText.textContent = '🎭 Modo: Demonstração';
-      btnToggle.textContent = '🌐 Alternar para API Real';
-    } else {
-      statusText.textContent = '🌐 Modo: API Real';
-      btnToggle.textContent = '🎭 Alternar para Modo Demo';
-    }
+    statusText.textContent = '🌐 Modo: API Real';
+    btnToggle.textContent = '🎭 Modo Demo Desativado';
   }
 }
 
@@ -452,8 +487,8 @@ function renderFilters() {
     } else {
       const value = state.filters[filter.name] || '';
       const maxLength = filter.maxLength ? `maxlength="${filter.maxLength}"` : '';
-      html += `<input type="${filter.type}" id="filter_${filter.name}" name="${filter.name}" 
-               class="form-control" placeholder="${filter.placeholder}" 
+      html += `<input type="${filter.type}" id="filter_${filter.name}" name="${filter.name}"
+               class="form-control" placeholder="${filter.placeholder}"
                value="${value}" ${maxLength} aria-label="${filter.label}">`;
     }
 
@@ -495,19 +530,19 @@ function renderPagination() {
 
   const html = `
     <div class="pagination-controls">
-      <button id="btnPrevPage" class="btn btn-sm btn-secondary" 
-              ${state.currentPage <= 1 ? 'disabled' : ''} 
+      <button id="btnPrevPage" class="btn btn-sm btn-secondary"
+              ${state.currentPage <= 1 ? 'disabled' : ''}
               aria-label="Página anterior">
         ◀ Anterior
       </button>
-      
+
       <span class="pagination-info">
         Página <strong>${state.currentPage}</strong> de <strong>${state.totalPages}</strong>
         ${state.totalRecords > 0 ? `| Total: <strong>${state.totalRecords}</strong> registros` : ''}
       </span>
-      
-      <button id="btnNextPage" class="btn btn-sm btn-secondary" 
-              ${state.currentPage >= state.totalPages ? 'disabled' : ''} 
+
+      <button id="btnNextPage" class="btn btn-sm btn-secondary"
+              ${state.currentPage >= state.totalPages ? 'disabled' : ''}
               aria-label="Próxima página">
         Próxima ▶
       </button>
@@ -553,7 +588,7 @@ function renderTable() {
       </button>
       <span class="text-muted">${state.results.length} registros exibidos</span>
     </div>
-    
+
     <div class="table-responsive">
       <table class="table table-striped">
         <thead>
@@ -582,7 +617,7 @@ function renderTable() {
         <td>${row.dataAtualizacao}</td>
         <td>${row.valor}</td>
         <td>
-          <button class="btn btn-sm btn-info btn-view-json" data-index="${index}" 
+          <button class="btn btn-sm btn-info btn-view-json" data-index="${index}"
                   aria-label="Ver JSON completo" title="Ver JSON completo">
             📄 JSON
           </button>
@@ -909,47 +944,15 @@ function showJSONModal(index) {
 }
 
 /**
- * Salva estado no localStorage
+ * Persistência local desativada (modo server-only)
  */
 function saveToLocalStorage() {
-  try {
-    const toSave = {
-      dataset: state.dataset,
-      filters: state.filters,
-      currentPage: state.currentPage
-    };
-    localStorage.setItem('consultasDiversas', JSON.stringify(toSave));
-  } catch (error) {
-    console.warn('Erro ao salvar estado:', error);
-  }
+  return;
 }
 
 /**
- * Carrega estado do localStorage
+ * Persistência local desativada (modo server-only)
  */
 function loadFromLocalStorage() {
-  try {
-    const saved = localStorage.getItem('consultasDiversas');
-    if (!saved) {
-      return;
-    }
-
-    const data = JSON.parse(saved);
-
-    if (data.dataset && DATASETS[data.dataset]) {
-      state.dataset = data.dataset;
-      state.filters = data.filters || {};
-      state.currentPage = data.currentPage || 1;
-
-      // Atualiza UI
-      const select = document.getElementById('selectDataset');
-      if (select) {
-        select.value = state.dataset;
-      }
-
-      renderFilters();
-    }
-  } catch (error) {
-    console.warn('Erro ao carregar estado:', error);
-  }
+  return;
 }

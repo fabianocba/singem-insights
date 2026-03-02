@@ -42,14 +42,6 @@ const logStore = {
     if (this.logs.length > config.maxStoredLogs) {
       this.logs.shift();
     }
-
-    if (config.enableLocalStorage) {
-      try {
-        localStorage.setItem('SINGEM_logs', JSON.stringify(this.logs.slice(-50)));
-      } catch (e) {
-        // Ignora se localStorage estiver cheio
-      }
-    }
   },
 
   getAll() {
@@ -58,9 +50,6 @@ const logStore = {
 
   clear() {
     this.logs = [];
-    if (config.enableLocalStorage) {
-      localStorage.removeItem('SINGEM_logs');
-    }
   }
 };
 
@@ -256,18 +245,6 @@ export function group(label) {
       console.groupEnd();
     }
   };
-}
-
-// Auto-carrega logs do localStorage se habilitado
-if (config.enableLocalStorage) {
-  try {
-    const stored = localStorage.getItem('SINGEM_logs');
-    if (stored) {
-      logStore.logs = JSON.parse(stored);
-    }
-  } catch (e) {
-    // Ignora erro
-  }
 }
 
 console.info('✅ Logger centralizado carregado');

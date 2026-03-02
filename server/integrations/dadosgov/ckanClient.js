@@ -9,11 +9,15 @@ function toNumber(value, fallback) {
 }
 
 function sanitizeString(value, maxLength = 400) {
-  return String(value || '')
-    .normalize('NFKC')
-    .replace(/[\u0000-\u001F\u007F]/g, '')
-    .trim()
-    .slice(0, maxLength);
+  const normalized = String(value || '').normalize('NFKC');
+  const withoutControlChars = Array.from(normalized)
+    .filter((char) => {
+      const code = char.charCodeAt(0);
+      return code >= 32 && code !== 127;
+    })
+    .join('');
+
+  return withoutControlChars.trim().slice(0, maxLength);
 }
 
 function getCkanConfig() {

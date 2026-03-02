@@ -3,13 +3,48 @@ const { config } = require('../../config');
 const { ComprasGovClient } = require('../comprasgov/client');
 
 const client = new ComprasGovClient();
+const SYNC_ADVISORY_LOCK_KEY = 741852963;
 
 const state = {
   running: false,
   currentJobId: null,
   startedAt: null,
-  tipo: null
+  tipo: null,
+  lockOwner: null
 };
+
+async function acquireDistributedLock() {
+  const lockClient = await db.getClient();
+
+  try {
+    const result = await lockClient.query('SELECT pg_try_advisory_lock($1) AS locked', [SYNC_ADVISORY_LOCK_KEY]);
+    const locked = Boolean(result.rows?.[0]?.locked);
+
+    if (!locked) {
+      lockClient.release();
+      return null;
+    }
+
+    return lockClient;
+  } catch (error) {
+    lockClient.release();
+    throw error;
+  }
+}
+
+async function releaseDistributedLock(lockClient) {
+  if (!lockClient) {
+    return;
+  }
+
+  try {
+    await lockClient.query('SELECT pg_advisory_unlock($1)', [SYNC_ADVISORY_LOCK_KEY]);
+  } catch (error) {
+    console.warn('[SYNC] Falha ao liberar advisory lock:', error.message);
+  } finally {
+    lockClient.release();
+  }
+}
 
 function getSyncConfig() {
   return {
@@ -247,9 +282,18 @@ async function runByType(tipo, requestId) {
     throw error;
   }
 
+  const lockClient = await acquireDistributedLock();
+  if (!lockClient) {
+    const error = new Error('Já existe um sync em execução (lock distribuído ativo)');
+    error.statusCode = 409;
+    error.code = 'SYNC_LOCKED';
+    throw error;
+  }
+
   state.running = true;
   state.startedAt = new Date().toISOString();
   state.tipo = normalizedType;
+  state.lockOwner = 'pg_advisory_lock';
 
   const jobId = await createJob(normalizedType);
   state.currentJobId = jobId;
@@ -314,6 +358,9 @@ async function runByType(tipo, requestId) {
     state.currentJobId = null;
     state.startedAt = null;
     state.tipo = null;
+    state.lockOwner = null;
+
+    await releaseDistributedLock(lockClient);
   }
 }
 
@@ -325,6 +372,7 @@ async function getStatus() {
     currentJobId: state.currentJobId,
     startedAt: state.startedAt,
     tipo: state.tipo,
+    lockOwner: state.lockOwner,
     jobs: result.rows
   };
 }

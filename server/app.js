@@ -9,7 +9,8 @@ const requestId = require('./middlewares/requestId');
 const requestLogger = require('./middlewares/requestLogger');
 const errorHandler = require('./middlewares/errorHandler');
 const AppError = require('./utils/appError');
-const { createApiLimiter } = require('./middleware/rateLimit');
+const { createApiLimiter, createIntegracoesLimiter } = require('./middleware/rateLimit');
+const { authenticate, requireAdmin } = require('./middleware/auth');
 const { readVersion } = require('./utils/version');
 
 const authRoutes = require('./modules/auth/auth.routes');
@@ -21,7 +22,6 @@ const estoqueRoutes = require('./src/routes/estoque.routes');
 const syncRoutes = require('./routes/sync.routes');
 const catmatRoutes = require('./src/routes/catmat.routes');
 const catalogacaoRoutes = require('./routes/catalogacao.routes');
-const integrationsRoutes = require('./routes/integrations.routes');
 const comprasGovRoutes = require('./routes/comprasgov.routes');
 const dadosGovRoutes = require('./routes/dadosgov.routes');
 const integracoesAdminRoutes = require('./routes/integracoes-admin.routes');
@@ -89,10 +89,9 @@ function createApp({ nodeEnv, bodyLimit, corsOrigins, trustProxy, nfeService, nf
   app.use('/api/sync', syncRoutes);
   app.use('/api/catmat', catmatRoutes);
   app.use('/api/catalogacao-pedidos', catalogacaoRoutes);
-  app.use('/api/integrations', integrationsRoutes);
-  app.use('/api/integracoes', integracoesAdminRoutes);
-  app.use('/api/integracoes/comprasgov', comprasGovRoutes);
-  app.use('/api/integracoes/dadosgov', dadosGovRoutes);
+  app.use('/api/integracoes/comprasgov', createIntegracoesLimiter(), authenticate, requireAdmin, comprasGovRoutes);
+  app.use('/api/integracoes/dadosgov', createIntegracoesLimiter(), authenticate, requireAdmin, dadosGovRoutes);
+  app.use('/api/integracoes', createIntegracoesLimiter(), authenticate, requireAdmin, integracoesAdminRoutes);
 
   app.get('/health', async (req, res) => {
     setNoCacheHeaders(res);
@@ -165,7 +164,6 @@ function createApp({ nodeEnv, bodyLimit, corsOrigins, trustProxy, nfeService, nf
     '/api/sync',
     '/api/catmat',
     '/api/catalogacao-pedidos',
-    '/api/integrations',
     '/api/integracoes',
     '/api/integracoes/comprasgov',
     '/api/integracoes/dadosgov',

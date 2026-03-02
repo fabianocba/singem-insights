@@ -175,7 +175,7 @@ class SettingsPreferencias {
     resultEl.style.display = 'block';
     resultEl.innerHTML = this.serverMode
       ? '<p>⏳ Verificando dados na API PostgreSQL...</p>'
-      : '<p>⏳ Verificando dados diretamente no IndexedDB...</p>';
+      : '<p>⏳ Verificando dados na base local legada...</p>';
 
     try {
       if (!window.dbManager?.db) {
@@ -198,7 +198,7 @@ class SettingsPreferencias {
       console.log(
         this.serverMode
           ? '[Preferencias] 📊 Dados encontrados na API PostgreSQL:'
-          : '[Preferencias] 📊 Dados encontrados no IndexedDB:'
+          : '[Preferencias] 📊 Dados encontrados na base local legada:'
       );
       console.log('  - Empenhos:', empenhos.length);
       console.log('  - Notas Fiscais:', notasFiscais.length);
@@ -226,27 +226,12 @@ class SettingsPreferencias {
       const numUnidades = unidadesConfig?.unidades?.length || 0;
       const numUsuarios = usuariosConfig?.usuarios?.length || 0;
 
-      // Verificar storage
-      let storageStatus = 'Não configurado';
-      let storageColor = '#6c757d';
-      if (window.fsManager?.mainDirectoryHandle) {
-        try {
-          const perm = await window.fsManager.mainDirectoryHandle.queryPermission({ mode: 'readwrite' });
-          if (perm === 'granted') {
-            storageStatus = `✅ ${window.fsManager.mainDirectoryHandle.name} (acesso ok)`;
-            storageColor = '#28a745';
-          } else {
-            storageStatus = `⚠️ ${window.fsManager.mainDirectoryHandle.name} (requer reautorização)`;
-            storageColor = '#ffc107';
-          }
-        } catch (e) {
-          storageStatus = '❌ Erro ao verificar permissão';
-          storageColor = '#dc3545';
-        }
-      }
+      // Storage no modo banco/API
+      const storageStatus = '✅ Banco/API ativo (sem diretório externo)';
+      const storageColor = '#28a745';
 
       resultEl.innerHTML = `
-        <h4 style="margin: 0 0 10px 0; color: #1e7e34;">📊 Dados em ${this.serverMode ? 'API PostgreSQL (VPS)' : 'IndexedDB (ControleMaterialDB)'}</h4>
+        <h4 style="margin: 0 0 10px 0; color: #1e7e34;">📊 Dados em ${this.serverMode ? 'API PostgreSQL (VPS)' : 'Base local legada (ControleMaterialDB)'}</h4>
         <table style="width: 100%; border-collapse: collapse;">
           <tr style="background: #e9ecef;">
             <td style="padding: 8px; border: 1px solid #ddd;"><strong>Store</strong></td>
@@ -365,34 +350,18 @@ class SettingsPreferencias {
       console.log('[Preferencias] 📦 Backup gerado:', filename);
       console.log('[Preferencias] 📊 Stats:', backup.meta.stats);
 
-      // Tentar salvar diretamente na pasta configurada
-      let savedToFolder = false;
+      console.log('[Preferencias] 📥 Gerando download de backup...');
+      const blob = new Blob([jsonContent], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
 
-      if (window.fsManager?.mainDirectoryHandle) {
-        try {
-          savedToFolder = await this._salvarBackupNaPasta(jsonContent, filename);
-        } catch (fsError) {
-          console.warn('[Preferencias] ⚠️ Não foi possível salvar na pasta:', fsError);
-        }
-      }
-
-      // Fallback: download pelo browser
-      if (!savedToFolder) {
-        console.log('[Preferencias] 📥 Usando download tradicional...');
-        const blob = new Blob([jsonContent], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = filename;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-      }
-
-      const message = savedToFolder
-        ? `✅ Backup salvo em: SINGEM/04_BACKUPS/manual/${filename}`
-        : `✅ Backup baixado: ${filename}`;
+      const message = `✅ Backup baixado: ${filename}`;
 
       this._showStatus(statusEl, 'success', message);
 
@@ -411,65 +380,6 @@ class SettingsPreferencias {
         btn.innerHTML = originalText;
         btn.disabled = false;
       }
-    }
-  }
-
-  /**
-   * Salva backup diretamente na pasta configurada via File System Access
-   * @returns {Promise<boolean>} true se salvou com sucesso
-   */
-  async _salvarBackupNaPasta(content, filename) {
-    if (!window.fsManager?.mainDirectoryHandle) {
-      return false;
-    }
-
-    try {
-      const rootHandle = window.fsManager.mainDirectoryHandle;
-
-      // Verificar permissão
-      const permission = await rootHandle.queryPermission({ mode: 'readwrite' });
-      if (permission !== 'granted') {
-        const requested = await rootHandle.requestPermission({ mode: 'readwrite' });
-        if (requested !== 'granted') {
-          console.warn('[Preferencias] Permissão de escrita negada');
-          return false;
-        }
-      }
-
-      // Criar/acessar estrutura: SINGEM/04_BACKUPS/manual/
-      let currentHandle = rootHandle;
-
-      // Se a pasta raiz não é SINGEM, criar SINGEM dentro
-      if (rootHandle.name !== 'SINGEM') {
-        currentHandle = await rootHandle.getDirectoryHandle('SINGEM', { create: true });
-      }
-
-      // Verificar se há unidade ativa para criar subpasta
-      const unidadeAtiva = window.unidadeAtiva?.nome;
-      if (unidadeAtiva) {
-        const sanitizedUnidade = unidadeAtiva.replace(/[^a-zA-Z0-9 ]/g, '').trim();
-        if (sanitizedUnidade) {
-          currentHandle = await currentHandle.getDirectoryHandle(sanitizedUnidade, { create: true });
-        }
-      }
-
-      // Criar pasta 04_BACKUPS
-      const backupsHandle = await currentHandle.getDirectoryHandle('04_BACKUPS', { create: true });
-
-      // Criar pasta manual
-      const manualHandle = await backupsHandle.getDirectoryHandle('manual', { create: true });
-
-      // Criar arquivo de backup
-      const fileHandle = await manualHandle.getFileHandle(filename, { create: true });
-      const writable = await fileHandle.createWritable();
-      await writable.write(content);
-      await writable.close();
-
-      console.log('[Preferencias] ✅ Backup salvo na pasta:', filename);
-      return true;
-    } catch (error) {
-      console.error('[Preferencias] ❌ Erro ao salvar na pasta:', error);
-      return false;
     }
   }
 
@@ -677,15 +587,11 @@ class SettingsPreferencias {
     this._showStatus(statusEl, 'success', successMsg);
 
     if (result.storage) {
-      console.log('[Preferencias] 📁 Backup tinha config de storage:', result.storage);
+      console.log('[Preferencias] ℹ️ Metadados de storage detectados no backup:', result.storage);
       setTimeout(() => {
         alert(
-          '📁 Configuração de Pasta Detectada\n\n' +
-            'O backup continha configuração de pasta de armazenamento.\n\n' +
-            `Pasta: ${result.storage.rootFolderName || 'SINGEM'}\n` +
-            `Unidade: ${result.storage.unidade || 'Não definida'}\n\n` +
-            'Para restaurar o acesso à pasta, vá em:\n' +
-            'Configurações → Arquivos → Configurar Pasta'
+          'ℹ️ Metadados de armazenamento detectados no backup.\n\n' +
+            'O sistema está em modo banco/API e ignora configuração de diretório externo.'
         );
       }, 100);
     }
@@ -774,7 +680,7 @@ class SettingsPreferencias {
         dataAtualizacao: new Date().toISOString()
       };
 
-      // Salva no IndexedDB
+      // Salva na base de configuração
       await this.savePreferencias(preferencias);
 
       this.preferencias = preferencias;
@@ -991,7 +897,7 @@ class SettingsPreferencias {
   }
 
   /**
-   * Obtém preferências do IndexedDB
+   * Obtém preferências da base de configuração
    */
   async getPreferencias() {
     try {
@@ -1004,7 +910,7 @@ class SettingsPreferencias {
   }
 
   /**
-   * Salva preferências no IndexedDB
+   * Salva preferências na base de configuração
    */
   async savePreferencias(preferencias) {
     try {

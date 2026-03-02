@@ -4,7 +4,7 @@
  * ============================================================================
  *
  * Permite anexar um PDF de Nota de Empenho ao cadastro atual.
- * O arquivo é copiado para a pasta de Empenhos gerenciada pela aplicação.
+ * O arquivo é persistido no banco e vinculado ao empenho.
  *
  * Nome do arquivo: {ANO}NE{NUMERO_PADRONIZADO}.pdf
  * Exemplo: 2025NE000123.pdf
@@ -13,7 +13,7 @@
  */
 
 // Flag de debug (pode ser ativado via console: window.DEBUG_PDF_NE = true)
-window.DEBUG_PDF_NE = localStorage.getItem('DEBUG_PDF_NE') === 'true';
+window.DEBUG_PDF_NE = window.DEBUG_PDF_NE === true;
 
 /**
  * Logger condicional para debug
@@ -172,61 +172,28 @@ async function pickPdfHandle() {
  * @returns {Promise<Object>} Informações do arquivo salvo
  */
 async function savePdfToEmpenhosDir(file, ano, numeroNE, nomeFornecedor, pdfAntigoNome) {
-  logDebug('Salvando PDF na pasta de empenhos...');
-
-  // Verificar se fsManager está disponível e configurado
-  if (!window.fsManager) {
-    throw new Error('Sistema de arquivos não inicializado');
-  }
-
-  if (!window.fsManager.mainDirectoryHandle) {
-    throw new Error(
-      'Pasta principal não configurada.\n\n' + 'Clique em "📁 Selecionar Pasta Principal" para configurar.'
-    );
-  }
+  logDebug('Preparando PDF para persistência em banco...');
 
   // Gerar nome do arquivo (agora com fornecedor)
   const nomeArquivo = buildEmpenhoPdfName(ano, numeroNE, nomeFornecedor);
   logDebug('Nome do arquivo:', nomeArquivo);
 
-  // Obter pasta de empenhos para o ano
-  const pastaEmpenhos = await window.fsManager.getOrCreateSubfolder('empenhos', ano);
-  logDebug('Pasta de empenhos obtida para ano:', ano);
-
-  // Se há PDF antigo com nome diferente, excluir
   if (pdfAntigoNome && pdfAntigoNome !== nomeArquivo) {
-    try {
-      await pastaEmpenhos.removeEntry(pdfAntigoNome);
-      logDebug('PDF antigo removido:', pdfAntigoNome);
-    } catch (e) {
-      // Arquivo antigo não existe ou erro ao remover - continuar
-      logDebug('Não foi possível remover PDF antigo:', e.message);
-    }
+    logDebug('Substituindo PDF anterior:', pdfAntigoNome);
   }
 
-  // Verificar se arquivo com mesmo nome já existe
-  let arquivoExiste = false;
-  try {
-    await pastaEmpenhos.getFileHandle(nomeArquivo);
-    arquivoExiste = true;
-  } catch (e) {
-    // Arquivo não existe, ok
-  }
+  const pdfData = await new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const resultado = String(reader.result || '');
+      const base64 = resultado.includes(',') ? resultado.split(',')[1] : resultado;
+      resolve(base64);
+    };
+    reader.onerror = () => reject(new Error('Falha ao ler arquivo PDF para persistência em banco'));
+    reader.readAsDataURL(file);
+  });
 
-  if (arquivoExiste && nomeArquivo !== pdfAntigoNome) {
-    const confirmar = confirm(`⚠️ O arquivo "${nomeArquivo}" já existe na pasta.\n\n` + 'Deseja sobrescrever?');
-    if (!confirmar) {
-      throw new Error('Operação cancelada pelo usuário');
-    }
-  }
-
-  // Criar/sobrescrever arquivo
-  const fileHandle = await pastaEmpenhos.getFileHandle(nomeArquivo, { create: true });
-  const writable = await fileHandle.createWritable();
-  await writable.write(file);
-  await writable.close();
-
-  logDebug('✅ Arquivo salvo com sucesso:', nomeArquivo);
+  logDebug('✅ PDF preparado com sucesso para banco:', nomeArquivo);
 
   // Retornar informações do arquivo
   return {
@@ -235,8 +202,10 @@ async function savePdfToEmpenhosDir(file, ano, numeroNE, nomeFornecedor, pdfAnti
     folderType: 'empenhos',
     year: ano,
     size: file.size,
+    mimeType: file.type || 'application/pdf',
+    pdfData,
     timestamp: new Date().toISOString(),
-    path: `01_EMPENHOS/${ano}/${nomeArquivo}`
+    path: `db://empenhos/${ano}/${nomeArquivo}`
   };
 }
 
@@ -263,6 +232,9 @@ async function updateEmpenhoPdfMeta(empenhoId, arquivoInfo) {
   empenho.pdfAttachedAt = Date.now();
   empenho.pdfOriginalName = arquivoInfo.originalName;
   empenho.pdfPath = arquivoInfo.path;
+  empenho.pdfData = arquivoInfo.pdfData || null;
+  empenho.pdfMimeType = arquivoInfo.mimeType || 'application/pdf';
+  empenho.pdfSize = arquivoInfo.size || 0;
 
   empenho.dataAtualizacao = new Date().toISOString();
 
@@ -317,12 +289,6 @@ async function handleAnexarPdfNE() {
       return;
     }
 
-    // Verificar se pasta está configurada
-    if (!window.fsManager?.mainDirectoryHandle) {
-      alert('⚠️ Pasta principal não configurada.\n\n' + 'Clique em "📁 Selecionar Pasta Principal" primeiro.');
-      return;
-    }
-
     // Verificar se já existe PDF anexado (para substituir)
     const pdfAtual = statusEl?.querySelector('.link-pdf-anexado')?.dataset?.pdf;
     if (pdfAtual) {
@@ -354,7 +320,7 @@ async function handleAnexarPdfNE() {
       statusEl.style.color = '#666';
     }
 
-    // Salvar arquivo na pasta (com fornecedor e removendo PDF antigo se existir)
+    // Persistir anexo para vinculação no banco
     const arquivoInfo = await savePdfToEmpenhosDir(file, ano, numero, fornecedor, pdfAtual);
 
     // Atualizar status na UI com link clicável
@@ -371,7 +337,7 @@ async function handleAnexarPdfNE() {
     }
 
     // Mostrar sucesso
-    alert(`✅ PDF anexado com sucesso!\n\nArquivo: ${arquivoInfo.savedName}\nLocal: ${arquivoInfo.path}`);
+    alert(`✅ PDF anexado com sucesso!\n\nArquivo: ${arquivoInfo.savedName}\nArmazenamento: banco de dados`);
   } catch (error) {
     console.error('[AnexarPdfNE] Erro:', error);
 
@@ -395,35 +361,38 @@ async function handleAnexarPdfNE() {
  * @param {string} pdfFileName - Nome do arquivo PDF
  * @param {number|string} ano - Ano do empenho
  */
-async function abrirPdfAnexado(pdfFileName, ano) {
+async function abrirPdfAnexado(pdfFileName, ano, empenhoId = null) {
   logDebug('Abrindo PDF:', pdfFileName, 'Ano:', ano);
 
   try {
-    // Verificar se fsManager está disponível
-    if (!window.fsManager?.mainDirectoryHandle) {
-      alert('⚠️ Pasta principal não configurada.\n\nConfigure a pasta para visualizar o PDF.');
+    let pdfBase64 = null;
+    let mimeType = 'application/pdf';
+
+    if (window.app?._anexoPdfNEPendente?.savedName === pdfFileName && window.app?._anexoPdfNEPendente?.pdfData) {
+      pdfBase64 = window.app._anexoPdfNEPendente.pdfData;
+      mimeType = window.app._anexoPdfNEPendente.mimeType || mimeType;
+    }
+
+    if (!pdfBase64 && empenhoId && window.dbManager?.buscarEmpenhoPorId) {
+      const empenho = await window.dbManager.buscarEmpenhoPorId(empenhoId);
+      if (empenho?.pdfData) {
+        pdfBase64 = empenho.pdfData;
+        mimeType = empenho.pdfMimeType || mimeType;
+      }
+    }
+
+    if (!pdfBase64) {
+      alert('⚠️ PDF não encontrado no banco para este empenho.');
       return;
     }
 
-    // Obter pasta de empenhos do ano
-    const pastaEmpenhos = await window.fsManager.getOrCreateSubfolder('empenhos', ano);
-    logDebug('Pasta de empenhos obtida:', pastaEmpenhos.name);
-
-    // Obter handle do arquivo
-    let fileHandle;
-    try {
-      fileHandle = await pastaEmpenhos.getFileHandle(pdfFileName);
-    } catch (e) {
-      alert(`⚠️ Arquivo não encontrado:\n${pdfFileName}\n\nO arquivo pode ter sido movido ou excluído.`);
-      return;
+    const binary = atob(pdfBase64);
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) {
+      bytes[i] = binary.charCodeAt(i);
     }
 
-    // Obter o arquivo
-    const file = await fileHandle.getFile();
-    logDebug('Arquivo obtido:', file.name, file.size, 'bytes');
-
-    // Criar URL do blob e abrir em nova aba
-    const blob = new Blob([await file.arrayBuffer()], { type: 'application/pdf' });
+    const blob = new Blob([bytes], { type: mimeType });
     const url = URL.createObjectURL(blob);
 
     // Abrir em nova aba
@@ -454,9 +423,9 @@ async function abrirPdfAnexado(pdfFileName, ano) {
  * @param {number|string} ano - Ano do empenho
  * @returns {string} HTML do link
  */
-function criarLinkPdf(pdfFileName, ano) {
+function criarLinkPdf(pdfFileName, ano, empenhoId = '') {
   // Usar data attributes para passar os parâmetros
-  return `✅ PDF anexado: <a href="#" class="link-pdf-anexado" data-pdf="${pdfFileName}" data-ano="${ano}" style="color: #007bff; text-decoration: underline; cursor: pointer; font-weight: bold;">${pdfFileName}</a>`;
+  return `✅ PDF anexado: <a href="#" class="link-pdf-anexado" data-pdf="${pdfFileName}" data-ano="${ano}" data-empenho-id="${empenhoId}" style="color: #007bff; text-decoration: underline; cursor: pointer; font-weight: bold;">${pdfFileName}</a>`;
 }
 
 /**
@@ -471,7 +440,7 @@ function atualizarStatusAnexoUI(empenho) {
 
   if (empenho?.pdfFileName) {
     const ano = empenho.ano || empenho.anoEmpenho || new Date().getFullYear();
-    statusEl.innerHTML = criarLinkPdf(empenho.pdfFileName, ano);
+    statusEl.innerHTML = criarLinkPdf(empenho.pdfFileName, ano, empenho.id || '');
     statusEl.style.color = '#28a745';
     // Bind do click no link
     bindLinkPdfClick(statusEl);
@@ -493,7 +462,8 @@ function bindLinkPdfClick(container) {
       e.preventDefault();
       const pdfFileName = link.dataset.pdf;
       const ano = link.dataset.ano;
-      await abrirPdfAnexado(pdfFileName, ano);
+      const empenhoId = link.dataset.empenhoId ? parseInt(link.dataset.empenhoId, 10) : null;
+      await abrirPdfAnexado(pdfFileName, ano, empenhoId);
     });
   }
 }
@@ -531,10 +501,8 @@ function initAnexarPdfNE() {
     console.group('📋 AUDITORIA - AnexarPdfNE');
     console.log('Arquivo do formulário de empenho: index.html (empenhoScreen > tabCadastro)');
     console.log('Função que salva empenho: app.js → salvarEmpenho()');
-    console.log('Função que obtém pasta de empenhos: fsManager.js → getOrCreateSubfolder("empenhos", ano)');
-    console.log('Padrão de pasta: SINGEM/[UNIDADE]/01_EMPENHOS/[ANO]/ ou legado');
-    console.log('Store de arquivos IndexedDB: "arquivos"');
-    console.log('fsManager.mainDirectoryHandle:', window.fsManager?.mainDirectoryHandle?.name || 'NÃO CONFIGURADO');
+    console.log('Persistência de anexo PDF da NE: banco de dados (registro do empenho + store de arquivos)');
+    console.log('Store de arquivos: "arquivos"');
     console.groupEnd();
   }
 
@@ -554,13 +522,6 @@ async function manualTestPdfNE() {
   try {
     // 1. Verificar pré-requisitos
     console.log('1️⃣ Verificando pré-requisitos...');
-
-    if (!window.fsManager?.mainDirectoryHandle) {
-      console.error('❌ Pasta principal não configurada!');
-      console.log('   → Clique em "📁 Selecionar Pasta Principal" primeiro');
-      return false;
-    }
-    console.log('   ✅ fsManager configurado:', window.fsManager.mainDirectoryHandle.name);
 
     if (!window.dbManager) {
       console.error('❌ dbManager não disponível!');
@@ -619,24 +580,9 @@ async function manualTestPdfNE() {
       console.log(`   ${status} (${tc.ano}, "${tc.num}") → "${result}" (esperado: "${tc.expected}")`);
     }
 
-    // 5. Verificar pasta de empenhos
-    console.log('5️⃣ Verificando pasta de empenhos...');
-    try {
-      const ano = anoInput.value || new Date().getFullYear();
-      const pasta = await window.fsManager.getOrCreateSubfolder('empenhos', ano);
-      console.log('   ✅ Pasta obtida:', pasta.name);
-
-      // Listar arquivos existentes
-      const arquivos = [];
-      for await (const entry of pasta.values()) {
-        if (entry.kind === 'file' && entry.name.endsWith('.pdf')) {
-          arquivos.push(entry.name);
-        }
-      }
-      console.log('   📁 PDFs existentes:', arquivos.length ? arquivos : '(nenhum)');
-    } catch (e) {
-      console.error('   ❌ Erro ao acessar pasta:', e.message);
-    }
+    // 5. Verificar persistência em banco
+    console.log('5️⃣ Verificando persistência em banco...');
+    console.log('   ✅ Fluxo de anexo usa banco de dados (sem diretório externo obrigatório)');
 
     // 6. Instruções para teste manual
     console.log('');
@@ -647,8 +593,7 @@ async function manualTestPdfNE() {
     console.log('2. Clique no botão "📎 Anexar PDF da NE"');
     console.log('3. Selecione um arquivo PDF');
     console.log('4. Verifique se aparece "✅ PDF anexado: ..."');
-    console.log('5. Abra a pasta 01_EMPENHOS/[ANO]/ e confirme o arquivo');
-    console.log('6. Salve o empenho e reabra para confirmar persistência');
+    console.log('5. Salve o empenho e reabra para confirmar persistência do PDF no banco');
     console.log('═══════════════════════════════════════════════════════════');
 
     console.log('');

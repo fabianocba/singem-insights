@@ -48,13 +48,13 @@ router.get('/saldos', authenticate, async (req, res) => {
 
     const result = await db.query(sql, params);
 
-    res.json({
+    return res.json({
       sucesso: true,
       dados: result.rows
     });
   } catch (err) {
     console.error('[Estoque] Erro ao listar saldos:', err);
-    res.status(500).json({ erro: 'Erro ao listar saldos' });
+    return res.status(500).json({ erro: 'Erro ao listar saldos' });
   }
 });
 
@@ -84,10 +84,10 @@ router.get('/saldos/:materialId', authenticate, async (req, res) => {
       });
     }
 
-    res.json({ sucesso: true, dados: result.rows[0] });
+    return res.json({ sucesso: true, dados: result.rows[0] });
   } catch (err) {
     console.error('[Estoque] Erro ao buscar saldo:', err);
-    res.status(500).json({ erro: 'Erro ao buscar saldo' });
+    return res.status(500).json({ erro: 'Erro ao buscar saldo' });
   }
 });
 
@@ -148,13 +148,13 @@ router.get('/movimentos', authenticate, async (req, res) => {
 
     const result = await db.query(sql, params);
 
-    res.json({
+    return res.json({
       sucesso: true,
       dados: result.rows
     });
   } catch (err) {
     console.error('[Estoque] Erro ao listar movimentos:', err);
-    res.status(500).json({ erro: 'Erro ao listar movimentos' });
+    return res.status(500).json({ erro: 'Erro ao listar movimentos' });
   }
 });
 
@@ -257,11 +257,11 @@ router.post('/movimentos', authenticate, async (req, res) => {
       dados_depois: JSON.stringify(movResult.rows[0])
     });
 
-    res.status(201).json({ sucesso: true, dados: movResult.rows[0] });
+    return res.status(201).json({ sucesso: true, dados: movResult.rows[0] });
   } catch (err) {
     await client.query('ROLLBACK');
     console.error('[Estoque] Erro ao criar movimento:', err);
-    res.status(500).json({ erro: 'Erro ao criar movimento' });
+    return res.status(500).json({ erro: 'Erro ao criar movimento' });
   } finally {
     client.release();
   }
@@ -302,10 +302,10 @@ router.get('/materiais', authenticate, async (req, res) => {
 
     const result = await db.query(sql, params);
 
-    res.json({ sucesso: true, dados: result.rows });
+    return res.json({ sucesso: true, dados: result.rows });
   } catch (err) {
     console.error('[Estoque] Erro ao listar materiais:', err);
-    res.status(500).json({ erro: 'Erro ao listar materiais' });
+    return res.status(500).json({ erro: 'Erro ao listar materiais' });
   }
 });
 
@@ -336,10 +336,10 @@ router.post('/materiais', authenticate, async (req, res) => {
       subelemento: subelemento || null
     });
 
-    res.status(201).json({ sucesso: true, dados: material });
+    return res.status(201).json({ sucesso: true, dados: material });
   } catch (err) {
     console.error('[Estoque] Erro ao criar material:', err);
-    res.status(500).json({ erro: 'Erro ao criar material' });
+    return res.status(500).json({ erro: 'Erro ao criar material' });
   }
 });
 
@@ -381,10 +381,10 @@ router.put('/materiais/:id', authenticate, async (req, res) => {
       return res.status(404).json({ erro: 'Material não encontrado' });
     }
 
-    res.json({ sucesso: true, dados: material });
+    return res.json({ sucesso: true, dados: material });
   } catch (err) {
     console.error('[Estoque] Erro ao atualizar material:', err);
-    res.status(500).json({ erro: 'Erro ao atualizar material' });
+    return res.status(500).json({ erro: 'Erro ao atualizar material' });
   }
 });
 

@@ -1878,53 +1878,25 @@ class DatabaseManager {
    */
   async _getStorageConfig() {
     const storage = {
-      type: 'indexeddb',
-      rootFolderName: 'SINGEM',
+      type: 'database',
+      rootFolderName: null,
       baseHint: null,
       unidade: null,
-      paths: {
-        EMPENHOS: '01_EMPENHOS',
-        NOTAS_FISCAIS: '02_NOTAS_FISCAIS',
-        RELATORIOS: '03_RELATORIOS',
-        BACKUPS: '04_BACKUPS',
-        ANEXOS: '05_ANEXOS',
-        CONFIG: '00_CONFIG'
-      },
+      paths: null,
       handleMeta: {
-        exists: false,
+        exists: null,
         lastGrantedAt: null,
-        permissionState: 'prompt'
+        permissionState: null
       }
     };
 
     try {
-      // Verificar se há pasta configurada via File System Access
-      if (window.fsManager?.mainDirectoryHandle) {
-        storage.type = 'fs-access';
-        storage.rootFolderName = window.fsManager.mainDirectoryHandle.name;
-
-        // Verificar permissão atual
-        try {
-          const permission = await window.fsManager.mainDirectoryHandle.queryPermission({ mode: 'readwrite' });
-          storage.handleMeta.permissionState = permission;
-          storage.handleMeta.exists = true;
-        } catch (e) {
-          console.warn('[DB.exportBackup] Não foi possível verificar permissão:', e);
-        }
-      }
-
       // Buscar unidade ativa
       const configRecords = await this.getAll('config');
       const unidadeAtiva = configRecords.find((c) => c.id === 'unidadeAtiva');
-      const mainDirConfig = configRecords.find((c) => c.id === 'mainDirectory');
 
       if (unidadeAtiva?.nome) {
         storage.unidade = unidadeAtiva.nome;
-      }
-
-      if (mainDirConfig) {
-        storage.handleMeta.lastGrantedAt = mainDirConfig.timestamp;
-        storage.handleMeta.exists = true;
       }
     } catch (err) {
       console.warn('[DB.exportBackup] ⚠️ Erro ao obter config de storage:', err);

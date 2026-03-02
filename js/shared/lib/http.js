@@ -39,12 +39,7 @@ export function resolveApiUrl(path) {
 }
 
 function getAuthToken() {
-  return (
-    window.__SINGEM_AUTH?.accessToken ||
-    localStorage.getItem('singem_token') ||
-    sessionStorage.getItem('singem_token') ||
-    null
-  );
+  return window.__SINGEM_AUTH?.accessToken || null;
 }
 
 export async function httpRequest(path, options = {}) {
