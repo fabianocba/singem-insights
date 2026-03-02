@@ -96,8 +96,26 @@ function Stop-ProcessIfAlive {
 }
 
 function Stop-SshTunnelFallback {
+  param(
+    [int]$LocalPort,
+    [string]$RemoteHost,
+    [int]$RemotePort,
+    [string]$SshHost
+  )
+
+  $forwardPattern = "-L\s*${LocalPort}:${RemoteHost}:${RemotePort}"
+
   $sshProcs = Get-CimInstance Win32_Process -Filter "Name='ssh.exe'" -ErrorAction SilentlyContinue |
-    Where-Object { $_.CommandLine -match '-L|-R|-D' }
+    Where-Object {
+      $cmd = String($_.CommandLine)
+      $cmd -match $forwardPattern -and $cmd -match [Regex]::Escape($SshHost)
+    }
+
+  if (-not $sshProcs -or @($sshProcs).Count -eq 0) {
+    Write-Host "[stop] No matching SINGEM SSH tunnel process found."
+    return
+  }
+
   foreach ($proc in $sshProcs) {
     try {
       Stop-Process -Id $proc.ProcessId -Force -ErrorAction Stop
@@ -221,7 +239,9 @@ if ($RunIntegrationTests) {
     $okHealth = Wait-BackendHealthy -Url $BackendHealthUrl -TimeoutSec 20
     if (-not $okHealth) {
       Write-Host "[ERR] Backend did not become healthy (status OK + DB conectado) on /health."
-      if ($startedTempBackend -and $tempBackendProc) { try { Stop-Process -Id $tempBackendProc.Id -Force } catch {} }
+      if ($startedTempBackend -and $tempBackendProc) {
+        try { Stop-Process -Id $tempBackendProc.Id -Force -ErrorAction Stop } catch {}
+      }
       exit 1
     }
   }
@@ -295,7 +315,7 @@ if (-not $stoppedAny) {
 
   Stop-ListeningPort -Port $FrontPort -Label "Frontend"
   Stop-ListeningPort -Port $TunnelPort -Label "PostgreSQL tunnel"
-  Stop-SshTunnelFallback
+  Stop-SshTunnelFallback -LocalPort 5433 -RemoteHost "127.0.0.1" -RemotePort 5432 -SshHost "srv1401818.hstgr.cloud"
 }
 
 Write-Host ""

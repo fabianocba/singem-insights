@@ -9,6 +9,7 @@ $TunnelRemotePort = 5432
 $TunnelSshPort    = 2222
 $TunnelSshUser    = "root"
 $TunnelSshHost    = "srv1401818.hstgr.cloud"
+$TunnelConnectTimeoutSec = 8
 
 $BackendPort = 3000
 $FrontPort   = 8000
@@ -55,6 +56,80 @@ function Wait-BackendHealthy {
 function Test-LocalPort { param([string]$TargetHost,[int]$Port)
     try { return (Test-NetConnection $TargetHost -Port $Port -WarningAction SilentlyContinue).TcpTestSucceeded }
     catch { return $false }
+}
+
+function Wait-LocalPort {
+    param(
+        [string]$TargetHost,
+        [int]$Port,
+        [int]$TimeoutSec = 20
+    )
+
+    for ($i = 0; $i -lt $TimeoutSec; $i++) {
+        if (Test-LocalPort -TargetHost $TargetHost -Port $Port) {
+            return $true
+        }
+        Start-Sleep -Seconds 1
+    }
+
+    return $false
+}
+
+function Test-LocalPortStable {
+    param(
+        [string]$TargetHost,
+        [int]$Port,
+        [int]$Checks = 3,
+        [int]$IntervalMs = 500
+    )
+
+    $okCount = 0
+    for ($i = 0; $i -lt $Checks; $i++) {
+        if (Test-LocalPort -TargetHost $TargetHost -Port $Port) {
+            $okCount++
+        }
+        Start-Sleep -Milliseconds $IntervalMs
+    }
+
+    return $okCount -eq $Checks
+}
+
+function Test-RemoteSshPort {
+    param(
+        [string]$RemoteHost,
+        [int]$Port
+    )
+
+    try {
+        $test = Test-NetConnection $RemoteHost -Port $Port -WarningAction SilentlyContinue
+        return [bool]$test.TcpTestSucceeded
+    }
+    catch {
+        return $false
+    }
+}
+
+function Diagnose-SshTunnelFailure {
+    param(
+        [string]$User,
+        [string]$Host,
+        [int]$Port,
+        [int]$TimeoutSec
+    )
+
+    try {
+        $diag = & ssh -4 -v -o BatchMode=yes -o ConnectTimeout=$TimeoutSec -p $Port "$User@$Host" exit 2>&1
+        if ($diag) {
+            $lastLines = @($diag | Select-Object -Last 6)
+            Write-Host "[diag] SSH resumo (últimas linhas):"
+            foreach ($line in $lastLines) {
+                Write-Host ("[diag] {0}" -f $line)
+            }
+        }
+    }
+    catch {
+        Write-Host ("[diag] Falha ao executar diagnóstico SSH: {0}" -f $_.Exception.Message)
+    }
 }
 
 function Stop-ListeningPort {
@@ -112,21 +187,37 @@ Write-Host ""
 
 # 0) Túnel PostgreSQL
 $tunnelProc = $null
-$tunnelRunning = Test-LocalPort -TargetHost $TunnelHost -Port $TunnelLocalPort
+$tunnelRunning = Test-LocalPortStable -TargetHost $TunnelHost -Port $TunnelLocalPort
 if (-not $tunnelRunning) {
     Write-Host "[INFO] Túnel PostgreSQL ausente. Abrindo túnel SSH..."
-    $sshCmd = "ssh -N -L $TunnelLocalPort`:$TunnelRemoteHost`:$TunnelRemotePort -p $TunnelSshPort $TunnelSshUser@$TunnelSshHost"
+
+    $sshReachable = Test-RemoteSshPort -RemoteHost $TunnelSshHost -Port $TunnelSshPort
+    if (-not $sshReachable) {
+        Write-Host ("[ERR] Porta SSH remota indisponível: {0}:{1}" -f $TunnelSshHost, $TunnelSshPort)
+        Write-Host "[ERR] Verifique rede/VPN/firewall ou alteração de porta no servidor."
+        exit 1
+    }
+
+    $sshCmd = "ssh -4 -N -L $TunnelLocalPort`:$TunnelRemoteHost`:$TunnelRemotePort -o ExitOnForwardFailure=yes -o ConnectTimeout=$TunnelConnectTimeoutSec -o ServerAliveInterval=30 -o ServerAliveCountMax=3 -p $TunnelSshPort $TunnelSshUser@$TunnelSshHost"
     $tunnelProc = Start-TerminalCommand -WorkDir $ProjectRoot -Title "SINGEM DB TUNNEL" -Command $sshCmd
 
-    Start-Sleep -Seconds 2
-    $tunnelUp = Test-LocalPort -TargetHost $TunnelHost -Port $TunnelLocalPort
-    if (-not $tunnelUp) {
+    $tunnelUp = Wait-LocalPort -TargetHost $TunnelHost -Port $TunnelLocalPort -TimeoutSec 20
+    $tunnelStable = Test-LocalPortStable -TargetHost $TunnelHost -Port $TunnelLocalPort
+    if (-not $tunnelUp -or -not $tunnelStable) {
         Write-Host "[ERR] Túnel SSH não ficou disponível na porta 5433. Verifique credenciais/chave SSH."
+        Diagnose-SshTunnelFailure -User $TunnelSshUser -Host $TunnelSshHost -Port $TunnelSshPort -TimeoutSec $TunnelConnectTimeoutSec
         exit 1
     }
     Write-Host "[OK] Túnel PostgreSQL ativo na 5433."
 } else {
     Write-Host "[OK] Túnel PostgreSQL já ativo na 5433."
+}
+
+$tunnelStillStable = Test-LocalPortStable -TargetHost $TunnelHost -Port $TunnelLocalPort
+if (-not $tunnelStillStable) {
+    Write-Host "[ERR] Túnel PostgreSQL instável na porta 5433 após inicialização."
+    Write-Host "[ERR] Verifique qualidade da conexão SSH e tente novamente."
+    exit 1
 }
 
 # 1) Backend
