@@ -84,7 +84,7 @@ const MENU_CONFIG = {
     },
     {
       id: 'consultasMenuItem',
-      label: 'Consultas Diversas',
+      label: 'Consulte Compras.gov',
       description: 'Acesse dados abertos do Compras.gov.br',
       screen: 'consultasScreen',
       icon: '🔍',

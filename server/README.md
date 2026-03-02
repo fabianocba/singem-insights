@@ -73,6 +73,24 @@ POST   /api/notas-fiscais
 GET    /api/entregas
 ```
 
+### Proxy Compras.gov.br (CATMAT/CATSER e módulos)
+
+```
+GET /api/compras/health
+GET /api/compras/modulo-material/grupos
+GET /api/compras/modulo-material/classes?codigoGrupo=...
+GET /api/compras/modulo-material/itens?pagina=1&tamanhoPagina=10
+GET /api/compras/modulo-servico/grupos
+GET /api/compras/modulo-servico/classes?codigoGrupo=...
+GET /api/compras/modulo-servico/itens?pagina=1&tamanhoPagina=10
+```
+
+Observações:
+
+- O frontend deve chamar somente o backend (`/api/compras/*`), evitando CORS no navegador.
+- O servidor usa `accept: */*` e **não envia Authorization por padrão**.
+- Se necessário em ambiente específico, defina `COMPRAS_API_TOKEN`.
+
 ### Sincronização (Em Desenvolvimento)
 
 ```
@@ -97,6 +115,18 @@ Ou use variável de ambiente:
 
 ```bash
 PORT=8080 npm start
+```
+
+### Variáveis para integração Compras
+
+Use o arquivo `.env.example` como base:
+
+```bash
+COMPRAS_API_BASE_URL=https://dadosabertos.compras.gov.br
+COMPRAS_API_TIMEOUT_MS=15000
+COMPRAS_API_MAX_RETRIES=2
+COMPRAS_API_RETRY_BASE_DELAY_MS=400
+COMPRAS_API_TOKEN=
 ```
 
 ## 🔒 Segurança

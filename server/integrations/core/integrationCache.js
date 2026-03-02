@@ -41,6 +41,53 @@ function get(namespace, key) {
   return item.value;
 }
 
+function getWithMeta(namespace, key, options = {}) {
+  if (!isEnabled()) {
+    stats.misses += 1;
+    return {
+      value: null,
+      hit: false,
+      expired: false,
+      expiresAt: null
+    };
+  }
+
+  const includeExpired = options?.includeExpired === true;
+  const fullKey = buildKey(namespace, key);
+  const item = store.get(fullKey);
+
+  if (!item) {
+    stats.misses += 1;
+    return {
+      value: null,
+      hit: false,
+      expired: false,
+      expiresAt: null
+    };
+  }
+
+  const expired = item.expiresAt <= Date.now();
+  if (expired && !includeExpired) {
+    store.delete(fullKey);
+    stats.misses += 1;
+    return {
+      value: null,
+      hit: false,
+      expired: true,
+      expiresAt: item.expiresAt
+    };
+  }
+
+  stats.hits += 1;
+
+  return {
+    value: item.value,
+    hit: true,
+    expired,
+    expiresAt: item.expiresAt
+  };
+}
+
 function set(namespace, key, value, ttlSeconds) {
   if (!isEnabled()) {
     return;
@@ -91,6 +138,7 @@ function snapshotStats() {
 
 module.exports = {
   get,
+  getWithMeta,
   set,
   clear,
   snapshotStats

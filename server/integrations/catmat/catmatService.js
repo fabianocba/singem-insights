@@ -5,7 +5,7 @@
 
 const db = require('../../config/database');
 const { config } = require('../../config');
-const { buildComprasGovHeaders } = require('../core/comprasGovHeaders');
+const comprasApiClient = require('../../services/comprasApiClient');
 
 const jobs = new Map();
 
@@ -15,30 +15,6 @@ const runtime = {
 
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-function parseJsonSafe(text) {
-  try {
-    return JSON.parse(text);
-  } catch {
-    return null;
-  }
-}
-
-function buildApiBase() {
-  return String(config.comprasApi?.baseUrl || 'http://compras.dados.gov.br').replace(/\/+$/, '');
-}
-
-function getApiToken() {
-  return String(config.comprasApi?.apiToken || config.comprasGov?.apiToken || '').trim();
-}
-
-function getAcceptHeader() {
-  return String(config.comprasApi?.acceptHeader || config.comprasGov?.acceptHeader || '*/*').trim() || '*/*';
-}
-
-function isLikelyTransient(status) {
-  return status === 408 || status === 429 || status >= 500;
 }
 
 function extractMaterialList(payload) {
@@ -120,84 +96,24 @@ class CatmatService {
   }
 
   async _fetchOfficial(pathname, params = {}) {
-    const base = buildApiBase();
-    const url = new URL(`${base}${pathname}`);
-    Object.entries(params).forEach(([key, value]) => {
-      if (value !== undefined && value !== null && value !== '') {
-        url.searchParams.set(key, String(value));
+    try {
+      await this._waitRateLimit();
+
+      const response = await comprasApiClient.get(pathname, {
+        query: params,
+        userAgent: 'SINGEM-CATMAT/2.0'
+      });
+
+      return response.data || {};
+    } catch (error) {
+      const wrapped = new Error(`Falha ao consultar API oficial CATMAT: ${error?.message || 'erro desconhecido'}`);
+      wrapped.cause = error;
+      wrapped.code = 'COMPRAS_API_UNAVAILABLE';
+      if (error?.statusCode || error?.upstreamStatus) {
+        wrapped.status = Number(error?.statusCode || error?.upstreamStatus);
       }
-    });
-
-    const retries = Number(config.comprasApi?.maxRetries || 3);
-    const timeoutMs = Number(config.comprasApi?.timeoutMs || 8000);
-    const retryBaseDelay = Number(config.comprasApi?.retryBaseDelayMs || 500);
-
-    let lastError = null;
-
-    for (let attempt = 1; attempt <= retries; attempt++) {
-      try {
-        await this._waitRateLimit();
-
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
-
-        const response = await fetch(url, {
-          method: 'GET',
-          headers: buildComprasGovHeaders({
-            userAgent: 'SINGEM-CATMAT/2.0',
-            accept: getAcceptHeader(),
-            token: getApiToken()
-          }),
-          signal: controller.signal
-        });
-
-        clearTimeout(timeoutId);
-
-        const rawText = await response.text();
-        const body = parseJsonSafe(rawText);
-
-        if (!response.ok) {
-          const statusCode = Number(response.status || 500);
-          const isUnauthorized = statusCode === 401;
-          const isForbidden = statusCode === 403;
-          const err = new Error(
-            isUnauthorized
-              ? 'API Compras respondeu 401. Defina COMPRAS_API_TOKEN/COMPRASGOV_API_TOKEN apenas se o endpoint exigir credencial.'
-              : isForbidden
-                ? 'API Compras respondeu 403. Acesso negado para o recurso solicitado.'
-                : `Compras API HTTP ${response.status}`
-          );
-          err.status = response.status;
-          err.code = isUnauthorized
-            ? 'COMPRAS_API_UNAUTHORIZED'
-            : isForbidden
-              ? 'COMPRAS_API_FORBIDDEN'
-              : 'COMPRAS_API_HTTP_ERROR';
-          err.body = body;
-          throw err;
-        }
-
-        return body || {};
-      } catch (err) {
-        lastError = err;
-        const status = err.status || 0;
-        const transient = err.name === 'AbortError' || isLikelyTransient(status);
-
-        if (!transient || attempt === retries) {
-          break;
-        }
-
-        await sleep(retryBaseDelay * 2 ** (attempt - 1));
-      }
+      throw wrapped;
     }
-
-    const wrapped = new Error(`Falha ao consultar API oficial CATMAT: ${lastError?.message || 'erro desconhecido'}`);
-    wrapped.cause = lastError;
-    wrapped.code = 'COMPRAS_API_UNAVAILABLE';
-    if (lastError?.status) {
-      wrapped.status = Number(lastError.status);
-    }
-    throw wrapped;
   }
 
   async _upsertCache(material) {

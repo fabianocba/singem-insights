@@ -434,9 +434,9 @@ class ControleMaterialApp {
       }
     });
 
-    // Menu item "Consultas Diversas"
+    // Menu item "Consulte Compras.gov"
     document.getElementById('consultasMenuItem')?.addEventListener('click', () => {
-      console.log('🔍 Abrindo Consultas Diversas...');
+      console.log('🔍 Abrindo Consulte Compras.gov...');
       this.showScreen('consultasScreen');
     });
 

@@ -22,6 +22,7 @@ const estoqueRoutes = require('./src/routes/estoque.routes');
 const syncRoutes = require('./routes/sync.routes');
 const catmatRoutes = require('./src/routes/catmat.routes');
 const catalogacaoRoutes = require('./routes/catalogacao.routes');
+const comprasRoutes = require('./routes/compras.routes');
 const comprasGovRoutes = require('./routes/comprasgov.routes');
 const dadosGovRoutes = require('./routes/dadosgov.routes');
 const integracoesAdminRoutes = require('./routes/integracoes-admin.routes');
@@ -89,6 +90,7 @@ function createApp({ nodeEnv, bodyLimit, corsOrigins, trustProxy, nfeService, nf
   app.use('/api/sync', syncRoutes);
   app.use('/api/catmat', catmatRoutes);
   app.use('/api/catalogacao-pedidos', catalogacaoRoutes);
+  app.use('/api/compras', createIntegracoesLimiter(), comprasRoutes);
   app.use('/api/integracoes/comprasgov', createIntegracoesLimiter(), authenticate, requireAdmin, comprasGovRoutes);
   app.use('/api/integracoes/dadosgov', createIntegracoesLimiter(), authenticate, requireAdmin, dadosGovRoutes);
   app.use('/api/integracoes', createIntegracoesLimiter(), authenticate, requireAdmin, integracoesAdminRoutes);
@@ -164,6 +166,7 @@ function createApp({ nodeEnv, bodyLimit, corsOrigins, trustProxy, nfeService, nf
     '/api/sync',
     '/api/catmat',
     '/api/catalogacao-pedidos',
+    '/api/compras',
     '/api/integracoes',
     '/api/integracoes/comprasgov',
     '/api/integracoes/dadosgov',

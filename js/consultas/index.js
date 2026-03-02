@@ -1,5 +1,5 @@
 /**
- * Ponto de entrada principal para o módulo de Consultas Diversas
+ * Ponto de entrada principal para o módulo Consulte Compras.gov
  * Este arquivo importa e exporta todas as funcionalidades necessárias
  */
 

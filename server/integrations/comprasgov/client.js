@@ -1,9 +1,9 @@
 const crypto = require('crypto');
 const db = require('../../config/database');
 const { config } = require('../../config');
+const comprasApiClient = require('../../services/comprasApiClient');
 const integrationCache = require('../core/integrationCache');
 const { recordApiCall } = require('../core/auditApiCalls');
-const { buildComprasGovHeaders } = require('../core/comprasGovHeaders');
 
 const runtime = {
   lastRequestAt: 0
@@ -279,10 +279,6 @@ function normalizeResponse({ payload, pagina, tamanhoPagina, endpoint, dominio, 
   };
 }
 
-function isTransientStatus(statusCode) {
-  return statusCode === 408 || statusCode === 429 || statusCode >= 500;
-}
-
 function buildCacheKey({ domain, pathTemplate, pagina, tamanhoPagina, params }) {
   return sha1(JSON.stringify({ domain, pathTemplate, pagina, tamanhoPagina, params }));
 }
@@ -351,142 +347,69 @@ class ComprasGovClient {
     runtime.lastRequestAt = Date.now();
   }
 
-  /* eslint-disable complexity */
   async fetchJson({ url, requestId, user, routeInterna, queryParams, cacheHit = false }) {
-    const cfg = getComprasGovConfig();
     const startedAt = Date.now();
-    let lastError = null;
-
-    for (let attempt = 1; attempt <= cfg.maxRetries; attempt++) {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), cfg.timeoutMs);
-
-      try {
-        await this.waitRateLimit();
-
-        const response = await fetch(url, {
-          method: 'GET',
-          headers: buildComprasGovHeaders({
-            requestId,
-            userAgent: 'SINGEM-ComprasGov/1.0',
-            accept: cfg.acceptHeader,
-            token: cfg.apiToken
-          }),
-          signal: controller.signal
-        });
-
-        const text = await response.text();
-        let data = {};
-        try {
-          data = text ? JSON.parse(text) : {};
-        } catch {
-          data = {
-            message: text || `HTTP ${response.status}`,
-            raw: text || null
-          };
-        }
-
-        clearTimeout(timeoutId);
-
-        if (!response.ok) {
-          const statusCode = Number(response.status || 500);
-          const isUnauthorized = statusCode === 401;
-          const isForbidden = statusCode === 403;
-
-          let errorMessage = data?.message || data?.erro || `Falha na consulta ComprasGov (HTTP ${response.status})`;
-
-          if (isUnauthorized) {
-            errorMessage =
-              data?.message ||
-              data?.erro ||
-              'API Compras.gov.br respondeu 401. Verifique se o endpoint exige credencial e configure COMPRASGOV_API_TOKEN se necessário.';
-          }
-
-          if (isForbidden) {
-            errorMessage =
-              data?.message ||
-              data?.erro ||
-              'API Compras.gov.br respondeu 403. Acesso negado para o recurso solicitado.';
-          }
-
-          const error = new Error(errorMessage);
-          error.statusCode = statusCode;
-          error.code = isUnauthorized
-            ? 'COMPRASGOV_UNAUTHORIZED'
-            : isForbidden
-              ? 'COMPRASGOV_FORBIDDEN'
-              : 'COMPRASGOV_HTTP_ERROR';
-          error.details = {
-            response: data,
-            url: url.toString()
-          };
-          throw error;
-        }
-
-        const payload = {
-          statusCode: response.status,
-          data,
-          durationMs: Date.now() - startedAt,
-          attempt
-        };
-
-        await recordApiCall({
-          requestId,
-          usuario: user?.login || user?.nome || null,
-          rotaInterna: routeInterna || 'comprasgov',
-          endpointExterno: url.toString(),
-          metodo: 'GET',
-          queryParams: queryParams || {},
-          statusHttp: response.status,
-          duracaoMs: payload.durationMs,
-          cacheHit
-        });
-
-        return payload;
-      } catch (error) {
-        clearTimeout(timeoutId);
-
-        if (error.name === 'AbortError') {
-          error.statusCode = 504;
-          error.code = 'COMPRASGOV_TIMEOUT';
-          error.message = 'Timeout ao consultar a API Compras.gov.br';
-        } else if (!error.statusCode) {
-          error.statusCode = 503;
-          error.code = error.code || 'COMPRASGOV_NETWORK_ERROR';
-        }
-
-        lastError = error;
-
-        const shouldRetry =
-          attempt < cfg.maxRetries &&
-          (error.code === 'COMPRASGOV_TIMEOUT' || isTransientStatus(Number(error.statusCode || 0)));
-
-        if (!shouldRetry) {
-          break;
-        }
-
-        const delayMs = cfg.retryBaseDelayMs * 2 ** (attempt - 1);
-        await sleep(delayMs);
+    const upstreamQuery = {};
+    if (url?.searchParams) {
+      for (const [key, value] of url.searchParams.entries()) {
+        upstreamQuery[key] = value;
       }
     }
 
-    lastError.durationMs = Date.now() - startedAt;
+    try {
+      await this.waitRateLimit();
 
-    await recordApiCall({
-      requestId,
-      usuario: user?.login || user?.nome || null,
-      rotaInterna: routeInterna || 'comprasgov',
-      endpointExterno: url.toString(),
-      metodo: 'GET',
-      queryParams: queryParams || {},
-      statusHttp: Number(lastError?.statusCode || 500),
-      duracaoMs: Number(lastError?.durationMs || 0),
-      cacheHit
-    });
+      const response = await comprasApiClient.get(url.pathname, {
+        query: upstreamQuery,
+        requestId,
+        userAgent: 'SINGEM-ComprasGov/1.0'
+      });
 
-    throw lastError;
+      const payload = {
+        statusCode: response.statusCode,
+        data: response.data,
+        durationMs: Date.now() - startedAt,
+        attempt: response.attempt || 1
+      };
+
+      await recordApiCall({
+        requestId,
+        usuario: user?.login || user?.nome || null,
+        rotaInterna: routeInterna || 'comprasgov',
+        endpointExterno: response.url || url.toString(),
+        metodo: 'GET',
+        queryParams: queryParams || {},
+        statusHttp: response.statusCode,
+        duracaoMs: payload.durationMs,
+        cacheHit
+      });
+
+      return payload;
+    } catch (error) {
+      const normalizedError = new Error(error?.message || 'Falha na consulta ComprasGov');
+      normalizedError.statusCode = Number(error?.statusCode || error?.upstreamStatus || 502);
+      normalizedError.code = error?.code || 'COMPRASGOV_REQUEST_ERROR';
+      normalizedError.details = {
+        ...(error?.details || {}),
+        url: url.toString()
+      };
+      normalizedError.durationMs = Date.now() - startedAt;
+
+      await recordApiCall({
+        requestId,
+        usuario: user?.login || user?.nome || null,
+        rotaInterna: routeInterna || 'comprasgov',
+        endpointExterno: url.toString(),
+        metodo: 'GET',
+        queryParams: queryParams || {},
+        statusHttp: Number(normalizedError?.statusCode || 500),
+        duracaoMs: Number(normalizedError?.durationMs || 0),
+        cacheHit
+      });
+
+      throw normalizedError;
+    }
   }
-  /* eslint-enable complexity */
 
   getCacheTTL(domain) {
     const cfg = getComprasGovConfig();

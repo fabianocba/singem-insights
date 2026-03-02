@@ -192,7 +192,7 @@ class CSVExporter {
   }
 
   /**
-   * Exporta resultados de consulta (módulo Consultas Diversas)
+   * Exporta resultados de consulta (módulo Consulte Compras.gov)
    * @param {Array} resultados - Array de resultados
    * @param {string} tipoConsulta - Tipo da consulta
    */

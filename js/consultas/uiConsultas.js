@@ -1,11 +1,13 @@
 /**
  * uiConsultas.js
- * Interface de usuário para Consultas Diversas (Dados Abertos Compras.gov.br)
+ * Interface de usuário para Consulte Compras.gov (Dados Abertos Compras.gov.br)
  */
 
 import * as API from './apiCompras.js';
 import * as Mapeadores from './mapeadores.js';
 import * as Cache from './cache.js';
+
+const AUTO_SEARCH_DEBOUNCE_MS = 650;
 
 /**
  * Estado atual da aplicação
@@ -19,8 +21,74 @@ const state = {
   results: [],
   rawData: null,
   loading: false,
-  currentView: 'menu' // 'menu' ou 'consulta'
+  currentView: 'menu', // 'menu' ou 'consulta'
+  hasActiveSearch: false,
+  lastSearchSignature: null
 };
+
+let debouncedAutoSearch = null;
+let listenersAttached = false;
+
+export function normalizeText(str) {
+  return String(str || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .trim();
+}
+
+export function createDebouncedSearch(callback, delay = AUTO_SEARCH_DEBOUNCE_MS) {
+  let timeoutId = null;
+  return (...args) => {
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+    }
+
+    timeoutId = setTimeout(() => {
+      callback(...args);
+    }, delay);
+  };
+}
+
+export function shouldAutoSearch(text) {
+  return normalizeText(text).length >= 3;
+}
+
+export function hasAtLeastOneFilter(filtersObject) {
+  return Object.values(filtersObject || {}).some((value) => String(value || '').trim() !== '');
+}
+
+function setSearchHint(message = '') {
+  const hint = document.getElementById('consultaHint');
+  if (!hint) {
+    return;
+  }
+
+  hint.textContent = String(message || '');
+}
+
+function createSearchSignature(dataset, params) {
+  const orderedEntries = Object.entries(params || {}).sort(([a], [b]) => a.localeCompare(b, 'pt-BR'));
+  return `${dataset || 'none'}::${JSON.stringify(orderedEntries)}`;
+}
+
+function hasAnyTextFilterTooShort(filtersObject) {
+  const config = DATASETS[state.dataset];
+  if (!config?.filters) {
+    return false;
+  }
+
+  return config.filters
+    .filter((filter) => filter.type === 'text')
+    .some((filter) => {
+      const value = filtersObject?.[filter.name];
+      if (!value) {
+        return false;
+      }
+
+      return normalizeText(value).length < 3;
+    });
+}
 
 /**
  * Configuração de datasets disponíveis
@@ -275,7 +343,7 @@ const DATASETS = {
  * Inicializa a interface
  */
 export function init() {
-  console.log('🔍 Iniciando módulo de Consultas Diversas...');
+  console.log('🔍 Iniciando módulo Consulte Compras.gov...');
 
   // Verifica se elementos existem
   const menu = document.getElementById('menuConsultas');
@@ -284,13 +352,17 @@ export function init() {
   console.log('📦 Menu encontrado:', !!menu);
   console.log('🔎 Tela de consulta encontrada:', !!tela);
 
+  debouncedAutoSearch = createDebouncedSearch(() => {
+    triggerSearch({ source: 'auto', force: false });
+  });
+
   attachEventListeners();
   setupAPIModeToggle();
   updateAPIModeUI();
   showMenu(); // Mostra menu inicial
   loadFromLocalStorage();
 
-  console.log('✅ Módulo de Consultas Diversas inicializado!');
+  console.log('✅ Módulo Consulte Compras.gov inicializado!');
   console.log("📝 Use window.abrirConsulta('materiais') para testar");
 }
 
@@ -380,6 +452,8 @@ export function showMenu() {
   state.filters = {};
   state.results = [];
   state.currentPage = 1;
+  state.hasActiveSearch = false;
+  state.lastSearchSignature = null;
 
   console.log('✅ Estado resetado para menu');
 
@@ -418,6 +492,8 @@ export function showConsulta(dataset) {
   state.currentPage = 1;
   state.totalPages = 0;
   state.totalRecords = 0;
+  state.hasActiveSearch = false;
+  state.lastSearchSignature = null;
 
   console.log('📊 Estado atualizado:', {
     dataset,
@@ -444,6 +520,7 @@ export function showConsulta(dataset) {
   renderFilters();
   renderPagination();
   renderTable();
+  setSearchHint('');
 
   console.log('✅ Consulta aberta com sucesso!');
 
@@ -478,7 +555,7 @@ function renderFilters() {
     html += `<label for="filter_${filter.name}">${filter.label}</label>`;
 
     if (filter.type === 'select') {
-      html += `<select id="filter_${filter.name}" name="${filter.name}" class="form-control" aria-label="${filter.label}">`;
+      html += `<select id="filter_${filter.name}" name="${filter.name}" data-filter-type="${filter.type}" class="form-control" aria-label="${filter.label}">`;
       filter.options.forEach((opt) => {
         const selected = state.filters[filter.name] === opt.value ? 'selected' : '';
         html += `<option value="${opt.value}" ${selected}>${opt.label}</option>`;
@@ -489,7 +566,7 @@ function renderFilters() {
       const maxLength = filter.maxLength ? `maxlength="${filter.maxLength}"` : '';
       html += `<input type="${filter.type}" id="filter_${filter.name}" name="${filter.name}"
                class="form-control" placeholder="${filter.placeholder}"
-               value="${value}" ${maxLength} aria-label="${filter.label}">`;
+               value="${value}" data-filter-type="${filter.type}" ${maxLength} aria-label="${filter.label}">`;
     }
 
     html += `</div>`;
@@ -509,6 +586,7 @@ function renderFilters() {
         ⚡ Limpar Cache
       </button>
     </div>
+    <p id="consultaHint" class="text-muted" aria-live="polite"></p>
   `;
 
   container.innerHTML = html;
@@ -639,45 +717,87 @@ function renderTable() {
  * Anexa event listeners
  */
 function attachEventListeners() {
+  if (listenersAttached) {
+    return;
+  }
+
   console.log('🎯 Configurando event listeners...');
 
-  // Event delegation para cliques nos cards do menu
-  const consultasContainer = document.getElementById('consultasContainer');
-  if (consultasContainer) {
-    consultasContainer.addEventListener('click', (e) => {
-      // Verifica se clicou em um card ou dentro dele
-      const menuItem = e.target.closest('.menu-item-consulta');
-      if (menuItem) {
-        const dataset = menuItem.dataset.consulta;
-        console.log('🖱️ Card clicado:', dataset);
-        console.log('📍 Elemento:', menuItem);
-        if (dataset) {
-          e.preventDefault();
-          e.stopPropagation();
-          showConsulta(dataset);
-        }
-      }
-
-      // Botão voltar ao menu
-      if (e.target.id === 'btnVoltarMenu' || e.target.closest('#btnVoltarMenu')) {
-        console.log('🔙 Voltando ao menu...');
-        e.preventDefault();
-        e.stopPropagation();
-        showMenu();
-      }
-    });
-    console.log('✅ Event listener no container configurado');
-  } else {
-    console.error('❌ Container consultasContainer não encontrado!');
-  }
+  // O clique nos cards já é tratado por onclick inline em index.html.
+  // Aqui tratamos apenas voltar ao menu para evitar disparos duplicados.
+  document.addEventListener('click', (e) => {
+    if (e.target.id === 'btnVoltarMenu' || e.target.closest('#btnVoltarMenu')) {
+      console.log('🔙 Voltando ao menu...');
+      e.preventDefault();
+      e.stopPropagation();
+      showMenu();
+    }
+  });
 
   // Buscar
   document.addEventListener('click', (e) => {
     if (e.target.id === 'btnBuscar') {
-      collectFilters();
-      state.currentPage = 1;
-      executeSearch();
+      triggerSearch({ source: 'manual', force: true, resetPage: true });
     }
+  });
+
+  // Auto busca com debounce para campos textuais (somente digitação real)
+  document.addEventListener('keyup', (e) => {
+    const target = e.target;
+    if (!target?.id?.startsWith('filter_')) {
+      return;
+    }
+
+    if (target.dataset.filterType !== 'text') {
+      return;
+    }
+
+    if (e.key === 'Enter') {
+      return;
+    }
+
+    const typedText = String(target.value || '');
+    if (!typedText.trim()) {
+      collectFilters();
+      setSearchHint('');
+      return;
+    }
+
+    if (!shouldAutoSearch(typedText)) {
+      setSearchHint('Digite pelo menos 3 caracteres para pesquisar');
+      return;
+    }
+
+    if (debouncedAutoSearch) {
+      debouncedAutoSearch();
+    }
+  });
+
+  // Mudança em selects dispara busca imediata se já houver filtros válidos
+  document.addEventListener('change', (e) => {
+    const target = e.target;
+    if (!target?.id?.startsWith('filter_')) {
+      return;
+    }
+
+    if (target.dataset.filterType === 'select') {
+      triggerSearch({ source: 'manual', force: true, resetPage: true });
+    }
+  });
+
+  // ENTER força busca (exceto sem filtros)
+  document.addEventListener('keydown', (e) => {
+    const target = e.target;
+    if (!target?.id?.startsWith('filter_')) {
+      return;
+    }
+
+    if (e.key !== 'Enter') {
+      return;
+    }
+
+    e.preventDefault();
+    triggerSearch({ source: 'enter', force: true, resetPage: true });
   });
 
   // Limpar filtros
@@ -688,9 +808,11 @@ function attachEventListeners() {
       state.results = [];
       state.totalPages = 0;
       state.totalRecords = 0;
+      state.hasActiveSearch = false;
       renderFilters();
       renderPagination();
       renderTable();
+      setSearchHint('');
       saveToLocalStorage();
     }
   });
@@ -706,13 +828,23 @@ function attachEventListeners() {
   // Paginação
   document.addEventListener('click', (e) => {
     if (e.target.id === 'btnPrevPage' && state.currentPage > 1) {
+      if (!state.hasActiveSearch || !hasAtLeastOneFilter(state.filters)) {
+        setSearchHint('Preencha pelo menos um campo para realizar a pesquisa');
+        return;
+      }
+
       state.currentPage--;
-      executeSearch();
+      executeSearch({ force: false });
     }
 
     if (e.target.id === 'btnNextPage' && state.currentPage < state.totalPages) {
+      if (!state.hasActiveSearch || !hasAtLeastOneFilter(state.filters)) {
+        setSearchHint('Preencha pelo menos um campo para realizar a pesquisa');
+        return;
+      }
+
       state.currentPage++;
-      executeSearch();
+      executeSearch({ force: false });
     }
   });
 
@@ -730,6 +862,31 @@ function attachEventListeners() {
       showJSONModal(index);
     }
   });
+
+  listenersAttached = true;
+  console.log('✅ Event listeners globais configurados');
+}
+
+function triggerSearch({ source = 'manual', force = false, resetPage = false } = {}) {
+  collectFilters();
+
+  if (!hasAtLeastOneFilter(state.filters)) {
+    state.hasActiveSearch = false;
+    setSearchHint('Preencha pelo menos um campo para realizar a pesquisa');
+    return;
+  }
+
+  if (!force && source === 'auto' && hasAnyTextFilterTooShort(state.filters)) {
+    setSearchHint('Digite pelo menos 3 caracteres para pesquisar');
+    return;
+  }
+
+  if (resetPage) {
+    state.currentPage = 1;
+  }
+
+  setSearchHint('');
+  executeSearch({ force });
 }
 
 /**
@@ -754,24 +911,40 @@ function collectFilters() {
 /**
  * Executa busca na API
  */
-async function executeSearch() {
+async function executeSearch({ force = false } = {}) {
   if (!state.dataset) {
+    state.hasActiveSearch = false;
     alert('Selecione um conjunto de dados.');
     return;
   }
 
   const config = DATASETS[state.dataset];
   if (!config || !config.apiFunction) {
+    state.hasActiveSearch = false;
     alert('Dataset inválido.');
+    return;
+  }
+
+  if (!hasAtLeastOneFilter(state.filters)) {
+    state.hasActiveSearch = false;
+    setSearchHint('Preencha pelo menos um campo para realizar a pesquisa');
     return;
   }
 
   // Verifica cache
   const params = { ...state.filters, pagina: state.currentPage };
+  const signature = createSearchSignature(state.dataset, params);
+
+  if (!force && signature === state.lastSearchSignature) {
+    return;
+  }
+
+  state.lastSearchSignature = signature;
   const cached = Cache.get(state.dataset, params);
 
   if (cached) {
     console.log('Usando resultado do cache');
+    state.hasActiveSearch = true;
     processResults(cached);
     return;
   }
@@ -788,7 +961,15 @@ async function executeSearch() {
 
     processResults(data);
   } catch (error) {
+    if (error?.name === 'AbortError' || error?.isAbort === true) {
+      state.loading = false;
+      renderTable();
+      return;
+    }
+
     state.loading = false;
+    state.hasActiveSearch = false;
+    state.lastSearchSignature = null;
     console.error('❌ Erro na busca:', error);
     console.error('   Dataset:', state.dataset);
     console.error('   Filtros:', state.filters);
@@ -803,14 +984,15 @@ async function executeSearch() {
       detalhes =
         'Possíveis causas:\n' +
         '• Sem conexão com a internet\n' +
-        '• API do Compras.gov.br fora do ar\n' +
-        '• Firewall bloqueando a requisição\n\n' +
+        '• Proxy backend do SINGEM indisponível\n' +
+        '• Upstream do Compras.gov.br fora do ar\n\n' +
         'Teste acessar no navegador:\n' +
-        'https://dadosabertos.compras.gov.br';
+        'http://localhost:3000/api/compras/health';
     } else if (error.message.includes('CORS')) {
-      titulo = 'Erro de CORS';
+      titulo = 'Erro de Proxy';
       detalhes =
-        'A API não permite requisições diretas do navegador.\n' + 'Isso é um problema de configuração do servidor.';
+        'As consultas devem passar pelo backend do SINGEM.\n' +
+        'Verifique se o servidor está ativo e se /api/compras está acessível.';
     } else if (error.message.includes('tempo limite') || error.message.includes('Timeout')) {
       titulo = 'Timeout';
       detalhes = 'A requisição demorou mais de 30 segundos.\n' + 'Tente novamente ou ajuste os filtros.';
@@ -840,6 +1022,7 @@ async function executeSearch() {
  */
 function processResults(data) {
   state.loading = false;
+  state.hasActiveSearch = true;
   state.rawData = data;
 
   // Extrai metadados

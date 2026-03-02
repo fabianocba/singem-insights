@@ -22,7 +22,8 @@ function toErrorPayload(error) {
   return {
     message: error?.message || 'Erro inesperado na comunicação',
     status: error?.status || 0,
-    data: error?.data || null
+    data: error?.data || null,
+    isAbort: error?.name === 'AbortError'
   };
 }
 
