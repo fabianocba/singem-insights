@@ -1,0 +1,13 @@
+﻿# Normalize line endings in repo
+* text=auto
+
+# Force LF for scripts (cross-platform)
+*.sh text eol=lf
+*.ps1 text eol=crlf
+
+# Common text files
+*.js   text eol=lf
+*.html text eol=lf
+*.css  text eol=lf
+*.md   text eol=lf
+*.json text eol=lf
