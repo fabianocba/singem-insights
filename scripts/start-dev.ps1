@@ -2,6 +2,14 @@
 Write-Host "=== SINGEM START DEV (PORTABLE) ==="
 Write-Host ""
 
+$TunnelHost       = "127.0.0.1"
+$TunnelLocalPort  = 5433
+$TunnelRemoteHost = "127.0.0.1"
+$TunnelRemotePort = 5432
+$TunnelSshPort    = 2222
+$TunnelSshUser    = "root"
+$TunnelSshHost    = "srv1401818.hstgr.cloud"
+
 $BackendPort = 3000
 $FrontPort   = 8000
 $BackendHealthUrl = "http://localhost:3000/health"
@@ -30,9 +38,37 @@ function Wait-HttpOk {
     return $false
 }
 
+function Wait-BackendHealthy {
+    param([string]$Url,[int]$TimeoutSec = 25)
+    for ($i=0; $i -lt $TimeoutSec; $i++) {
+        try {
+            $json = Invoke-RestMethod -Uri $Url -Method Get -TimeoutSec 3
+            if ($json -and $json.status -eq 'OK' -and $json.database -eq 'conectado') {
+                return $true
+            }
+        } catch {}
+        Start-Sleep -Seconds 1
+    }
+    return $false
+}
+
 function Test-LocalPort { param([string]$TargetHost,[int]$Port)
     try { return (Test-NetConnection $TargetHost -Port $Port -WarningAction SilentlyContinue).TcpTestSucceeded }
     catch { return $false }
+}
+
+function Stop-ListeningPort {
+    param([int]$Port,[string]$Label)
+    $connections = Get-NetTCPConnection -LocalPort $Port -State Listen -ErrorAction SilentlyContinue
+    $procIds = @($connections | Select-Object -ExpandProperty OwningProcess -Unique)
+    if ($procIds.Count -eq 0) { return }
+
+    foreach ($procId in $procIds) {
+        try {
+            Stop-Process -Id $procId -Force -ErrorAction Stop
+            Write-Host ("[stop] {0} stopped (PID {1}, port {2})." -f $Label, $procId, $Port)
+        } catch {}
+    }
 }
 
 function Start-TerminalCommand {
@@ -74,23 +110,49 @@ Set-Location $ProjectRoot
 Write-Host ("ProjectRoot: {0}" -f $ProjectRoot)
 Write-Host ""
 
+# 0) Túnel PostgreSQL
+$tunnelProc = $null
+$tunnelRunning = Test-LocalPort -TargetHost $TunnelHost -Port $TunnelLocalPort
+if (-not $tunnelRunning) {
+    Write-Host "[INFO] Túnel PostgreSQL ausente. Abrindo túnel SSH..."
+    $sshCmd = "ssh -N -L $TunnelLocalPort`:$TunnelRemoteHost`:$TunnelRemotePort -p $TunnelSshPort $TunnelSshUser@$TunnelSshHost"
+    $tunnelProc = Start-TerminalCommand -WorkDir $ProjectRoot -Title "SINGEM DB TUNNEL" -Command $sshCmd
+
+    Start-Sleep -Seconds 2
+    $tunnelUp = Test-LocalPort -TargetHost $TunnelHost -Port $TunnelLocalPort
+    if (-not $tunnelUp) {
+        Write-Host "[ERR] Túnel SSH não ficou disponível na porta 5433. Verifique credenciais/chave SSH."
+        exit 1
+    }
+    Write-Host "[OK] Túnel PostgreSQL ativo na 5433."
+} else {
+    Write-Host "[OK] Túnel PostgreSQL já ativo na 5433."
+}
+
 # 1) Backend
-$backendRunning = Wait-HttpOk -Url $BackendHealthUrl -TimeoutSec 2
+$backendRunning = Wait-BackendHealthy -Url $BackendHealthUrl -TimeoutSec 2
 if (-not $backendRunning) {
+    if (Test-LocalPort -TargetHost "127.0.0.1" -Port $BackendPort) {
+        Write-Host "[INFO] Backend na 3000 está degradado. Reiniciando..."
+        Stop-ListeningPort -Port $BackendPort -Label "Backend"
+        Start-Sleep -Seconds 1
+    }
+
     Write-Host "[INFO] Subindo backend (server) em nova janela..."
     # Preferir npm run dev se existir
     $backendCmd = "if (Test-Path .\package.json) { npm run dev } else { node index.js }"
     $backendProc = Start-TerminalCommand -WorkDir $serverDir -Title "SINGEM BACKEND (DEV)" -Command $backendCmd
-    # Espera /health
-    $ok = Wait-HttpOk -Url $BackendHealthUrl -TimeoutSec 25
+    # Espera /health real (DB conectada)
+    $ok = Wait-BackendHealthy -Url $BackendHealthUrl -TimeoutSec 25
     if (-not $ok) {
-        Write-Host "[ERR] Backend nao respondeu em /health (porta 3000). Verifique logs na janela do backend."
-        # Mesmo assim continua para frontend, se quiser
+        Write-Host "[ERR] Backend não ficou saudável (status OK + DB conectada) na porta 3000."
+        Write-Host "[ERR] Verifique logs do backend e túnel PostgreSQL."
+        exit 1
     } else {
         Write-Host "[OK] Backend online."
     }
 } else {
-    Write-Host "[OK] Backend ja esta online."
+    Write-Host "[OK] Backend já saudável."
     $backendProc = $null
 }
 
@@ -125,6 +187,10 @@ $session = @{
         port = 3000
         health = $BackendHealthUrl
         windowPid = if ($backendProc) { $backendProc.Id } else { $null }
+    }
+    tunnel = @{
+        port = $TunnelLocalPort
+        windowPid = if ($tunnelProc) { $tunnelProc.Id } else { $null }
     }
     frontend = @{
         port = 8000

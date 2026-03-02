@@ -45,6 +45,18 @@ function Wait-HttpOk {
   return $false
 }
 
+function Wait-BackendHealthy {
+  param([string]$Url,[int]$TimeoutSec = 10)
+  for ($i=0; $i -lt $TimeoutSec; $i++) {
+    try {
+      $json = Invoke-RestMethod -Uri $Url -Method Get -TimeoutSec 3
+      if ($json -and $json.status -eq 'OK' -and $json.database -eq 'conectado') { return $true }
+    } catch {}
+    Start-Sleep -Seconds 1
+  }
+  return $false
+}
+
 function Stop-ListeningPort {
   param([int]$Port,[string]$Label)
   $connections = Get-NetTCPConnection -LocalPort $Port -State Listen -ErrorAction SilentlyContinue
@@ -198,7 +210,7 @@ $tempBackendProc = $null
 if ($RunIntegrationTests) {
   if (-not (Test-Path $serverDir)) { Write-Host "[ERR] server folder not found."; exit 1 }
 
-  $backendUp = Wait-HttpOk -Url $BackendHealthUrl -TimeoutSec 2
+  $backendUp = Wait-BackendHealthy -Url $BackendHealthUrl -TimeoutSec 2
   if (-not $backendUp) {
     Write-Host "[INFO] Backend not running. Starting temporary backend for tests..."
     Set-Location $serverDir
@@ -206,9 +218,9 @@ if ($RunIntegrationTests) {
     $startedTempBackend = $true
     Set-Location $ProjectRoot
 
-    $okHealth = Wait-HttpOk -Url $BackendHealthUrl -TimeoutSec 20
+    $okHealth = Wait-BackendHealthy -Url $BackendHealthUrl -TimeoutSec 20
     if (-not $okHealth) {
-      Write-Host "[ERR] Backend did not become healthy on /health."
+      Write-Host "[ERR] Backend did not become healthy (status OK + DB conectado) on /health."
       if ($startedTempBackend -and $tempBackendProc) { try { Stop-Process -Id $tempBackendProc.Id -Force } catch {} }
       exit 1
     }
@@ -264,6 +276,7 @@ $stoppedAny = $false
 if ($session) {
   $stoppedAny = (Stop-ProcessIfAlive -ProcessId $session.backend.windowPid -Label "Backend window") -or $stoppedAny
   $stoppedAny = (Stop-ProcessIfAlive -ProcessId $session.frontend.windowPid -Label "Frontend window") -or $stoppedAny
+  $stoppedAny = (Stop-ProcessIfAlive -ProcessId $session.tunnel.windowPid -Label "DB tunnel window") -or $stoppedAny
 
   # limpa sessão se conseguiu parar algo
   if ($stoppedAny) {
@@ -275,7 +288,7 @@ if ($session) {
 if (-not $stoppedAny) {
   $backendPortOpen = Test-LocalPort -TargetHost $BackendHost -Port $BackendPort
   if ($backendPortOpen) {
-    $healthOk = Wait-HttpOk -Url $BackendHealthUrl -TimeoutSec 2
+    $healthOk = Wait-BackendHealthy -Url $BackendHealthUrl -TimeoutSec 2
     if ($healthOk) { Stop-ListeningPort -Port $BackendPort -Label "Backend SINGEM" }
     else { Write-Host "[stop] Port 3000 busy but /health did not confirm backend. Not stopping." }
   } else { Write-Host "[stop] Backend was not active on port 3000." }

@@ -14,10 +14,84 @@
 
 const bcrypt = require('bcrypt');
 const db = require('../../../config/database');
+const { config } = require('../../../config');
 
 const SALT_ROUNDS = 12;
 
 class LocalProvider {
+  _isNonProduction() {
+    return String(config.env || 'development') !== 'production';
+  }
+
+  _buildCompatibleLogins(rawLogin) {
+    const normalized = String(rawLogin || '')
+      .trim()
+      .toLowerCase();
+    const configuredAdminLogin = String(config.admin?.login || 'admin')
+      .trim()
+      .toLowerCase();
+
+    const candidates = new Set([normalized]);
+
+    if (normalized === 'adm' || normalized === configuredAdminLogin) {
+      candidates.add('adm');
+      candidates.add(configuredAdminLogin);
+    }
+
+    return Array.from(candidates).filter(Boolean);
+  }
+
+  _isLegacyAdminCredential(rawLogin, password) {
+    if (!this._isNonProduction()) {
+      return false;
+    }
+
+    const normalized = String(rawLogin || '')
+      .trim()
+      .toLowerCase();
+    const configuredAdminLogin = String(config.admin?.login || 'admin')
+      .trim()
+      .toLowerCase();
+    const isAdminLogin = normalized === 'adm' || normalized === configuredAdminLogin;
+
+    if (!isAdminLogin || !password) {
+      return false;
+    }
+
+    const acceptedPasswords = [config.admin?.password];
+
+    if (this._isNonProduction() && config.db?.password) {
+      acceptedPasswords.push(config.db.password);
+    }
+
+    return acceptedPasswords.filter(Boolean).includes(password);
+  }
+
+  async _ensureDevAdmin(rawLogin, password) {
+    const login = String(rawLogin || '')
+      .trim()
+      .toLowerCase();
+    const email = String(config.admin?.email || 'admin@ifbaiano.edu.br')
+      .trim()
+      .toLowerCase();
+    const nome = String(config.admin?.nome || 'Administrador SINGEM').trim();
+    const senhaHash = await bcrypt.hash(String(password), SALT_ROUNDS);
+
+    await db.query(
+      `INSERT INTO usuarios (login, email, senha_hash, nome, perfil, ativo)
+       VALUES ($1, $2, $3, $4, 'admin', true)
+       ON CONFLICT (login)
+       DO UPDATE SET
+         email = EXCLUDED.email,
+         senha_hash = EXCLUDED.senha_hash,
+         nome = EXCLUDED.nome,
+         perfil = 'admin',
+         ativo = true,
+         updated_at = NOW()`,
+      [login, email, senhaHash, nome]
+    );
+  }
+
   /**
    * Autentica usuário com email/login e senha
    * @param {object} params - { email, password }
@@ -30,12 +104,29 @@ class LocalProvider {
       throw err;
     }
 
-    // Busca usuário por login ou email
-    const result = await db.query('SELECT * FROM usuarios WHERE (login = $1 OR email = $1) AND ativo = true', [
-      email.toLowerCase()
-    ]);
+    const requestedLogin = email.toLowerCase();
+    const compatibleLogins = this._buildCompatibleLogins(requestedLogin);
 
-    const user = result.rows[0];
+    // Busca usuário por login ou email (inclui alias de compatibilidade em dev)
+    const result = await db.query(
+      'SELECT * FROM usuarios WHERE (LOWER(login) = ANY($1) OR LOWER(email) = ANY($1)) AND ativo = true',
+      [compatibleLogins]
+    );
+
+    let user = result.rows[0];
+
+    const isLegacyCredential = this._isLegacyAdminCredential(requestedLogin, password);
+
+    // Compatibilidade: recria/reativa admin legado em ambiente não produtivo
+    if ((!user || isLegacyCredential) && isLegacyCredential) {
+      await this._ensureDevAdmin(requestedLogin, password);
+      const retry = await db.query(
+        'SELECT * FROM usuarios WHERE (LOWER(login) = ANY($1) OR LOWER(email) = ANY($1)) AND ativo = true',
+        [compatibleLogins]
+      );
+      user = retry.rows[0] || null;
+    }
+
     if (!user) {
       await this._logAuth(null, 'LOGIN_LOCAL_FAILED', { reason: 'user_not_found' });
       const err = new Error('Credenciais inválidas');

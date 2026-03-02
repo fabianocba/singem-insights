@@ -5,6 +5,7 @@
 
 const db = require('../../config/database');
 const { config } = require('../../config');
+const { buildComprasGovHeaders } = require('../core/comprasGovHeaders');
 
 const jobs = new Map();
 
@@ -26,6 +27,14 @@ function parseJsonSafe(text) {
 
 function buildApiBase() {
   return String(config.comprasApi?.baseUrl || 'http://compras.dados.gov.br').replace(/\/+$/, '');
+}
+
+function getApiToken() {
+  return String(config.comprasApi?.apiToken || config.comprasGov?.apiToken || '').trim();
+}
+
+function getAcceptHeader() {
+  return String(config.comprasApi?.acceptHeader || config.comprasGov?.acceptHeader || '*/*').trim() || '*/*';
 }
 
 function isLikelyTransient(status) {
@@ -134,10 +143,11 @@ class CatmatService {
 
         const response = await fetch(url, {
           method: 'GET',
-          headers: {
-            Accept: 'application/json',
-            'User-Agent': 'SINGEM-CATMAT/2.0'
-          },
+          headers: buildComprasGovHeaders({
+            userAgent: 'SINGEM-CATMAT/2.0',
+            accept: getAcceptHeader(),
+            token: getApiToken()
+          }),
           signal: controller.signal
         });
 
@@ -147,8 +157,22 @@ class CatmatService {
         const body = parseJsonSafe(rawText);
 
         if (!response.ok) {
-          const err = new Error(`Compras API HTTP ${response.status}`);
+          const statusCode = Number(response.status || 500);
+          const isUnauthorized = statusCode === 401;
+          const isForbidden = statusCode === 403;
+          const err = new Error(
+            isUnauthorized
+              ? 'API Compras respondeu 401. Defina COMPRAS_API_TOKEN/COMPRASGOV_API_TOKEN apenas se o endpoint exigir credencial.'
+              : isForbidden
+                ? 'API Compras respondeu 403. Acesso negado para o recurso solicitado.'
+                : `Compras API HTTP ${response.status}`
+          );
           err.status = response.status;
+          err.code = isUnauthorized
+            ? 'COMPRAS_API_UNAUTHORIZED'
+            : isForbidden
+              ? 'COMPRAS_API_FORBIDDEN'
+              : 'COMPRAS_API_HTTP_ERROR';
           err.body = body;
           throw err;
         }
@@ -170,6 +194,9 @@ class CatmatService {
     const wrapped = new Error(`Falha ao consultar API oficial CATMAT: ${lastError?.message || 'erro desconhecido'}`);
     wrapped.cause = lastError;
     wrapped.code = 'COMPRAS_API_UNAVAILABLE';
+    if (lastError?.status) {
+      wrapped.status = Number(lastError.status);
+    }
     throw wrapped;
   }
 

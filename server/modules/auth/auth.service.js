@@ -50,8 +50,20 @@ async function login(input) {
       email: userLogin,
       password: userPassword
     });
-  } catch (_error) {
-    throw new AppError(401, 'UNAUTHORIZED', 'Credenciais inválidas');
+  } catch (error) {
+    if (error?.statusCode === 401) {
+      throw new AppError(401, 'UNAUTHORIZED', 'Credenciais inválidas');
+    }
+
+    if (error?.code === 'ECONNREFUSED' || String(error?.message || '').includes('ECONNREFUSED')) {
+      throw new AppError(
+        503,
+        'SERVICE_UNAVAILABLE',
+        'Serviço de autenticação indisponível no momento (falha de conexão com o banco).'
+      );
+    }
+
+    throw error;
   }
 
   const userForToken = {

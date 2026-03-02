@@ -3,6 +3,7 @@ const db = require('../../config/database');
 const { config } = require('../../config');
 const integrationCache = require('../core/integrationCache');
 const { recordApiCall } = require('../core/auditApiCalls');
+const { buildComprasGovHeaders } = require('../core/comprasGovHeaders');
 
 const runtime = {
   lastRequestAt: 0
@@ -154,6 +155,8 @@ function getComprasGovConfig() {
     maxAutoPages: Math.max(1, Math.min(toNumber(cfg.maxAutoPages, 20), 100)),
     auditEnabled: cfg.auditEnabled !== false,
     snapshotEnabled: cfg.snapshotEnabled !== false,
+    apiToken: String(cfg.apiToken || '').trim(),
+    acceptHeader: String(cfg.acceptHeader || '*/*').trim() || '*/*',
     endpoints: cfg.endpoints || {}
   };
 }
@@ -363,11 +366,12 @@ class ComprasGovClient {
 
         const response = await fetch(url, {
           method: 'GET',
-          headers: {
-            Accept: 'application/json',
-            'User-Agent': 'SINGEM-ComprasGov/1.0',
-            'X-Request-Id': requestId || ''
-          },
+          headers: buildComprasGovHeaders({
+            requestId,
+            userAgent: 'SINGEM-ComprasGov/1.0',
+            accept: cfg.acceptHeader,
+            token: cfg.apiToken
+          }),
           signal: controller.signal
         });
 
@@ -385,11 +389,33 @@ class ComprasGovClient {
         clearTimeout(timeoutId);
 
         if (!response.ok) {
-          const error = new Error(
-            data?.message || data?.erro || `Falha na consulta ComprasGov (HTTP ${response.status})`
-          );
-          error.statusCode = response.status;
-          error.code = 'COMPRASGOV_HTTP_ERROR';
+          const statusCode = Number(response.status || 500);
+          const isUnauthorized = statusCode === 401;
+          const isForbidden = statusCode === 403;
+
+          let errorMessage = data?.message || data?.erro || `Falha na consulta ComprasGov (HTTP ${response.status})`;
+
+          if (isUnauthorized) {
+            errorMessage =
+              data?.message ||
+              data?.erro ||
+              'API Compras.gov.br respondeu 401. Verifique se o endpoint exige credencial e configure COMPRASGOV_API_TOKEN se necessário.';
+          }
+
+          if (isForbidden) {
+            errorMessage =
+              data?.message ||
+              data?.erro ||
+              'API Compras.gov.br respondeu 403. Acesso negado para o recurso solicitado.';
+          }
+
+          const error = new Error(errorMessage);
+          error.statusCode = statusCode;
+          error.code = isUnauthorized
+            ? 'COMPRASGOV_UNAUTHORIZED'
+            : isForbidden
+              ? 'COMPRASGOV_FORBIDDEN'
+              : 'COMPRASGOV_HTTP_ERROR';
           error.details = {
             response: data,
             url: url.toString()

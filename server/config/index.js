@@ -57,7 +57,9 @@ const config = {
     timeoutMs: Number(process.env.COMPRAS_API_TIMEOUT_MS || 8000),
     maxRetries: Number(process.env.COMPRAS_API_MAX_RETRIES || 3),
     retryBaseDelayMs: Number(process.env.COMPRAS_API_RETRY_BASE_DELAY_MS || 500),
-    rateLimitMs: Number(process.env.COMPRAS_API_RATE_LIMIT_MS || 250)
+    rateLimitMs: Number(process.env.COMPRAS_API_RATE_LIMIT_MS || 250),
+    apiToken: process.env.COMPRAS_API_TOKEN || process.env.COMPRASGOV_API_TOKEN || '',
+    acceptHeader: process.env.COMPRAS_API_ACCEPT_HEADER || process.env.COMPRASGOV_ACCEPT_HEADER || '*/*'
   },
   comprasGov: {
     baseUrl:
@@ -77,6 +79,8 @@ const config = {
     maxAutoPages: Number(process.env.COMPRASGOV_MAX_AUTO_PAGES || 20),
     auditEnabled: parseBoolean(process.env.COMPRASGOV_AUDIT_ENABLED, true),
     snapshotEnabled: parseBoolean(process.env.COMPRASGOV_SNAPSHOT_ENABLED, true),
+    apiToken: process.env.COMPRASGOV_API_TOKEN || process.env.COMPRAS_API_TOKEN || '',
+    acceptHeader: process.env.COMPRASGOV_ACCEPT_HEADER || process.env.COMPRAS_API_ACCEPT_HEADER || '*/*',
     endpoints: {
       catalogoMaterial: {
         itens: process.env.COMPRASGOV_ENDPOINT_CATALOGO_MATERIAL_ITENS || '/modulo-material/4_consultarItemMaterial',
