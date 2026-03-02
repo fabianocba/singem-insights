@@ -1,13 +1,11 @@
-﻿# Normalize line endings in repo
-* text=auto
+﻿* text=auto
 
-# Force LF for scripts (cross-platform)
-*.sh text eol=lf
+# Windows PowerShell scripts
 *.ps1 text eol=crlf
 
-# Common text files
+# Web/Node files
 *.js   text eol=lf
 *.html text eol=lf
 *.css  text eol=lf
-*.md   text eol=lf
 *.json text eol=lf
+*.md   text eol=lf
