@@ -66,14 +66,21 @@ function Stop-ListeningPort {
 }
 
 function Stop-ProcessIfAlive {
-  param([int]$procId,[string]$Label)
-  if (-not $procId) { return $false }
+  param(
+    [Parameter(Mandatory=$true)][int]$ProcessId,
+    [Parameter(Mandatory=$true)][string]$Label
+  )
+
+  if (-not $ProcessId) { return $false }
+
   try {
-    $p = Get-Process -Id $procId -ErrorAction Stop
-    Stop-Process -Id $procId -Force -ErrorAction Stop
-    Write-Host ("[stop] {0} stopped by PID (PID {1})." -f $Label, $procId)
+    $p = Get-Process -Id $ProcessId -ErrorAction Stop
+    Stop-Process -Id $ProcessId -Force -ErrorAction Stop
+    Write-Host ("[stop] {0} stopped by PID (PID {1})." -f $Label, $ProcessId)
     return $true
-  } catch { return $false }
+  } catch {
+    return $false
+  }
 }
 
 function Stop-SshTunnelFallback {
@@ -282,4 +289,5 @@ Write-Host ""
 Write-Host "[OK] Commit + pull/rebase + push completed, then services stopped."
 Write-Host "[DONE]"
 Write-Host ""
+
 

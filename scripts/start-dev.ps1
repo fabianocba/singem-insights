@@ -41,8 +41,20 @@ function Start-TerminalCommand {
         [string]$Title,
         [string]$Command
     )
-    # Abre uma nova janela do PowerShell e mantém aberta
-    $args = "-NoExit", "-Command", "Set-Location `"$WorkDir`"; `$TargetHost.ui.RawUI.WindowTitle=`"$Title`"; $Command"
+
+    # Monta um script interno seguro (sem briga de aspas)
+    $inner = @"
+Set-Location -LiteralPath '$WorkDir'
+`$host.ui.RawUI.WindowTitle = '$Title'
+$Command
+"@
+
+    $args = @(
+        "-NoExit",
+        "-ExecutionPolicy","Bypass",
+        "-Command", $inner
+    )
+
     return Start-Process -FilePath "powershell.exe" -ArgumentList $args -PassThru
 }
 
@@ -127,5 +139,9 @@ Write-Host ""
 Write-Host ("[OK] Sessao salva em: {0}" -f $sessionPath)
 Write-Host ("[INFO] Abra: http://localhost:{0}" -f $FrontPort)
 Write-Host ""
+
+
+
+
 
 
