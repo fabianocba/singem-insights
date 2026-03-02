@@ -55,23 +55,23 @@ function Stop-ListeningPort {
     return
   }
 
-  foreach ($pid in $pids) {
+  foreach ($procId in $pids) {
     try {
-      Stop-Process -Id $pid -Force -ErrorAction Stop
-      Write-Host ("[stop] {0} stopped (PID {1}, port {2})." -f $Label, $pid, $Port)
+      Stop-Process -Id $procId -Force -ErrorAction Stop
+      Write-Host ("[stop] {0} stopped (PID {1}, port {2})." -f $Label, $procId, $Port)
     } catch {
-      Write-Host ("[stop] Failed stopping {0} (PID {1}): {2}" -f $Label, $pid, $_.Exception.Message)
+      Write-Host ("[stop] Failed stopping {0} (PID {1}): {2}" -f $Label, $procId, $_.Exception.Message)
     }
   }
 }
 
 function Stop-ProcessIfAlive {
-  param([int]$Pid,[string]$Label)
-  if (-not $Pid) { return $false }
+  param([int]$procId,[string]$Label)
+  if (-not $procId) { return $false }
   try {
-    $p = Get-Process -Id $Pid -ErrorAction Stop
-    Stop-Process -Id $Pid -Force -ErrorAction Stop
-    Write-Host ("[stop] {0} stopped by PID (PID {1})." -f $Label, $Pid)
+    $p = Get-Process -Id $procId -ErrorAction Stop
+    Stop-Process -Id $procId -Force -ErrorAction Stop
+    Write-Host ("[stop] {0} stopped by PID (PID {1})." -f $Label, $procId)
     return $true
   } catch { return $false }
 }
@@ -255,8 +255,8 @@ Write-Host "==> Stopping DEV services (frontend, backend, tunnel)..."
 
 $stoppedAny = $false
 if ($session) {
-  $stoppedAny = (Stop-ProcessIfAlive -Pid $session.backend.windowPid -Label "Backend window") -or $stoppedAny
-  $stoppedAny = (Stop-ProcessIfAlive -Pid $session.frontend.windowPid -Label "Frontend window") -or $stoppedAny
+  $stoppedAny = (Stop-ProcessIfAlive -ProcessId $session.backend.windowPid -Label "Backend window") -or $stoppedAny
+  $stoppedAny = (Stop-ProcessIfAlive -ProcessId $session.frontend.windowPid -Label "Frontend window") -or $stoppedAny
 
   # limpa sessão se conseguiu parar algo
   if ($stoppedAny) {
@@ -282,3 +282,4 @@ Write-Host ""
 Write-Host "[OK] Commit + pull/rebase + push completed, then services stopped."
 Write-Host "[DONE]"
 Write-Host ""
+

@@ -30,9 +30,8 @@ function Wait-HttpOk {
     return $false
 }
 
-function Test-LocalPort {
-    param([string]$Host,[int]$Port)
-    try { return (Test-NetConnection $Host -Port $Port -WarningAction SilentlyContinue).TcpTestSucceeded }
+function Test-LocalPort { param([string]$TargetHost,[int]$Port)
+    try { return (Test-NetConnection $TargetHost -Port $Port -WarningAction SilentlyContinue).TcpTestSucceeded }
     catch { return $false }
 }
 
@@ -43,7 +42,7 @@ function Start-TerminalCommand {
         [string]$Command
     )
     # Abre uma nova janela do PowerShell e mantém aberta
-    $args = "-NoExit", "-Command", "Set-Location `"$WorkDir`"; `$host.ui.RawUI.WindowTitle=`"$Title`"; $Command"
+    $args = "-NoExit", "-Command", "Set-Location `"$WorkDir`"; `$TargetHost.ui.RawUI.WindowTitle=`"$Title`"; $Command"
     return Start-Process -FilePath "powershell.exe" -ArgumentList $args -PassThru
 }
 
@@ -84,7 +83,7 @@ if (-not $backendRunning) {
 }
 
 # 2) Frontend (servidor estático)
-$frontRunning = Test-LocalPort -Host "127.0.0.1" -Port $FrontPort
+$frontRunning = Test-LocalPort -TargetHost "127.0.0.1" -Port $FrontPort
 if (-not $frontRunning) {
     Write-Host "[INFO] Subindo frontend estatico na porta 8000..."
     # Tenta usar http-server (se existir), senão usa python (se existir)
@@ -128,3 +127,4 @@ Write-Host ""
 Write-Host ("[OK] Sessao salva em: {0}" -f $sessionPath)
 Write-Host ("[INFO] Abra: http://localhost:{0}" -f $FrontPort)
 Write-Host ""
+
