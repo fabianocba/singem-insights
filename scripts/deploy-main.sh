@@ -4,6 +4,7 @@ set -euo pipefail
 REMOTE="${REMOTE:-origin}"
 APP_NAME="${APP_NAME:-singem-server}"
 CREATE_TAG="${CREATE_TAG:-1}"
+PM2_ENTRY="${PM2_ENTRY:-server/index.js}"
 
 echo "🚀 Deploy main SINGEM (bump patch automático)"
 
@@ -114,11 +115,20 @@ fi
 
 if command -v pm2 >/dev/null 2>&1; then
   if pm2 describe "$APP_NAME" >/dev/null 2>&1; then
-    pm2 restart "$APP_NAME"
+    pm2 restart "$APP_NAME" --update-env
     echo "✅ PM2 reiniciado: ${APP_NAME}"
   else
-    echo "⚠️ PM2 app '${APP_NAME}' não encontrada. Reinicie manualmente o processo correto."
+    if [[ -f "$PM2_ENTRY" ]]; then
+      pm2 start "$PM2_ENTRY" --name "$APP_NAME" --update-env
+      echo "✅ PM2 iniciado: ${APP_NAME} (${PM2_ENTRY})"
+    else
+      echo "❌ PM2 app '${APP_NAME}' não encontrada e entrypoint '${PM2_ENTRY}' inexistente."
+      exit 1
+    fi
   fi
+
+  pm2 save
+  echo "✅ PM2 state salvo."
 else
   echo "⚠️ PM2 não encontrado neste host. Reinicie o backend manualmente."
 fi
