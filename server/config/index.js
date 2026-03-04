@@ -1,8 +1,18 @@
 const path = require('path');
+const fs = require('fs');
 const dotenv = require('dotenv');
 
-const envPath = path.join(__dirname, '../.env');
-dotenv.config({ path: envPath });
+const baseEnvPath = path.join(__dirname, '../.env');
+dotenv.config({ path: baseEnvPath });
+
+const runtimeEnv = process.env.NODE_ENV || 'development';
+const envOverridePath = path.join(__dirname, `../.env.${runtimeEnv}`);
+
+if (fs.existsSync(envOverridePath)) {
+  dotenv.config({ path: envOverridePath, override: true });
+}
+
+const envPath = fs.existsSync(envOverridePath) ? envOverridePath : baseEnvPath;
 
 function parseBoolean(value, fallback = false) {
   if (value === undefined || value === null || value === '') {

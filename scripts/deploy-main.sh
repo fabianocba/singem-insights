@@ -2,7 +2,7 @@
 set -euo pipefail
 
 REMOTE="${REMOTE:-origin}"
-APP_NAME="${APP_NAME:-singem-api}"
+APP_NAME="${APP_NAME:-singem-server}"
 CREATE_TAG="${CREATE_TAG:-1}"
 
 echo "🚀 Deploy main SINGEM (bump patch automático)"
@@ -32,7 +32,11 @@ const fs = require('fs');
 const path = require('path');
 
 const root = process.cwd();
-const versionFilePath = path.join(root, 'js', 'core', 'version.json');
+const versionFileCandidates = [
+  path.join(root, 'version.json'),
+  path.join(root, 'js', 'core', 'version.json')
+];
+const versionFilePath = versionFileCandidates.find((candidate) => fs.existsSync(candidate)) || versionFileCandidates[0];
 const serverPackagePath = path.join(root, 'server', 'package.json');
 
 const readJson = (filePath) => JSON.parse(fs.readFileSync(filePath, 'utf8'));
@@ -82,7 +86,15 @@ fi
 
 echo "📦 Nova versão: v${NEW_VERSION} • build ${NEW_BUILD}"
 
-git add js/core/version.json server/package.json
+if [[ -f version.json ]]; then
+  git add version.json
+fi
+
+if [[ -f js/core/version.json ]]; then
+  git add js/core/version.json
+fi
+
+git add server/package.json
 
 if git diff --cached --quiet; then
   echo "ℹ️ Nenhuma alteração de versão detectada para commit."
