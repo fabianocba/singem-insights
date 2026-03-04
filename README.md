@@ -675,9 +675,9 @@ Todos os direitos reservados.
 ## 🚀 Versionamento e Deploy Main
 
 - O rodapé global exibe: `SINGEM vX.Y.Z • build YYYYMMDD-HHMM • commit abc1234 • env production|development`.
-- O frontend consulta `GET /api/version`; se falhar, usa fallback em `js/core/version.json`.
-- Fonte de verdade de `build` e `buildTimestamp`: `js/core/version.json`.
-- Versão semântica usada pelo backend: `server/package.json`.
+- O frontend consulta `GET /api/version`.
+- Fonte de verdade de `version`, `build` e `buildTimestamp`: `version.json` (lido pelo backend em `/api/version`).
+- Deploy da `main` sincroniza versão semântica em `version.json` e `server/package.json`.
 
 ### Deploy da main (1 comando)
 

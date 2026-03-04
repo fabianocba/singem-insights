@@ -25,6 +25,7 @@ param(
   [switch]$SkipGitSync,
   [switch]$SkipInstall,
   [switch]$NoAutoRepairTunnel,
+  [switch]$NoTunnel,
   [switch]$ForceInstall
 )
 
@@ -508,6 +509,10 @@ function Parse-EnvFile {
 }
 
 function Ensure-BackendEnvFile {
+  param(
+    [bool]$ExpectTunnel = $true
+  )
+
   $envPath = Join-Path $script:ServerDir '.env'
   $envDevPath = Join-Path $script:ServerDir '.env.development'
   $envExamplePath = Join-Path $script:ServerDir '.env.example'
@@ -525,7 +530,7 @@ function Ensure-BackendEnvFile {
   }
 
   $envMap = Parse-EnvFile -EnvPath $envPath
-  if ($envMap.ContainsKey('DATABASE_URL')) {
+  if ($ExpectTunnel -and $envMap.ContainsKey('DATABASE_URL')) {
     $databaseUrl = [string]$envMap['DATABASE_URL']
     if ($databaseUrl -notmatch ":$DbLocalPort") {
       Write-WarnMsg ("DATABASE_URL em server/.env não aponta para a porta local {0}. Valor atual: {1}" -f $DbLocalPort, $databaseUrl)
@@ -534,8 +539,11 @@ function Ensure-BackendEnvFile {
 
   if ($envMap.ContainsKey('DB_PORT')) {
     $dbPortEnv = [int]$envMap['DB_PORT']
-    if ($dbPortEnv -ne $DbLocalPort) {
+    if ($ExpectTunnel -and $dbPortEnv -ne $DbLocalPort) {
       Write-WarnMsg ("DB_PORT em server/.env está {0}; esperado para túnel local: {1}." -f $dbPortEnv, $DbLocalPort)
+    }
+    if ((-not $ExpectTunnel) -and $dbPortEnv -eq $DbLocalPort) {
+      Write-WarnMsg ("DB_PORT em server/.env está {0} (porta de túnel). No modo sem túnel, garanta conectividade local/alternativa de banco." -f $dbPortEnv)
     }
   }
 
@@ -698,13 +706,17 @@ function Validate-Prerequisites {
       Require-Command -Name 'git' -Hint 'Instale Git: https://git-scm.com/download/win'
       Require-Command -Name 'node' -Hint 'Instale Node.js LTS: https://nodejs.org/'
       Require-Command -Name 'npm' -Hint 'npm deve vir junto com o Node.js.'
-      Require-Command -Name 'ssh' -Hint 'Instale OpenSSH Client (Feature do Windows).'
+      if (-not $NoTunnel) {
+        Require-Command -Name 'ssh' -Hint 'Instale OpenSSH Client (Feature do Windows).'
+      }
     }
     'up' {
       Require-Command -Name 'git' -Hint 'Instale Git: https://git-scm.com/download/win'
       Require-Command -Name 'node' -Hint 'Instale Node.js LTS: https://nodejs.org/'
       Require-Command -Name 'npm' -Hint 'npm deve vir junto com o Node.js.'
-      Require-Command -Name 'ssh' -Hint 'Instale OpenSSH Client (Feature do Windows).'
+      if (-not $NoTunnel) {
+        Require-Command -Name 'ssh' -Hint 'Instale OpenSSH Client (Feature do Windows).'
+      }
     }
     'tunnel' {
       Require-Command -Name 'ssh' -Hint 'Instale OpenSSH Client (Feature do Windows).'
@@ -837,6 +849,10 @@ function Start-ComponentWindow {
     '-BackendHealthPath', $BackendHealthPath
   )
 
+  if ($NoTunnel) {
+    $argumentList += '-NoTunnel'
+  }
+
   return Start-Process -FilePath 'powershell.exe' -ArgumentList $argumentList -PassThru
 }
 
@@ -906,9 +922,12 @@ function Ensure-TunnelAvailable {
 }
 
 function Ensure-BackendAvailable {
-  param([switch]$AllowStart)
+  param(
+    [switch]$AllowStart,
+    [bool]$RequireDatabaseConnected = $true
+  )
 
-  $healthy = Wait-BackendHealthy -TimeoutSec 2 -RequireDatabaseConnected
+  $healthy = Wait-BackendHealthy -TimeoutSec 2 -RequireDatabaseConnected:$RequireDatabaseConnected
   if ($healthy) {
     Write-Ok ("Backend já saudável em http://localhost:{0}" -f $BackendPort)
     $backendProc = Get-PortProcessDetails -Port $BackendPort | Select-Object -First 1
@@ -961,9 +980,13 @@ function Ensure-BackendAvailable {
     return @{ ok = $false; reason = 'spawn-failed' }
   }
 
-  $readyHealth = Wait-BackendHealthy -TimeoutSec 60 -RequireDatabaseConnected
+  $readyHealth = Wait-BackendHealthy -TimeoutSec 60 -RequireDatabaseConnected:$RequireDatabaseConnected
   if (-not $readyHealth) {
-    Write-ErrMsg 'Backend não ficou saudável (status OK + database conectado).'
+    if ($RequireDatabaseConnected) {
+      Write-ErrMsg 'Backend não ficou saudável (status OK + database conectado).'
+    } else {
+      Write-ErrMsg 'Backend não ficou saudável (status OK/DEGRADED).'
+    }
     return @{ ok = $false; reason = 'startup-timeout'; windowPid = $window.Id }
   }
 
@@ -1147,7 +1170,7 @@ function Invoke-SetupAction {
   Write-Host ("- DB túnel ({0}): {1}" -f $DbLocalPort, $dbPortStatus)
 
   Sync-Repository
-  Ensure-BackendEnvFile
+  Ensure-BackendEnvFile -ExpectTunnel:(-not $NoTunnel)
   $onlyWhenMissing = -not $ForceInstall
   Ensure-NpmDependencies -WorkDir $script:ResolvedProjectRoot -Label 'root' -OnlyWhenMissing:$onlyWhenMissing
   Ensure-NpmDependencies -WorkDir $script:ServerDir -Label 'server' -OnlyWhenMissing:$onlyWhenMissing -RequiredModules @('express', 'pg')
@@ -1160,12 +1183,16 @@ function Invoke-UpAction {
   Write-Headline 'SINGEM DEV UP'
   Invoke-SetupAction
 
-  $tunnel = Ensure-TunnelAvailable -AllowStart
-  if (-not $tunnel.ok) {
-    throw 'Não foi possível garantir o túnel SSH para o banco.'
+  if ($NoTunnel) {
+    Write-WarnMsg 'Modo sem túnel ativo (-NoTunnel): inicialização priorizando backend/frontend locais.'
+  } else {
+    $tunnel = Ensure-TunnelAvailable -AllowStart
+    if (-not $tunnel.ok) {
+      throw 'Não foi possível garantir o túnel SSH para o banco.'
+    }
   }
 
-  $backend = Ensure-BackendAvailable -AllowStart
+  $backend = Ensure-BackendAvailable -AllowStart -RequireDatabaseConnected:(-not $NoTunnel)
   if (-not $backend.ok) {
     throw 'Não foi possível garantir backend saudável.'
   }
@@ -1175,19 +1202,39 @@ function Invoke-UpAction {
     throw 'Não foi possível garantir frontend ativo.'
   }
 
-  $health = Invoke-HealthChecks -TryRepairTunnel:(-not $NoAutoRepairTunnel)
+  $health = Invoke-HealthChecks -TryRepairTunnel:(( -not $NoTunnel) -and (-not $NoAutoRepairTunnel))
+
+  if ($NoTunnel -and ([string]$health.databaseStatus -ne 'conectado') -and (-not $NoAutoRepairTunnel)) {
+    Write-WarnMsg 'Banco não conectado em modo local. Tentando fallback automático via túnel SSH...'
+    $tunnelFallback = Ensure-TunnelAvailable -AllowStart
+    if ($tunnelFallback.ok) {
+      Start-Sleep -Seconds 2
+      $health = Invoke-HealthChecks -TryRepairTunnel:$false
+    } else {
+      Write-WarnMsg 'Fallback do túnel não foi possível. Mantendo execução sem túnel.'
+    }
+  }
+
   Show-Summary -HealthResult $health -Mode 'up'
 
   if (-not $health.backendPortOk) {
     throw 'Backend não está respondendo na porta esperada.'
   }
 
-  if (-not $health.dbPortOk) {
-    throw 'Porta local do túnel PostgreSQL não está acessível.'
+  if (-not $health.frontendPortOk) {
+    throw 'Frontend não está respondendo na porta esperada.'
   }
 
-  if ([string]$health.databaseStatus -ne 'conectado') {
-    throw 'Backend respondeu sem conexão ativa com o banco.'
+  if (-not $NoTunnel) {
+    if (-not $health.dbPortOk) {
+      throw 'Porta local do túnel PostgreSQL não está acessível.'
+    }
+
+    if ([string]$health.databaseStatus -ne 'conectado') {
+      throw 'Backend respondeu sem conexão ativa com o banco.'
+    }
+  } elseif ([string]$health.databaseStatus -ne 'conectado') {
+    Write-WarnMsg 'Modo sem túnel: backend ativo sem conexão confirmada com banco.'
   }
 }
 
@@ -1279,10 +1326,10 @@ function Invoke-BackendAction {
   Validate-Prerequisites
   Initialize-Context
 
-  Ensure-BackendEnvFile
+  Ensure-BackendEnvFile -ExpectTunnel:(-not $NoTunnel)
   Ensure-NpmDependencies -WorkDir $script:ServerDir -Label 'server' -OnlyWhenMissing -RequiredModules @('express', 'pg')
 
-  $healthy = Wait-BackendHealthy -TimeoutSec 2 -RequireDatabaseConnected
+  $healthy = Wait-BackendHealthy -TimeoutSec 2 -RequireDatabaseConnected:(-not $NoTunnel)
   if ($healthy) {
     Write-Ok 'Backend já estava saudável. Nenhum novo processo iniciado.'
     $proc = Get-PortProcessDetails -Port $BackendPort | Select-Object -First 1
@@ -1414,7 +1461,7 @@ function Invoke-HealthAction {
   Write-Headline 'SINGEM HEALTHCHECK'
   Initialize-Context
 
-  $health = Invoke-HealthChecks -TryRepairTunnel:(-not $NoAutoRepairTunnel)
+  $health = Invoke-HealthChecks -TryRepairTunnel:(( -not $NoTunnel) -and (-not $NoAutoRepairTunnel))
 
   if (-not $health.backendPortOk) {
     Write-WarnMsg ("Backend não respondeu na porta {0}." -f $BackendPort)
@@ -1426,19 +1473,29 @@ function Invoke-HealthAction {
     Write-Host 'Sugestão: execute SINGEM: FRONTEND ou scripts\dev-up.ps1 -Action frontend' -ForegroundColor Yellow
   }
 
-  if (-not $health.dbPortOk) {
+  if ((-not $NoTunnel) -and (-not $health.dbPortOk)) {
     Write-WarnMsg ("Porta local do túnel ({0}) está indisponível." -f $DbLocalPort)
     Write-Host 'Sugestão: execute SINGEM: TUNNEL ou scripts\dev-up.ps1 -Action tunnel' -ForegroundColor Yellow
+  } elseif ($NoTunnel -and (-not $health.dbPortOk)) {
+    Write-WarnMsg ("Modo sem túnel ativo: porta local {0} do túnel está indisponível (esperado)." -f $DbLocalPort)
   }
 
   if ([string]$health.databaseStatus -ne 'conectado') {
-    Write-WarnMsg 'Backend sem conexão confirmada com PostgreSQL.'
-    Write-Host 'Sugestão: valide server/.env (DATABASE_URL/DB_PORT) e o túnel SSH.' -ForegroundColor Yellow
+    if ($NoTunnel) {
+      Write-WarnMsg 'Modo sem túnel: backend sem conexão confirmada com PostgreSQL.'
+      Write-Host 'Sugestão: valide server/.env (DATABASE_URL/DB_PORT) para banco local, ou rode sem -NoTunnel.' -ForegroundColor Yellow
+    } else {
+      Write-WarnMsg 'Backend sem conexão confirmada com PostgreSQL.'
+      Write-Host 'Sugestão: valide server/.env (DATABASE_URL/DB_PORT) e o túnel SSH.' -ForegroundColor Yellow
+    }
   }
 
   Show-Summary -HealthResult $health -Mode 'health'
 
-  $failed = (-not $health.backendPortOk) -or (-not $health.frontendPortOk) -or (-not $health.dbPortOk) -or ([string]$health.databaseStatus -ne 'conectado')
+  $failed = (-not $health.backendPortOk) -or (-not $health.frontendPortOk)
+  if (-not $NoTunnel) {
+    $failed = $failed -or (-not $health.dbPortOk) -or ([string]$health.databaseStatus -ne 'conectado')
+  }
   if ($failed) {
     exit 1
   }

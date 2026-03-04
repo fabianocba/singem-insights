@@ -45,10 +45,10 @@ const writeJson = (filePath, data) => fs.writeFileSync(filePath, `${JSON.stringi
 const coreVersion = readJson(versionFilePath);
 const serverPackage = readJson(serverPackagePath);
 
-const currentVersion = String(serverPackage.version || coreVersion.version || '0.0.0').trim();
+const currentVersion = String(coreVersion.version || serverPackage.version || '0.0.0').trim();
 const match = currentVersion.match(/^(\d+)\.(\d+)\.(\d+)$/);
 if (!match) {
-  throw new Error(`Versão inválida em server/package.json: ${currentVersion}`);
+  throw new Error(`Versão inválida para release: ${currentVersion}`);
 }
 
 const nextVersion = `${match[1]}.${match[2]}.${Number(match[3]) + 1}`;
@@ -62,6 +62,7 @@ const nextCoreVersion = {
   ...coreVersion,
   name: coreVersion.name || 'SINGEM',
   version: nextVersion,
+  channel: 'main',
   build,
   buildTimestamp
 };

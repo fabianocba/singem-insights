@@ -1,7 +1,7 @@
 {
   "name": "SINGEM",
-  "version": "1.2.0",
-  "channel": "dev",
-  "build": "20260301-1619",
-  "buildTimestamp": "2026-03-01T16:19:42.572Z"
+  "version": "1.2.1",
+  "channel": "main",
+  "build": "20260304-1853",
+  "buildTimestamp": "2026-03-04T18:53:51.3623721Z"
 }

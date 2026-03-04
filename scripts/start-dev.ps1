@@ -12,6 +12,7 @@ param(
   [switch]$SkipGitSync,
   [switch]$SkipInstall,
   [switch]$NoAutoRepairTunnel,
+  [switch]$NoTunnel,
   [switch]$ForceInstall
 )
 
@@ -34,6 +35,7 @@ $forwardArgs = @{
   SkipGitSync = $SkipGitSync
   SkipInstall = $SkipInstall
   NoAutoRepairTunnel = $NoAutoRepairTunnel
+  NoTunnel = $NoTunnel
   ForceInstall = $ForceInstall
 }
 
