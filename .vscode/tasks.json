@@ -1,0 +1,236 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "SINGEM: DEV UP",
+      "type": "shell",
+      "command": "powershell",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "${workspaceFolder}\\scripts\\dev-up.ps1",
+        "-Action",
+        "up",
+        "-ProjectRoot",
+        "${workspaceFolder}",
+        "-Branch",
+        "dev"
+      ],
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "dedicated",
+        "showReuseMessage": false,
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "SINGEM: TUNNEL",
+      "type": "shell",
+      "command": "powershell",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "${workspaceFolder}\\scripts\\dev-up.ps1",
+        "-Action",
+        "tunnel",
+        "-ProjectRoot",
+        "${workspaceFolder}",
+        "-Branch",
+        "dev"
+      ],
+      "isBackground": true,
+      "presentation": {
+        "reveal": "always",
+        "focus": false,
+        "panel": "dedicated",
+        "group": "singem-tunnel"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "SINGEM: BACKEND",
+      "type": "shell",
+      "command": "powershell",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "${workspaceFolder}\\scripts\\dev-up.ps1",
+        "-Action",
+        "backend",
+        "-ProjectRoot",
+        "${workspaceFolder}",
+        "-Branch",
+        "dev"
+      ],
+      "isBackground": true,
+      "presentation": {
+        "reveal": "always",
+        "focus": false,
+        "panel": "dedicated",
+        "group": "singem-backend"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "SINGEM: FRONTEND",
+      "type": "shell",
+      "command": "powershell",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "${workspaceFolder}\\scripts\\dev-up.ps1",
+        "-Action",
+        "frontend",
+        "-ProjectRoot",
+        "${workspaceFolder}",
+        "-Branch",
+        "dev"
+      ],
+      "isBackground": true,
+      "presentation": {
+        "reveal": "always",
+        "focus": false,
+        "panel": "dedicated",
+        "group": "singem-frontend"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "SINGEM: HEALTHCHECK",
+      "type": "shell",
+      "command": "powershell",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "${workspaceFolder}\\scripts\\dev-up.ps1",
+        "-Action",
+        "health",
+        "-ProjectRoot",
+        "${workspaceFolder}",
+        "-Branch",
+        "dev"
+      ],
+      "presentation": {
+        "reveal": "always",
+        "focus": false,
+        "panel": "dedicated",
+        "group": "singem-health"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "SINGEM: STOP",
+      "type": "shell",
+      "command": "powershell",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "${workspaceFolder}\\scripts\\stop.ps1",
+        "-OnlyStop",
+        "-ProjectRoot",
+        "${workspaceFolder}",
+        "-Branch",
+        "dev"
+      ],
+      "presentation": {
+        "reveal": "always",
+        "focus": false,
+        "panel": "dedicated",
+        "group": "singem-stop"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "🎯 Iniciar IFDESK Automaticamente",
+      "type": "shell",
+      "command": "powershell",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "${workspaceFolder}\\scripts\\start-dev.ps1",
+        "-ProjectRoot",
+        "${workspaceFolder}",
+        "-Branch",
+        "dev"
+      ],
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "dedicated",
+        "showReuseMessage": false,
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "lint",
+      "type": "shell",
+      "command": "npm run lint",
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": ["$eslint-stylish"]
+    },
+    {
+      "label": "lint:fix",
+      "type": "shell",
+      "command": "npm run lint:fix",
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "format",
+      "type": "shell",
+      "command": "npm run format",
+      "group": "test",
+      "presentation": {
+        "reveal": "silent",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "format:check",
+      "type": "shell",
+      "command": "npm run format:check",
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "serve",
+      "type": "shell",
+      "command": "npm run serve:dev",
+      "group": "build",
+      "isBackground": true,
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      }
+    }
+  ]
+}
