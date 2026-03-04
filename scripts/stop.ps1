@@ -1,4 +1,42 @@
-﻿Write-Host ""
+﻿[CmdletBinding()]
+param(
+  [switch]$OnlyStop,
+  [ValidateSet('dev', 'main')]
+  [string]$Branch = 'dev',
+  [string]$ProjectRoot = (Get-Location).Path,
+  [string]$SshHost = 'srv1401818.hstgr.cloud',
+  [int]$SshPort = 2222,
+  [int]$DbLocalPort = 5433,
+  [int]$DbRemotePort = 5432,
+  [int]$BackendPort = 3000,
+  [int]$FrontendPort = 8000
+)
+
+if ($OnlyStop) {
+  $devUpPath = Join-Path $PSScriptRoot 'dev-up.ps1'
+  if (-not (Test-Path -LiteralPath $devUpPath)) {
+    Write-Host '[ERR] scripts\dev-up.ps1 não encontrado.' -ForegroundColor Red
+    exit 1
+  }
+
+  $forwardArgs = @{
+    Action = 'stop'
+    Branch = $Branch
+    ProjectRoot = $ProjectRoot
+    SshHost = $SshHost
+    SshPort = $SshPort
+    DbLocalPort = $DbLocalPort
+    DbRemotePort = $DbRemotePort
+    BackendPort = $BackendPort
+    FrontendPort = $FrontendPort
+  }
+
+  & $devUpPath @forwardArgs
+
+  exit $LASTEXITCODE
+}
+
+Write-Host ""
 Write-Host "=== SINGEM STOP DEV + TEST + COMMIT + PUSH (SESSION + SMART) ==="
 Write-Host ""
 
@@ -86,7 +124,7 @@ function Stop-ProcessIfAlive {
   if (-not $ProcessId) { return $false }
 
   try {
-    $p = Get-Process -Id $ProcessId -ErrorAction Stop
+    Get-Process -Id $ProcessId -ErrorAction Stop | Out-Null
     Stop-Process -Id $ProcessId -Force -ErrorAction Stop
     Write-Host ("[stop] {0} stopped by PID (PID {1})." -f $Label, $ProcessId)
     return $true
