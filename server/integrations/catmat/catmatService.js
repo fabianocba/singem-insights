@@ -6,12 +6,18 @@
 const db = require('../../config/database');
 const { config } = require('../../config');
 const comprasApiClient = require('../../services/comprasApiClient');
+const integrationCache = require('../core/integrationCache');
+const { normalizeText } = require('../../utils/textNormalize');
 
 const jobs = new Map();
 
 const runtime = {
-  lastRequestAt: 0
+  lastRequestAt: 0,
+  searchInFlight: new Map()
 };
+
+const CATMAT_SEARCH_CACHE_NAMESPACE = 'catmat:search';
+const CATMAT_SEARCH_CACHE_TTL_SECONDS = Math.max(15, Number(config.catmatSearchCacheTtlSeconds || 90));
 
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -149,6 +155,177 @@ class CatmatService {
         JSON.stringify(material.raw || {})
       ]
     );
+
+    try {
+      await db.query(
+        `
+        INSERT INTO catmat_itens (codigo, descricao, descricao_norm, unidade, ativo, raw_json, updated_at)
+        VALUES ($1,$2,$3,$4,$5,$6::jsonb,NOW())
+        ON CONFLICT (codigo) DO UPDATE SET
+          descricao = EXCLUDED.descricao,
+          descricao_norm = EXCLUDED.descricao_norm,
+          unidade = EXCLUDED.unidade,
+          ativo = EXCLUDED.ativo,
+          raw_json = EXCLUDED.raw_json,
+          updated_at = NOW()
+      `,
+        [
+          material.codigo,
+          material.descricao,
+          normalizeText(material.descricao),
+          material.unidade || 'UN',
+          String(material.status || 'ATIVO').toUpperCase() !== 'INATIVO',
+          JSON.stringify(material.raw || {})
+        ]
+      );
+    } catch (error) {
+      console.warn(`[CATMAT] Falha ao atualizar catmat_itens (single): ${error.message}`);
+    }
+  }
+
+  async _upsertCacheBatch(materials = []) {
+    const rows = Array.isArray(materials)
+      ? materials
+          .filter((item) => item && item.codigo && item.descricao)
+          .map((item) => ({
+            codigo: String(item.codigo),
+            descricao: String(item.descricao).trim().slice(0, 500),
+            id_grupo: item.id_grupo ? String(item.id_grupo).slice(0, 30) : null,
+            id_classe: item.id_classe ? String(item.id_classe).slice(0, 30) : null,
+            id_pdm: item.id_pdm ? String(item.id_pdm).slice(0, 30) : null,
+            status: String(item.status || 'ATIVO').slice(0, 30),
+            sustentavel: Boolean(item.sustentavel),
+            unidade: String(item.unidade || 'UN').slice(0, 20),
+            fonte: String(item.fonte || 'api_oficial_compras').slice(0, 100),
+            payload_raw: item.raw || {}
+          }))
+      : [];
+
+    if (rows.length === 0) {
+      return;
+    }
+
+    await db.query(
+      `
+      WITH src AS (
+        SELECT *
+        FROM jsonb_to_recordset($1::jsonb) AS x(
+          codigo TEXT,
+          descricao TEXT,
+          id_grupo TEXT,
+          id_classe TEXT,
+          id_pdm TEXT,
+          status TEXT,
+          sustentavel BOOLEAN,
+          unidade TEXT,
+          fonte TEXT,
+          payload_raw JSONB
+        )
+      )
+      INSERT INTO catmat_cache (
+        codigo,
+        descricao,
+        id_grupo,
+        id_classe,
+        id_pdm,
+        status,
+        sustentavel,
+        unidade,
+        fonte,
+        payload_raw,
+        fetched_at,
+        updated_at
+      )
+      SELECT
+        codigo,
+        descricao,
+        id_grupo,
+        id_classe,
+        id_pdm,
+        status,
+        sustentavel,
+        unidade,
+        fonte,
+        payload_raw,
+        NOW(),
+        NOW()
+      FROM src
+      ON CONFLICT (codigo) DO UPDATE SET
+        descricao = EXCLUDED.descricao,
+        id_grupo = EXCLUDED.id_grupo,
+        id_classe = EXCLUDED.id_classe,
+        id_pdm = EXCLUDED.id_pdm,
+        status = EXCLUDED.status,
+        sustentavel = EXCLUDED.sustentavel,
+        unidade = EXCLUDED.unidade,
+        fonte = EXCLUDED.fonte,
+        payload_raw = EXCLUDED.payload_raw,
+        fetched_at = NOW(),
+        updated_at = NOW()
+      `,
+      [JSON.stringify(rows)]
+    );
+
+    const fastRows = rows.map((item) => ({
+      codigo: item.codigo,
+      descricao: item.descricao,
+      descricao_norm: normalizeText(item.descricao),
+      unidade: item.unidade || 'UN',
+      ativo: String(item.status || 'ATIVO').toUpperCase() !== 'INATIVO',
+      raw_json: item.payload_raw || {}
+    }));
+
+    try {
+      await db.query(
+        `
+        WITH src AS (
+          SELECT *
+          FROM jsonb_to_recordset($1::jsonb) AS x(
+            codigo TEXT,
+            descricao TEXT,
+            descricao_norm TEXT,
+            unidade TEXT,
+            ativo BOOLEAN,
+            raw_json JSONB
+          )
+        )
+        INSERT INTO catmat_itens (
+          codigo,
+          descricao,
+          descricao_norm,
+          unidade,
+          ativo,
+          raw_json,
+          updated_at
+        )
+        SELECT
+          codigo,
+          descricao,
+          descricao_norm,
+          unidade,
+          ativo,
+          raw_json,
+          NOW()
+        FROM src
+        ON CONFLICT (codigo) DO UPDATE SET
+          descricao = EXCLUDED.descricao,
+          descricao_norm = EXCLUDED.descricao_norm,
+          unidade = EXCLUDED.unidade,
+          ativo = EXCLUDED.ativo,
+          raw_json = EXCLUDED.raw_json,
+          updated_at = NOW()
+      `,
+        [JSON.stringify(fastRows)]
+      );
+    } catch (error) {
+      console.warn(`[CATMAT] Falha ao atualizar catmat_itens (batch): ${error.message}`);
+    }
+  }
+
+  _buildSearchCacheKey(query, { limite, offset, apenasAtivos }) {
+    return `${String(query || '')
+      .trim()
+      .toLowerCase()}|${limite}|${offset}|${apenasAtivos ? 1 : 0}`;
   }
 
   async ensureMaterialMirror(material) {
@@ -237,65 +414,109 @@ class CatmatService {
   }
 
   async search(query, { limite = 20, offset = 0, apenasAtivos = true } = {}) {
-    if (!query || query.length < 3) {
+    const safeQuery = String(query || '').trim();
+    if (!safeQuery || safeQuery.length < 3) {
       return { dados: [], total: 0, pagina: 1, totalPaginas: 0 };
     }
 
     const clampedLimit = Math.max(1, Math.min(Number(limite) || 20, 100));
     const safeOffset = Math.max(0, Number(offset) || 0);
+    const safeApenasAtivos = String(apenasAtivos).toLowerCase() !== 'false';
+    const cacheKey = this._buildSearchCacheKey(safeQuery, {
+      limite: clampedLimit,
+      offset: safeOffset,
+      apenasAtivos: safeApenasAtivos
+    });
 
-    try {
-      const payload = await this._fetchOfficial('/materiais/v1/materiais.json', {
-        descricao_item: query,
-        offset: safeOffset,
-        limit: clampedLimit
-      });
-
-      const normalized = extractMaterialList(payload).map(normalizeMaterial).filter(Boolean);
-      const filtered = apenasAtivos
-        ? normalized.filter((item) => String(item.status || 'ATIVO').toUpperCase() !== 'INATIVO')
-        : normalized;
-
-      for (const item of filtered) {
-        await this._upsertCache(item);
-      }
-
+    const cached = integrationCache.get(CATMAT_SEARCH_CACHE_NAMESPACE, cacheKey);
+    if (cached) {
       return {
-        dados: filtered.map((item) => ({
-          codigo: item.codigo,
-          catmat_id: Number(item.codigo),
-          descricao: item.descricao,
-          catmat_padrao_desc: item.descricao,
-          unidade: item.unidade,
-          id_grupo: item.id_grupo,
-          id_classe: item.id_classe,
-          id_pdm: item.id_pdm,
-          status: item.status,
-          catmat_sustentavel: item.sustentavel,
-          fonte: item.fonte,
-          fetched_at: new Date().toISOString()
-        })),
-        total: Number(payload?.total || payload?.count || filtered.length || 0),
-        pagina: Math.floor(safeOffset / clampedLimit) + 1,
-        totalPaginas: null,
-        fonte: 'api_oficial_compras'
-      };
-    } catch (apiError) {
-      const fallback = await this._queryCacheByTerm(query, {
-        limite: clampedLimit,
-        offset: safeOffset,
-        apenasAtivos
-      });
-
-      return {
-        ...fallback,
-        pagina: Math.floor(safeOffset / clampedLimit) + 1,
-        totalPaginas: Math.ceil((fallback.total || 0) / clampedLimit),
-        fonte: 'cache_local',
-        aviso: 'API oficial temporariamente indisponível. Resultado retornado do cache local mais recente.',
-        erroApi: apiError.message
+        ...cached,
+        cache: 'HIT'
       };
     }
+
+    const inFlight = runtime.searchInFlight.get(cacheKey);
+    if (inFlight) {
+      return inFlight;
+    }
+
+    const searchPromise = (async () => {
+      try {
+        const payload = await this._fetchOfficial('/materiais/v1/materiais.json', {
+          descricao_item: safeQuery,
+          offset: safeOffset,
+          limit: clampedLimit
+        });
+
+        const normalized = extractMaterialList(payload).map(normalizeMaterial).filter(Boolean);
+        const filtered = safeApenasAtivos
+          ? normalized.filter((item) => String(item.status || 'ATIVO').toUpperCase() !== 'INATIVO')
+          : normalized;
+
+        await this._upsertCacheBatch(filtered);
+
+        const result = {
+          dados: filtered.map((item) => ({
+            codigo: item.codigo,
+            catmat_id: Number(item.codigo),
+            descricao: item.descricao,
+            catmat_padrao_desc: item.descricao,
+            unidade: item.unidade,
+            id_grupo: item.id_grupo,
+            id_classe: item.id_classe,
+            id_pdm: item.id_pdm,
+            status: item.status,
+            catmat_sustentavel: item.sustentavel,
+            fonte: item.fonte,
+            fetched_at: new Date().toISOString()
+          })),
+          total: Number(payload?.total || payload?.count || filtered.length || 0),
+          pagina: Math.floor(safeOffset / clampedLimit) + 1,
+          totalPaginas: null,
+          fonte: 'api_oficial_compras'
+        };
+
+        integrationCache.set(CATMAT_SEARCH_CACHE_NAMESPACE, cacheKey, result, CATMAT_SEARCH_CACHE_TTL_SECONDS);
+
+        return {
+          ...result,
+          cache: 'MISS'
+        };
+      } catch (apiError) {
+        const fallback = await this._queryCacheByTerm(safeQuery, {
+          limite: clampedLimit,
+          offset: safeOffset,
+          apenasAtivos: safeApenasAtivos
+        });
+
+        const result = {
+          ...fallback,
+          pagina: Math.floor(safeOffset / clampedLimit) + 1,
+          totalPaginas: Math.ceil((fallback.total || 0) / clampedLimit),
+          fonte: 'cache_local',
+          aviso: 'API oficial temporariamente indisponível. Resultado retornado do cache local mais recente.',
+          erroApi: apiError.message
+        };
+
+        integrationCache.set(
+          CATMAT_SEARCH_CACHE_NAMESPACE,
+          cacheKey,
+          result,
+          Math.min(30, CATMAT_SEARCH_CACHE_TTL_SECONDS)
+        );
+
+        return {
+          ...result,
+          cache: 'LOCAL'
+        };
+      } finally {
+        runtime.searchInFlight.delete(cacheKey);
+      }
+    })();
+
+    runtime.searchInFlight.set(cacheKey, searchPromise);
+    return searchPromise;
   }
 
   async findByCodigo(codigo) {
@@ -405,9 +626,10 @@ class CatmatService {
 
     const normalized = extractMaterialList(payload).map(normalizeMaterial).filter(Boolean);
 
+    await this._upsertCacheBatch(normalized);
+
     let imported = 0;
     for (const item of normalized) {
-      await this._upsertCache(item);
       await this.ensureMaterialMirror(item);
       imported++;
     }

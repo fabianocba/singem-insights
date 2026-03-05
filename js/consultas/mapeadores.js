@@ -83,6 +83,15 @@ function mapearStatus(status) {
   return '-';
 }
 
+function pickFirstValue(...values) {
+  for (const value of values) {
+    if (value !== undefined && value !== null && value !== '') {
+      return value;
+    }
+  }
+  return null;
+}
+
 /**
  * Mapeia itens de Material para formato padronizado
  * @param {Array} itens - Array de itens brutos da API
@@ -93,24 +102,40 @@ export function mapearMateriais(itens = []) {
     return [];
   }
 
-  return itens.map((item) => ({
-    codigo: item.codigo || item.id || '-',
-    descricao: item.descricao || item.nome || item.descricaoItem || '-',
-    unidade: item.unidadeFornecimento || item.unidade || '-',
-    orgao: `Grupo: ${item.grupoMaterial?.codigo || item.codigoGrupo || item.id_grupo || '-'} | Classe: ${item.classeMaterial?.codigo || item.codigoClasse || item.id_classe || '-'}`,
-    status: mapearStatus(item.status),
-    dataAtualizacao: formatarData(item.dataAtualizacao || item.dataInclusao),
-    valor: '-',
-    extras: {
-      codigoGrupo: item.grupoMaterial?.codigo || item.codigoGrupo || item.id_grupo,
-      descricaoGrupo: item.grupoMaterial?.descricao || item.descricaoGrupo,
-      codigoClasse: item.classeMaterial?.codigo || item.codigoClasse || item.id_classe,
-      descricaoClasse: item.classeMaterial?.descricao || item.descricaoClasse,
-      codigoPdm: item.pdm?.codigo,
-      descricaoPdm: item.pdm?.descricao,
-      sustentavel: item.sustentavel ? 'Sim' : 'Não'
-    }
-  }));
+  return itens.map((item) => {
+    const valorEncontrado = pickFirstValue(
+      item.valor,
+      item.valorUnitario,
+      item.valorReferencia,
+      item.valorMedio,
+      item.precoMedio,
+      item.valorTotal
+    );
+
+    const grupoCodigo = item.grupoMaterial?.codigo || item.codigoGrupo || item.id_grupo || '-';
+    const classeCodigo = item.classeMaterial?.codigo || item.codigoClasse || item.id_classe || '-';
+
+    return {
+      codigo: pickFirstValue(item.codigoItem, item.codigo, item.id, item.codigoItemCatalogo, '-') || '-',
+      descricao: pickFirstValue(item.descricaoItem, item.descricao, item.nome, item.descricaoMaterial, '-') || '-',
+      unidade: pickFirstValue(item.unidadeFornecimento, item.unidade, item.unidadeMedida, '-') || '-',
+      orgao: `Grupo: ${grupoCodigo} | Classe: ${classeCodigo}`,
+      status: mapearStatus(pickFirstValue(item.statusItem, item.status)),
+      dataAtualizacao: formatarData(pickFirstValue(item.dataHoraAtualizacao, item.dataAtualizacao, item.dataInclusao)),
+      valor: formatarValor(valorEncontrado),
+      raw: item,
+      extras: {
+        codigoGrupo: grupoCodigo,
+        descricaoGrupo: item.grupoMaterial?.descricao || item.nomeGrupo || item.descricaoGrupo,
+        codigoClasse: classeCodigo,
+        descricaoClasse: item.classeMaterial?.descricao || item.nomeClasse || item.descricaoClasse,
+        codigoPdm: item.pdm?.codigo || item.codigoPdm,
+        descricaoPdm: item.pdm?.descricao || item.nomePdm,
+        sustentavel: item.itemSustentavel === true || item.sustentavel === true ? 'Sim' : 'Não',
+        raw: item
+      }
+    };
+  });
 }
 
 /**

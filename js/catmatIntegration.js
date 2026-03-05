@@ -6,6 +6,7 @@
 import { debounce } from './utils/throttle.js';
 import { showLoading, hideLoading, notifySuccess, notifyError, notifyInfo } from './ui/feedback.js';
 import { httpRequest } from './shared/lib/http.js';
+import { emit } from './core/eventBus.js';
 
 /**
  * Configuração do módulo
@@ -13,58 +14,272 @@ import { httpRequest } from './shared/lib/http.js';
 const config = {
   minChars: 3,
   debounceMs: 300,
-  maxResults: 20
+  maxResults: 20,
+  searchCacheTtlMs: 60000,
+  codigoCacheTtlMs: 300000
 };
 
 /**
  * Estado interno
  */
 const state = {
-  searchAbortController: null,
+  searchControllers: new Map(),
+  searchSeqByContext: new Map(),
+  searchCache: new Map(),
+  codigoCache: new Map(),
+  outsideClickContexts: new Set(),
+  outsideClickBound: false,
+  initializedInputs: new WeakSet(),
   selectedMaterial: null,
   currentInputId: null
 };
+
+function toNumberSafe(value, fallback = 0) {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : fallback;
+}
+
+function normalizeSearchPayload(payload, { offset = 0, limite = config.maxResults } = {}) {
+  const envelope = payload && typeof payload === 'object' ? payload : {};
+  const root = envelope.data !== undefined ? envelope.data : envelope;
+  const meta = envelope.meta && typeof envelope.meta === 'object' ? envelope.meta : {};
+
+  const resultObject = root && typeof root === 'object' && !Array.isArray(root) ? root : {};
+  const dados = Array.isArray(resultObject.dados)
+    ? resultObject.dados
+    : Array.isArray(resultObject.resultado)
+      ? resultObject.resultado
+      : Array.isArray(resultObject.items)
+        ? resultObject.items
+        : Array.isArray(root)
+          ? root
+          : [];
+
+  const totalRaw =
+    resultObject.total ?? resultObject.totalRegistros ?? resultObject.count ?? meta.total ?? meta.totalRegistros;
+  const total = Math.max(dados.length, toNumberSafe(totalRaw, dados.length));
+
+  return {
+    dados,
+    total,
+    offset: Math.max(0, toNumberSafe(resultObject.offset ?? meta.offset, offset)),
+    limite: Math.max(1, toNumberSafe(resultObject.limite ?? meta.limite, limite)),
+    aviso: resultObject.aviso ?? meta.aviso ?? null,
+    fonte: resultObject.fonte ?? meta.fonte ?? null
+  };
+}
+
+function normalizeMaterialPayload(payload) {
+  const envelope = payload && typeof payload === 'object' ? payload : {};
+  const root = envelope.data !== undefined ? envelope.data : envelope;
+
+  if (root && typeof root === 'object' && !Array.isArray(root)) {
+    if (root.dados && typeof root.dados === 'object') {
+      return root.dados;
+    }
+
+    return root;
+  }
+
+  return null;
+}
+
+function buildSearchCacheKey(query, offset, limite) {
+  return `${String(query || '')
+    .trim()
+    .toLowerCase()}|${offset}|${limite}`;
+}
+
+function readSearchCache(cacheKey) {
+  const cached = state.searchCache.get(cacheKey);
+  if (!cached) {
+    return null;
+  }
+
+  if (Date.now() > cached.expiresAt) {
+    state.searchCache.delete(cacheKey);
+    return null;
+  }
+
+  return cached.value;
+}
+
+function writeSearchCache(cacheKey, value) {
+  state.searchCache.set(cacheKey, {
+    value,
+    expiresAt: Date.now() + config.searchCacheTtlMs
+  });
+}
+
+function readCodigoCache(codigo) {
+  const cacheKey = String(codigo || '').replace(/\D/g, '');
+  const cached = state.codigoCache.get(cacheKey);
+  if (!cached) {
+    return null;
+  }
+
+  if (Date.now() > cached.expiresAt) {
+    state.codigoCache.delete(cacheKey);
+    return null;
+  }
+
+  return cached.value;
+}
+
+function writeCodigoCache(codigo, value) {
+  const cacheKey = String(codigo || '').replace(/\D/g, '');
+  if (!cacheKey || !value) {
+    return;
+  }
+
+  state.codigoCache.set(cacheKey, {
+    value,
+    expiresAt: Date.now() + config.codigoCacheTtlMs
+  });
+}
+
+function ensureOutsideClickHandler() {
+  if (state.outsideClickBound) {
+    return;
+  }
+
+  document.addEventListener('click', (event) => {
+    for (const context of Array.from(state.outsideClickContexts)) {
+      const { inputElement, dropdown } = context;
+
+      if (!inputElement?.isConnected || !dropdown?.isConnected) {
+        state.outsideClickContexts.delete(context);
+        continue;
+      }
+
+      if (!inputElement.contains(event.target) && !dropdown.contains(event.target)) {
+        dropdown.style.display = 'none';
+      }
+    }
+  });
+
+  state.outsideClickBound = true;
+}
 
 /**
  * Busca materiais na API CATMAT
  * @param {string} query - Termo de busca
  * @returns {Promise<{dados: Array, total: number}>}
  */
-export async function searchCatmat(query, { offset = 0, limite = config.maxResults } = {}) {
-  if (!query || query.length < config.minChars) {
-    return { dados: [], total: 0, offset, limite };
+export async function searchCatmat(query, { offset = 0, limite = config.maxResults, contextKey = 'global' } = {}) {
+  const safeQuery = String(query || '').trim();
+  const safeOffset = Math.max(0, toNumberSafe(offset, 0));
+  const safeLimite = Math.max(1, Math.min(toNumberSafe(limite, config.maxResults), 100));
+  const safeContextKey = String(contextKey || 'global');
+
+  if (safeQuery.length < config.minChars) {
+    return { dados: [], total: 0, offset: safeOffset, limite: safeLimite };
   }
 
-  // Cancela busca anterior se houver
-  if (state.searchAbortController) {
-    state.searchAbortController.abort();
+  const cacheKey = buildSearchCacheKey(safeQuery, safeOffset, safeLimite);
+  const cached = readSearchCache(cacheKey);
+  if (cached) {
+    emit('catmat.search:done', {
+      contextKey: safeContextKey,
+      query: safeQuery,
+      offset: safeOffset,
+      limite: safeLimite,
+      total: cached.total,
+      cache: 'HIT'
+    });
+    return cached;
   }
-  state.searchAbortController = new AbortController();
+
+  const previousController = state.searchControllers.get(safeContextKey);
+  if (previousController) {
+    previousController.abort();
+  }
+
+  const controller = new AbortController();
+  state.searchControllers.set(safeContextKey, controller);
+
+  const seq = (state.searchSeqByContext.get(safeContextKey) || 0) + 1;
+  state.searchSeqByContext.set(safeContextKey, seq);
+
+  emit('catmat.search:start', {
+    contextKey: safeContextKey,
+    query: safeQuery,
+    offset: safeOffset,
+    limite: safeLimite
+  });
 
   try {
     const response = await httpRequest(
-      `/api/catmat/search?q=${encodeURIComponent(query)}&limite=${limite}&offset=${offset}`,
+      `/api/catmat/search?q=${encodeURIComponent(safeQuery)}&limite=${safeLimite}&offset=${safeOffset}`,
       {
-        signal: state.searchAbortController.signal
+        signal: controller.signal
       }
     );
+
+    if (!response.ok && response.error?.isAbort) {
+      const abortError = new Error('Busca CATMAT cancelada por nova requisição.');
+      abortError.name = 'AbortError';
+      throw abortError;
+    }
 
     if (!response.ok) {
       throw new Error(response.error?.message || 'Erro na busca CATMAT');
     }
 
-    const result = response.data || {};
-    return {
-      ...result,
-      offset,
-      limite
-    };
+    // Ignora respostas antigas para manter consistência do campo ativo.
+    if (state.searchSeqByContext.get(safeContextKey) !== seq) {
+      return {
+        dados: [],
+        total: 0,
+        offset: safeOffset,
+        limite: safeLimite,
+        descartado: true
+      };
+    }
+
+    const normalized = normalizeSearchPayload(response.data, {
+      offset: safeOffset,
+      limite: safeLimite
+    });
+
+    writeSearchCache(cacheKey, normalized);
+
+    emit('catmat.search:done', {
+      contextKey: safeContextKey,
+      query: safeQuery,
+      offset: safeOffset,
+      limite: safeLimite,
+      total: normalized.total,
+      cache: 'MISS',
+      fonte: normalized.fonte || null
+    });
+
+    return normalized;
   } catch (err) {
     if (err.name === 'AbortError') {
-      return { dados: [], total: 0 };
+      return {
+        dados: [],
+        total: 0,
+        offset: safeOffset,
+        limite: safeLimite,
+        abortado: true
+      };
     }
+
+    emit('catmat.search:error', {
+      contextKey: safeContextKey,
+      query: safeQuery,
+      offset: safeOffset,
+      limite: safeLimite,
+      erro: err?.message || 'Erro desconhecido'
+    });
+
     console.error('[CATMAT] Erro na busca:', err);
     throw err;
+  } finally {
+    if (state.searchControllers.get(safeContextKey) === controller) {
+      state.searchControllers.delete(safeContextKey);
+    }
   }
 }
 
@@ -74,15 +289,29 @@ export async function searchCatmat(query, { offset = 0, limite = config.maxResul
  * @returns {Promise<Object|null>}
  */
 export async function getCatmatByCodigo(codigo) {
+  const cleanCode = String(codigo || '').replace(/\D/g, '');
+  if (!cleanCode) {
+    return null;
+  }
+
+  const cached = readCodigoCache(cleanCode);
+  if (cached) {
+    return cached;
+  }
+
   try {
-    const response = await httpRequest(`/api/catmat/${codigo}`);
+    const response = await httpRequest(`/api/catmat/${cleanCode}`);
 
     if (!response.ok) {
       return null;
     }
 
-    const data = response.data || {};
-    return data.dados;
+    const material = normalizeMaterialPayload(response.data);
+    if (material) {
+      writeCodigoCache(cleanCode, material);
+    }
+
+    return material;
   } catch (err) {
     console.error('[CATMAT] Erro ao buscar código:', err);
     return null;
@@ -288,7 +517,28 @@ export function initCatmatAutocomplete(inputElement, onSelect) {
     return;
   }
 
+  if (state.initializedInputs.has(inputElement)) {
+    return;
+  }
+  state.initializedInputs.add(inputElement);
+
   const dropdown = createDropdown(inputElement);
+  const contextKey =
+    inputElement.dataset.catmatContextKey ||
+    `${inputElement.id || 'catmat-input'}-${Math.random().toString(36).slice(2, 8)}`;
+  inputElement.dataset.catmatContextKey = contextKey;
+  state.currentInputId = contextKey;
+
+  for (const context of Array.from(state.outsideClickContexts)) {
+    if (!context.inputElement?.isConnected || !context.dropdown?.isConnected) {
+      state.outsideClickContexts.delete(context);
+    }
+  }
+
+  const outsideContext = { inputElement, dropdown };
+  state.outsideClickContexts.add(outsideContext);
+  ensureOutsideClickHandler();
+
   let currentQuery = '';
   let currentOffset = 0;
   let currentResults = [];
@@ -296,14 +546,20 @@ export function initCatmatAutocomplete(inputElement, onSelect) {
   let currentAviso = null;
 
   const runSearch = async (query, { append = false } = {}) => {
+    const safeQuery = String(query || '').trim();
     const targetOffset = append ? currentOffset + config.maxResults : 0;
-    const result = await searchCatmat(query, {
+    const result = await searchCatmat(safeQuery, {
       offset: targetOffset,
-      limite: config.maxResults
+      limite: config.maxResults,
+      contextKey
     });
-    const dados = result.dados || [];
+    if (result.descartado || result.abortado) {
+      return;
+    }
 
-    currentQuery = query;
+    const dados = Array.isArray(result.dados) ? result.dados : [];
+
+    currentQuery = safeQuery;
     currentOffset = targetOffset;
     currentTotal = Number(result.total || 0);
     currentAviso = result.aviso || null;
@@ -317,6 +573,11 @@ export function initCatmatAutocomplete(inputElement, onSelect) {
       inputElement,
       (material) => {
         state.selectedMaterial = material;
+        emit('catmat.item:select', {
+          contextKey,
+          material
+        });
+
         if (onSelect) {
           onSelect(material);
         }
@@ -338,13 +599,14 @@ export function initCatmatAutocomplete(inputElement, onSelect) {
   };
 
   const debouncedSearch = debounce(async (query) => {
-    if (query.length < config.minChars) {
+    const safeQuery = String(query || '').trim();
+    if (safeQuery.length < config.minChars) {
       dropdown.style.display = 'none';
       return;
     }
 
     try {
-      await runSearch(query, { append: false });
+      await runSearch(safeQuery, { append: false });
     } catch {
       dropdown.style.display = 'none';
     }
@@ -356,16 +618,21 @@ export function initCatmatAutocomplete(inputElement, onSelect) {
   });
 
   inputElement.addEventListener('focus', (e) => {
-    if (e.target.value.length >= config.minChars) {
+    if (String(e.target.value || '').trim().length >= config.minChars) {
       debouncedSearch(e.target.value);
     }
   });
 
-  // Fecha dropdown ao clicar fora
-  document.addEventListener('click', (e) => {
-    if (!inputElement.contains(e.target) && !dropdown.contains(e.target)) {
-      dropdown.style.display = 'none';
-    }
+  inputElement.addEventListener('blur', () => {
+    setTimeout(() => {
+      if (dropdown.style.display !== 'none' && !dropdown.matches(':hover')) {
+        dropdown.style.display = 'none';
+      }
+
+      if (!inputElement.isConnected || !dropdown.isConnected) {
+        state.outsideClickContexts.delete(outsideContext);
+      }
+    }, 120);
   });
 
   // Navegação por teclado
@@ -416,6 +683,10 @@ export function abrirModalPedidoCatalogacao(termoBusca = '') {
   if (existingModal) {
     existingModal.remove();
   }
+
+  emit('catalogacao.pedido:modal-open', {
+    termoBusca: String(termoBusca || '').trim()
+  });
 
   const modal = document.createElement('div');
   modal.id = 'modalCatalogacao';
@@ -600,10 +871,21 @@ export function abrirModalPedidoCatalogacao(termoBusca = '') {
         }, 500);
       }
 
-      // Dispara evento para atualizar lista de pedidos se existir
-      document.dispatchEvent(new CustomEvent('catalogacao:novo-pedido', { detail: result.dados }));
+      const pedidoCriado = result?.dados || result?.data || null;
+
+      // EventBus oficial para comunicação entre módulos/submódulos.
+      emit('catalogacao.pedido:novo', {
+        pedido: pedidoCriado,
+        origem: 'catmatIntegration'
+      });
+
+      // Compatibilidade com listeners legados.
+      document.dispatchEvent(new CustomEvent('catalogacao:novo-pedido', { detail: pedidoCriado }));
     } catch (err) {
       hideLoading();
+      emit('catalogacao.pedido:error', {
+        erro: err?.message || 'Erro ao registrar pedido'
+      });
       notifyError(`Erro ao registrar pedido: ${err.message}`);
     }
   });

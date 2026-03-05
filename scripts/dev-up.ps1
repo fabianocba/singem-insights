@@ -26,7 +26,9 @@ param(
   [switch]$SkipInstall,
   [switch]$NoAutoRepairTunnel,
   [switch]$NoTunnel,
-  [switch]$ForceInstall
+  [switch]$ForceInstall,
+  [ValidateSet('auto', 'local', 'default')]
+  [string]$ProductionEnvProfile = 'auto'
 )
 
 $ErrorActionPreference = 'Stop'
@@ -608,7 +610,60 @@ function Ensure-NpmDependencies {
   }
 }
 
+function Resolve-ProductionEnvProfile {
+  param([string]$Mode = 'auto')
+
+  $normalizedMode = if ([string]::IsNullOrWhiteSpace($Mode)) { 'auto' } else { $Mode.ToLowerInvariant() }
+  $localProfilePath = Join-Path $script:ServerDir '.env.production.local'
+
+  switch ($normalizedMode) {
+    'local' {
+      if (Test-Path -LiteralPath $localProfilePath) {
+        return 'local'
+      }
+
+      Write-WarnMsg 'Perfil local solicitado, mas server/.env.production.local não foi encontrado. Usando .env.production.'
+      return $null
+    }
+    'default' {
+      return $null
+    }
+    default {
+      $localPortReady = Test-LocalPort -Port $DbLocalPort -TargetHost '127.0.0.1'
+      if ((Test-Path -LiteralPath $localProfilePath) -and $localPortReady) {
+        return 'local'
+      }
+
+      return $null
+    }
+  }
+}
+
+function Set-BackendRuntimeEnvironment {
+  param([bool]$UseProduction)
+
+  if ($UseProduction) {
+    $env:NODE_ENV = 'production'
+    $resolvedProfile = Resolve-ProductionEnvProfile -Mode $ProductionEnvProfile
+
+    if ($resolvedProfile) {
+      $env:SINGEM_ENV_PROFILE = $resolvedProfile
+      Write-Step ("Backend em produção com perfil: {0}" -f $resolvedProfile)
+    } else {
+      Remove-Item Env:SINGEM_ENV_PROFILE -ErrorAction SilentlyContinue
+      Write-Step 'Backend em produção com perfil padrão (.env.production)'
+    }
+
+    return
+  }
+
+  $env:NODE_ENV = 'development'
+  Remove-Item Env:SINGEM_ENV_PROFILE -ErrorAction SilentlyContinue
+}
+
 function Get-BackendRunSpec {
+  param([switch]$PreferStart)
+
   $packagePath = Join-Path $script:ServerDir 'package.json'
   $hasDevScript = $false
   $hasStartScript = $false
@@ -627,6 +682,20 @@ function Get-BackendRunSpec {
   $nodemonCmdPath = Join-Path $script:ServerDir 'node_modules\.bin\nodemon.cmd'
   $nodemonJsPath = Join-Path $script:ServerDir 'node_modules\nodemon\bin\nodemon.js'
   $hasNodemon = (Test-Path -LiteralPath $nodemonCmdPath) -or (Test-Path -LiteralPath $nodemonJsPath)
+
+  if ($PreferStart) {
+    if ($hasStartScript) {
+      return @{
+        mode = 'npm-start'
+        description = 'npm run start'
+      }
+    }
+
+    return @{
+      mode = 'node'
+      description = 'node index.js'
+    }
+  }
 
   if ($hasDevScript -and $hasNodemon) {
     return @{
@@ -846,7 +915,8 @@ function Start-ComponentWindow {
     '-DbRemoteHost', $DbRemoteHost,
     '-BackendPort', "$BackendPort",
     '-FrontendPort', "$FrontendPort",
-    '-BackendHealthPath', $BackendHealthPath
+    '-BackendHealthPath', $BackendHealthPath,
+    '-ProductionEnvProfile', $ProductionEnvProfile
   )
 
   if ($NoTunnel) {
@@ -1328,6 +1398,8 @@ function Invoke-BackendAction {
 
   Ensure-BackendEnvFile -ExpectTunnel:(-not $NoTunnel)
   Ensure-NpmDependencies -WorkDir $script:ServerDir -Label 'server' -OnlyWhenMissing -RequiredModules @('express', 'pg')
+  $useProductionRuntime = ($Branch -eq 'main')
+  Set-BackendRuntimeEnvironment -UseProduction:$useProductionRuntime
 
   $healthy = Wait-BackendHealthy -TimeoutSec 2 -RequireDatabaseConnected:(-not $NoTunnel)
   if ($healthy) {
@@ -1376,7 +1448,7 @@ function Invoke-BackendAction {
 
   Push-Location $script:ServerDir
   try {
-    $backendRun = Get-BackendRunSpec
+    $backendRun = Get-BackendRunSpec -PreferStart:$useProductionRuntime
     Write-Step ("Executando backend: {0}" -f $backendRun.description)
 
     switch ([string]$backendRun['mode']) {

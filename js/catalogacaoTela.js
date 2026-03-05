@@ -5,6 +5,7 @@
 
 import { showLoading, hideLoading, notifySuccess, notifyError } from './ui/feedback.js';
 import { httpRequest } from './shared/lib/http.js';
+import { on as onEventBus, off as offEventBus } from './core/eventBus.js';
 
 /**
  * Estado da tela
@@ -19,6 +20,10 @@ const state = {
     pagina: 1,
     limite: 20,
     total: 0
+  },
+  listeners: {
+    domNovoPedido: null,
+    busNovoPedido: null
   }
 };
 
@@ -577,11 +582,23 @@ function bindEventos(container, tabelaContainer) {
     }
   });
 
-  // Escuta novo pedido criado
-  document.addEventListener('catalogacao:novo-pedido', async () => {
+  const refreshPedidos = async () => {
     await carregarPedidos();
     renderTabela(tabelaContainer);
-  });
+  };
+
+  // Escuta legado (DOM Event) e barramento oficial (EventBus).
+  if (state.listeners.domNovoPedido) {
+    document.removeEventListener('catalogacao:novo-pedido', state.listeners.domNovoPedido);
+  }
+  state.listeners.domNovoPedido = refreshPedidos;
+  document.addEventListener('catalogacao:novo-pedido', state.listeners.domNovoPedido);
+
+  if (state.listeners.busNovoPedido) {
+    offEventBus('catalogacao.pedido:novo', state.listeners.busNovoPedido);
+  }
+  state.listeners.busNovoPedido = refreshPedidos;
+  onEventBus('catalogacao.pedido:novo', state.listeners.busNovoPedido);
 }
 
 // Exporta para uso global

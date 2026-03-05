@@ -93,7 +93,7 @@ async function getCatmatObrigatorioConfig() {
   }
 }
 
-async function resolveCodigoCatmat(item) {
+async function resolveCodigoCatmat(item, codigoByMaterialIdCache = null) {
   const directCode = item.catmatCodigo || item.catmat_codigo || item.catmat_id || item.catmatId || null;
   if (directCode) {
     return String(directCode).replace(/\D/g, '');
@@ -104,13 +104,69 @@ async function resolveCodigoCatmat(item) {
     return '';
   }
 
+  if (codigoByMaterialIdCache && codigoByMaterialIdCache.has(materialId)) {
+    return codigoByMaterialIdCache.get(materialId);
+  }
+
   const result = await db.query('SELECT codigo, catmat_id FROM materials WHERE id = $1 LIMIT 1', [materialId]);
   const row = result.rows[0];
   if (!row) {
+    if (codigoByMaterialIdCache) {
+      codigoByMaterialIdCache.set(materialId, '');
+    }
     return '';
   }
 
-  return String(row.catmat_id || row.codigo || '').replace(/\D/g, '');
+  const resolved = String(row.catmat_id || row.codigo || '').replace(/\D/g, '');
+  if (codigoByMaterialIdCache) {
+    codigoByMaterialIdCache.set(materialId, resolved);
+  }
+
+  return resolved;
+}
+
+function montarErroItem(seq, item, erro) {
+  return {
+    item: seq,
+    descricao: item.descricao?.substring(0, 50) || `Item ${seq}`,
+    erro
+  };
+}
+
+async function resolverMaterialNormalizado(item, caches) {
+  const { codigoByMaterialIdCache, materialByCodigoCache, materialIdByCodigoCache } = caches;
+  const catmatCodigo = await resolveCodigoCatmat(item, codigoByMaterialIdCache);
+
+  if (!catmatCodigo) {
+    return {
+      erro: 'CATMAT obrigatório não informado'
+    };
+  }
+
+  let material = materialByCodigoCache.get(catmatCodigo);
+  if (material === undefined) {
+    material = await catmatService.validateAndHydrate(catmatCodigo);
+    materialByCodigoCache.set(catmatCodigo, material || null);
+  }
+
+  if (!material) {
+    return {
+      erro: `CATMAT ${catmatCodigo} inválido ou não encontrado na API oficial`
+    };
+  }
+
+  const materialCodigo = String(material.codigo || material.catmat_id || '').replace(/\D/g, '');
+  let materialId = materialIdByCodigoCache.get(materialCodigo);
+  if (materialId === undefined) {
+    const mirror = await db.query('SELECT id, codigo FROM materials WHERE codigo = $1 LIMIT 1', [materialCodigo]);
+    materialId = mirror.rows[0]?.id || null;
+    materialIdByCodigoCache.set(materialCodigo, materialId || null);
+  }
+
+  return {
+    material,
+    materialId: materialId || item.material_id || null
+  };
 }
 
 /**
@@ -129,6 +185,9 @@ async function validarCatmatItens(itens, entidade) {
 
   const erros = [];
   const itensNormalizados = [];
+  const codigoByMaterialIdCache = new Map();
+  const materialByCodigoCache = new Map();
+  const materialIdByCodigoCache = new Map();
 
   if (!Array.isArray(itens)) {
     return { valido: true, erros: [], itensNormalizados: [] };
@@ -138,32 +197,18 @@ async function validarCatmatItens(itens, entidade) {
     const item = itens[index];
     const seq = item.seq || item.item_numero || index + 1;
 
-    const catmatCodigo = await resolveCodigoCatmat(item);
+    const resolved = await resolverMaterialNormalizado(item, {
+      codigoByMaterialIdCache,
+      materialByCodigoCache,
+      materialIdByCodigoCache
+    });
 
-    if (!catmatCodigo) {
-      erros.push({
-        item: seq,
-        descricao: item.descricao?.substring(0, 50) || `Item ${seq}`,
-        erro: 'CATMAT obrigatório não informado'
-      });
+    if (resolved.erro) {
+      erros.push(montarErroItem(seq, item, resolved.erro));
       continue;
     }
 
-    const material = await catmatService.validateAndHydrate(catmatCodigo);
-    if (!material) {
-      erros.push({
-        item: seq,
-        descricao: item.descricao?.substring(0, 50) || `Item ${seq}`,
-        erro: `CATMAT ${catmatCodigo} inválido ou não encontrado na API oficial`
-      });
-      continue;
-    }
-
-    const mirror = await db.query('SELECT id, codigo FROM materials WHERE codigo = $1 LIMIT 1', [
-      String(material.codigo || material.catmat_id)
-    ]);
-
-    const materialId = mirror.rows[0]?.id || item.material_id || null;
+    const { material, materialId } = resolved;
 
     itensNormalizados.push({
       ...item,

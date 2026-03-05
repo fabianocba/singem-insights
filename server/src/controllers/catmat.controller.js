@@ -3,7 +3,18 @@ const { ok } = require('../../utils/httpResponse');
 
 async function search(req, res) {
   const result = await catmatService.search(req.query);
-  return ok(req, res, result.dados ?? result);
+  const dados = Array.isArray(result?.dados) ? result.dados : [];
+
+  return ok(req, res, dados, {
+    total: Number(result?.total || dados.length),
+    pagina: Number(result?.pagina || 1),
+    totalPaginas: result?.totalPaginas ?? null,
+    limite: Number(req?.query?.limite || 20),
+    offset: Number(req?.query?.offset || 0),
+    fonte: result?.fonte || null,
+    aviso: result?.aviso || null,
+    cache: result?.cache || null
+  });
 }
 
 async function stats(_req, res) {

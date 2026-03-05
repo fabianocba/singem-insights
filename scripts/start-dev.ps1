@@ -13,7 +13,9 @@ param(
   [switch]$SkipInstall,
   [switch]$NoAutoRepairTunnel,
   [switch]$NoTunnel,
-  [switch]$ForceInstall
+  [switch]$ForceInstall,
+  [ValidateSet('auto', 'local', 'default')]
+  [string]$ProductionEnvProfile = 'auto'
 )
 
 $devUpPath = Join-Path $PSScriptRoot 'dev-up.ps1'
@@ -37,6 +39,7 @@ $forwardArgs = @{
   NoAutoRepairTunnel = $NoAutoRepairTunnel
   NoTunnel = $NoTunnel
   ForceInstall = $ForceInstall
+  ProductionEnvProfile = $ProductionEnvProfile
 }
 
 & $devUpPath @forwardArgs
