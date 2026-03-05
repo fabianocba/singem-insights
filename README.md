@@ -676,8 +676,9 @@ Todos os direitos reservados.
 
 - O rodapé global exibe: `SINGEM vX.Y.Z • build YYYYMMDD-HHMM • commit abc1234 • env production|development`.
 - O frontend consulta `GET /api/version`.
-- Fonte de verdade de `version`, `build` e `buildTimestamp`: `version.json` (lido pelo backend em `/api/version`).
-- Deploy da `main` sincroniza versão semântica em `version.json` e `server/package.json`.
+- Fonte de verdade em runtime de `version`, `build` e `buildTimestamp`: `/opt/singem/runtime/version.json`.
+- `version.json` no repositório funciona como fallback quando o arquivo runtime ainda não existe.
+- Deploy da `main` incrementa automaticamente o `PATCH` no arquivo runtime sem alterar arquivos rastreados pelo Git.
 
 ### Deploy da main (1 comando)
 
@@ -686,6 +687,7 @@ bash ./scripts/deploy-main.sh
 ```
 
 O script aborta se não estiver na branch `main` ou se o working tree estiver sujo.
+Variáveis opcionais: `RUNTIME_VERSION_FILE` (override do caminho runtime), `CREATE_TAG` (`1` ou `0`).
 
 ---
 
