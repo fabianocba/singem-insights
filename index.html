@@ -288,6 +288,16 @@
 
                 <div
                   class="menu-item-consulta"
+                  data-consulta="precos-praticados"
+                  onclick="window.abrirConsulta('precos-praticados')"
+                >
+                  <div class="menu-icon-consulta">📈</div>
+                  <h4>Módulo 3 - Preços Praticados (CATMAT/CATSER)</h4>
+                  <p>Pesquisa de preços praticados por código CATMAT/CATSER em compras públicas</p>
+                </div>
+
+                <div
+                  class="menu-item-consulta"
                   data-consulta="uasg"
                   onclick="window.abrirConsulta('uasg')"
                 >
@@ -1723,6 +1733,47 @@
           }
         });
       };
+
+      window.abrirConsultaPrecosPraticados = function (codigoOuParametros, opcoes = {}) {
+        const parametros =
+          codigoOuParametros && typeof codigoOuParametros === 'object'
+            ? codigoOuParametros
+            : { codigo: codigoOuParametros, ...opcoes };
+
+        aguardarModulo(() => {
+          const loader = document.getElementById('consultas-loader');
+          if (loader) loader.remove();
+
+          try {
+            const ui = window.ConsultasModule.UIConsultas;
+
+            if (typeof ui.openPriceIntelligence === 'function') {
+              ui.openPriceIntelligence({
+                ...parametros,
+                autoSearch: parametros.autoSearch !== false
+              });
+              return;
+            }
+
+            if (typeof ui.showConsulta === 'function') {
+              ui.showConsulta('precos-praticados');
+              return;
+            }
+
+            mostrarErroCopivel(
+              'Função não encontrada',
+              'Não foi possível abrir o Módulo 3 de preços praticados.',
+              'window.ConsultasModule.UIConsultas.openPriceIntelligence indisponível.'
+            );
+          } catch (error) {
+            mostrarErroCopivel(
+              'Erro ao abrir Módulo 3',
+              error.message,
+              'Stack trace:\n' + (error.stack || 'Não disponível')
+            );
+          }
+        });
+      };
     </script>
 
     <!-- Scripts de Consulte Compras.gov (ES6 Modules) -->
@@ -1739,7 +1790,9 @@
       window.ConsultasModule.UIConsultas = {
         init: Consultas.init,
         showConsulta: Consultas.showConsulta,
-        showMenu: Consultas.showMenu
+        showMenu: Consultas.showMenu,
+        openPriceIntelligence: Consultas.openPriceIntelligence,
+        openPriceIntelligenceByCode: Consultas.openPriceIntelligenceByCode
       };
       window.ConsultasModule.initialized = true;
       window.ConsultasModule.loading = false;
@@ -1761,6 +1814,10 @@
       console.log('✅ Setup completo!');
       console.log('   - window.initConsultas:', typeof window.initConsultas);
       console.log('   - window.abrirConsulta:', typeof window.abrirConsulta);
+      console.log(
+        '   - window.abrirConsultaPrecosPraticados:',
+        typeof window.abrirConsultaPrecosPraticados
+      );
       console.log('   - window.ConsultasModule.initialized:', window.ConsultasModule.initialized);
     </script>
 

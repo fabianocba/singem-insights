@@ -6,8 +6,10 @@
 import * as API from './apiCompras.js';
 import * as Mapeadores from './mapeadores.js';
 import * as Cache from './cache.js';
+import { renderPriceDetailsModalContent, renderPriceIntelligenceResults } from './precosPraticadosRenderer.js';
 
 const AUTO_SEARCH_DEBOUNCE_MS = 650;
+const PRICE_INTELLIGENCE_DATASET = 'precos-praticados';
 
 /**
  * Estado atual da aplicação
@@ -23,7 +25,9 @@ const state = {
   loading: false,
   currentView: 'menu', // 'menu' ou 'consulta'
   hasActiveSearch: false,
-  lastSearchSignature: null
+  lastSearchSignature: null,
+  priceIntelligenceResponse: null,
+  pageRawItems: []
 };
 
 let debouncedAutoSearch = null;
@@ -78,6 +82,10 @@ function hasAnyTextFilterTooShort(filtersObject) {
     return false;
   }
 
+  if (config.autoSearch === false) {
+    return false;
+  }
+
   return config.filters
     .filter((filter) => filter.type === 'text')
     .some((filter) => {
@@ -88,6 +96,65 @@ function hasAnyTextFilterTooShort(filtersObject) {
 
       return normalizeText(value).length < 3;
     });
+}
+
+function isPriceIntelligenceDataset(dataset = state.dataset) {
+  return dataset === PRICE_INTELLIGENCE_DATASET;
+}
+
+function getRequiredFilters(config, filtersObject = {}) {
+  const required = Array.isArray(config?.requiredFilters) ? config.requiredFilters : [];
+  return required.filter((key) => !String(filtersObject[key] || '').trim());
+}
+
+function sanitizeCodesInput(value) {
+  return String(value || '')
+    .split(/[;,\n\s]+/)
+    .map((entry) => entry.replace(/\D/g, '').trim())
+    .filter(Boolean)
+    .slice(0, 10)
+    .join(', ');
+}
+
+function setFiltersOnForm(filters = {}) {
+  const config = DATASETS[state.dataset];
+  if (!config?.filters) {
+    return;
+  }
+
+  config.filters.forEach((filter) => {
+    if (!Object.prototype.hasOwnProperty.call(filters, filter.name)) {
+      return;
+    }
+
+    const input = document.getElementById(`filter_${filter.name}`);
+    if (!input) {
+      return;
+    }
+
+    input.value = String(filters[filter.name] ?? '');
+  });
+}
+
+function getRequiredHint(config) {
+  if (!Array.isArray(config?.requiredFilters) || config.requiredFilters.length === 0) {
+    return 'Preencha pelo menos um campo para realizar a pesquisa';
+  }
+
+  return `Preencha os campos obrigatórios: ${config.requiredFilters.join(', ')}`;
+}
+
+function canSearchWithFilters(filtersObject) {
+  const config = DATASETS[state.dataset];
+  if (!config) {
+    return false;
+  }
+
+  if (Array.isArray(config.requiredFilters) && config.requiredFilters.length > 0) {
+    return getRequiredFilters(config, filtersObject).length === 0;
+  }
+
+  return hasAtLeastOneFilter(filtersObject);
 }
 
 /**
@@ -164,6 +231,137 @@ const DATASETS = {
           { value: '', label: 'Todos' },
           { value: '1', label: 'Ativo' },
           { value: '0', label: 'Inativo' }
+        ]
+      }
+    ]
+  },
+  'precos-praticados': {
+    label: 'Módulo 3 - Preços Praticados (CATMAT/CATSER)',
+    apiFunction: API.getPrecosPraticados,
+    requiredFilters: ['codigos'],
+    autoSearch: false,
+    supportsBackendExport: true,
+    filters: [
+      {
+        name: 'tipoCatalogo',
+        label: 'Catálogo',
+        type: 'select',
+        options: [
+          { value: 'material', label: 'CATMAT (Material)' },
+          { value: 'servico', label: 'CATSER (Serviço)' }
+        ]
+      },
+      {
+        name: 'codigos',
+        label: 'Códigos CATMAT/CATSER',
+        type: 'text',
+        placeholder: 'Ex: 233420, 233421'
+      },
+      {
+        name: 'periodo',
+        label: 'Período rápido',
+        type: 'select',
+        options: [
+          { value: '', label: 'Sem período rápido' },
+          { value: '30d', label: 'Últimos 30 dias' },
+          { value: '90d', label: 'Últimos 90 dias' },
+          { value: '180d', label: 'Últimos 180 dias' },
+          { value: '12m', label: 'Últimos 12 meses' },
+          { value: 'ano-atual', label: 'Ano atual' }
+        ]
+      },
+      {
+        name: 'dataCompraInicio',
+        label: 'Data inicial',
+        type: 'date',
+        placeholder: ''
+      },
+      {
+        name: 'dataCompraFim',
+        label: 'Data final',
+        type: 'date',
+        placeholder: ''
+      },
+      {
+        name: 'ano',
+        label: 'Ano',
+        type: 'number',
+        placeholder: 'Ex: 2025'
+      },
+      {
+        name: 'mes',
+        label: 'Mês',
+        type: 'select',
+        options: [
+          { value: '', label: 'Todos os meses' },
+          { value: '1', label: '01 - Janeiro' },
+          { value: '2', label: '02 - Fevereiro' },
+          { value: '3', label: '03 - Março' },
+          { value: '4', label: '04 - Abril' },
+          { value: '5', label: '05 - Maio' },
+          { value: '6', label: '06 - Junho' },
+          { value: '7', label: '07 - Julho' },
+          { value: '8', label: '08 - Agosto' },
+          { value: '9', label: '09 - Setembro' },
+          { value: '10', label: '10 - Outubro' },
+          { value: '11', label: '11 - Novembro' },
+          { value: '12', label: '12 - Dezembro' }
+        ]
+      },
+      {
+        name: 'modalidade',
+        label: 'Modalidade',
+        type: 'text',
+        placeholder: 'Ex: pregão, dispensa, concorrência'
+      },
+      {
+        name: 'estado',
+        label: 'Estado (UF)',
+        type: 'text',
+        placeholder: 'Ex: BA',
+        maxLength: 2
+      },
+      {
+        name: 'codigoUasg',
+        label: 'Código UASG',
+        type: 'text',
+        placeholder: 'Ex: 158129'
+      },
+      {
+        name: 'fornecedor',
+        label: 'Fornecedor',
+        type: 'text',
+        placeholder: 'Razão social ou CNPJ'
+      },
+      {
+        name: 'marca',
+        label: 'Marca',
+        type: 'text',
+        placeholder: 'Ex: HP'
+      },
+      {
+        name: 'precoMin',
+        label: 'Preço mínimo',
+        type: 'number',
+        placeholder: 'Ex: 10.50'
+      },
+      {
+        name: 'precoMax',
+        label: 'Preço máximo',
+        type: 'number',
+        placeholder: 'Ex: 200.00'
+      },
+      {
+        name: 'ordenacao',
+        label: 'Ordenação',
+        type: 'select',
+        options: [
+          { value: 'data-desc', label: 'Data mais recente' },
+          { value: 'data-asc', label: 'Data mais antiga' },
+          { value: 'preco-desc', label: 'Maior preço' },
+          { value: 'preco-asc', label: 'Menor preço' },
+          { value: 'fornecedor-asc', label: 'Fornecedor (A-Z)' },
+          { value: 'fornecedor-desc', label: 'Fornecedor (Z-A)' }
         ]
       }
     ]
@@ -363,7 +561,7 @@ export function init() {
   loadFromLocalStorage();
 
   console.log('✅ Módulo Consulte Compras.gov inicializado!');
-  console.log("📝 Use window.abrirConsulta('materiais') para testar");
+  console.log("📝 Use window.abrirConsulta('materiais') ou window.abrirConsultaPrecosPraticados('233420') para testar");
 }
 
 /**
@@ -454,6 +652,8 @@ export function showMenu() {
   state.currentPage = 1;
   state.hasActiveSearch = false;
   state.lastSearchSignature = null;
+  state.priceIntelligenceResponse = null;
+  state.pageRawItems = [];
 
   console.log('✅ Estado resetado para menu');
 
@@ -487,13 +687,15 @@ export function showConsulta(dataset) {
   // Atualiza estado
   state.dataset = dataset;
   state.currentView = 'consulta';
-  state.filters = {};
+  state.filters = isPriceIntelligenceDataset(dataset) ? { tipoCatalogo: 'material' } : {};
   state.results = [];
   state.currentPage = 1;
   state.totalPages = 0;
   state.totalRecords = 0;
   state.hasActiveSearch = false;
   state.lastSearchSignature = null;
+  state.priceIntelligenceResponse = null;
+  state.pageRawItems = [];
 
   console.log('📊 Estado atualizado:', {
     dataset,
@@ -574,8 +776,22 @@ function renderFilters() {
 
   html += '</div>';
 
-  html += `
-    <div class="filters-actions">
+  const actionsHtml = config.supportsBackendExport
+    ? `
+      <button id="btnBuscar" class="btn btn-primary" aria-label="Buscar dados">
+        🔍 Buscar
+      </button>
+      <button id="btnAtualizarAgora" class="btn btn-warning" aria-label="Atualizar dados no upstream">
+        🔄 Atualizar Agora
+      </button>
+      <button id="btnExportPriceDataTop" class="btn btn-success" aria-label="Exportar resultados filtrados">
+        📥 Exportar
+      </button>
+      <button id="btnLimpar" class="btn btn-secondary" aria-label="Limpar filtros">
+        🗑️ Limpar Filtros
+      </button>
+    `
+    : `
       <button id="btnBuscar" class="btn btn-primary" aria-label="Buscar dados">
         🔍 Buscar
       </button>
@@ -585,7 +801,13 @@ function renderFilters() {
       <button id="btnLimparCache" class="btn btn-warning" aria-label="Limpar cache">
         ⚡ Limpar Cache
       </button>
+    `;
+
+  html += `
+    <div class="filters-actions">
+      ${actionsHtml}
     </div>
+    ${config.supportsBackendExport ? '<p class="text-muted">Módulo 3: informe um ou mais códigos CATMAT/CATSER separados por vírgula.</p>' : ''}
     <p id="consultaHint" class="text-muted" aria-live="polite"></p>
   `;
 
@@ -646,6 +868,11 @@ function renderTable() {
         <p>Carregando dados...</p>
       </div>
     `;
+    return;
+  }
+
+  if (isPriceIntelligenceDataset() && state.priceIntelligenceResponse) {
+    container.innerHTML = renderPriceIntelligenceResults(state.priceIntelligenceResponse, state.results || []);
     return;
   }
 
@@ -748,6 +975,11 @@ function attachEventListeners() {
       return;
     }
 
+    const config = DATASETS[state.dataset];
+    if (config?.autoSearch === false) {
+      return;
+    }
+
     if (target.dataset.filterType !== 'text') {
       return;
     }
@@ -780,6 +1012,11 @@ function attachEventListeners() {
       return;
     }
 
+    const config = DATASETS[state.dataset];
+    if (config?.autoSearch === false) {
+      return;
+    }
+
     if (target.dataset.filterType === 'select') {
       triggerSearch({ source: 'manual', force: true, resetPage: true });
     }
@@ -809,6 +1046,8 @@ function attachEventListeners() {
       state.totalPages = 0;
       state.totalRecords = 0;
       state.hasActiveSearch = false;
+      state.priceIntelligenceResponse = null;
+      state.pageRawItems = [];
       renderFilters();
       renderPagination();
       renderTable();
@@ -828,8 +1067,8 @@ function attachEventListeners() {
   // Paginação
   document.addEventListener('click', (e) => {
     if (e.target.id === 'btnPrevPage' && state.currentPage > 1) {
-      if (!state.hasActiveSearch || !hasAtLeastOneFilter(state.filters)) {
-        setSearchHint('Preencha pelo menos um campo para realizar a pesquisa');
+      if (!state.hasActiveSearch || !canSearchWithFilters(state.filters)) {
+        setSearchHint(getRequiredHint(DATASETS[state.dataset]));
         return;
       }
 
@@ -838,8 +1077,8 @@ function attachEventListeners() {
     }
 
     if (e.target.id === 'btnNextPage' && state.currentPage < state.totalPages) {
-      if (!state.hasActiveSearch || !hasAtLeastOneFilter(state.filters)) {
-        setSearchHint('Preencha pelo menos um campo para realizar a pesquisa');
+      if (!state.hasActiveSearch || !canSearchWithFilters(state.filters)) {
+        setSearchHint(getRequiredHint(DATASETS[state.dataset]));
         return;
       }
 
@@ -853,6 +1092,14 @@ function attachEventListeners() {
     if (e.target.id === 'btnExportCSV') {
       exportToCSV();
     }
+
+    if (e.target.id === 'btnAtualizarAgora') {
+      triggerSearch({ source: 'manual', force: true, resetPage: true });
+    }
+
+    if (e.target.id === 'btnExportPriceDataTop' || e.target.id === 'btnExportPriceData') {
+      exportPriceIntelligence();
+    }
   });
 
   // Ver JSON
@@ -860,6 +1107,11 @@ function attachEventListeners() {
     if (e.target.classList.contains('btn-view-json')) {
       const index = parseInt(e.target.dataset.index);
       showJSONModal(index);
+    }
+
+    if (e.target.classList.contains('btn-price-details')) {
+      const index = parseInt(e.target.dataset.index, 10);
+      showPriceDetailsModal(index);
     }
   });
 
@@ -870,9 +1122,9 @@ function attachEventListeners() {
 function triggerSearch({ source = 'manual', force = false, resetPage = false } = {}) {
   collectFilters();
 
-  if (!hasAtLeastOneFilter(state.filters)) {
+  if (!canSearchWithFilters(state.filters)) {
     state.hasActiveSearch = false;
-    setSearchHint('Preencha pelo menos um campo para realizar a pesquisa');
+    setSearchHint(getRequiredHint(DATASETS[state.dataset]));
     return;
   }
 
@@ -902,9 +1154,28 @@ function collectFilters() {
 
   config.filters.forEach((filter) => {
     const input = document.getElementById(`filter_${filter.name}`);
-    if (input && input.value.trim()) {
-      state.filters[filter.name] = input.value.trim();
+    if (!input) {
+      return;
     }
+
+    let value = input.value.trim();
+    if (!value) {
+      return;
+    }
+
+    if (isPriceIntelligenceDataset()) {
+      if (filter.name === 'codigos') {
+        value = sanitizeCodesInput(value);
+        input.value = value;
+      }
+
+      if (filter.name === 'estado') {
+        value = value.toUpperCase();
+        input.value = value;
+      }
+    }
+
+    state.filters[filter.name] = value;
   });
 }
 
@@ -925,14 +1196,23 @@ async function executeSearch({ force = false } = {}) {
     return;
   }
 
-  if (!hasAtLeastOneFilter(state.filters)) {
+  if (!canSearchWithFilters(state.filters)) {
     state.hasActiveSearch = false;
-    setSearchHint('Preencha pelo menos um campo para realizar a pesquisa');
+    setSearchHint(getRequiredHint(config));
     return;
   }
 
   // Verifica cache
-  const params = { ...state.filters, pagina: state.currentPage };
+  const params = {
+    ...state.filters,
+    pagina: state.currentPage,
+    tipoCatalogo: state.filters.tipoCatalogo || 'material'
+  };
+
+  if (isPriceIntelligenceDataset() && force) {
+    params.forceRefresh = true;
+  }
+
   const signature = createSearchSignature(state.dataset, params);
 
   if (!force && signature === state.lastSearchSignature) {
@@ -954,7 +1234,9 @@ async function executeSearch({ force = false } = {}) {
   renderTable();
 
   try {
-    const data = await config.apiFunction(params);
+    const data = await config.apiFunction(params, {
+      forceRefresh: isPriceIntelligenceDataset() && force
+    });
 
     // Armazena no cache
     Cache.set(state.dataset, params, data);
@@ -1025,10 +1307,17 @@ function processResults(data) {
   state.hasActiveSearch = true;
   state.rawData = data;
 
+  if (isPriceIntelligenceDataset()) {
+    state.priceIntelligenceResponse = data._priceIntelligence || data._raw || null;
+  } else {
+    state.priceIntelligenceResponse = null;
+  }
+
   // Extrai metadados
   const metadata = data._metadata || data.metadata || {};
-  state.totalRecords = metadata.totalRecords || metadata.total || 0;
-  state.totalPages = metadata.totalPages || metadata.pages || 1;
+  state.totalRecords =
+    metadata.totalRecords || metadata.total || state.priceIntelligenceResponse?.page?.totalItems || 0;
+  state.totalPages = metadata.totalPages || metadata.pages || state.priceIntelligenceResponse?.page?.totalPages || 1;
 
   // Extrai itens (vários formatos possíveis)
   let items = [];
@@ -1047,6 +1336,8 @@ function processResults(data) {
     items = data;
   }
 
+  state.pageRawItems = Array.isArray(items) ? items : [];
+
   // Mapeia para formato padronizado
   state.results = Mapeadores.mapear(state.dataset, items);
 
@@ -1061,6 +1352,11 @@ function processResults(data) {
  * Exporta resultados para CSV
  */
 function exportToCSV() {
+  if (isPriceIntelligenceDataset()) {
+    exportPriceIntelligence('csv');
+    return;
+  }
+
   if (!state.results || state.results.length === 0) {
     alert('Nenhum dado para exportar.');
     return;
@@ -1092,6 +1388,50 @@ function exportToCSV() {
   link.download = `consulta_${state.dataset}_${new Date().toISOString().slice(0, 10)}.csv`;
   link.click();
   URL.revokeObjectURL(url);
+}
+
+function downloadBlobFile(blob, filename) {
+  const blobUrl = URL.createObjectURL(blob);
+  const anchor = document.createElement('a');
+  anchor.href = blobUrl;
+  anchor.download = filename;
+  anchor.click();
+  URL.revokeObjectURL(blobUrl);
+}
+
+async function exportPriceIntelligence(explicitFormat = null) {
+  if (!isPriceIntelligenceDataset()) {
+    return;
+  }
+
+  collectFilters();
+
+  if (!canSearchWithFilters(state.filters)) {
+    setSearchHint(getRequiredHint(DATASETS[state.dataset]));
+    return;
+  }
+
+  const formatSelector = document.getElementById('priceExportFormat');
+  const selectedFormat = explicitFormat || formatSelector?.value || 'csv';
+  const payload = {
+    ...state.filters,
+    pagina: state.currentPage,
+    tipoCatalogo: state.filters.tipoCatalogo || 'material'
+  };
+
+  try {
+    const exported = await API.exportPrecosPraticados(payload, selectedFormat);
+    downloadBlobFile(exported.blob, exported.filename || `inteligencia-precos.${selectedFormat}`);
+  } catch (error) {
+    console.error('❌ Falha ao exportar Módulo 3:', error);
+    const mensagem = error?.message || 'Falha ao exportar os dados filtrados.';
+
+    if (typeof window.mostrarErroCopivel === 'function') {
+      window.mostrarErroCopivel('Falha na exportação', mensagem, 'Tente novamente com filtros mais restritos.');
+    } else {
+      alert(`Falha na exportação\n\n${mensagem}`);
+    }
+  }
 }
 
 /**
@@ -1126,6 +1466,36 @@ function showJSONModal(index) {
   document.body.insertAdjacentHTML('beforeend', modal);
 }
 
+function showPriceDetailsModal(index) {
+  if (!isPriceIntelligenceDataset()) {
+    return;
+  }
+
+  const item = state.pageRawItems[index] || state.results[index]?.extras || state.results[index];
+  if (!item) {
+    return;
+  }
+
+  const modal = `
+    <div class="modal-overlay" id="priceDetailsModal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Detalhes do Registro - ${item.codigoItemCatalogo || item.idItemCompra || 'Módulo 3'}</h3>
+          <button class="btn-close" onclick="document.getElementById('priceDetailsModal').remove()" aria-label="Fechar">×</button>
+        </div>
+        <div class="modal-body">
+          ${renderPriceDetailsModalContent(item)}
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" onclick="document.getElementById('priceDetailsModal').remove()">Fechar</button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  document.body.insertAdjacentHTML('beforeend', modal);
+}
+
 /**
  * Persistência local desativada (modo server-only)
  */
@@ -1138,4 +1508,48 @@ function saveToLocalStorage() {
  */
 function loadFromLocalStorage() {
   return;
+}
+
+export function openPriceIntelligence(options = {}) {
+  const optionsFilters = options.filters && typeof options.filters === 'object' ? options.filters : {};
+  const codesSource =
+    options.codigos || options.codes || options.codigo || options.codigoItemCatalogo || optionsFilters.codigos || '';
+
+  const normalizedCodigos = sanitizeCodesInput(Array.isArray(codesSource) ? codesSource.join(', ') : codesSource);
+  const initialFilters = {
+    tipoCatalogo: options.tipoCatalogo || optionsFilters.tipoCatalogo || 'material',
+    ...optionsFilters,
+    codigos: normalizedCodigos
+  };
+
+  showConsulta(PRICE_INTELLIGENCE_DATASET);
+
+  requestAnimationFrame(() => {
+    setFiltersOnForm(initialFilters);
+    collectFilters();
+
+    if (options.autoSearch === false) {
+      setSearchHint(getRequiredHint(DATASETS[PRICE_INTELLIGENCE_DATASET]));
+      return;
+    }
+
+    if (!canSearchWithFilters(state.filters)) {
+      setSearchHint(getRequiredHint(DATASETS[PRICE_INTELLIGENCE_DATASET]));
+      return;
+    }
+
+    triggerSearch({
+      source: 'manual',
+      force: options.forceRefresh === true,
+      resetPage: true
+    });
+  });
+}
+
+export function openPriceIntelligenceByCode(codigo, options = {}) {
+  openPriceIntelligence({
+    ...options,
+    codigo,
+    autoSearch: options.autoSearch !== false
+  });
 }

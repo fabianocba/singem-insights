@@ -312,6 +312,49 @@ export function mapearLegadoItens(itens = []) {
 }
 
 /**
+ * Mapeia registros do Módulo 3 - Preços Praticados para formato padronizado.
+ * @param {Array} itens - Array de registros normalizados do backend
+ * @returns {Array} Array normalizado para a UI
+ */
+export function mapearPrecosPraticados(itens = []) {
+  if (!Array.isArray(itens)) {
+    return [];
+  }
+
+  return itens.map((item) => {
+    const codigoUasg = pickFirstValue(item.codigoUasg, '-');
+    const nomeUasg = pickFirstValue(item.nomeUasg, '-');
+    const nomeOrgao = pickFirstValue(item.nomeOrgao, '-');
+
+    return {
+      codigo: pickFirstValue(item.codigoItemCatalogo, item.codigoConsultado, '-'),
+      descricao: pickFirstValue(item.descricaoItem, item.objetoCompra, '-'),
+      unidade: pickFirstValue(item.unidadeApresentacao, item.siglaUnidadeFornecimento, item.siglaUnidadeMedida, '-'),
+      orgao: `${codigoUasg} - ${nomeUasg}`,
+      status: pickFirstValue(item.modalidadeNome, '-'),
+      dataAtualizacao: formatarData(item.dataCompra),
+      valor: formatarValor(item.precoUnitario),
+      dataCompra: formatarData(item.dataCompra),
+      quantidade: Number(item.quantidade || 0).toLocaleString('pt-BR', {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 2
+      }),
+      fornecedor: pickFirstValue(item.nomeFornecedor, '-'),
+      marca: pickFirstValue(item.marca, '-'),
+      uasg: `${codigoUasg} - ${nomeUasg}`,
+      estado: pickFirstValue(item.estado, '-'),
+      modalidade: pickFirstValue(item.modalidadeNome, '-'),
+      idItemCompra: pickFirstValue(item.idItemCompra, '-'),
+      extras: {
+        ...item,
+        nomeOrgao,
+        raw: item.raw || item
+      }
+    };
+  });
+}
+
+/**
  * Mapeia dados genéricos (fallback)
  * @param {Array} itens - Array de itens brutos
  * @returns {Array} Array normalizado
@@ -355,6 +398,8 @@ export function mapear(dataset, itens) {
       return mapearLegadoLicitacoes(itens);
     case 'legado-itens':
       return mapearLegadoItens(itens);
+    case 'precos-praticados':
+      return mapearPrecosPraticados(itens);
     default:
       return mapearGenerico(itens);
   }

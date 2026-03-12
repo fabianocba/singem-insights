@@ -36,43 +36,77 @@
         </div>
 
         <div class="menu-grid-consultas">
-          <div class="menu-item-consulta" data-consulta="materiais">
+          <div
+            class="menu-item-consulta"
+            data-consulta="materiais"
+            onclick="window.abrirConsulta('materiais')"
+          >
             <div class="menu-icon-consulta">�</div>
             <h3>Catálogo de Material</h3>
             <p>Consulte itens do CATMAT por descrição ou código CATMAT</p>
           </div>
 
-          <div class="menu-item-consulta" data-consulta="servicos">
+          <div
+            class="menu-item-consulta"
+            data-consulta="servicos"
+            onclick="window.abrirConsulta('servicos')"
+          >
             <div class="menu-icon-consulta">🛠️</div>
             <h3>Catálogo de Serviço</h3>
             <p>Consulte serviços do CATSER por grupo e classe</p>
           </div>
 
-          <div class="menu-item-consulta" data-consulta="uasg">
+          <div
+            class="menu-item-consulta"
+            data-consulta="precos-praticados"
+            onclick="window.abrirConsulta('precos-praticados')"
+          >
+            <div class="menu-icon-consulta">📈</div>
+            <h3>Módulo 3 - Preços Praticados (CATMAT/CATSER)</h3>
+            <p>Pesquisa de preços praticados por código CATMAT/CATSER em compras públicas</p>
+          </div>
+
+          <div
+            class="menu-item-consulta"
+            data-consulta="uasg"
+            onclick="window.abrirConsulta('uasg')"
+          >
             <div class="menu-icon-consulta">🏛️</div>
             <h3>Consultar UASG</h3>
             <p>Busque unidades administrativas por código ou UF</p>
           </div>
 
-          <div class="menu-item-consulta" data-consulta="arp">
+          <div class="menu-item-consulta" data-consulta="arp" onclick="window.abrirConsulta('arp')">
             <div class="menu-icon-consulta">📋</div>
             <h3>ARP - Atas de Preços</h3>
             <p>Consulte itens de Atas de Registro de Preços</p>
           </div>
 
-          <div class="menu-item-consulta" data-consulta="pncp">
+          <div
+            class="menu-item-consulta"
+            data-consulta="pncp"
+            onclick="window.abrirConsulta('pncp')"
+          >
             <div class="menu-icon-consulta">📑</div>
             <h3>Contratações PNCP</h3>
             <p>Lei 14.133/2021 - Portal Nacional de Contratações</p>
           </div>
 
-          <div class="menu-item-consulta" data-consulta="legado-licitacoes">
+          <div
+            class="menu-item-consulta"
+            data-consulta="legado-licitacoes"
+            onclick="window.abrirConsulta('legado-licitacoes')"
+          >
             <div class="menu-icon-consulta">📚</div>
             <h3>Licitações (Legado)</h3>
             <p>Consulte licitações do sistema antigo ComprasNet</p>
           </div>
 
-          <div class="menu-item-consulta" data-consulta="legado-itens">
+          <div
+            class="menu-item-consulta"
+            data-consulta="legado-itens"
+            onclick="window.abrirConsulta('legado-itens')"
+          >
             <div class="menu-icon-consulta">📄</div>
             <h3>Itens de Licitação (Legado)</h3>
             <p>Consulte itens de licitações do sistema legado</p>
@@ -141,6 +175,7 @@
 
       // Inicializa interface ao carregar
       document.addEventListener('DOMContentLoaded', () => {
+        window.abrirConsulta = (dataset) => UI.showConsulta(dataset);
         UI.init();
         console.log('Consulte Compras.gov inicializado');
       });

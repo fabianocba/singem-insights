@@ -277,6 +277,209 @@
   background: #f0f0f0;
 }
 
+/* Módulo 3 - Preços Praticados */
+.pi-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.pi-table-actions {
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.pi-export-group {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.pi-export-group select {
+  min-width: 120px;
+}
+
+.pi-cache-label {
+  margin: 0;
+}
+
+.pi-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
+}
+
+.pi-summary-card {
+  border: 1px solid #d4e3f7;
+  border-radius: 10px;
+  padding: 12px;
+  background: linear-gradient(180deg, #f8fbff 0%, #eef5ff 100%);
+}
+
+.pi-summary-card__label {
+  margin: 0 0 6px;
+  color: #53657f;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.pi-summary-card__value {
+  margin: 0;
+  color: #0f2f57;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.pi-panel {
+  border: 1px solid #e1e7ef;
+  border-radius: 10px;
+  padding: 14px;
+  background: #ffffff;
+}
+
+.pi-panel__title {
+  margin: 0 0 12px;
+  color: #1d2f4d;
+  font-size: 15px;
+}
+
+.pi-summary-text {
+  margin: 0;
+  line-height: 1.5;
+  color: #34495e;
+}
+
+.pi-insight-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pi-insight {
+  border-left: 4px solid #4b7bec;
+  background: #f7faff;
+  border-radius: 6px;
+  padding: 8px 10px;
+  color: #1e3350;
+}
+
+.pi-insight--success {
+  border-left-color: #2e9f5c;
+  background: #f2fbf4;
+}
+
+.pi-insight--warning {
+  border-left-color: #c48a1d;
+  background: #fff9ed;
+}
+
+.pi-insight--error {
+  border-left-color: #d64a4a;
+  background: #fff4f4;
+}
+
+.pi-analytics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 12px;
+}
+
+.pi-bar-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pi-bar-row__header {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.pi-bar-row__label {
+  max-width: 70%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #34495e;
+  font-size: 13px;
+}
+
+.pi-bar-row__value {
+  color: #1f3d6d;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.pi-bar-track {
+  height: 8px;
+  border-radius: 999px;
+  background: #e8eff8;
+  overflow: hidden;
+}
+
+.pi-bar-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #2a6cc4 0%, #63a1ef 100%);
+}
+
+.pi-panel__table-wrapper {
+  overflow-x: auto;
+}
+
+.pi-mini-table {
+  font-size: 12px;
+}
+
+.pi-main-table th,
+.pi-main-table td {
+  white-space: nowrap;
+}
+
+.pi-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 10px;
+}
+
+.pi-detail-item {
+  border: 1px solid #e5ebf3;
+  border-radius: 8px;
+  padding: 10px;
+  background: #fdfefe;
+}
+
+.pi-detail-item--full {
+  grid-column: 1 / -1;
+}
+
+.pi-detail-item__label {
+  display: block;
+  font-size: 12px;
+  color: #5e6f86;
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+
+.pi-detail-item__value {
+  color: #1e2f4a;
+}
+
+.pi-detail-json {
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
 /* Células especiais */
 .description-cell {
   max-width: 300px;
@@ -580,6 +783,19 @@
     flex-direction: column;
     align-items: stretch;
     gap: 10px;
+  }
+
+  .pi-export-group {
+    width: 100%;
+  }
+
+  .pi-export-group select,
+  .pi-export-group button {
+    width: 100%;
+  }
+
+  .pi-analytics-grid {
+    grid-template-columns: 1fr;
   }
 
   .table {

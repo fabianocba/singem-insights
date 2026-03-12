@@ -15,11 +15,15 @@ export { Cache, API, Mapeadores, UI };
 export const init = UI.init;
 export const showConsulta = UI.showConsulta;
 export const showMenu = UI.showMenu;
+export const openPriceIntelligence = UI.openPriceIntelligence;
+export const openPriceIntelligenceByCode = UI.openPriceIntelligenceByCode;
 
 // Debug
 console.log('✅ Módulo de Consultas carregado!');
 console.log('📦 Funções disponíveis:', {
   init: typeof init,
   showConsulta: typeof showConsulta,
-  showMenu: typeof showMenu
+  showMenu: typeof showMenu,
+  openPriceIntelligence: typeof openPriceIntelligence,
+  openPriceIntelligenceByCode: typeof openPriceIntelligenceByCode
 });
