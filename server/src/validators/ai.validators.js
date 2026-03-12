@@ -1,13 +1,14 @@
 const { z } = require('./common');
 
 const entityTypesSchema = z.array(z.string().trim().min(1).max(80)).max(20).optional().default([]);
+const jsonObjectSchema = z.record(z.string(), z.any());
 
 const searchBodySchema = z
   .object({
     query_text: z.string().trim().min(1).max(4000),
     entity_types: entityTypesSchema,
     context_module: z.string().trim().max(120).optional(),
-    filters: z.record(z.any()).optional().default({}),
+    filters: jsonObjectSchema.optional().default({}),
     page: z.coerce.number().int().min(1).max(1000).optional().default(1),
     page_size: z.coerce.number().int().min(1).max(100).optional().default(20)
   })
@@ -17,7 +18,7 @@ const suggestItemBodySchema = z
   .object({
     text: z.string().trim().min(1).max(4000),
     context_module: z.string().trim().max(120).optional(),
-    hints: z.record(z.any()).optional().default({}),
+    hints: jsonObjectSchema.optional().default({}),
     limit: z.coerce.number().int().min(1).max(20).optional().default(5)
   })
   .passthrough();
@@ -27,7 +28,7 @@ const suggestFornecedorBodySchema = z
     text: z.string().trim().min(1).max(4000),
     cnpj: z.string().trim().max(30).optional(),
     context_module: z.string().trim().max(120).optional(),
-    hints: z.record(z.any()).optional().default({}),
+    hints: jsonObjectSchema.optional().default({}),
     limit: z.coerce.number().int().min(1).max(20).optional().default(5)
   })
   .passthrough();
@@ -46,7 +47,7 @@ const matchEntityBodySchema = z
       }),
     source_text: z.string().trim().min(1).max(4000),
     target_entity_types: entityTypesSchema,
-    context: z.record(z.any()).optional().default({}),
+    context: jsonObjectSchema.optional().default({}),
     limit: z.coerce.number().int().min(1).max(50).optional().default(10)
   })
   .passthrough();
@@ -55,7 +56,7 @@ const reportSummaryBodySchema = z
   .object({
     report_key: z.string().trim().min(1).max(200),
     context_module: z.string().trim().max(120).optional(),
-    data: z.record(z.any()).optional().default({}),
+    data: jsonObjectSchema.optional().default({}),
     force_refresh: z.boolean().optional().default(false)
   })
   .passthrough();
@@ -76,7 +77,7 @@ const feedbackBodySchema = z
         }
         return String(value);
       }),
-    context: z.record(z.any()).optional().default({})
+    context: jsonObjectSchema.optional().default({})
   })
   .passthrough();
 

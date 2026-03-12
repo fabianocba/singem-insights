@@ -30,7 +30,7 @@ const syncEmpenhosSchema = {
       z.object({
         tipo: z.string(),
         id: z.union([z.string(), z.number()]).optional(),
-        dados: z.record(z.any()).optional()
+        dados: z.record(z.string(), z.any()).optional()
       })
     )
   })
