@@ -102,6 +102,18 @@ function isPriceIntelligenceDataset(dataset = state.dataset) {
   return dataset === PRICE_INTELLIGENCE_DATASET;
 }
 
+function getCatalogTypeForShortcut(dataset = state.dataset) {
+  if (dataset === 'materiais') {
+    return 'material';
+  }
+
+  if (dataset === 'servicos') {
+    return 'servico';
+  }
+
+  return null;
+}
+
 function getRequiredFilters(config, filtersObject = {}) {
   const required = Array.isArray(config?.requiredFilters) ? config.requiredFilters : [];
   return required.filter((key) => !String(filtersObject[key] || '').trim());
@@ -911,7 +923,18 @@ function renderTable() {
         <tbody>
   `;
 
+  const shortcutCatalogType = getCatalogTypeForShortcut();
+
   state.results.forEach((row, index) => {
+    const hasShortcutCode = row?.codigo && row.codigo !== '-';
+    const shortcutButton =
+      shortcutCatalogType && hasShortcutCode
+        ? `<button class="btn btn-sm btn-primary btn-open-price-intelligence" data-index="${index}" data-catalog-type="${shortcutCatalogType}"
+                  aria-label="Abrir Módulo 3 para este item" title="Ver preços praticados deste item">
+            📈 Preços
+          </button>`
+        : '';
+
     html += `
       <tr>
         <td>${row.codigo}</td>
@@ -922,6 +945,7 @@ function renderTable() {
         <td>${row.dataAtualizacao}</td>
         <td>${row.valor}</td>
         <td>
+          ${shortcutButton}
           <button class="btn btn-sm btn-info btn-view-json" data-index="${index}"
                   aria-label="Ver JSON completo" title="Ver JSON completo">
             📄 JSON
@@ -1104,14 +1128,34 @@ function attachEventListeners() {
 
   // Ver JSON
   document.addEventListener('click', (e) => {
-    if (e.target.classList.contains('btn-view-json')) {
-      const index = parseInt(e.target.dataset.index);
+    const jsonButton = e.target.closest('.btn-view-json');
+    if (jsonButton) {
+      const index = parseInt(jsonButton.dataset.index, 10);
       showJSONModal(index);
     }
 
-    if (e.target.classList.contains('btn-price-details')) {
-      const index = parseInt(e.target.dataset.index, 10);
+    const detailsButton = e.target.closest('.btn-price-details');
+    if (detailsButton) {
+      const index = parseInt(detailsButton.dataset.index, 10);
       showPriceDetailsModal(index);
+    }
+
+    const shortcutButton = e.target.closest('.btn-open-price-intelligence');
+    if (shortcutButton) {
+      const index = parseInt(shortcutButton.dataset.index, 10);
+      const row = state.results[index];
+      const catalogType = shortcutButton.dataset.catalogType || getCatalogTypeForShortcut();
+
+      if (!row?.codigo || row.codigo === '-') {
+        setSearchHint('Codigo do item indisponivel para abrir o Módulo 3.');
+        return;
+      }
+
+      openPriceIntelligenceByCode(row.codigo, {
+        tipoCatalogo: catalogType || 'material',
+        forceRefresh: false,
+        autoSearch: true
+      });
     }
   });
 

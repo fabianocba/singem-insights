@@ -176,6 +176,23 @@
       // Inicializa interface ao carregar
       document.addEventListener('DOMContentLoaded', () => {
         window.abrirConsulta = (dataset) => UI.showConsulta(dataset);
+        window.abrirConsultaPrecosPraticados = (codigoOuParametros, opcoes = {}) => {
+          const parametros =
+            codigoOuParametros && typeof codigoOuParametros === 'object'
+              ? codigoOuParametros
+              : { codigo: codigoOuParametros, ...opcoes };
+
+          if (typeof UI.openPriceIntelligence === 'function') {
+            UI.openPriceIntelligence({
+              ...parametros,
+              autoSearch: parametros.autoSearch !== false
+            });
+            return;
+          }
+
+          UI.showConsulta('precos-praticados');
+        };
+
         UI.init();
         console.log('Consulte Compras.gov inicializado');
       });

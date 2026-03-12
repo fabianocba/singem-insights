@@ -7,6 +7,7 @@
     "start": "node index.js",
     "dev": "nodemon index.js",
     "test:contracts": "node --test tests/*.contract.test.js",
+    "test:contracts:auth": "node scripts/test-contracts-auth.js",
     "test:price-intelligence": "node --test tests/price-intelligence*.test.js",
     "test:integracoes": "node --test tests/integracoes.contract.test.js",
     "db:migrate": "node -e \"require('./config/database').runMigrations().then(() => process.exit())\"",
