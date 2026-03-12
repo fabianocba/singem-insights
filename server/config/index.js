@@ -162,6 +162,18 @@ const config = {
     autoReindexOnMutation: parseBoolean(process.env.AI_CORE_AUTO_REINDEX_ON_MUTATION, true),
     reindexDebounceMs: Number(process.env.AI_CORE_REINDEX_DEBOUNCE_MS || 1500)
   },
+  priceIntelligence: {
+    cacheTtlSeconds: Number(process.env.PRICE_INTELLIGENCE_CACHE_TTL_SECONDS || 1800),
+    dbCacheEnabled: parseBoolean(process.env.PRICE_INTELLIGENCE_DB_CACHE_ENABLED, true),
+    dbCacheTtlSeconds: Number(process.env.PRICE_INTELLIGENCE_DB_CACHE_TTL_SECONDS || 21600),
+    maxCodesPerQuery: Number(process.env.PRICE_INTELLIGENCE_MAX_CODES || 10),
+    upstreamPageSize: Number(process.env.PRICE_INTELLIGENCE_UPSTREAM_PAGE_SIZE || 100),
+    maxAutoPages: Number(process.env.PRICE_INTELLIGENCE_MAX_AUTO_PAGES || 12),
+    maxTotalItems: Number(process.env.PRICE_INTELLIGENCE_MAX_TOTAL_ITEMS || 5000),
+    maxReturnedRawItems: Number(process.env.PRICE_INTELLIGENCE_MAX_RETURNED_RAW_ITEMS || 2000),
+    maxExportItems: Number(process.env.PRICE_INTELLIGENCE_MAX_EXPORT_ITEMS || 10000),
+    topLimit: Number(process.env.PRICE_INTELLIGENCE_TOP_LIMIT || 10)
+  },
   priceSnapshot: {
     enabled: parseBoolean(process.env.PRICE_SNAPSHOT_ENABLED, true)
   },

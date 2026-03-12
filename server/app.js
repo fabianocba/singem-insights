@@ -24,6 +24,7 @@ const catmatRoutes = require('./src/routes/catmat.routes');
 const catalogacaoRoutes = require('./routes/catalogacao.routes');
 const comprasRoutes = require('./routes/compras.routes');
 const comprasGovRoutes = require('./routes/comprasgov.routes');
+const priceIntelligenceRoutes = require('./routes/price-intelligence.routes');
 const dadosGovRoutes = require('./routes/dadosgov.routes');
 const integracoesAdminRoutes = require('./routes/integracoes-admin.routes');
 const aiRoutes = require('./routes/ai.routes');
@@ -92,6 +93,8 @@ function createApp({ nodeEnv, bodyLimit, corsOrigins, trustProxy, nfeService, nf
   app.use('/api/sync', syncRoutes);
   app.use('/api/catmat', catmatRoutes);
   app.use('/api/catalogacao-pedidos', catalogacaoRoutes);
+  app.use('/api/inteligencia-precos', createIntegracoesLimiter(), priceIntelligenceRoutes);
+  app.use('/api/compras/inteligencia-precos', createIntegracoesLimiter(), priceIntelligenceRoutes);
   app.use('/api/compras', createIntegracoesLimiter(), comprasRoutes);
   app.use('/api/ai', authenticate, aiRoutes);
   app.use('/api/integracoes/comprasgov', createIntegracoesLimiter(), authenticate, requireAdmin, comprasGovRoutes);
@@ -184,6 +187,8 @@ function createApp({ nodeEnv, bodyLimit, corsOrigins, trustProxy, nfeService, nf
     '/api/sync',
     '/api/catmat',
     '/api/catalogacao-pedidos',
+    '/api/inteligencia-precos',
+    '/api/compras/inteligencia-precos',
     '/api/compras',
     '/api/ai',
     '/api/integracoes',

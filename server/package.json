@@ -7,6 +7,7 @@
     "start": "node index.js",
     "dev": "nodemon index.js",
     "test:contracts": "node --test tests/*.contract.test.js",
+    "test:price-intelligence": "node --test tests/price-intelligence*.test.js",
     "test:integracoes": "node --test tests/integracoes.contract.test.js",
     "db:migrate": "node -e \"require('./config/database').runMigrations().then(() => process.exit())\"",
     "db:seed": "node scripts/seed-admin.js",
@@ -39,6 +40,7 @@
     "pg": "^8.11.3",
     "singem": "file:..",
     "soap": "^1.0.4",
+    "xlsx": "^0.18.5",
     "zod": "^4.3.6"
   },
   "devDependencies": {
