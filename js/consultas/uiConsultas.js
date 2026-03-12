@@ -6,7 +6,14 @@
 import * as API from './apiCompras.js';
 import * as Mapeadores from './mapeadores.js';
 import * as Cache from './cache.js';
-import { renderPriceDetailsModalContent, renderPriceIntelligenceResults } from './precosPraticadosRenderer.js';
+import {
+  createPriceDashboardState,
+  renderPriceDetailsModalContent,
+  renderPriceIntelligenceErrorState,
+  renderPriceIntelligenceLoadingState,
+  renderPriceIntelligenceResults,
+  renderPriceIntelligenceZeroState
+} from './precosPraticadosRenderer.js';
 
 const AUTO_SEARCH_DEBOUNCE_MS = 650;
 const PRICE_INTELLIGENCE_DATASET = 'precos-praticados';
@@ -27,11 +34,48 @@ const state = {
   hasActiveSearch: false,
   lastSearchSignature: null,
   priceIntelligenceResponse: null,
-  pageRawItems: []
+  pageRawItems: [],
+  priceUiError: null,
+  priceDashboard: createPriceDashboardState()
 };
 
 let debouncedAutoSearch = null;
 let listenersAttached = false;
+
+function isPriceUiDebugEnabled() {
+  if (typeof window === 'undefined') {
+    return false;
+  }
+
+  if (window.SINGEM_DEBUG_PRICE_UI === true) {
+    return true;
+  }
+
+  const host = String(window.location?.hostname || '');
+  return host === 'localhost' || host === '127.0.0.1';
+}
+
+function logPriceUi(scope, payload = {}) {
+  if (!isPriceUiDebugEnabled()) {
+    return;
+  }
+
+  try {
+    // eslint-disable-next-line no-console
+    console.log(`[PRICE_UI][${scope}]`, payload);
+  } catch {
+    // noop
+  }
+}
+
+function escapeHtmlContent(value) {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
 
 export function normalizeText(str) {
   return String(str || '')
@@ -666,6 +710,8 @@ export function showMenu() {
   state.lastSearchSignature = null;
   state.priceIntelligenceResponse = null;
   state.pageRawItems = [];
+  state.priceUiError = null;
+  state.priceDashboard = createPriceDashboardState();
 
   console.log('✅ Estado resetado para menu');
 
@@ -708,6 +754,8 @@ export function showConsulta(dataset) {
   state.lastSearchSignature = null;
   state.priceIntelligenceResponse = null;
   state.pageRawItems = [];
+  state.priceUiError = null;
+  state.priceDashboard = createPriceDashboardState();
 
   console.log('📊 Estado atualizado:', {
     dataset,
@@ -762,10 +810,43 @@ function renderFilters() {
     return;
   }
 
-  let html = '<div class="filters-grid">';
+  const isPriceModule = isPriceIntelligenceDataset();
+  const gridClass = isPriceModule ? 'filters-grid filters-grid--price' : 'filters-grid';
+  const filtersSection = container.closest('.filters-section');
+
+  if (filtersSection) {
+    filtersSection.classList.toggle('filters-section--price', isPriceModule);
+  }
+
+  let html = '';
+
+  if (isPriceModule) {
+    html += `
+      <div class="filters-header filters-header--price">
+        <h4>Filtros executivos</h4>
+        <p>Defina o recorte de analise por catalogo, periodo, modalidade, localidade e fornecedores.</p>
+      </div>
+    `;
+  }
+
+  html += `<div class="${gridClass}">`;
 
   config.filters.forEach((filter) => {
-    html += `<div class="filter-item">`;
+    const itemClasses = ['filter-item'];
+
+    if (isPriceModule) {
+      itemClasses.push('filter-item--price');
+
+      if (['codigos', 'fornecedor', 'marca'].includes(filter.name)) {
+        itemClasses.push('filter-item--wide');
+      }
+
+      if (['dataCompraInicio', 'dataCompraFim', 'ano', 'mes', 'estado'].includes(filter.name)) {
+        itemClasses.push('filter-item--compact');
+      }
+    }
+
+    html += `<div class="${itemClasses.join(' ')}">`;
     html += `<label for="filter_${filter.name}">${filter.label}</label>`;
 
     if (filter.type === 'select') {
@@ -778,8 +859,9 @@ function renderFilters() {
     } else {
       const value = state.filters[filter.name] || '';
       const maxLength = filter.maxLength ? `maxlength="${filter.maxLength}"` : '';
+      const placeholder = filter.placeholder || '';
       html += `<input type="${filter.type}" id="filter_${filter.name}" name="${filter.name}"
-               class="form-control" placeholder="${filter.placeholder}"
+               class="form-control" placeholder="${placeholder}"
                value="${value}" data-filter-type="${filter.type}" ${maxLength} aria-label="${filter.label}">`;
     }
 
@@ -791,35 +873,39 @@ function renderFilters() {
   const actionsHtml = config.supportsBackendExport
     ? `
       <button id="btnBuscar" class="btn btn-primary" aria-label="Buscar dados">
-        🔍 Buscar
-      </button>
-      <button id="btnAtualizarAgora" class="btn btn-warning" aria-label="Atualizar dados no upstream">
-        🔄 Atualizar Agora
-      </button>
-      <button id="btnExportPriceDataTop" class="btn btn-success" aria-label="Exportar resultados filtrados">
-        📥 Exportar
+        Buscar
       </button>
       <button id="btnLimpar" class="btn btn-secondary" aria-label="Limpar filtros">
-        🗑️ Limpar Filtros
+        Limpar
+      </button>
+      <button id="btnAtualizarAgora" class="btn btn-warning" aria-label="Atualizar dados no upstream">
+        Atualizar
+      </button>
+      <button id="btnExportPriceDataTop" class="btn btn-success" aria-label="Exportar resultados filtrados">
+        Exportar
       </button>
     `
     : `
       <button id="btnBuscar" class="btn btn-primary" aria-label="Buscar dados">
-        🔍 Buscar
+        Buscar
       </button>
       <button id="btnLimpar" class="btn btn-secondary" aria-label="Limpar filtros">
-        🗑️ Limpar Filtros
+        Limpar filtros
       </button>
       <button id="btnLimparCache" class="btn btn-warning" aria-label="Limpar cache">
-        ⚡ Limpar Cache
+        Limpar cache
       </button>
     `;
 
   html += `
-    <div class="filters-actions">
+    <div class="filters-actions ${isPriceModule ? 'filters-actions--price' : ''}">
       ${actionsHtml}
     </div>
-    ${config.supportsBackendExport ? '<p class="text-muted">Módulo 3: informe um ou mais códigos CATMAT/CATSER separados por vírgula.</p>' : ''}
+    ${
+      config.supportsBackendExport
+        ? '<p class="text-muted">Aceita multiplos codigos CATMAT/CATSER separados por virgula, espaco ou quebra de linha.</p>'
+        : ''
+    }
     <p id="consultaHint" class="text-muted" aria-live="polite"></p>
   `;
 
@@ -874,6 +960,11 @@ function renderTable() {
   }
 
   if (state.loading) {
+    if (isPriceIntelligenceDataset()) {
+      container.innerHTML = renderPriceIntelligenceLoadingState();
+      return;
+    }
+
     container.innerHTML = `
       <div class="loading-state">
         <div class="spinner"></div>
@@ -883,8 +974,25 @@ function renderTable() {
     return;
   }
 
-  if (isPriceIntelligenceDataset() && state.priceIntelligenceResponse) {
-    container.innerHTML = renderPriceIntelligenceResults(state.priceIntelligenceResponse, state.results || []);
+  if (isPriceIntelligenceDataset()) {
+    if (state.priceUiError) {
+      container.innerHTML = renderPriceIntelligenceErrorState(state.priceUiError);
+      return;
+    }
+
+    if (state.priceIntelligenceResponse) {
+      container.innerHTML = renderPriceIntelligenceResults(
+        state.priceIntelligenceResponse,
+        state.results || [],
+        state.priceDashboard
+      );
+      return;
+    }
+
+    container.innerHTML = renderPriceIntelligenceZeroState({
+      title: 'Nenhuma consulta executada',
+      message: 'Configure os filtros premium e clique em Buscar para gerar o dashboard executivo.'
+    });
     return;
   }
 
@@ -1032,6 +1140,26 @@ function attachEventListeners() {
   // Mudança em selects dispara busca imediata se já houver filtros válidos
   document.addEventListener('change', (e) => {
     const target = e.target;
+
+    if (target?.id === 'piSupplierCriterion' && isPriceIntelligenceDataset()) {
+      state.priceDashboard = createPriceDashboardState({
+        ...state.priceDashboard,
+        supplierCriterion: target.value
+      });
+      renderTable();
+      return;
+    }
+
+    if (target?.id === 'piPageSize' && isPriceIntelligenceDataset()) {
+      state.priceDashboard = createPriceDashboardState({
+        ...state.priceDashboard,
+        tablePageSize: Number(target.value || 15),
+        tablePage: 1
+      });
+      renderTable();
+      return;
+    }
+
     if (!target?.id?.startsWith('filter_')) {
       return;
     }
@@ -1043,6 +1171,18 @@ function attachEventListeners() {
 
     if (target.dataset.filterType === 'select') {
       triggerSearch({ source: 'manual', force: true, resetPage: true });
+    }
+  });
+
+  document.addEventListener('input', (e) => {
+    const target = e.target;
+    if (target?.id === 'piQuickFilter' && isPriceIntelligenceDataset()) {
+      state.priceDashboard = createPriceDashboardState({
+        ...state.priceDashboard,
+        tableQuickFilter: target.value,
+        tablePage: 1
+      });
+      renderTable();
     }
   });
 
@@ -1072,6 +1212,8 @@ function attachEventListeners() {
       state.hasActiveSearch = false;
       state.priceIntelligenceResponse = null;
       state.pageRawItems = [];
+      state.priceUiError = null;
+      state.priceDashboard = createPriceDashboardState();
       renderFilters();
       renderPagination();
       renderTable();
@@ -1090,6 +1232,39 @@ function attachEventListeners() {
 
   // Paginação
   document.addEventListener('click', (e) => {
+    const localPageButton = e.target.closest('.pi-table-page-btn');
+    if (localPageButton && isPriceIntelligenceDataset()) {
+      const pageAction = localPageButton.dataset.pageAction;
+      const pageNumber = Number(localPageButton.dataset.pageNumber || 0);
+
+      if (pageAction === 'prev') {
+        state.priceDashboard = createPriceDashboardState({
+          ...state.priceDashboard,
+          tablePage: Math.max(1, state.priceDashboard.tablePage - 1)
+        });
+        renderTable();
+        return;
+      }
+
+      if (pageAction === 'next') {
+        state.priceDashboard = createPriceDashboardState({
+          ...state.priceDashboard,
+          tablePage: state.priceDashboard.tablePage + 1
+        });
+        renderTable();
+        return;
+      }
+
+      if (Number.isFinite(pageNumber) && pageNumber > 0) {
+        state.priceDashboard = createPriceDashboardState({
+          ...state.priceDashboard,
+          tablePage: pageNumber
+        });
+        renderTable();
+        return;
+      }
+    }
+
     if (e.target.id === 'btnPrevPage' && state.currentPage > 1) {
       if (!state.hasActiveSearch || !canSearchWithFilters(state.filters)) {
         setSearchHint(getRequiredHint(DATASETS[state.dataset]));
@@ -1117,27 +1292,60 @@ function attachEventListeners() {
       exportToCSV();
     }
 
-    if (e.target.id === 'btnAtualizarAgora') {
+    if (
+      e.target.id === 'btnAtualizarAgora' ||
+      e.target.id === 'btnAtualizarAgoraHeader' ||
+      e.target.id === 'btnPriceRetry'
+    ) {
       triggerSearch({ source: 'manual', force: true, resetPage: true });
     }
 
-    if (e.target.id === 'btnExportPriceDataTop' || e.target.id === 'btnExportPriceData') {
+    if (
+      e.target.id === 'btnExportPriceDataTop' ||
+      e.target.id === 'btnExportPriceData' ||
+      e.target.id === 'btnExportPriceDataHeader'
+    ) {
       exportPriceIntelligence();
     }
   });
 
   // Ver JSON
   document.addEventListener('click', (e) => {
+    const sortButton = e.target.closest('.pi-sort-btn');
+    if (sortButton && isPriceIntelligenceDataset()) {
+      const sortKey = sortButton.dataset.sortKey;
+      if (sortKey) {
+        const isSameKey = state.priceDashboard.tableSortBy === sortKey;
+        const nextDir = isSameKey && state.priceDashboard.tableSortDir === 'asc' ? 'desc' : 'asc';
+        state.priceDashboard = createPriceDashboardState({
+          ...state.priceDashboard,
+          tableSortBy: sortKey,
+          tableSortDir: nextDir,
+          tablePage: 1
+        });
+        renderTable();
+      }
+      return;
+    }
+
+    const detailTab = e.target.closest('.pi-detail-tab');
+    if (detailTab) {
+      activatePriceDetailTab(detailTab);
+      return;
+    }
+
     const jsonButton = e.target.closest('.btn-view-json');
     if (jsonButton) {
-      const index = parseInt(jsonButton.dataset.index, 10);
+      const index = parseInt(jsonButton.dataset.sourceIndex || jsonButton.dataset.index, 10);
       showJSONModal(index);
+      return;
     }
 
     const detailsButton = e.target.closest('.btn-price-details');
     if (detailsButton) {
-      const index = parseInt(detailsButton.dataset.index, 10);
+      const index = parseInt(detailsButton.dataset.sourceIndex || detailsButton.dataset.index, 10);
       showPriceDetailsModal(index);
+      return;
     }
 
     const shortcutButton = e.target.closest('.btn-open-price-intelligence');
@@ -1179,6 +1387,17 @@ function triggerSearch({ source = 'manual', force = false, resetPage = false } =
 
   if (resetPage) {
     state.currentPage = 1;
+
+    if (isPriceIntelligenceDataset()) {
+      state.priceDashboard = createPriceDashboardState({
+        ...state.priceDashboard,
+        tablePage: 1
+      });
+    }
+  }
+
+  if (isPriceIntelligenceDataset()) {
+    state.priceUiError = null;
   }
 
   setSearchHint('');
@@ -1221,70 +1440,178 @@ function collectFilters() {
 
     state.filters[filter.name] = value;
   });
+
+  if (isPriceIntelligenceDataset()) {
+    logPriceUi('FILTERS', {
+      filtros: { ...state.filters },
+      pagina: state.currentPage
+    });
+  }
 }
 
 /**
  * Executa busca na API
  */
-async function executeSearch({ force = false } = {}) {
+function validateSearchExecution(config) {
   if (!state.dataset) {
     state.hasActiveSearch = false;
     alert('Selecione um conjunto de dados.');
-    return;
+    return false;
   }
 
-  const config = DATASETS[state.dataset];
   if (!config || !config.apiFunction) {
     state.hasActiveSearch = false;
     alert('Dataset inválido.');
-    return;
+    return false;
   }
 
   if (!canSearchWithFilters(state.filters)) {
     state.hasActiveSearch = false;
     setSearchHint(getRequiredHint(config));
-    return;
+    return false;
   }
 
-  // Verifica cache
+  return true;
+}
+
+function buildSearchParams(force, isPriceDataset) {
   const params = {
     ...state.filters,
     pagina: state.currentPage,
     tipoCatalogo: state.filters.tipoCatalogo || 'material'
   };
 
-  if (isPriceIntelligenceDataset() && force) {
+  if (isPriceDataset && force) {
     params.forceRefresh = true;
   }
 
-  const signature = createSearchSignature(state.dataset, params);
+  return params;
+}
 
+function describeSearchError(error) {
+  const info = {
+    title: 'Erro ao buscar dados',
+    message: error?.message || 'Falha inesperada na consulta.',
+    details: ''
+  };
+
+  const errorMessage = String(error?.message || '');
+
+  if (errorMessage.includes('Failed to fetch') || errorMessage.includes('conectar com a API')) {
+    info.title = 'Erro de Conexão';
+    info.details =
+      'Possíveis causas:\n' +
+      '• Sem conexão com a internet\n' +
+      '• Proxy backend do SINGEM indisponível\n' +
+      '• Upstream do Compras.gov.br fora do ar\n\n' +
+      'Teste acessar no navegador:\n' +
+      'http://localhost:3000/api/compras/health';
+    return info;
+  }
+
+  if (errorMessage.includes('CORS')) {
+    info.title = 'Erro de Proxy';
+    info.details =
+      'As consultas devem passar pelo backend do SINGEM.\n' +
+      'Verifique se o servidor está ativo e se /api/compras está acessível.';
+    return info;
+  }
+
+  if (errorMessage.includes('tempo limite') || errorMessage.includes('Timeout')) {
+    info.title = 'Timeout';
+    info.details = 'A requisição demorou mais de 30 segundos.\nTente novamente ou ajuste os filtros.';
+    return info;
+  }
+
+  if (errorMessage.includes('404')) {
+    info.title = 'Endpoint não encontrado';
+    info.details = 'O endpoint da API não existe ou foi alterado.';
+    return info;
+  }
+
+  if (errorMessage.includes('429')) {
+    info.title = 'Muitas requisições';
+    info.details = 'A API está limitando o número de requisições.\nAguarde alguns segundos e tente novamente.';
+  }
+
+  return info;
+}
+
+function presentSearchError(errorInfo, isPriceDataset) {
+  if (isPriceDataset) {
+    state.priceUiError = {
+      title: errorInfo.title,
+      message: errorInfo.message,
+      details: errorInfo.details
+    };
+
+    logPriceUi('LOAD', {
+      status: 'error',
+      titulo: errorInfo.title,
+      mensagem: errorInfo.message
+    });
+
+    renderTable();
+    return;
+  }
+
+  if (typeof window.mostrarErroCopivel === 'function') {
+    window.mostrarErroCopivel(errorInfo.title, errorInfo.message, errorInfo.details);
+  } else {
+    alert(`${errorInfo.title}\n\n${errorInfo.message}${errorInfo.details ? '\n\n' + errorInfo.details : ''}`);
+  }
+
+  renderTable();
+}
+
+async function executeSearch({ force = false } = {}) {
+  const config = DATASETS[state.dataset];
+  if (!validateSearchExecution(config)) {
+    return;
+  }
+
+  const isPriceDataset = isPriceIntelligenceDataset();
+  if (isPriceDataset) {
+    state.priceUiError = null;
+  }
+
+  const params = buildSearchParams(force, isPriceDataset);
+  if (isPriceDataset) {
+    logPriceUi('LOAD', {
+      tipo: force ? 'force-refresh' : 'query',
+      pagina: state.currentPage,
+      filtros: { ...state.filters }
+    });
+  }
+
+  const signature = createSearchSignature(state.dataset, params);
   if (!force && signature === state.lastSearchSignature) {
     return;
   }
 
   state.lastSearchSignature = signature;
-  const cached = Cache.get(state.dataset, params);
 
+  const cached = Cache.get(state.dataset, params);
   if (cached) {
     console.log('Usando resultado do cache');
+    if (isPriceDataset) {
+      logPriceUi('LOAD', { origem: 'cache-local', pagina: state.currentPage });
+    }
+
     state.hasActiveSearch = true;
     processResults(cached);
     return;
   }
 
-  // Busca na API
   state.loading = true;
   renderTable();
 
   try {
     const data = await config.apiFunction(params, {
-      forceRefresh: isPriceIntelligenceDataset() && force
+      forceRefresh: isPriceDataset && force
     });
 
-    // Armazena no cache
     Cache.set(state.dataset, params, data);
-
     processResults(data);
   } catch (error) {
     if (error?.name === 'AbortError' || error?.isAbort === true) {
@@ -1300,45 +1627,7 @@ async function executeSearch({ force = false } = {}) {
     console.error('   Dataset:', state.dataset);
     console.error('   Filtros:', state.filters);
 
-    let titulo = 'Erro ao buscar dados';
-    const mensagem = error.message;
-    let detalhes = '';
-
-    // Detecção de tipo de erro
-    if (error.message.includes('Failed to fetch') || error.message.includes('conectar com a API')) {
-      titulo = 'Erro de Conexão';
-      detalhes =
-        'Possíveis causas:\n' +
-        '• Sem conexão com a internet\n' +
-        '• Proxy backend do SINGEM indisponível\n' +
-        '• Upstream do Compras.gov.br fora do ar\n\n' +
-        'Teste acessar no navegador:\n' +
-        'http://localhost:3000/api/compras/health';
-    } else if (error.message.includes('CORS')) {
-      titulo = 'Erro de Proxy';
-      detalhes =
-        'As consultas devem passar pelo backend do SINGEM.\n' +
-        'Verifique se o servidor está ativo e se /api/compras está acessível.';
-    } else if (error.message.includes('tempo limite') || error.message.includes('Timeout')) {
-      titulo = 'Timeout';
-      detalhes = 'A requisição demorou mais de 30 segundos.\n' + 'Tente novamente ou ajuste os filtros.';
-    } else if (error.message.includes('404')) {
-      titulo = 'Endpoint não encontrado';
-      detalhes = 'O endpoint da API não existe ou foi alterado.';
-    } else if (error.message.includes('429')) {
-      titulo = 'Muitas requisições';
-      detalhes = 'A API está limitando o número de requisições.\nAguarde alguns segundos e tente novamente.';
-    }
-
-    // Usa a função global de erro copiável se existir
-    if (typeof window.mostrarErroCopivel === 'function') {
-      window.mostrarErroCopivel(titulo, mensagem, detalhes);
-    } else {
-      // Fallback para alert
-      alert(`${titulo}\n\n${mensagem}${detalhes ? '\n\n' + detalhes : ''}`);
-    }
-
-    renderTable();
+    presentSearchError(describeSearchError(error), isPriceDataset);
   }
 }
 
@@ -1353,6 +1642,7 @@ function processResults(data) {
 
   if (isPriceIntelligenceDataset()) {
     state.priceIntelligenceResponse = data._priceIntelligence || data._raw || null;
+    state.priceUiError = null;
   } else {
     state.priceIntelligenceResponse = null;
   }
@@ -1383,11 +1673,30 @@ function processResults(data) {
   state.pageRawItems = Array.isArray(items) ? items : [];
 
   // Mapeia para formato padronizado
-  state.results = Mapeadores.mapear(state.dataset, items);
+  state.results = Mapeadores.mapear(state.dataset, items).map((row, index) => ({
+    ...row,
+    __sourceIndex: index
+  }));
+
+  if (isPriceIntelligenceDataset()) {
+    state.priceDashboard = createPriceDashboardState({
+      ...state.priceDashboard,
+      tablePage: 1
+    });
+  }
 
   renderPagination();
   renderTable();
   saveToLocalStorage();
+
+  if (isPriceIntelligenceDataset()) {
+    logPriceUi('LOAD', {
+      status: 'success',
+      registros: state.results.length,
+      total: state.totalRecords,
+      paginas: state.totalPages
+    });
+  }
 
   console.log(`Resultados: ${state.results.length} itens | Página ${state.currentPage}/${state.totalPages}`);
 }
@@ -1480,25 +1789,44 @@ async function exportPriceIntelligence(explicitFormat = null) {
 
 /**
  * Mostra modal com JSON completo
- * @param {number} index - Índice do resultado
+ * @param {number} sourceIndex - Índice de origem do resultado
  */
-function showJSONModal(index) {
-  const row = state.results[index];
+function resolvePriceRowBySourceIndex(sourceIndex) {
+  const parsed = Number.parseInt(sourceIndex, 10);
+  if (!Number.isFinite(parsed)) {
+    return {
+      row: null,
+      rawItem: null
+    };
+  }
+
+  const row = state.results.find((entry) => Number(entry.__sourceIndex) === parsed) || null;
+  const fallbackRow = row || state.results[parsed] || null;
+  const rawItem = state.pageRawItems[parsed] || fallbackRow?.extras || fallbackRow;
+
+  return {
+    row: fallbackRow,
+    rawItem
+  };
+}
+
+function showJSONModal(sourceIndex) {
+  const { row, rawItem } = resolvePriceRowBySourceIndex(sourceIndex);
   if (!row) {
     return;
   }
 
-  const json = JSON.stringify(row.extras || row, null, 2);
+  const json = JSON.stringify(rawItem || row.extras || row, null, 2);
 
   const modal = `
     <div class="modal-overlay" id="jsonModal">
       <div class="modal-content">
         <div class="modal-header">
-          <h3>JSON Completo - ${row.codigo}</h3>
+          <h3>JSON Completo - ${escapeHtmlContent(row.codigo)}</h3>
           <button class="btn-close" onclick="document.getElementById('jsonModal').remove()" aria-label="Fechar">×</button>
         </div>
         <div class="modal-body">
-          <pre><code>${json}</code></pre>
+          <pre><code>${escapeHtmlContent(json)}</code></pre>
         </div>
         <div class="modal-footer">
           <button class="btn btn-secondary" onclick="document.getElementById('jsonModal').remove()">Fechar</button>
@@ -1510,12 +1838,35 @@ function showJSONModal(index) {
   document.body.insertAdjacentHTML('beforeend', modal);
 }
 
-function showPriceDetailsModal(index) {
+function activatePriceDetailTab(tabButton) {
+  const tabValue = tabButton?.dataset?.detailTab;
+  if (!tabValue) {
+    return;
+  }
+
+  const root = tabButton.closest('.modal-body');
+  if (!root) {
+    return;
+  }
+
+  root.querySelectorAll('.pi-detail-tab').forEach((button) => {
+    button.classList.toggle('is-active', button.dataset.detailTab === tabValue);
+  });
+
+  root.querySelectorAll('.pi-detail-panel').forEach((panel) => {
+    const shouldActivate = panel.dataset.detailPanel === tabValue;
+    panel.classList.toggle('is-active', shouldActivate);
+    panel.hidden = !shouldActivate;
+  });
+}
+
+function showPriceDetailsModal(sourceIndex) {
   if (!isPriceIntelligenceDataset()) {
     return;
   }
 
-  const item = state.pageRawItems[index] || state.results[index]?.extras || state.results[index];
+  const { rawItem } = resolvePriceRowBySourceIndex(sourceIndex);
+  const item = rawItem;
   if (!item) {
     return;
   }
@@ -1524,7 +1875,7 @@ function showPriceDetailsModal(index) {
     <div class="modal-overlay" id="priceDetailsModal">
       <div class="modal-content">
         <div class="modal-header">
-          <h3>Detalhes do Registro - ${item.codigoItemCatalogo || item.idItemCompra || 'Módulo 3'}</h3>
+          <h3>Detalhes do Registro - ${escapeHtmlContent(item.codigoItemCatalogo || item.idItemCompra || 'Modulo 3')}</h3>
           <button class="btn-close" onclick="document.getElementById('priceDetailsModal').remove()" aria-label="Fechar">×</button>
         </div>
         <div class="modal-body">
@@ -1567,6 +1918,8 @@ export function openPriceIntelligence(options = {}) {
   };
 
   showConsulta(PRICE_INTELLIGENCE_DATASET);
+  state.priceDashboard = createPriceDashboardState();
+  state.priceUiError = null;
 
   requestAnimationFrame(() => {
     setFiltersOnForm(initialFilters);
