@@ -71,11 +71,38 @@ class LocalProvider {
     const login = String(rawLogin || '')
       .trim()
       .toLowerCase();
+    const compatibleLogins = this._buildCompatibleLogins(login);
     const email = String(config.admin?.email || 'admin@ifbaiano.edu.br')
       .trim()
       .toLowerCase();
     const nome = String(config.admin?.nome || 'Administrador SINGEM').trim();
     const senhaHash = await bcrypt.hash(String(password), SALT_ROUNDS);
+
+    const existing = await db.query(
+      `SELECT id
+         FROM usuarios
+        WHERE LOWER(login) = ANY($1)
+           OR LOWER(email) = $2
+        ORDER BY CASE WHEN LOWER(login) = $3 THEN 0 WHEN LOWER(email) = $2 THEN 1 ELSE 2 END
+        LIMIT 1`,
+      [compatibleLogins, email, login]
+    );
+
+    if (existing.rows[0]?.id) {
+      await db.query(
+        `UPDATE usuarios
+            SET login = $2,
+                email = $3,
+                senha_hash = $4,
+                nome = $5,
+                perfil = 'admin',
+                ativo = true,
+                updated_at = NOW()
+          WHERE id = $1`,
+        [existing.rows[0].id, login, email, senhaHash, nome]
+      );
+      return;
+    }
 
     await db.query(
       `INSERT INTO usuarios (login, email, senha_hash, nome, perfil, ativo)

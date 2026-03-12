@@ -6,6 +6,7 @@
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
+    "test:contracts": "node --test tests/*.contract.test.js",
     "test:integracoes": "node --test tests/integracoes.contract.test.js",
     "db:migrate": "node -e \"require('./config/database').runMigrations().then(() => process.exit())\"",
     "db:seed": "node scripts/seed-admin.js",

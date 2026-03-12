@@ -12,7 +12,10 @@ function setAvailability(value, ttlMs) {
 }
 
 async function ensureAiAvailable() {
-  if (availabilityState.value !== null && Date.now() < availabilityState.expiresAt) {
+async function ensureAiAvailable(options = {}) {
+  const forceRefresh = options?.forceRefresh === true;
+
+  if (!forceRefresh && availabilityState.value !== null && Date.now() < availabilityState.expiresAt) {
     return availabilityState.value;
   }
 
@@ -34,8 +37,8 @@ function markUnavailableFromError(error) {
   }
 }
 
-export async function isAiAvailable() {
-  return ensureAiAvailable();
+export async function isAiAvailable(options = {}) {
+  return ensureAiAvailable(options);
 }
 
 export function handleAiAvailabilityError(error) {

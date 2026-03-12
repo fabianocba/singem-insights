@@ -343,13 +343,22 @@ function buildResumoRelatorioIAData(empenhosFiltrados) {
   const valorTotal = empenhosFiltrados.reduce((acc, emp) => acc + (emp.valorTotalEmpenho ?? emp.valorTotal ?? 0), 0);
   const valorUtilizado = empenhosFiltrados.reduce((acc, emp) => acc + (emp.valorUtilizado ?? 0), 0);
   const saldoTotal = valorTotal - valorUtilizado;
-  const comSaldo = empenhosFiltrados.filter((emp) => (emp.saldoDisponivel ?? 0) > 0).length;
-  const semSaldo = empenhosFiltrados.filter((emp) => (emp.saldoDisponivel ?? 0) <= 0).length;
+  const saldosDisponiveis = empenhosFiltrados.map((emp) => {
+    const valorEmpenho = emp.valorTotalEmpenho ?? emp.valorTotal ?? 0;
+    const valorConsumido = emp.valorUtilizado ?? 0;
+    return Number((emp.saldoDisponivel ?? valorEmpenho - valorConsumido).toFixed(2));
+  });
+  const comSaldo = saldosDisponiveis.filter((saldo) => saldo > 0).length;
+  const semSaldo = saldosDisponiveis.filter((saldo) => saldo <= 0).length;
   const rascunhos = empenhosFiltrados.filter(
     (emp) => emp.statusValidacao === 'rascunho' || !emp.statusValidacao
   ).length;
   const validados = empenhosFiltrados.filter((emp) => emp.statusValidacao === 'validado').length;
   const criticidadeAlta = empenhosFiltrados.filter((emp) => (emp.percentualUtilizado ?? 0) >= 80).length;
+  const ticketMedio = totalEmpenhos > 0 ? Number((valorTotal / totalEmpenhos).toFixed(2)) : 0;
+  const percentualValidados = totalEmpenhos > 0 ? Number(((validados / totalEmpenhos) * 100).toFixed(2)) : 0;
+  const percentualComSaldo = totalEmpenhos > 0 ? Number(((comSaldo / totalEmpenhos) * 100).toFixed(2)) : 0;
+  const percentualSemSaldo = totalEmpenhos > 0 ? Number(((semSaldo / totalEmpenhos) * 100).toFixed(2)) : 0;
   const percentualMedioUtilizado =
     totalEmpenhos > 0
       ? Number(
@@ -373,7 +382,11 @@ function buildResumoRelatorioIAData(empenhosFiltrados) {
     valor_total_empenhado: Number(valorTotal.toFixed(2)),
     valor_total_utilizado: Number(valorUtilizado.toFixed(2)),
     saldo_total_disponivel: Number(saldoTotal.toFixed(2)),
+    ticket_medio_empenho: ticketMedio,
     percentual_medio_utilizado: percentualMedioUtilizado,
+    percentual_validados: percentualValidados,
+    percentual_com_saldo: percentualComSaldo,
+    percentual_sem_saldo: percentualSemSaldo,
     total_empenhos_com_saldo: comSaldo,
     total_empenhos_sem_saldo: semSaldo,
     total_rascunhos_pendentes: rascunhos,
@@ -467,7 +480,7 @@ async function atualizarResumoRelatorioIA(empenhosFiltrados, { forceRefresh = fa
     return;
   }
 
-  const available = await isAiAvailable();
+  const available = await isAiAvailable({ forceRefresh });
   if (!available) {
     renderResumoRelatorioIAErro(container, 'Serviço de IA indisponível no momento para resumir o relatório.');
     return;
