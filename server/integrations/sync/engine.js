@@ -1,6 +1,7 @@
 const db = require('../../config/database');
 const { config } = require('../../config');
 const { ComprasGovClient } = require('../comprasgov/client');
+const { scheduleAiReindex } = require('../../services/aiReindexScheduler');
 
 const client = new ComprasGovClient();
 const SYNC_ADVISORY_LOCK_KEY = 741852963;
@@ -311,6 +312,9 @@ async function runByType(tipo, requestId) {
       const count = await upsertCatmat(data.resultado || []);
       processed += count;
       details.steps.push({ tipo: 'catmat', total: count });
+      if (count > 0) {
+        scheduleAiReindex(['catmat_item'], 'integracoes.sync.catmat');
+      }
     }
 
     if (shouldRun('catser')) {

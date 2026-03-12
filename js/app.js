@@ -25,6 +25,7 @@ import { showToast as sharedShowToast } from './shared/ui/toast.js';
 import { hideLoader, showLoader } from './shared/ui/loader.js';
 import { focusField } from './shared/ui/formField.js';
 import { confirmAction } from './shared/ui/modal.js';
+import { initFornecedorAIAssist, initItemModalAIAssist } from './aiIntegration.js';
 
 console.log('[App] 📦 Versão:', APP_VERSION, 'Build:', APP_BUILD);
 console.log('[App] 🔍 Repository importado:', typeof repository);
@@ -105,6 +106,10 @@ class ControleMaterialApp {
     this.features = {
       empenho: createEmpenhoFeature(this),
       notaFiscal: createNotaFiscalFeature(this)
+    };
+
+    this.aiAssistState = {
+      fornecedorCleanup: null
     };
 
     console.log('[State] 📦 Estado único inicializado:', this.empenhoDraft);
@@ -3211,6 +3216,7 @@ class ControleMaterialApp {
     document.getElementById('cnpjEmitente')?.addEventListener('input', this.formatarCNPJInput.bind(this));
 
     document.getElementById('cnpjDestinatario')?.addEventListener('input', this.formatarCNPJInput.bind(this));
+    this.inicializarSugestaoFornecedorIA();
 
     // Botão para cadastrar novo empenho (da tela de NF)
     document.getElementById('btnCadastrarEmpenho')?.addEventListener('click', () => {
@@ -3291,6 +3297,46 @@ class ControleMaterialApp {
 
     // Limpa referência
     this.telaAntesCadastroEmpenho = null;
+  }
+
+  inicializarSugestaoFornecedorIA() {
+    if (this.aiAssistState?.fornecedorCleanup) {
+      return;
+    }
+
+    const fornecedorInput = document.getElementById('fornecedorEmpenho');
+    const cnpjInput = document.getElementById('cnpjFornecedor');
+    const container = document.getElementById('aiFornecedorSuggestion');
+    if (!fornecedorInput || !cnpjInput || !container) {
+      return;
+    }
+
+    this.aiAssistState.fornecedorCleanup = initFornecedorAIAssist({
+      input: fornecedorInput,
+      cnpjInput,
+      container,
+      contextModule: 'empenhos',
+      onApply: (suggestion) => {
+        const metadata = suggestion?.metadata || {};
+        const suggestedName = String(metadata.fornecedor || suggestion?.title || '').trim();
+        const suggestedCnpj = FormatUtils.onlyDigits(String(metadata.cnpj || ''));
+
+        if (suggestedName) {
+          fornecedorInput.value = suggestedName;
+          this.empenhoDraft.header.fornecedorRazao = suggestedName;
+        }
+
+        if (suggestedCnpj) {
+          cnpjInput.value = FormatUtils.formatCNPJ(suggestedCnpj);
+          this.empenhoDraft.header.cnpjDigits = suggestedCnpj;
+        }
+
+        this.showToast('Sugestao de fornecedor aplicada pela IA.', 'info');
+      },
+      onError: (error) => {
+        console.warn('[AI] Sugestao de fornecedor indisponivel:', error?.message || error);
+      }
+    });
   }
 
   /**
@@ -6125,6 +6171,7 @@ ${details.stack || 'Não disponível'}</div>
               <label for="modalDescricao">Descrição *</label>
               <textarea id="modalDescricao" rows="2" placeholder="Descrição completa do item">${dados.descricao || ''}</textarea>
             </div>
+            <div id="modalAiItemSuggestion" class="ai-assist-card hidden" aria-live="polite"></div>
           </fieldset>
 
           <!-- Seção: Valores -->
@@ -6216,10 +6263,47 @@ ${details.stack || 'Não disponível'}</div>
       document.getElementById('modalCatmatFonte').value = '';
     });
 
-    // ═══════════════════════════════════════════════════════════════
-    // CONTROLE DE "DIRTY" - detectar se formulário foi modificado
-    // ═══════════════════════════════════════════════════════════════
     let itemModalDirty = false;
+
+    const destroyItemAiAssist = initItemModalAIAssist({
+      overlay,
+      contextModule: 'empenhos',
+      onApply: (suggestion) => {
+        const metadata = suggestion?.metadata || {};
+        const descricaoInput = overlay.querySelector('#modalDescricao');
+        const unidadeInput = overlay.querySelector('#modalUnidade');
+        const catmatCodigoInput = overlay.querySelector('#modalCatmatCodigo');
+        const catmatDescricaoInput = overlay.querySelector('#modalCatmatDescricao');
+        const catmatFonteInput = overlay.querySelector('#modalCatmatFonte');
+
+        if (descricaoInput && suggestion?.title) {
+          descricaoInput.value = suggestion.title;
+        }
+
+        if (unidadeInput && metadata.unidade) {
+          unidadeInput.value = String(metadata.unidade).trim();
+        }
+
+        if (String(suggestion?.entity_type || '') === 'catmat_item') {
+          const catmatCodigo = String(metadata.codigo || suggestion?.entity_id || '').trim();
+          if (catmatCodigoInput && catmatCodigo) {
+            catmatCodigoInput.value = catmatCodigo;
+          }
+          if (catmatDescricaoInput && suggestion?.title) {
+            catmatDescricaoInput.value = suggestion.title;
+          }
+          if (catmatFonteInput) {
+            catmatFonteInput.value = String(metadata.unidade || metadata.source || 'IA').trim();
+          }
+        }
+
+        itemModalDirty = true;
+        this.showToast('Sugestao de item aplicada pela IA.', 'info');
+      },
+      onError: (error) => {
+        console.warn('[AI] Sugestao de item indisponivel:', error?.message || error);
+      }
+    });
 
     // Marcar como dirty quando qualquer input mudar
     const marcarDirty = () => {
@@ -6240,6 +6324,7 @@ ${details.stack || 'Não disponível'}</div>
           return; // Não fecha se o usuário cancelar
         }
       }
+      destroyItemAiAssist?.();
       document.removeEventListener('keydown', handleEsc);
       overlay.remove();
     };
@@ -6339,6 +6424,7 @@ ${details.stack || 'Não disponível'}</div>
 
       this.reindexarSequenciaEmpenho();
       this.renderItensEmpenho();
+      destroyItemAiAssist?.();
       overlay.remove();
     });
 

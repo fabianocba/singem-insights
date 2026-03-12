@@ -151,6 +151,17 @@ const config = {
     syncMaxPages: Number(process.env.INTEGRACOES_SYNC_MAX_PAGES || 20),
     syncPageSize: Number(process.env.INTEGRACOES_SYNC_PAGE_SIZE || 100)
   },
+  ai: {
+    enabled: parseBoolean(process.env.AI_CORE_ENABLED, (process.env.NODE_ENV || 'development') !== 'production'),
+    baseUrl: process.env.AI_CORE_BASE_URL || 'http://127.0.0.1:8010',
+    apiPrefix: process.env.AI_CORE_API_PREFIX || '/ai',
+    timeoutMs: Number(process.env.AI_CORE_TIMEOUT_MS || 15000),
+    healthTimeoutMs: Number(process.env.AI_CORE_HEALTH_TIMEOUT_MS || 2500),
+    internalToken: process.env.AI_CORE_INTERNAL_TOKEN || process.env.AI_INTERNAL_TOKEN || 'change-me',
+    internalTokenHeader: process.env.AI_CORE_INTERNAL_TOKEN_HEADER || 'x-internal-token',
+    autoReindexOnMutation: parseBoolean(process.env.AI_CORE_AUTO_REINDEX_ON_MUTATION, true),
+    reindexDebounceMs: Number(process.env.AI_CORE_REINDEX_DEBOUNCE_MS || 1500)
+  },
   priceSnapshot: {
     enabled: parseBoolean(process.env.PRICE_SNAPSHOT_ENABLED, true)
   },
@@ -217,6 +228,16 @@ function validateRuntimeConfig() {
 
     if (getCorsOrigins().length === 0) {
       errors.push('Defina CORS_ORIGINS para produção (origens permitidas separadas por vírgula)');
+    }
+
+    if (config.ai.enabled) {
+      if (!config.ai.baseUrl) {
+        errors.push('Defina AI_CORE_BASE_URL quando o modulo de IA estiver habilitado');
+      }
+
+      if (!config.ai.internalToken || config.ai.internalToken === 'change-me') {
+        errors.push('Defina AI_CORE_INTERNAL_TOKEN forte quando o modulo de IA estiver habilitado');
+      }
     }
   }
 

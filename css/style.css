@@ -410,6 +410,78 @@ body {
   border-top: 1px solid var(--gray-200);
 }
 
+.ai-assist-card {
+  margin-top: 10px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid #cfe3cf;
+  background: linear-gradient(180deg, #f7fbf7 0%, #eef7ef 100%);
+  box-shadow: var(--shadow-sm);
+}
+
+.ai-assist-head {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+.ai-assist-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: #dff3e0;
+  color: #1b5e20;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.ai-assist-chip-muted {
+  background: #e8eef5;
+  color: #35526d;
+}
+
+.ai-assist-chip-score {
+  background: #fff3cd;
+  color: #8a6d1d;
+}
+
+.ai-assist-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #244a2c;
+  margin-bottom: 6px;
+}
+
+.ai-assist-text {
+  font-size: 13px;
+  color: #34503a;
+  margin-bottom: 6px;
+  line-height: 1.45;
+}
+
+.ai-assist-meta {
+  font-size: 12px;
+  color: #5f6f63;
+  margin-bottom: 6px;
+}
+
+.ai-assist-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.ai-assist-loading {
+  font-size: 13px;
+  color: #35526d;
+}
+
 /* Upload Area */
 .upload-area {
   margin-bottom: var(--spacing-xl);

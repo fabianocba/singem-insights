@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param(
-  [ValidateSet('up', 'setup', 'tunnel', 'backend', 'frontend', 'health', 'stop')]
+  [ValidateSet('up', 'setup', 'tunnel', 'backend', 'frontend', 'ai', 'health', 'stop')]
   [string]$Action = 'up',
 
   [ValidateSet('dev', 'main')]
@@ -20,6 +20,7 @@ param(
 
   [int]$BackendPort = 3000,
   [int]$FrontendPort = 8000,
+  [int]$AiPort = 8010,
   [string]$BackendHealthPath = '/health',
 
   [switch]$SkipGitSync,
@@ -35,6 +36,7 @@ $ErrorActionPreference = 'Stop'
 $script:SelfScriptPath = $PSCommandPath
 $script:ResolvedProjectRoot = $null
 $script:ServerDir = $null
+$script:AiDir = $null
 $script:SessionPath = $null
 $script:BackendHealthUrl = $null
 
@@ -147,6 +149,14 @@ function Get-DefaultSession {
     frontend = @{
       port = $FrontendPort
       url = ('http://localhost:{0}' -f $FrontendPort)
+      processId = $null
+      windowPid = $null
+      status = 'unknown'
+    }
+    ai = @{
+      port = $AiPort
+      url = ('http://127.0.0.1:{0}' -f $AiPort)
+      health = ('http://127.0.0.1:{0}/ai/health' -f $AiPort)
       processId = $null
       windowPid = $null
       status = 'unknown'
@@ -469,6 +479,7 @@ function Initialize-Context {
 
   $script:ResolvedProjectRoot = Ensure-ProjectRepository -AllowClone:$AllowClone
   $script:ServerDir = Join-Path $script:ResolvedProjectRoot 'server'
+  $script:AiDir = Join-Path $script:ResolvedProjectRoot 'singem-ai'
   $script:SessionPath = Join-Path $script:ResolvedProjectRoot '.dev-session.json'
   $script:BackendHealthUrl = "http://localhost:$BackendPort$BackendHealthPath"
 
@@ -508,6 +519,125 @@ function Parse-EnvFile {
   }
 
   return $map
+}
+
+function Resolve-BooleanValue {
+  param(
+    [object]$Value,
+    [bool]$Default = $false
+  )
+
+  if ($null -eq $Value) {
+    return $Default
+  }
+
+  $normalized = [string]$Value
+  if ([string]::IsNullOrWhiteSpace($normalized)) {
+    return $Default
+  }
+
+  return @('1', 'true', 'yes', 'on') -contains $normalized.Trim().ToLowerInvariant()
+}
+
+function Build-PostgresConnectionString {
+  param([hashtable]$EnvMap)
+
+  $dbHost = if ($EnvMap.ContainsKey('DB_HOST')) { [string]$EnvMap['DB_HOST'] } else { '127.0.0.1' }
+  $dbPort = if ($EnvMap.ContainsKey('DB_PORT')) { [string]$EnvMap['DB_PORT'] } else { '5432' }
+  $dbName = if ($EnvMap.ContainsKey('DB_NAME')) { [string]$EnvMap['DB_NAME'] } else { 'singem' }
+  $dbUser = if ($EnvMap.ContainsKey('DB_USER')) { [string]$EnvMap['DB_USER'] } else { 'singem_user' }
+  $dbPassword = if ($EnvMap.ContainsKey('DB_PASSWORD')) { [string]$EnvMap['DB_PASSWORD'] } else { '' }
+
+  $encodedUser = [Uri]::EscapeDataString($dbUser)
+  $encodedPassword = if ([string]::IsNullOrWhiteSpace($dbPassword)) {
+    ''
+  } else {
+    ':' + [Uri]::EscapeDataString($dbPassword)
+  }
+
+  return ('postgresql://{0}{1}@{2}:{3}/{4}' -f $encodedUser, $encodedPassword, $dbHost, $dbPort, $dbName)
+}
+
+function Get-BackendEnvMap {
+  if (-not $script:ServerDir) {
+    return @{}
+  }
+
+  return Parse-EnvFile -EnvPath (Join-Path $script:ServerDir '.env')
+}
+
+function Get-AiRuntimeConfig {
+  $envMap = Get-BackendEnvMap
+
+  $enabled = if ($envMap.ContainsKey('AI_CORE_ENABLED')) {
+    Resolve-BooleanValue -Value $envMap['AI_CORE_ENABLED'] -Default $true
+  } else {
+    $true
+  }
+
+  $baseUrl = if ($envMap.ContainsKey('AI_CORE_BASE_URL') -and -not [string]::IsNullOrWhiteSpace([string]$envMap['AI_CORE_BASE_URL'])) {
+    [string]$envMap['AI_CORE_BASE_URL']
+  } else {
+    ('http://127.0.0.1:{0}' -f $AiPort)
+  }
+
+  $apiPrefix = if ($envMap.ContainsKey('AI_CORE_API_PREFIX') -and -not [string]::IsNullOrWhiteSpace([string]$envMap['AI_CORE_API_PREFIX'])) {
+    [string]$envMap['AI_CORE_API_PREFIX']
+  } else {
+    '/ai'
+  }
+
+  if (-not $apiPrefix.StartsWith('/')) {
+    $apiPrefix = '/' + $apiPrefix
+  }
+  $apiPrefix = $apiPrefix.TrimEnd('/')
+  if ([string]::IsNullOrWhiteSpace($apiPrefix)) {
+    $apiPrefix = '/ai'
+  }
+
+  $parsedUri = $null
+  try {
+    $parsedUri = [Uri]$baseUrl
+  } catch {
+    $parsedUri = [Uri]('http://127.0.0.1:{0}' -f $AiPort)
+  }
+
+  $aiHost = if ([string]::IsNullOrWhiteSpace($parsedUri.Host)) { '127.0.0.1' } else { $parsedUri.Host }
+  $port = if ($parsedUri.Port -gt 0) { [int]$parsedUri.Port } else { $AiPort }
+  $localManaged = @('127.0.0.1', 'localhost', '0.0.0.0') -contains $aiHost.ToLowerInvariant()
+
+  $internalToken = if ($envMap.ContainsKey('AI_CORE_INTERNAL_TOKEN') -and -not [string]::IsNullOrWhiteSpace([string]$envMap['AI_CORE_INTERNAL_TOKEN'])) {
+    [string]$envMap['AI_CORE_INTERNAL_TOKEN']
+  } elseif ($envMap.ContainsKey('AI_INTERNAL_TOKEN') -and -not [string]::IsNullOrWhiteSpace([string]$envMap['AI_INTERNAL_TOKEN'])) {
+    [string]$envMap['AI_INTERNAL_TOKEN']
+  } else {
+    'change-me'
+  }
+
+  $internalTokenHeader = if ($envMap.ContainsKey('AI_CORE_INTERNAL_TOKEN_HEADER') -and -not [string]::IsNullOrWhiteSpace([string]$envMap['AI_CORE_INTERNAL_TOKEN_HEADER'])) {
+    [string]$envMap['AI_CORE_INTERNAL_TOKEN_HEADER']
+  } else {
+    'x-internal-token'
+  }
+
+  $databaseUrl = if ($envMap.ContainsKey('DATABASE_URL') -and -not [string]::IsNullOrWhiteSpace([string]$envMap['DATABASE_URL'])) {
+    [string]$envMap['DATABASE_URL']
+  } else {
+    Build-PostgresConnectionString -EnvMap $envMap
+  }
+
+  return @{
+    enabled = $enabled
+    baseUrl = $baseUrl.TrimEnd('/')
+    host = $aiHost
+    port = $port
+    apiPrefix = $apiPrefix
+    internalToken = $internalToken
+    internalTokenHeader = $internalTokenHeader
+    databaseUrl = $databaseUrl
+    localManaged = $localManaged
+    healthUrl = ('{0}{1}/health' -f $baseUrl.TrimEnd('/'), $apiPrefix)
+  }
 }
 
 function Ensure-BackendEnvFile {
@@ -749,6 +879,71 @@ function Get-FrontendRunnerSpec {
   return $null
 }
 
+function Get-AiRunnerSpec {
+  if (Get-Command 'python' -ErrorAction SilentlyContinue) {
+    return @{
+      command = 'python'
+      args = @('run.py')
+      name = 'python'
+    }
+  }
+
+  if (Get-Command 'py' -ErrorAction SilentlyContinue) {
+    return @{
+      command = 'py'
+      args = @('run.py')
+      name = 'py'
+    }
+  }
+
+  return $null
+}
+
+function Ensure-AiDependencies {
+  param([switch]$OnlyWhenMissing)
+
+  if (-not (Test-Path -LiteralPath $script:AiDir)) {
+    throw "Pasta do AI Core não encontrada: $script:AiDir"
+  }
+
+  $runner = Get-AiRunnerSpec
+  if (-not $runner) {
+    throw 'Python/py não encontrado para subir o AI Core.'
+  }
+
+  Push-Location $script:AiDir
+  try {
+    $checkArgs = @('-c', 'import fastapi, uvicorn, psycopg, pydantic_settings')
+    & ([string]$runner['command']) @checkArgs *> $null
+    $depsAvailable = ($LASTEXITCODE -eq 0)
+
+    if ($depsAvailable -and $OnlyWhenMissing) {
+      Write-Ok 'Dependências Python já presentes (AI Core).'
+      return
+    }
+
+    if ($SkipInstall) {
+      if ($depsAvailable) {
+        Write-Ok 'Dependências Python já presentes (AI Core).'
+        return
+      }
+
+      throw 'Dependências Python do AI Core ausentes e -SkipInstall está ativo.'
+    }
+
+    if (-not $depsAvailable) {
+      Write-WarnMsg 'Dependências Python do AI Core ausentes. Instalando requirements...'
+    }
+
+    & ([string]$runner['command']) @('-m', 'pip', 'install', '-r', 'requirements.txt')
+    if ($LASTEXITCODE -ne 0) {
+      throw 'Falha ao instalar requirements do AI Core.'
+    }
+  } finally {
+    Pop-Location
+  }
+}
+
 function Validate-Prerequisites {
   param([switch]$AllowClone)
 
@@ -800,6 +995,12 @@ function Validate-Prerequisites {
         throw 'Nenhum executor de frontend encontrado. Instale Python (python/py) ou http-server.'
       }
     }
+    'ai' {
+      $runner = Get-AiRunnerSpec
+      if (-not $runner) {
+        throw 'Nenhum executor Python encontrado para subir o AI Core.'
+      }
+    }
   }
 
   $sshKeyCandidates = @(
@@ -828,6 +1029,52 @@ function Get-BackendHealthPayload {
   } catch {
     return $null
   }
+}
+
+function Set-AiRuntimeEnvironment {
+  param([hashtable]$AiConfig)
+
+  $env:APP_ENV = if ($Branch -eq 'main') { 'production' } else { 'development' }
+  $env:APP_DEBUG = if ($Branch -eq 'dev') { 'true' } else { 'false' }
+  $env:AI_FEATURE_ENABLED = if ($AiConfig.enabled) { 'true' } else { 'false' }
+  $env:AI_INTERNAL_TOKEN = [string]$AiConfig.internalToken
+  $env:INTERNAL_TOKEN_HEADER = [string]$AiConfig.internalTokenHeader
+  $env:DATABASE_URL = [string]$AiConfig.databaseUrl
+  $env:API_PREFIX = [string]$AiConfig.apiPrefix
+  $env:AI_CORE_HOST = [string]$AiConfig.host
+  $env:AI_CORE_PORT = [string]$AiConfig.port
+  $env:AI_CORE_RELOAD = if ($Branch -eq 'dev') { 'true' } else { 'false' }
+  $env:PYTHONUTF8 = '1'
+}
+
+function Get-AiHealthPayload {
+  param([int]$TimeoutSec = 3)
+
+  $aiConfig = Get-AiRuntimeConfig
+  if (-not $aiConfig.enabled) {
+    return @{ ok = $false; enabled = $false; status = 'disabled' }
+  }
+
+  try {
+    return Invoke-RestMethod -Uri $aiConfig.healthUrl -Method Get -TimeoutSec $TimeoutSec
+  } catch {
+    return $null
+  }
+}
+
+function Wait-AiHealthy {
+  param([int]$TimeoutSec = 50)
+
+  for ($i = 0; $i -lt $TimeoutSec; $i++) {
+    $payload = Get-AiHealthPayload -TimeoutSec 3
+    if ($payload -and [bool]$payload.ok) {
+      return $payload
+    }
+
+    Start-Sleep -Seconds 1
+  }
+
+  return $null
 }
 
 function Wait-BackendHealthy {
@@ -894,7 +1141,7 @@ function Get-AppVersionString {
 
 function Start-ComponentWindow {
   param(
-    [ValidateSet('tunnel', 'backend', 'frontend')]
+    [ValidateSet('tunnel', 'backend', 'frontend', 'ai')]
     [string]$ComponentAction
   )
 
@@ -915,6 +1162,7 @@ function Start-ComponentWindow {
     '-DbRemoteHost', $DbRemoteHost,
     '-BackendPort', "$BackendPort",
     '-FrontendPort', "$FrontendPort",
+    '-AiPort', "$AiPort",
     '-BackendHealthPath', $BackendHealthPath,
     '-ProductionEnvProfile', $ProductionEnvProfile
   )
@@ -989,6 +1237,110 @@ function Ensure-TunnelAvailable {
 
   Write-Ok ("Túnel SSH ativo em 127.0.0.1:{0}." -f $DbLocalPort)
   return @{ ok = $true; started = $true; processId = $tunnelPid; windowPid = $window.Id }
+}
+
+function Ensure-AiAvailable {
+  param([switch]$AllowStart)
+
+  $aiConfig = Get-AiRuntimeConfig
+  if (-not $aiConfig.enabled) {
+    Update-Session -Patch @{
+      ai = @{
+        status = 'disabled'
+        processId = $null
+        windowPid = $null
+        url = $aiConfig.baseUrl
+        health = $aiConfig.healthUrl
+      }
+    }
+    return @{ ok = $true; skipped = $true; reason = 'disabled' }
+  }
+
+  if (-not $aiConfig.localManaged) {
+    Write-WarnMsg ("AI Core configurado para endpoint externo ({0}). Startup local será ignorado." -f $aiConfig.baseUrl)
+    Update-Session -Patch @{
+      ai = @{
+        status = 'external'
+        url = $aiConfig.baseUrl
+        health = $aiConfig.healthUrl
+      }
+    }
+    return @{ ok = $true; skipped = $true; reason = 'external' }
+  }
+
+  $healthy = Wait-AiHealthy -TimeoutSec 2
+  if ($healthy) {
+    Write-Ok ("AI Core já saudável em {0}" -f $aiConfig.healthUrl)
+    $aiProc = Get-PortProcessDetails -Port $aiConfig.port | Select-Object -First 1
+
+    Update-Session -Patch @{
+      ai = @{
+        status = 'running'
+        processId = if ($aiProc) { $aiProc.pid } else { $null }
+        url = $aiConfig.baseUrl
+        health = $aiConfig.healthUrl
+      }
+    }
+
+    return @{ ok = $true; reused = $true }
+  }
+
+  $aiPortOpen = Test-LocalPort -Port $aiConfig.port
+  if ($aiPortOpen -and -not $AllowStart) {
+    return @{ ok = $false; reason = 'degraded' }
+  }
+
+  if ($aiPortOpen) {
+    $owners = Get-PortProcessDetails -Port $aiConfig.port
+    $allowRestart = $false
+    foreach ($owner in $owners) {
+      if ([string]$owner.name -match 'python|py|powershell|pwsh') {
+        $allowRestart = $true
+      }
+    }
+
+    if (-not $allowRestart) {
+      Write-ErrMsg ("Porta AI {0} está ocupada por processo não esperado." -f $aiConfig.port)
+      foreach ($owner in $owners) {
+        Write-Host ('    PID {0} | {1} | {2}' -f $owner.pid, $owner.name, $owner.commandLine) -ForegroundColor Yellow
+      }
+      return @{ ok = $false; reason = 'port-conflict' }
+    }
+
+    Write-WarnMsg 'AI Core na porta alvo está degradado. Reiniciando processo.'
+    Stop-ListeningPort -Port $aiConfig.port -Label 'AI Core' | Out-Null
+    Start-Sleep -Seconds 1
+  }
+
+  if (-not $AllowStart) {
+    return @{ ok = $false; reason = 'down' }
+  }
+
+  Write-Step 'Subindo AI Core em novo terminal...'
+  $window = Start-ComponentWindow -ComponentAction 'ai'
+  if (-not $window) {
+    return @{ ok = $false; reason = 'spawn-failed' }
+  }
+
+  $readyHealth = Wait-AiHealthy -TimeoutSec 60
+  if (-not $readyHealth) {
+    Write-ErrMsg 'AI Core não ficou saudável no tempo esperado.'
+    return @{ ok = $false; reason = 'startup-timeout'; windowPid = $window.Id }
+  }
+
+  $proc = Get-PortProcessDetails -Port $aiConfig.port | Select-Object -First 1
+  Update-Session -Patch @{
+    ai = @{
+      status = 'running'
+      windowPid = $window.Id
+      processId = if ($proc) { $proc.pid } else { $null }
+      url = $aiConfig.baseUrl
+      health = $aiConfig.healthUrl
+    }
+  }
+
+  Write-Ok 'AI Core online e saudável.'
+  return @{ ok = $true; started = $true; windowPid = $window.Id }
 }
 
 function Ensure-BackendAvailable {
@@ -1142,6 +1494,7 @@ function Ensure-FrontendAvailable {
 function Invoke-HealthChecks {
   param([switch]$TryRepairTunnel)
 
+  $aiConfig = Get-AiRuntimeConfig
   $backendPortCheck = Test-NetConnection 127.0.0.1 -Port $BackendPort -WarningAction SilentlyContinue
   $frontendPortCheck = Test-NetConnection 127.0.0.1 -Port $FrontendPort -WarningAction SilentlyContinue
   $dbPortCheck = Test-NetConnection 127.0.0.1 -Port $DbLocalPort -WarningAction SilentlyContinue
@@ -1168,6 +1521,36 @@ function Invoke-HealthChecks {
     }
   }
 
+  $aiPayload = $null
+  $aiPortOk = $false
+  $aiStatus = 'disabled'
+  $aiOk = $false
+
+  if ($aiConfig.enabled) {
+    if ($backendPayload -and $backendPayload.aiCore) {
+      $aiStatus = [string]$backendPayload.aiCore.status
+      $aiOk = [bool]$backendPayload.aiCore.ok
+      $aiPortOk = if ($aiConfig.localManaged) {
+        [bool](Test-NetConnection 127.0.0.1 -Port $aiConfig.port -WarningAction SilentlyContinue).TcpTestSucceeded
+      } else {
+        $aiOk
+      }
+    } else {
+      $aiStatus = 'offline'
+      if ($aiConfig.localManaged) {
+        $aiPortCheck = Test-NetConnection 127.0.0.1 -Port $aiConfig.port -WarningAction SilentlyContinue
+        $aiPortOk = [bool]$aiPortCheck.TcpTestSucceeded
+        if ($aiPortOk) {
+          $aiPayload = Get-AiHealthPayload -TimeoutSec 4
+          if ($aiPayload) {
+            $aiOk = [bool]$aiPayload.ok
+            $aiStatus = if ($aiOk) { 'online' } else { 'degraded' }
+          }
+        }
+      }
+    }
+  }
+
   $backendStatus = 'DOWN'
   $databaseStatus = 'indisponível'
 
@@ -1183,6 +1566,14 @@ function Invoke-HealthChecks {
     backendPortOk = [bool]$backendPortCheck.TcpTestSucceeded
     frontendPortOk = [bool]$frontendPortCheck.TcpTestSucceeded
     dbPortOk = [bool]$dbPortCheck.TcpTestSucceeded
+    aiEnabled = [bool]$aiConfig.enabled
+    aiPortOk = [bool]$aiPortOk
+    aiOk = [bool]$aiOk
+    aiStatus = $aiStatus
+    aiUrl = [string]$aiConfig.baseUrl
+    aiHealthUrl = [string]$aiConfig.healthUrl
+    aiLocalManaged = [bool]$aiConfig.localManaged
+    aiPayload = $aiPayload
     backendStatus = $backendStatus
     databaseStatus = $databaseStatus
     backendPayload = $backendPayload
@@ -1200,6 +1591,13 @@ function Show-Summary {
   $tunnelStatus = if ($HealthResult.dbPortOk) { 'ONLINE' } else { 'OFFLINE' }
   $backendStatus = if ($HealthResult.backendPortOk) { $HealthResult.backendStatus } else { 'OFFLINE' }
   $frontendStatus = if ($HealthResult.frontendPortOk) { 'ONLINE' } else { 'OFFLINE' }
+  $aiStatus = if (-not $HealthResult.aiEnabled) {
+    'DISABLED'
+  } elseif ($HealthResult.aiOk) {
+    'ONLINE'
+  } else {
+    [string]$HealthResult.aiStatus
+  }
 
   Write-Host ''
   Write-Host '========== SINGEM DEV SUMMARY ==========' -ForegroundColor Cyan
@@ -1208,6 +1606,7 @@ function Show-Summary {
   Write-Host ('Projeto...........: {0}' -f $script:ResolvedProjectRoot)
   Write-Host ('Backend URL.......: http://localhost:{0} [{1}]' -f $BackendPort, $backendStatus)
   Write-Host ('Frontend URL......: http://localhost:{0} [{1}]' -f $FrontendPort, $frontendStatus)
+  Write-Host ('AI Core...........: {0} [{1}]' -f $HealthResult.aiUrl, $aiStatus)
   Write-Host ('Health endpoint...: {0}' -f $script:BackendHealthUrl)
   Write-Host ('Túnel DB..........: 127.0.0.1:{0} -> {1}:{2} via {3}@{4}:{5} [{6}]' -f $DbLocalPort, $DbRemoteHost, $DbRemotePort, $SshUser, $SshHost, $SshPort, $tunnelStatus)
   Write-Host ('Banco.............: {0}' -f $HealthResult.databaseStatus)
@@ -1245,6 +1644,13 @@ function Invoke-SetupAction {
   Ensure-NpmDependencies -WorkDir $script:ResolvedProjectRoot -Label 'root' -OnlyWhenMissing:$onlyWhenMissing
   Ensure-NpmDependencies -WorkDir $script:ServerDir -Label 'server' -OnlyWhenMissing:$onlyWhenMissing -RequiredModules @('express', 'pg')
 
+  $aiConfig = Get-AiRuntimeConfig
+  if ($aiConfig.enabled -and $aiConfig.localManaged) {
+    Ensure-AiDependencies -OnlyWhenMissing:$onlyWhenMissing
+  } elseif ($aiConfig.enabled) {
+    Write-WarnMsg ("AI Core configurado externamente em {0}. Setup local do serviço Python foi ignorado." -f $aiConfig.baseUrl)
+  }
+
   Update-Session -Patch (Get-DefaultSession)
   Write-Ok 'Setup concluído.'
 }
@@ -1259,6 +1665,11 @@ function Invoke-UpAction {
     $tunnel = Ensure-TunnelAvailable -AllowStart
     if (-not $tunnel.ok) {
       throw 'Não foi possível garantir o túnel SSH para o banco.'
+    }
+
+    $ai = Ensure-AiAvailable -AllowStart
+    if (-not $ai.ok) {
+      throw 'Não foi possível garantir o AI Core saudável.'
     }
   }
 
@@ -1285,6 +1696,14 @@ function Invoke-UpAction {
     }
   }
 
+  if ($NoTunnel) {
+    $ai = Ensure-AiAvailable -AllowStart
+    if (-not $ai.ok) {
+      throw 'Não foi possível garantir o AI Core saudável.'
+    }
+    $health = Invoke-HealthChecks -TryRepairTunnel:$false
+  }
+
   Show-Summary -HealthResult $health -Mode 'up'
 
   if (-not $health.backendPortOk) {
@@ -1293,6 +1712,10 @@ function Invoke-UpAction {
 
   if (-not $health.frontendPortOk) {
     throw 'Frontend não está respondendo na porta esperada.'
+  }
+
+  if ($health.aiEnabled -and (-not $health.aiOk)) {
+    throw 'AI Core não está respondendo de forma saudável.'
   }
 
   if (-not $NoTunnel) {
@@ -1476,6 +1899,112 @@ function Invoke-BackendAction {
   exit $exitCode
 }
 
+function Invoke-AiAction {
+  Write-Headline 'SINGEM AI CORE'
+  Validate-Prerequisites
+  Initialize-Context
+
+  Ensure-BackendEnvFile -ExpectTunnel:(-not $NoTunnel)
+
+  $aiConfig = Get-AiRuntimeConfig
+  if (-not $aiConfig.enabled) {
+    Write-Ok 'AI Core desabilitado em server/.env. Nada a fazer.'
+    Update-Session -Patch @{
+      ai = @{
+        status = 'disabled'
+        url = $aiConfig.baseUrl
+        health = $aiConfig.healthUrl
+      }
+    }
+    return
+  }
+
+  if (-not $aiConfig.localManaged) {
+    Write-Ok ("AI Core configurado para endpoint externo ({0}). Nada a iniciar localmente." -f $aiConfig.baseUrl)
+    Update-Session -Patch @{
+      ai = @{
+        status = 'external'
+        url = $aiConfig.baseUrl
+        health = $aiConfig.healthUrl
+      }
+    }
+    return
+  }
+
+  if (-not (Test-Path -LiteralPath $script:AiDir)) {
+    Write-ErrMsg ("Pasta do AI Core não encontrada: {0}" -f $script:AiDir)
+    exit 1
+  }
+
+  Ensure-AiDependencies -OnlyWhenMissing
+
+  $healthy = Wait-AiHealthy -TimeoutSec 2
+  if ($healthy) {
+    Write-Ok 'AI Core já estava saudável. Nenhum novo processo iniciado.'
+    $proc = Get-PortProcessDetails -Port $aiConfig.port | Select-Object -First 1
+    Update-Session -Patch @{
+      ai = @{
+        status = 'running'
+        processId = if ($proc) { $proc.pid } else { $null }
+        windowPid = $PID
+        url = $aiConfig.baseUrl
+        health = $aiConfig.healthUrl
+      }
+    }
+    return
+  }
+
+  if (Test-LocalPort -Port $aiConfig.port) {
+    $owners = Get-PortProcessDetails -Port $aiConfig.port
+    $safeToRestart = $false
+
+    foreach ($owner in $owners) {
+      if ([string]$owner.name -match 'python|py|powershell|pwsh') {
+        $safeToRestart = $true
+      }
+    }
+
+    if (-not $safeToRestart) {
+      Write-ErrMsg ("Porta AI {0} ocupada por processo inesperado." -f $aiConfig.port)
+      foreach ($owner in $owners) {
+        Write-Host ('    PID {0} | {1} | {2}' -f $owner.pid, $owner.name, $owner.commandLine) -ForegroundColor Yellow
+      }
+      exit 1
+    }
+
+    Stop-ListeningPort -Port $aiConfig.port -Label 'AI Core degradado' | Out-Null
+    Start-Sleep -Seconds 1
+  }
+
+  Update-Session -Patch @{
+    ai = @{
+      status = 'running'
+      processId = $null
+      windowPid = $PID
+      url = $aiConfig.baseUrl
+      health = $aiConfig.healthUrl
+    }
+  }
+
+  Push-Location $script:AiDir
+  try {
+    $runner = Get-AiRunnerSpec
+    Set-AiRuntimeEnvironment -AiConfig $aiConfig
+    Write-Step ("Executando AI Core com {0} em {1}" -f $runner.name, $aiConfig.baseUrl)
+    & ([string]$runner['command']) @($runner['args'])
+    $exitCode = $LASTEXITCODE
+  } finally {
+    Pop-Location
+    Update-Session -Patch @{
+      ai = @{
+        status = 'stopped'
+      }
+    }
+  }
+
+  exit $exitCode
+}
+
 function Invoke-FrontendAction {
   Write-Headline 'SINGEM FRONTEND'
   Validate-Prerequisites
@@ -1562,9 +2091,19 @@ function Invoke-HealthAction {
     }
   }
 
+  if ($health.aiEnabled -and (-not $health.aiOk)) {
+    Write-WarnMsg 'AI Core sem resposta saudável.'
+    if ($health.aiLocalManaged) {
+      Write-Host 'Sugestão: execute SINGEM: AI ou scripts\dev-up.ps1 -Action ai' -ForegroundColor Yellow
+    }
+  }
+
   Show-Summary -HealthResult $health -Mode 'health'
 
   $failed = (-not $health.backendPortOk) -or (-not $health.frontendPortOk)
+  if ($health.aiEnabled) {
+    $failed = $failed -or (-not $health.aiOk)
+  }
   if (-not $NoTunnel) {
     $failed = $failed -or (-not $health.dbPortOk) -or ([string]$health.databaseStatus -ne 'conectado')
   }
@@ -1587,12 +2126,16 @@ function Invoke-StopAction {
     $stoppedAny = (Stop-ProcessIfAlive -ProcessId ([int]$session.frontend.windowPid) -Label 'Frontend terminal') -or $stoppedAny
     $stoppedAny = (Stop-ProcessIfAlive -ProcessId ([int]$session.frontend.processId) -Label 'Frontend process') -or $stoppedAny
 
+    $stoppedAny = (Stop-ProcessIfAlive -ProcessId ([int]$session.ai.windowPid) -Label 'AI terminal') -or $stoppedAny
+    $stoppedAny = (Stop-ProcessIfAlive -ProcessId ([int]$session.ai.processId) -Label 'AI process') -or $stoppedAny
+
     $stoppedAny = (Stop-ProcessIfAlive -ProcessId ([int]$session.tunnel.windowPid) -Label 'Tunnel terminal') -or $stoppedAny
     $stoppedAny = (Stop-ProcessIfAlive -ProcessId ([int]$session.tunnel.processId) -Label 'Tunnel process') -or $stoppedAny
   }
 
   $stoppedAny = (Stop-ListeningPort -Port $BackendPort -Label 'Backend (fallback por porta)') -or $stoppedAny
   $stoppedAny = (Stop-ListeningPort -Port $FrontendPort -Label 'Frontend (fallback por porta)') -or $stoppedAny
+  $stoppedAny = (Stop-ListeningPort -Port $AiPort -Label 'AI Core (fallback por porta)') -or $stoppedAny
 
   $matchingTunnels = @(Get-MatchingSshTunnelProcesses)
   if ($matchingTunnels.Count -gt 0) {
@@ -1632,6 +2175,9 @@ try {
     }
     'frontend' {
       Invoke-FrontendAction
+    }
+    'ai' {
+      Invoke-AiAction
     }
     'health' {
       Invoke-HealthAction

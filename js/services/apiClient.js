@@ -218,6 +218,21 @@ const apiClient = {
     API_CONFIG.baseUrl = url;
   },
 
+  async get(endpoint, options = {}) {
+    return request(endpoint, {
+      ...options,
+      method: 'GET'
+    });
+  },
+
+  async post(endpoint, body, options = {}) {
+    return request(endpoint, {
+      ...options,
+      method: 'POST',
+      body
+    });
+  },
+
   // ========================================================================
   // AUTENTICAÇÃO
   // ========================================================================
@@ -348,6 +363,79 @@ const apiClient = {
       return request('/api/empenhos/sync', {
         method: 'POST',
         body: { operacoes }
+      });
+    }
+  },
+
+  ai: {
+    async health(options = {}) {
+      return request('/api/ai/health', {
+        ...options,
+        method: 'GET'
+      });
+    },
+
+    async search(payload, options = {}) {
+      return request('/api/ai/search', {
+        ...options,
+        method: 'POST',
+        body: payload
+      });
+    },
+
+    async suggestItem(payload, options = {}) {
+      return request('/api/ai/suggest/item', {
+        ...options,
+        method: 'POST',
+        body: payload
+      });
+    },
+
+    async suggestFornecedor(payload, options = {}) {
+      return request('/api/ai/suggest/fornecedor', {
+        ...options,
+        method: 'POST',
+        body: payload
+      });
+    },
+
+    async matchEntity(payload, options = {}) {
+      return request('/api/ai/match/entity', {
+        ...options,
+        method: 'POST',
+        body: payload
+      });
+    },
+
+    async reportSummary(payload, options = {}) {
+      return request('/api/ai/report/summary', {
+        ...options,
+        method: 'POST',
+        body: payload
+      });
+    },
+
+    async feedback(payload, options = {}) {
+      return request('/api/ai/feedback', {
+        ...options,
+        method: 'POST',
+        body: payload
+      });
+    },
+
+    async rebuildIndex(payload, options = {}) {
+      return request('/api/ai/index/rebuild', {
+        ...options,
+        method: 'POST',
+        body: payload
+      });
+    },
+
+    async clearIndex(payload, options = {}) {
+      return request('/api/ai/index/clear', {
+        ...options,
+        method: 'POST',
+        body: payload
       });
     }
   },
