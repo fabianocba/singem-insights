@@ -140,9 +140,8 @@
         "-ExecutionPolicy",
         "Bypass",
         "-File",
-        "${workspaceFolder}\\scripts\\dev-up.ps1",
-        "-Action",
-        "stop",
+        "${workspaceFolder}\\scripts\\stop.ps1",
+        "-OnlyStop",
         "-ProjectRoot",
         "${workspaceFolder}",
         "-Branch",
@@ -153,33 +152,6 @@
         "focus": false,
         "panel": "dedicated",
         "group": "singem-stop"
-      },
-      "problemMatcher": []
-    },
-    {
-      "label": "SINGEM: START (LEGADO)",
-      "type": "shell",
-      "command": "powershell",
-      "args": [
-        "-NoProfile",
-        "-ExecutionPolicy",
-        "Bypass",
-        "-File",
-        "${workspaceFolder}\\scripts\\dev-up.ps1",
-        "-Action",
-        "start",
-        "-ProjectRoot",
-        "${workspaceFolder}",
-        "-Branch",
-        "dev"
-      ],
-      "presentation": {
-        "echo": true,
-        "reveal": "always",
-        "focus": false,
-        "panel": "dedicated",
-        "showReuseMessage": false,
-        "clear": true
       },
       "problemMatcher": []
     },

@@ -1,7 +1,7 @@
 [CmdletBinding()]
 param(
-  [ValidateSet('start', 'up', 'setup', 'tunnel', 'backend', 'frontend', 'ai', 'health', 'stop', 'restart')]
-  [string]$Action = 'start',
+  [ValidateSet('setup', 'up', 'stop', 'restart', 'health', 'frontend', 'backend', 'ai', 'start', 'tunnel')]
+  [string]$Action = 'up',
 
   [ValidateSet('dev', 'main')]
   [string]$Branch = 'dev',
@@ -40,6 +40,14 @@ $script:ServerDir = $null
 $script:AiDir = $null
 $script:SessionPath = $null
 $script:BackendHealthUrl = $null
+
+[Console]::InputEncoding = [System.Text.UTF8Encoding]::new($false)
+[Console]::OutputEncoding = [System.Text.UTF8Encoding]::new($false)
+$OutputEncoding = [System.Text.UTF8Encoding]::new($false)
+try {
+  & chcp.com 65001 *> $null
+} catch {
+}
 
 function Write-Headline {
   param([string]$Text)
@@ -1138,14 +1146,15 @@ function Wait-BackendHealthy {
     $payload = Get-BackendHealthPayload -TimeoutSec 3
     if ($payload) {
       $statusOk = [string]$payload.status -eq 'OK'
+      $statusDegraded = [string]$payload.status -eq 'DEGRADED'
       $dbOk = [string]$payload.database -eq 'conectado'
 
       if ($RequireDatabaseConnected) {
-        if ($statusOk -and $dbOk) {
+        if (($statusOk -or $statusDegraded) -and $dbOk) {
           return $payload
         }
       } else {
-        if ($statusOk -or [string]$payload.status -eq 'DEGRADED') {
+        if ($statusOk -or $statusDegraded) {
           return $payload
         }
       }
@@ -1245,8 +1254,27 @@ function Ensure-TunnelAvailable {
       return @{ ok = $true; reused = $true; processId = $matchingTunnel[0].ProcessId }
     }
 
-    Write-ErrMsg ("Porta local {0} ocupada por processo que não é o túnel SINGEM." -f $DbLocalPort)
     $owners = Get-PortProcessDetails -Port $DbLocalPort
+    $sshOwner = $owners | Where-Object {
+      ([string]$_.name -match '^ssh$|^ssh\.exe$') -or ([string]$_.commandLine -match 'OpenSSH\\ssh\.exe')
+    } | Select-Object -First 1
+
+    if ($sshOwner) {
+      Write-Ok ("Tunel SSH ja ativo na porta {0} (PID {1})." -f $DbLocalPort, $sshOwner.pid)
+      Update-Session -Patch @{
+        tunnel = @{
+          status = 'running'
+          processId = $sshOwner.pid
+          localPort = $DbLocalPort
+          sshHost = $SshHost
+          sshPort = $SshPort
+          sshUser = $SshUser
+        }
+      }
+      return @{ ok = $true; reused = $true; processId = $sshOwner.pid }
+    }
+
+    Write-ErrMsg ("Porta local {0} ocupada por processo que não é o túnel SINGEM." -f $DbLocalPort)
     foreach ($owner in $owners) {
       Write-Host ('    PID {0} | {1} | {2}' -f $owner.pid, $owner.name, $owner.commandLine) -ForegroundColor Yellow
     }
@@ -1659,12 +1687,12 @@ function Show-Summary {
   Write-Host ('Frontend URL......: http://localhost:{0} [{1}]' -f $FrontendPort, $frontendStatus)
   Write-Host ('AI Core...........: {0} [{1}]' -f $HealthResult.aiUrl, $aiStatus)
   Write-Host ('Health endpoint...: {0}' -f $script:BackendHealthUrl)
-  Write-Host ('Túnel DB..........: 127.0.0.1:{0} -> {1}:{2} via {3}@{4}:{5} [{6}]' -f $DbLocalPort, $DbRemoteHost, $DbRemotePort, $SshUser, $SshHost, $SshPort, $tunnelStatus)
+  Write-Host ('Tunel DB..........: 127.0.0.1:{0} -> {1}:{2} via {3}@{4}:{5} [{6}]' -f $DbLocalPort, $DbRemoteHost, $DbRemotePort, $SshUser, $SshHost, $SshPort, $tunnelStatus)
   Write-Host ('Banco.............: {0}' -f $HealthResult.databaseStatus)
-  Write-Host ('Versão app........: {0}' -f $HealthResult.appVersion)
+  Write-Host ('Versao app........: {0}' -f $HealthResult.appVersion)
 
   if ($HealthResult.repairedTunnel) {
-    Write-Host 'Auto-reparo túnel.: executado' -ForegroundColor Yellow
+    Write-Host 'Auto-reparo tunel.: executado' -ForegroundColor Yellow
   }
 
   Write-Host '========================================' -ForegroundColor Cyan
@@ -1698,6 +1726,20 @@ function Invoke-SetupAction {
   Validate-Prerequisites -AllowClone
   Initialize-Context -AllowClone
 
+  $venvPath = Join-Path $script:ResolvedProjectRoot '.venv'
+  if (Test-Path -LiteralPath $venvPath) {
+    Write-Ok ('.venv detectado em {0}' -f $venvPath)
+  } else {
+    Write-WarnMsg ('.venv não encontrado em {0}. O AI Core local pode exigir criação do ambiente virtual.' -f $venvPath)
+  }
+
+  $pythonRunner = Get-AiRunnerSpec
+  if ($pythonRunner) {
+    Write-Ok ('Python detectado para AI Core: {0}' -f $pythonRunner.name)
+  } else {
+    Write-WarnMsg 'Python/py não encontrado. O backend/frontend podem funcionar, mas o AI Core local ficará indisponível.'
+  }
+
   Write-Step 'Validando portas principais'
   $backendBusy = Test-LocalPort -Port $BackendPort
   $frontendBusy = Test-LocalPort -Port $FrontendPort
@@ -1709,7 +1751,7 @@ function Invoke-SetupAction {
 
   Write-Host ("- Backend ({0}): {1}" -f $BackendPort, $backendPortStatus)
   Write-Host ("- Frontend ({0}): {1}" -f $FrontendPort, $frontendPortStatus)
-  Write-Host ("- DB túnel ({0}): {1}" -f $DbLocalPort, $dbPortStatus)
+  Write-Host ("- DB tunel ({0}): {1}" -f $DbLocalPort, $dbPortStatus)
 
   Sync-Repository
   Ensure-BackendEnvFile -ExpectTunnel:(-not $NoTunnel)
@@ -1733,16 +1775,11 @@ function Invoke-UpAction {
   Invoke-SetupAction
 
   if ($NoTunnel) {
-    Write-WarnMsg 'Modo sem túnel ativo (-NoTunnel): inicialização priorizando backend/frontend locais.'
+    Write-WarnMsg 'Modo sem tunel ativo (-NoTunnel): inicializacao priorizando backend/frontend locais.'
   } else {
     $tunnel = Ensure-TunnelAvailable -AllowStart
     if (-not $tunnel.ok) {
       throw 'Não foi possível garantir o túnel SSH para o banco.'
-    }
-
-    $ai = Ensure-AiAvailable -AllowStart
-    if (-not $ai.ok) {
-      throw 'Não foi possível garantir o AI Core saudável.'
     }
   }
 
@@ -1756,26 +1793,25 @@ function Invoke-UpAction {
     throw 'Não foi possível garantir frontend ativo.'
   }
 
+  $ai = Ensure-AiAvailable -AllowStart
+  if (-not $ai.ok) {
+    Write-WarnMsg 'AI Core não ficou saudável, mas o ambiente principal (backend/frontend) seguirá ativo.'
+  }
+
   $health = Invoke-HealthChecks -TryRepairTunnel:(( -not $NoTunnel) -and (-not $NoAutoRepairTunnel))
 
   if ($NoTunnel -and ([string]$health.databaseStatus -ne 'conectado') -and (-not $NoAutoRepairTunnel)) {
-    Write-WarnMsg 'Banco não conectado em modo local. Tentando fallback automático via túnel SSH...'
+    Write-WarnMsg 'Banco nao conectado em modo local. Tentando fallback automatico via tunel SSH...'
     $tunnelFallback = Ensure-TunnelAvailable -AllowStart
     if ($tunnelFallback.ok) {
       Start-Sleep -Seconds 2
       $health = Invoke-HealthChecks -TryRepairTunnel:$false
     } else {
-      Write-WarnMsg 'Fallback do túnel não foi possível. Mantendo execução sem túnel.'
+      Write-WarnMsg 'Fallback do tunel nao foi possivel. Mantendo execucao sem tunel.'
     }
   }
 
-  if ($NoTunnel) {
-    $ai = Ensure-AiAvailable -AllowStart
-    if (-not $ai.ok) {
-      throw 'Não foi possível garantir o AI Core saudável.'
-    }
-    $health = Invoke-HealthChecks -TryRepairTunnel:$false
-  }
+  $health = Invoke-HealthChecks -TryRepairTunnel:$false
 
   Show-Summary -HealthResult $health -Mode 'up'
 
@@ -1788,7 +1824,7 @@ function Invoke-UpAction {
   }
 
   if ($health.aiEnabled -and (-not $health.aiOk)) {
-    throw 'AI Core não está respondendo de forma saudável.'
+    Write-WarnMsg 'AI Core nao esta saudavel. Continuando pois o servico e opcional no fluxo de desenvolvimento.'
   }
 
   if (-not $NoTunnel) {
@@ -1800,7 +1836,7 @@ function Invoke-UpAction {
       throw 'Backend respondeu sem conexão ativa com o banco.'
     }
   } elseif ([string]$health.databaseStatus -ne 'conectado') {
-    Write-WarnMsg 'Modo sem túnel: backend ativo sem conexão confirmada com banco.'
+    Write-WarnMsg 'Modo sem tunel: backend ativo sem conexao confirmada com banco.'
   }
 
   Open-DevPages
@@ -2140,45 +2176,42 @@ function Invoke-HealthAction {
   $health = Invoke-HealthChecks -TryRepairTunnel:(( -not $NoTunnel) -and (-not $NoAutoRepairTunnel))
 
   if (-not $health.backendPortOk) {
-    Write-WarnMsg ("Backend não respondeu na porta {0}." -f $BackendPort)
-    Write-Host 'Sugestão: execute SINGEM: BACKEND ou scripts\dev-up.ps1 -Action backend' -ForegroundColor Yellow
+    Write-WarnMsg ("Backend nao respondeu na porta {0}." -f $BackendPort)
+    Write-Host 'Sugestao: execute SINGEM: BACKEND ou scripts\dev-up.ps1 -Action backend' -ForegroundColor Yellow
   }
 
   if (-not $health.frontendPortOk) {
-    Write-WarnMsg ("Frontend não respondeu na porta {0}." -f $FrontendPort)
-    Write-Host 'Sugestão: execute SINGEM: FRONTEND ou scripts\dev-up.ps1 -Action frontend' -ForegroundColor Yellow
+    Write-WarnMsg ("Frontend nao respondeu na porta {0}." -f $FrontendPort)
+    Write-Host 'Sugestao: execute SINGEM: FRONTEND ou scripts\dev-up.ps1 -Action frontend' -ForegroundColor Yellow
   }
 
   if ((-not $NoTunnel) -and (-not $health.dbPortOk)) {
-    Write-WarnMsg ("Porta local do túnel ({0}) está indisponível." -f $DbLocalPort)
-    Write-Host 'Sugestão: execute SINGEM: TUNNEL ou scripts\dev-up.ps1 -Action tunnel' -ForegroundColor Yellow
+    Write-WarnMsg ("Porta local do tunel ({0}) esta indisponivel." -f $DbLocalPort)
+    Write-Host 'Sugestao: execute SINGEM: TUNNEL ou scripts\dev-up.ps1 -Action tunnel' -ForegroundColor Yellow
   } elseif ($NoTunnel -and (-not $health.dbPortOk)) {
-    Write-WarnMsg ("Modo sem túnel ativo: porta local {0} do túnel está indisponível (esperado)." -f $DbLocalPort)
+    Write-WarnMsg ("Modo sem tunel ativo: porta local {0} do tunel esta indisponivel (esperado)." -f $DbLocalPort)
   }
 
   if ([string]$health.databaseStatus -ne 'conectado') {
     if ($NoTunnel) {
-      Write-WarnMsg 'Modo sem túnel: backend sem conexão confirmada com PostgreSQL.'
-      Write-Host 'Sugestão: valide server/.env (DATABASE_URL/DB_PORT) para banco local, ou rode sem -NoTunnel.' -ForegroundColor Yellow
+      Write-WarnMsg 'Modo sem tunel: backend sem conexao confirmada com PostgreSQL.'
+      Write-Host 'Sugestao: valide server/.env (DATABASE_URL/DB_PORT) para banco local, ou rode sem -NoTunnel.' -ForegroundColor Yellow
     } else {
-      Write-WarnMsg 'Backend sem conexão confirmada com PostgreSQL.'
-      Write-Host 'Sugestão: valide server/.env (DATABASE_URL/DB_PORT) e o túnel SSH.' -ForegroundColor Yellow
+      Write-WarnMsg 'Backend sem conexao confirmada com PostgreSQL.'
+      Write-Host 'Sugestao: valide server/.env (DATABASE_URL/DB_PORT) e o tunel SSH.' -ForegroundColor Yellow
     }
   }
 
   if ($health.aiEnabled -and (-not $health.aiOk)) {
-    Write-WarnMsg 'AI Core sem resposta saudável.'
+    Write-WarnMsg 'AI Core sem resposta saudavel.'
     if ($health.aiLocalManaged) {
-      Write-Host 'Sugestão: execute SINGEM: AI ou scripts\dev-up.ps1 -Action ai' -ForegroundColor Yellow
+      Write-Host 'Sugestao: execute SINGEM: AI ou scripts\dev-up.ps1 -Action ai' -ForegroundColor Yellow
     }
   }
 
   Show-Summary -HealthResult $health -Mode 'health'
 
   $failed = (-not $health.backendPortOk) -or (-not $health.frontendPortOk)
-  if ($health.aiEnabled) {
-    $failed = $failed -or (-not $health.aiOk)
-  }
   if (-not $NoTunnel) {
     $failed = $failed -or (-not $health.dbPortOk) -or ([string]$health.databaseStatus -ne 'conectado')
   }
@@ -2218,10 +2251,27 @@ function Invoke-StopAction {
       $stoppedAny = (Stop-ProcessIfAlive -ProcessId $proc.ProcessId -Label 'SSH tunnel (matching)') -or $stoppedAny
     }
   } elseif (Test-LocalPort -Port $DbLocalPort) {
-    Write-WarnMsg ("Porta {0} segue ocupada por processo não identificado como túnel SINGEM." -f $DbLocalPort)
     $owners = Get-PortProcessDetails -Port $DbLocalPort
+    $stoppedTunnelOwner = $false
+
     foreach ($owner in $owners) {
-      Write-Host ('    PID {0} | {1} | {2}' -f $owner.pid, $owner.name, $owner.commandLine) -ForegroundColor Yellow
+      $isExpectedSsh = ([string]$owner.name -match '^ssh$|^ssh\.exe$') -or ([string]$owner.commandLine -match 'OpenSSH\\ssh\.exe')
+      if ($isExpectedSsh) {
+        $stoppedAny = (Stop-ProcessIfAlive -ProcessId $owner.pid -Label 'SSH tunnel (port owner)') -or $stoppedAny
+        $stoppedTunnelOwner = $true
+      }
+    }
+
+    if ($stoppedTunnelOwner) {
+      Start-Sleep -Seconds 1
+    }
+
+    if (Test-LocalPort -Port $DbLocalPort) {
+      Write-WarnMsg ("Porta {0} segue ocupada por processo não identificado como túnel SINGEM." -f $DbLocalPort)
+      $owners = Get-PortProcessDetails -Port $DbLocalPort
+      foreach ($owner in $owners) {
+        Write-Host ('    PID {0} | {1} | {2}' -f $owner.pid, $owner.name, $owner.commandLine) -ForegroundColor Yellow
+      }
     }
   }
 

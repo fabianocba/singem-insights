@@ -1,43 +1,30 @@
 # Scripts de Desenvolvimento - SINGEM
 
-Padrão oficial e único para ambiente local.
+Padrão operacional recomendado para trocar de máquina sem reconfiguração manual.
 
 ## Comandos oficiais
 
-### Start
+### Iniciar ambiente DEV
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\dev-up.ps1 -Action start -ProjectRoot . -Branch dev
 ```
 
-### Stop
-
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\stop.ps1 -ProjectRoot . -Branch dev
-```
-
-### Stop (somente encerrar serviços, sem publicação Git)
+### Encerrar ambiente DEV
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\stop.ps1 -OnlyStop -ProjectRoot . -Branch dev
 ```
 
-## Ações suportadas em `dev-up.ps1`
+## Compatibilidade adicional
 
-- `start` (alias de `up`)
-- `up`
-- `setup`
-- `tunnel`
-- `backend`
-- `frontend`
-- `ai`
-- `health`
-- `stop`
-- `restart`
+- `scripts/dev-up.ps1` continua aceitando `start`, `up`, `setup`, `restart`, `health`, `backend`, `frontend`, `ai` e `tunnel`.
+- `scripts/stop.ps1` é o comando estável para encerramento e publicação no GitHub (`origin/dev`).
+- `-OnlyStop` foi mantido apenas para compatibilidade de chamada, mas não desativa commit/push.
 
 ## Observações
 
-- `dev-up.ps1` é o ponto central de orquestração.
-- `stop.ps1` encerra os serviços e publica no `origin/dev` por padrão.
-- Use `-OnlyStop` para apenas encerrar serviços (sem commit/push).
-- Scripts legados de inicialização foram removidos para manter higiene do projeto.
+- Os dois comandos acima são os únicos que você precisa memorizar ao trocar de máquina.
+- O AI Core é opcional no fluxo de `up` e `health`: falhas no AI não impedem backend/frontend.
+- O health de backend aceita `OK` e `DEGRADED` quando o banco está conectado.
+- O túnel em `5433` é reutilizado automaticamente quando já for um túnel válido do projeto.
