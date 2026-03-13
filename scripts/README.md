@@ -1,6 +1,6 @@
 # Scripts de Desenvolvimento - SINGEM
 
-Padrão operacional recomendado para trocar de máquina sem reconfiguração manual.
+Padrão operacional recomendado para trocar de máquina sem reconfiguração manual. Não há mais camada de alias suportada neste fluxo.
 
 ## Comandos oficiais
 
