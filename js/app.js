@@ -124,6 +124,9 @@ class ControleMaterialApp {
     try {
       console.log('🚀 Iniciando aplicação SINGEM...');
 
+      // Listener crítico de login (evita submit nativo para / em falhas parciais de bootstrap)
+      this.setupCriticalAuthListeners();
+
       // Inicializa modo servidor (PostgreSQL via API)
       const apiClient = (await import('./services/apiClient.js')).default;
       const health = await apiClient.healthCheck();
@@ -169,8 +172,26 @@ class ControleMaterialApp {
       console.log('✅ Aplicação iniciada com sucesso!');
     } catch (error) {
       console.error('❌ Erro ao inicializar aplicação:', error);
+      this.setupCriticalAuthListeners();
       this.showError('Erro ao inicializar a aplicação: ' + error.message);
     }
+  }
+
+  setupCriticalAuthListeners() {
+    if (!this._onLoginSubmitHandler) {
+      this._onLoginSubmitHandler = (event) => {
+        event.preventDefault();
+        this.realizarLogin(event);
+      };
+    }
+
+    const loginForm = document.getElementById('loginForm') || document.getElementById('formLogin');
+    if (!loginForm) {
+      return;
+    }
+
+    loginForm.removeEventListener('submit', this._onLoginSubmitHandler);
+    loginForm.addEventListener('submit', this._onLoginSubmitHandler);
   }
 
   /**
@@ -421,11 +442,7 @@ class ControleMaterialApp {
     });
 
     // Submit do formulário de login (compatível com password managers)
-    const loginForm = document.getElementById('loginForm') || document.getElementById('formLogin');
-    loginForm?.addEventListener('submit', (e) => {
-      e.preventDefault();
-      this.realizarLogin(e);
-    });
+    this.setupCriticalAuthListeners();
 
     window.addEventListener('singem:auth:logout', (event) => {
       const motivo = event?.detail?.reason;

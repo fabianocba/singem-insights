@@ -11,7 +11,6 @@ function setAvailability(value, ttlMs) {
   availabilityState.expiresAt = Date.now() + ttlMs;
 }
 
-async function ensureAiAvailable() {
 async function ensureAiAvailable(options = {}) {
   const forceRefresh = options?.forceRefresh === true;
 
