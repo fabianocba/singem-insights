@@ -2,7 +2,7 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "SINGEM: DEV UP",
+      "label": "SINGEM: START",
       "type": "shell",
       "command": "powershell",
       "args": [
@@ -12,7 +12,7 @@
         "-File",
         "${workspaceFolder}\\scripts\\dev-up.ps1",
         "-Action",
-        "up",
+        "start",
         "-ProjectRoot",
         "${workspaceFolder}",
         "-Branch",
@@ -140,8 +140,9 @@
         "-ExecutionPolicy",
         "Bypass",
         "-File",
-        "${workspaceFolder}\\scripts\\stop.ps1",
-        "-OnlyStop",
+        "${workspaceFolder}\\scripts\\dev-up.ps1",
+        "-Action",
+        "stop",
         "-ProjectRoot",
         "${workspaceFolder}",
         "-Branch",
@@ -156,7 +157,7 @@
       "problemMatcher": []
     },
     {
-      "label": "🎯 Iniciar IFDESK Automaticamente",
+      "label": "SINGEM: START (LEGADO)",
       "type": "shell",
       "command": "powershell",
       "args": [
@@ -164,7 +165,9 @@
         "-ExecutionPolicy",
         "Bypass",
         "-File",
-        "${workspaceFolder}\\scripts\\start-dev.ps1",
+        "${workspaceFolder}\\scripts\\dev-up.ps1",
+        "-Action",
+        "start",
         "-ProjectRoot",
         "${workspaceFolder}",
         "-Branch",

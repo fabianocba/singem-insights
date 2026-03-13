@@ -29,7 +29,7 @@ const dadosGovRoutes = require('./routes/dadosgov.routes');
 const integracoesAdminRoutes = require('./routes/integracoes-admin.routes');
 const aiRoutes = require('./routes/ai.routes');
 const aiCoreClient = require('./services/aiCoreClient');
-const { createSystemStatusRouter } = require('./routes/system-status.routes');
+const { createSystemStatusRouter } = require('./routes/systemStatus');
 
 const { router: nfeRoutes, setNfeService } = require('./routes/nfe.routes');
 const { router: nfeRoutesV2, setNfeService: setNfeServiceV2 } = require('./routes/nfe.routes.v2');
@@ -99,7 +99,7 @@ function createApp({ nodeEnv, bodyLimit, corsOrigins, trustProxy, nfeService, nf
   app.use('/api/integracoes/comprasgov', createIntegracoesLimiter(), authenticate, requireAdmin, comprasGovRoutes);
   app.use('/api/integracoes/dadosgov', createIntegracoesLimiter(), authenticate, requireAdmin, dadosGovRoutes);
   app.use('/api/integracoes', createIntegracoesLimiter(), authenticate, requireAdmin, integracoesAdminRoutes);
-  app.use('/system-status', createSystemStatusRouter({ nodeEnv, nfeService, nfeServiceV2 }));
+  app.use('/api/system-status', createSystemStatusRouter({ nfeService, nfeServiceV2 }));
 
   app.get('/health', async (req, res) => {
     setNoCacheHeaders(res);
@@ -197,10 +197,10 @@ function createApp({ nodeEnv, bodyLimit, corsOrigins, trustProxy, nfeService, nf
     '/api/integracoes/comprasgov',
     '/api/integracoes/dadosgov',
     '/api/version',
+    '/api/system-status',
     '/api/nfe',
     '/api/nfe/v2',
     '/health',
-    '/system-status',
     '/api/info'
   ];
 

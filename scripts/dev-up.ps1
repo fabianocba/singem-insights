@@ -1,7 +1,7 @@
 [CmdletBinding()]
 param(
-  [ValidateSet('up', 'setup', 'tunnel', 'backend', 'frontend', 'ai', 'health', 'stop')]
-  [string]$Action = 'up',
+  [ValidateSet('start', 'up', 'setup', 'tunnel', 'backend', 'frontend', 'ai', 'health', 'stop', 'restart')]
+  [string]$Action = 'start',
 
   [ValidateSet('dev', 'main')]
   [string]$Branch = 'dev',
@@ -27,6 +27,7 @@ param(
   [switch]$SkipInstall,
   [switch]$NoAutoRepairTunnel,
   [switch]$NoTunnel,
+  [switch]$NoOpenBrowser,
   [switch]$ForceInstall,
   [ValidateSet('auto', 'local', 'default')]
   [string]$ProductionEnvProfile = 'auto'
@@ -446,6 +447,22 @@ function Sync-Repository {
     }
 
     $checkoutOk = $true
+    $currentBranch = ''
+    $localTargetExists = $false
+
+    try {
+      $currentBranch = (git branch --show-current 2>$null | Select-Object -First 1).Trim()
+    } catch {
+      $currentBranch = ''
+    }
+
+    try {
+      $null = git show-ref --verify --quiet "refs/heads/$Branch"
+      $localTargetExists = ($LASTEXITCODE -eq 0)
+    } catch {
+      $localTargetExists = $false
+    }
+
     try {
       Invoke-External -Label ("git checkout {0}" -f $Branch) -Command {
         git checkout $Branch
@@ -455,6 +472,11 @@ function Sync-Repository {
     }
 
     if (-not $checkoutOk) {
+      if ($localTargetExists) {
+        Write-WarnMsg ("Não foi possível alternar para a branch '{0}' (alterações locais em '{1}'). Seguindo sem sincronização Git." -f $Branch, $currentBranch)
+        return
+      }
+
       Invoke-External -Label ("criando branch local {0}" -f $Branch) -Command {
         git checkout -b $Branch "$GitRemote/$Branch"
       }
@@ -913,9 +935,21 @@ function Ensure-AiDependencies {
 
   Push-Location $script:AiDir
   try {
-    $checkArgs = @('-c', 'import fastapi, uvicorn, psycopg, pydantic_settings')
-    & ([string]$runner['command']) @checkArgs *> $null
-    $depsAvailable = ($LASTEXITCODE -eq 0)
+    $checkScript = @'
+import importlib.util
+import sys
+
+required = ["fastapi", "uvicorn", "psycopg", "pydantic_settings"]
+missing = [name for name in required if importlib.util.find_spec(name) is None]
+sys.exit(0 if not missing else 1)
+'@
+    $checkArgs = @('-c', $checkScript)
+    try {
+      & ([string]$runner['command']) @checkArgs *> $null
+      $depsAvailable = ($LASTEXITCODE -eq 0)
+    } catch {
+      $depsAvailable = $false
+    }
 
     if ($depsAvailable -and $OnlyWhenMissing) {
       Write-Ok 'Dependências Python já presentes (AI Core).'
@@ -947,6 +981,8 @@ function Ensure-AiDependencies {
 function Validate-Prerequisites {
   param([switch]$AllowClone)
 
+  $normalizedAction = if ($Action -eq 'start') { 'up' } else { $Action }
+
   $targetRoot = Resolve-AbsolutePath -PathValue $ProjectRoot
   $permissionCheckPath = $targetRoot
 
@@ -965,7 +1001,7 @@ function Validate-Prerequisites {
     Write-WarnMsg 'ExecutionPolicy CurrentUser está Restricted. Scripts podem falhar fora do VS Code Tasks.'
   }
 
-  switch ($Action) {
+  switch ($normalizedAction) {
     'setup' {
       Require-Command -Name 'git' -Hint 'Instale Git: https://git-scm.com/download/win'
       Require-Command -Name 'node' -Hint 'Instale Node.js LTS: https://nodejs.org/'
@@ -975,6 +1011,14 @@ function Validate-Prerequisites {
       }
     }
     'up' {
+      Require-Command -Name 'git' -Hint 'Instale Git: https://git-scm.com/download/win'
+      Require-Command -Name 'node' -Hint 'Instale Node.js LTS: https://nodejs.org/'
+      Require-Command -Name 'npm' -Hint 'npm deve vir junto com o Node.js.'
+      if (-not $NoTunnel) {
+        Require-Command -Name 'ssh' -Hint 'Instale OpenSSH Client (Feature do Windows).'
+      }
+    }
+    'restart' {
       Require-Command -Name 'git' -Hint 'Instale Git: https://git-scm.com/download/win'
       Require-Command -Name 'node' -Hint 'Instale Node.js LTS: https://nodejs.org/'
       Require-Command -Name 'npm' -Hint 'npm deve vir junto com o Node.js.'
@@ -1019,6 +1063,13 @@ function Validate-Prerequisites {
   if (-not $hasSshKey) {
     Write-WarnMsg 'Nenhuma chave SSH padrão detectada (~/.ssh/id_ed25519 ou id_rsa). Pode solicitar senha ao abrir túnel.'
   }
+}
+
+function Invoke-RestartAction {
+  Write-Headline 'SINGEM DEV RESTART'
+  Invoke-StopAction
+  Start-Sleep -Seconds 1
+  Invoke-UpAction
 }
 
 function Get-BackendHealthPayload {
@@ -1620,6 +1671,28 @@ function Show-Summary {
   Write-Host ''
 }
 
+function Open-DevPages {
+  if ($NoOpenBrowser) {
+    Write-WarnMsg 'Abertura automática do navegador desativada por parâmetro (-NoOpenBrowser).'
+    return
+  }
+
+  $urls = @(
+    ('http://localhost:{0}' -f $FrontendPort),
+    $script:BackendHealthUrl
+  )
+
+  foreach ($url in $urls) {
+    try {
+      Start-Process -FilePath $url | Out-Null
+    } catch {
+      Write-WarnMsg ("Falha ao abrir navegador em {0}: {1}" -f $url, $_.Exception.Message)
+    }
+  }
+
+  Write-Ok 'Páginas abertas automaticamente no navegador.'
+}
+
 function Invoke-SetupAction {
   Write-Headline 'SINGEM DEV SETUP'
   Validate-Prerequisites -AllowClone
@@ -1729,6 +1802,8 @@ function Invoke-UpAction {
   } elseif ([string]$health.databaseStatus -ne 'conectado') {
     Write-WarnMsg 'Modo sem túnel: backend ativo sem conexão confirmada com banco.'
   }
+
+  Open-DevPages
 }
 
 function Invoke-TunnelAction {
@@ -2161,6 +2236,9 @@ function Invoke-StopAction {
 
 try {
   switch ($Action) {
+    'start' {
+      Invoke-UpAction
+    }
     'setup' {
       Invoke-SetupAction
     }
@@ -2184,6 +2262,9 @@ try {
     }
     'stop' {
       Invoke-StopAction
+    }
+    'restart' {
+      Invoke-RestartAction
     }
   }
 } catch {

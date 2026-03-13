@@ -23,7 +23,7 @@ function resolveBaseUrl() {
 }
 
 function resolveSystemStatusUrl() {
-  return `${resolveBaseUrl()}/system-status`;
+  return `${resolveBaseUrl()}/api/system-status`;
 }
 
 function normalizeStatusClass(status) {
@@ -41,7 +41,7 @@ function normalizeStatusClass(status) {
     return 'status-warn';
   }
 
-  if (value === 'DOWN' || value === 'CRITICAL') {
+  if (value === 'DOWN') {
     return 'status-error';
   }
 
@@ -103,7 +103,7 @@ function updateOverall(data) {
       ? 'Todos os serviços essenciais estão operacionais.'
       : statusValue === 'DEGRADED'
         ? 'Serviços auxiliares com degradação, núcleo operacional ativo.'
-        : 'Há falha crítica detectada no núcleo do sistema.';
+        : 'Serviço crítico indisponível.';
 }
 
 function updateMeta(data) {
