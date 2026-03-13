@@ -57,6 +57,20 @@ async function runMigrations() {
     const { rows } = await client.query('SELECT id FROM _migrations');
     const applied = new Set(rows.map((row) => row.id));
 
+    // Compatibilidade: IDs renomeados em versões anteriores.
+    // Atualiza registros antigos para o novo nome do arquivo.
+    const RENAMES = {
+      '004_catmat_api_oficial_cache': '004b_catmat_api_oficial_cache'
+    };
+    for (const [oldId, newId] of Object.entries(RENAMES)) {
+      if (applied.has(oldId) && !applied.has(newId)) {
+        await client.query('UPDATE _migrations SET id = $1 WHERE id = $2', [newId, oldId]);
+        applied.delete(oldId);
+        applied.add(newId);
+        console.log(`[DB] Migration renomeada: ${oldId} → ${newId}`);
+      }
+    }
+
     const migrationsDir = path.join(__dirname, '../migrations');
     const files = fs
       .readdirSync(migrationsDir)

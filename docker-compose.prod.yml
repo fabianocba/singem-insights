@@ -1,0 +1,123 @@
+# ============================================================
+# SINGEM — docker-compose.prod.yml
+# Override de produção — merge com docker-compose.yml
+#
+# Uso:
+#   docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+#
+# Pré-requisito:
+#   Executar scripts/docker-setup.ps1 para gerar .env.production
+# ============================================================
+
+services:
+
+  # ----------------------------------------------------------
+  # PostgreSQL — tuning de produção
+  # ----------------------------------------------------------
+  postgres:
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD obrigatória em produção}
+    command:
+      - "postgres"
+      - "-c"
+      - "shared_buffers=256MB"
+      - "-c"
+      - "work_mem=16MB"
+      - "-c"
+      - "maintenance_work_mem=128MB"
+      - "-c"
+      - "effective_cache_size=512MB"
+      - "-c"
+      - "log_min_duration_statement=1000"
+      - "-c"
+      - "log_connections=on"
+      - "-c"
+      - "log_disconnections=on"
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+
+  # ----------------------------------------------------------
+  # Redis — com senha em produção
+  # ----------------------------------------------------------
+  redis:
+    restart: always
+    command: >-
+      redis-server
+      --save 60 1
+      --loglevel warning
+      --requirepass ${REDIS_PASSWORD:-}
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+
+  # ----------------------------------------------------------
+  # Backend — hardening
+  # ----------------------------------------------------------
+  backend:
+    restart: always
+    environment:
+      NODE_ENV: production
+      TRUST_PROXY: "true"
+
+      DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD obrigatória em produção}
+      DATABASE_URL: >-
+        postgresql://${DB_USER:-adm}:${DB_PASSWORD}@postgres:5432/${DB_NAME:-singem}
+
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET obrigatória em produção (min 32 chars)}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:?ADMIN_PASSWORD obrigatória em produção}
+
+      CORS_ORIGINS: ${CORS_ORIGINS:?CORS_ORIGINS obrigatória em produção}
+      FRONTEND_URL: ${FRONTEND_URL:?FRONTEND_URL obrigatória em produção}
+
+      REDIS_URL: redis://:${REDIS_PASSWORD:-}@redis:6379
+    # Não expor porta do backend diretamente — acessível via nginx proxy
+    ports: !override
+      - "127.0.0.1:${BACKEND_PORT_EXTERNAL:-3000}:3000"
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "5"
+
+  # ----------------------------------------------------------
+  # Frontend — hardening
+  # ----------------------------------------------------------
+  frontend:
+    restart: always
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "3"
+
+  # ----------------------------------------------------------
+  # AI Core — produção
+  # ----------------------------------------------------------
+  ai-core:
+    restart: always
+    environment:
+      APP_ENV: production
+      APP_DEBUG: "false"
+      DATABASE_URL: >-
+        postgresql://${DB_USER:-adm}:${DB_PASSWORD}@postgres:5432/${DB_NAME:-singem}
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
