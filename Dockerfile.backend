@@ -1,6 +1,6 @@
 # ============================================================
 # SINGEM Backend — Dockerfile
-# Base: node:20-alpine  |  Entry: node index.js
+# Base: node:20-alpine  |  Entry: entrypoint.sh + node index.js
 # ============================================================
 
 # -------------------------------------------------------------
@@ -44,10 +44,14 @@ COPY server/ ./server/
 # node_modules compilados da stage deps
 COPY --from=deps /build/server/node_modules ./server/node_modules
 
+# Entrypoint Docker (aguarda PostgreSQL antes de iniciar)
+COPY docker/entrypoint-backend.sh /app/entrypoint.sh
+
 # Diretórios necessários em runtime
 # storage/nfe — substituído por volume em produção
 # logs        — volume persistente
 RUN mkdir -p storage/nfe logs \
+    && chmod +x /app/entrypoint.sh \
     && chown -R singem:singem /app
 
 USER singem
@@ -59,4 +63,5 @@ EXPOSE 3000
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
     CMD wget -qO- http://localhost:3000/health || exit 1
 
+ENTRYPOINT ["/app/entrypoint.sh"]
 CMD ["node", "index.js"]

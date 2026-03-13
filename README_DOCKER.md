@@ -13,7 +13,7 @@ Guia completo para rodar, parar, rebuildar e monitorar o ambiente SINGEM via Doc
 │  ┌──────────┐    ┌──────────┐    ┌──────────────────┐  │
 │  │ frontend │───▶│ backend  │───▶│    postgres       │  │
 │  │  :80     │    │  :3000   │    │     :5432         │  │
-│  │  nginx   │    │  node.js │    │  postgres:15-alp  │  │
+│  │  nginx   │    │  node.js │    │  pgvector:pg15    │  │
 │  └──────────┘    └──────────┘    └──────────────────┘  │
 │      │                │                                 │
 │  host:8000       host:3000           host:5432          │
@@ -30,7 +30,7 @@ Guia completo para rodar, parar, rebuildar e monitorar o ambiente SINGEM via Doc
 
 | Serviço | Imagem | Porta host | Descrição |
 |---|---|---|---|
-| `singem-postgres` | `postgres:15-alpine` | `5432` | Banco de dados; volume `singem_postgres_data` |
+| `singem-postgres` | `pgvector/pgvector:pg15` | `5432` | Banco de dados + pgvector; volume `singem_postgres_data` |
 | `singem-redis` | `redis:7-alpine` | `6379` | Cache futuro; volume `singem_redis_data` |
 | `singem-backend` | `node:20-alpine` | `3000` | API Node/Express; volume `storage/` e `singem_backend_logs` |
 | `singem-frontend` | `nginx:alpine` | `8000` | Frontend estático; proxy `/api/` → backend |
