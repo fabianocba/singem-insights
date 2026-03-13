@@ -1,0 +1,82 @@
+# ============================================================
+# SINGEM — .dockerignore
+# Exclui arquivos desnecessários do build context Docker
+# ============================================================
+
+# ------ Dependências (reconstruídas no container) ----------
+node_modules/
+server/node_modules/
+singem-ai/.venv/
+singem-ai/__pycache__/
+**/__pycache__/
+**/*.pyc
+**/*.pyo
+**/*.pyd
+**/*.egg-info/
+singem-ai/.pytest_cache/
+
+# ------ Git ------------------------------------------------
+.git/
+.gitattributes
+.github/
+.gitignore
+
+# ------ Variáveis de ambiente ------------------------------
+# Nunca incluir .env reais no build context
+.env
+.env.local
+.env.*.local
+server/.env
+server/.env.development
+server/.env.production
+server/.env.bak
+# Manter apenas os exemplos
+!.env.example
+!server/.env.example
+!singem-ai/.env.example
+
+# ------ Logs e temporários --------------------------------
+*.log
+logs/
+server/logs/
+.cache/
+*.tmp
+*.temp
+
+# ------ Build outputs -------------------------------------
+dist/
+build/
+
+# ------ IDEs e OS -----------------------------------------
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ------ Dados reais / arquivos pesados --------------------
+# (não necessários nas imagens Docker)
+04_BACKUPS/
+IF GUANAMBI/
+01_EMPENHOS/
+02_NOTAS_FISCAIS/
+00_CONFIG/
+
+# ------ Storage (volume em runtime) -----------------------
+storage/
+
+# ------ Documentação e testes (não vai para container) ----
+docs/
+tests/
+testes/
+
+# ------ Scripts de desenvolvimento local ------------------
+scripts/
+.dev-session.json
+
+# ------ package-lock.json raiz (apenas frontend tools) ----
+# O server tem seu próprio package-lock.json
+package-lock.json

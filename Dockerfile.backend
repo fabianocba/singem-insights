@@ -1,0 +1,62 @@
+# ============================================================
+# SINGEM Backend — Dockerfile
+# Base: node:20-alpine  |  Entry: node index.js
+# ============================================================
+
+# -------------------------------------------------------------
+# Stage 1 — Dependências de produção
+# Instala apenas --omit=dev; compila módulos nativos (bcrypt)
+# -------------------------------------------------------------
+FROM node:20-alpine AS deps
+
+# Ferramentas de compilação necessárias para módulos nativos (bcrypt)
+RUN apk add --no-cache python3 make g++
+
+WORKDIR /build
+
+# O server/package.json referencia "singem": "file:.."
+# O package.json raiz precisa existir antes do npm ci
+COPY package.json ./
+
+COPY server/package.json server/package-lock.json* ./server/
+
+WORKDIR /build/server
+RUN npm ci --omit=dev
+
+# -------------------------------------------------------------
+# Stage 2 — Runtime
+# Imagem final enxuta sem ferramentas de build
+# -------------------------------------------------------------
+FROM node:20-alpine AS runtime
+
+# Usuário não-root para segurança
+RUN addgroup --system --gid 1001 singem \
+    && adduser --system --uid 1001 --ingroup singem singem
+
+WORKDIR /app
+
+# Root package.json (resolvido por "singem": "file:.." no server)
+COPY package.json ./
+
+# Código do servidor
+COPY server/ ./server/
+
+# node_modules compilados da stage deps
+COPY --from=deps /build/server/node_modules ./server/node_modules
+
+# Diretórios necessários em runtime
+# storage/nfe — substituído por volume em produção
+# logs        — volume persistente
+RUN mkdir -p storage/nfe logs \
+    && chown -R singem:singem /app
+
+USER singem
+
+WORKDIR /app/server
+
+EXPOSE 3000
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+    CMD wget -qO- http://localhost:3000/health || exit 1
+
+CMD ["node", "index.js"]

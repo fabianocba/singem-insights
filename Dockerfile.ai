@@ -1,0 +1,37 @@
+# ============================================================
+# SINGEM AI Core — Dockerfile
+# Base: python:3.12-slim  |  Entry: python run.py
+# Perfil Docker: "ai" (opcional no docker compose up)
+# ============================================================
+FROM python:3.12-slim AS runtime
+
+# Dependências de sistema: libpq5 (psycopg) + curl (healthcheck)
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        libpq5 \
+        curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Usuário não-root
+RUN addgroup --system --gid 1001 singem \
+    && adduser --system --uid 1001 --ingroup singem --no-create-home singem
+
+WORKDIR /app
+
+# Instala dependências Python primeiro (cache layer)
+COPY singem-ai/requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copia o código da aplicação
+COPY singem-ai/ ./
+
+RUN chown -R singem:singem /app
+
+USER singem
+
+EXPOSE 8010
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+    CMD curl -sf http://localhost:8010/ai/health || exit 1
+
+CMD ["python", "run.py"]

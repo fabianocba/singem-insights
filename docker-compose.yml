@@ -1,0 +1,209 @@
+# ============================================================
+# SINGEM — docker-compose.yml
+# Orquestração completa do ambiente
+#
+# Uso básico (postgres + backend + frontend):
+#   docker compose up --build
+#
+# Com AI Core:
+#   docker compose --profile ai up --build
+#
+# Com tudo (incluindo Redis explicitamente):
+#   docker compose --profile full up --build
+# ============================================================
+
+name: singem
+
+networks:
+  singem-network:
+    name: singem-network
+    driver: bridge
+
+volumes:
+  postgres_data:
+    name: singem_postgres_data
+  backend_logs:
+    name: singem_backend_logs
+  redis_data:
+    name: singem_redis_data
+
+services:
+
+  # ----------------------------------------------------------
+  # PostgreSQL 15
+  # ----------------------------------------------------------
+  postgres:
+    image: postgres:15-alpine
+    container_name: singem-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME:-singem}
+      POSTGRES_USER: ${DB_USER:-adm}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-Singem@12345}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "${DB_PORT_EXTERNAL:-5432}:5432"
+    networks:
+      - singem-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-adm} -d ${DB_NAME:-singem}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  # ----------------------------------------------------------
+  # Redis 7 (preparado para cache futuro)
+  # ----------------------------------------------------------
+  redis:
+    image: redis:7-alpine
+    container_name: singem-redis
+    restart: unless-stopped
+    command: redis-server --save 60 1 --loglevel warning
+    volumes:
+      - redis_data:/data
+    ports:
+      - "${REDIS_PORT_EXTERNAL:-6379}:6379"
+    networks:
+      - singem-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # ----------------------------------------------------------
+  # Backend Node.js / Express
+  # migrations rodadas automaticamente no startup (bootstrap.js)
+  # ----------------------------------------------------------
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: singem-backend
+    restart: unless-stopped
+    environment:
+      NODE_ENV: ${NODE_ENV:-development}
+      PORT: 3000
+
+      # Banco — hostname = nome do serviço Docker, sem túnel SSH
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME:-singem}
+      DB_USER: ${DB_USER:-adm}
+      DB_PASSWORD: ${DB_PASSWORD:-Singem@12345}
+      DATABASE_URL: >-
+        postgresql://${DB_USER:-adm}:${DB_PASSWORD:-Singem@12345}@postgres:5432/${DB_NAME:-singem}
+
+      TRUST_PROXY: ${TRUST_PROXY:-false}
+      API_BODY_LIMIT: ${API_BODY_LIMIT:-10mb}
+
+      # CORS — frontend em porta 8000 (nginx) + backend direto 3000
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:8000,http://localhost:3000}
+
+      # JWT (ALTERAR em produção!)
+      JWT_SECRET: ${JWT_SECRET:-change_this_secret_in_production_min32chars!}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-15m}
+      JWT_REFRESH_EXPIRES_IN: ${JWT_REFRESH_EXPIRES_IN:-7d}
+
+      # Admin inicial
+      ADMIN_LOGIN: ${ADMIN_LOGIN:-admin}
+      ADMIN_NOME: ${ADMIN_NOME:-Administrador SINGEM}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@ifbaiano.edu.br}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-MudarNaPrimeiraExecucao123!}
+
+      # Integrações externas (desativadas por padrão)
+      GOVBR_ENABLED: ${GOVBR_ENABLED:-false}
+      SERPRO_ENABLED: ${SERPRO_ENABLED:-false}
+      SERPROID_ENABLED: ${SERPROID_ENABLED:-false}
+      CATMAT_ENABLED: ${CATMAT_ENABLED:-false}
+      CATMAT_OBRIGATORIO: ${CATMAT_OBRIGATORIO:-false}
+
+      # AI Core (comunicação intra-network)
+      AI_CORE_ENABLED: ${AI_CORE_ENABLED:-false}
+      AI_CORE_BASE_URL: ${AI_CORE_BASE_URL:-http://ai-core:8010}
+      AI_CORE_INTERNAL_TOKEN: ${AI_CORE_INTERNAL_TOKEN:-change-me}
+      AI_CORE_TIMEOUT_MS: ${AI_CORE_TIMEOUT_MS:-15000}
+      AI_CORE_HEALTH_TIMEOUT_MS: ${AI_CORE_HEALTH_TIMEOUT_MS:-2500}
+
+      # Compras.gov.br
+      COMPRASGOV_BASE_URL: ${COMPRASGOV_BASE_URL:-https://dadosabertos.compras.gov.br}
+      COMPRASGOV_TIMEOUT_MS: ${COMPRASGOV_TIMEOUT_MS:-10000}
+      COMPRASGOV_MAX_RETRIES: ${COMPRASGOV_MAX_RETRIES:-3}
+
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:8000}
+    ports:
+      - "${BACKEND_PORT_EXTERNAL:-3000}:3000"
+    networks:
+      - singem-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      # Persistência de arquivos NF-e e logs
+      - ./storage:/app/storage
+      - backend_logs:/app/logs
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3000/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # ----------------------------------------------------------
+  # Frontend NGINX — arquivos estáticos
+  # ----------------------------------------------------------
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    container_name: singem-frontend
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_PORT_EXTERNAL:-8000}:80"
+    networks:
+      - singem-network
+    depends_on:
+      backend:
+        condition: service_healthy
+
+  # ----------------------------------------------------------
+  # AI Core Python / FastAPI  (profile: ai | full)
+  # Ativar com: docker compose --profile ai up
+  # ----------------------------------------------------------
+  ai-core:
+    build:
+      context: .
+      dockerfile: Dockerfile.ai
+    container_name: singem-ai-core
+    restart: unless-stopped
+    environment:
+      APP_ENV: ${APP_ENV:-development}
+      APP_DEBUG: ${APP_DEBUG:-false}
+
+      # 0.0.0.0 para ser acessível de fora do container
+      AI_CORE_HOST: 0.0.0.0
+      AI_CORE_PORT: 8010
+      AI_CORE_RELOAD: false
+
+      AI_INTERNAL_TOKEN: ${AI_CORE_INTERNAL_TOKEN:-change-me}
+
+      # Mesmo banco do backend (via rede interna)
+      DATABASE_URL: >-
+        postgresql://${DB_USER:-adm}:${DB_PASSWORD:-Singem@12345}@postgres:5432/${DB_NAME:-singem}
+
+      EMBEDDING_PROVIDER: ${EMBEDDING_PROVIDER:-hash}
+      EMBEDDING_DIMENSION: ${EMBEDDING_DIMENSION:-384}
+      ENABLE_VECTOR_SEARCH: ${ENABLE_VECTOR_SEARCH:-true}
+    ports:
+      - "${AI_PORT_EXTERNAL:-8010}:8010"
+    networks:
+      - singem-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+    profiles:
+      - ai
+      - full
