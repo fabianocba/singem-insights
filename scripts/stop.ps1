@@ -54,6 +54,12 @@ function Invoke-GitPublish {
   try {
     Write-Step ("Publicando alterações para origin/{0}" -f $Branch)
 
+    Write-Step 'Limpando artefatos gerados (__pycache__ e *.pyc)'
+    Get-ChildItem -Path (Join-Path $rootPath 'singem-ai') -Recurse -Directory -Filter '__pycache__' -ErrorAction SilentlyContinue |
+      Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
+    Get-ChildItem -Path (Join-Path $rootPath 'singem-ai') -Recurse -File -Include '*.pyc' -ErrorAction SilentlyContinue |
+      Remove-Item -Force -ErrorAction SilentlyContinue
+
     git add -A
     if ($LASTEXITCODE -ne 0) {
       throw 'Falha ao adicionar alterações ao stage.'
@@ -70,6 +76,17 @@ function Invoke-GitPublish {
       Write-Ok ("Commit automático criado: {0}" -f $commitMessage)
     } else {
       Write-Ok 'Sem alterações locais para commit.'
+    }
+
+    Write-Step ("Sincronizando base remota origin/{0}" -f $Branch)
+    git fetch origin $Branch --prune
+    if ($LASTEXITCODE -ne 0) {
+      throw ("Falha ao executar fetch de origin/{0}." -f $Branch)
+    }
+
+    git rebase "origin/$Branch"
+    if ($LASTEXITCODE -ne 0) {
+      throw ("Falha ao executar rebase com origin/{0}. Resolva conflitos e tente novamente." -f $Branch)
     }
 
     git push origin "HEAD:$Branch"
