@@ -21,14 +21,14 @@
       const ts = new Date().toISOString();
       const build = `${ts.slice(0, 10).replace(/-/g, '')}-${ts.slice(11, 16).replace(':', '')}`;
       window.APP_NAME = 'SINGEM';
-      window.APP_VERSION = '0.0.2';
+      window.APP_VERSION = '1.2.1';
       window.APP_BUILD = build;
       window.BUILD_TIMESTAMP = ts;
-      window.VERSION_DISPLAY = `SINGEM 0.0.2 • build ${build}`;
-      window.CACHE_BUSTER = `0.0.2-${build}`;
+      window.VERSION_DISPLAY = `SINGEM 1.2.1 • build ${build}`;
+      window.CACHE_BUSTER = `1.2.1-${build}`;
       window.VERSION_INFO = {
         appName: 'SINGEM',
-        version: '0.0.2',
+        version: '1.2.1',
         build,
         buildTimestamp: ts,
         display: window.VERSION_DISPLAY,
@@ -36,7 +36,7 @@
       };
       window.VERSION = {
         name: 'SINGEM',
-        version: '0.0.2',
+        version: '1.2.1',
         build,
         buildTimestamp: ts
       };

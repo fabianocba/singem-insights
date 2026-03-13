@@ -1,6 +1,6 @@
 const FALLBACK = Object.freeze({
   name: 'SINGEM',
-  version: '0.0.2',
+  version: '1.2.1',
   build: '',
   buildTimestamp: ''
 });

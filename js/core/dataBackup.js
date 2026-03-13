@@ -92,7 +92,7 @@ class DataBackupManager {
           unidadeOrcamentaria: unidadeOrca
         },
         userAgent: navigator.userAgent,
-        appVersion: window.APP_VERSION || 'unknown'
+        appVersion: window.APP_VERSION || '1.2.1'
       };
 
       // Salva backup

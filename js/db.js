@@ -1810,7 +1810,7 @@ class DatabaseManager {
     const backup = {
       meta: {
         appName: 'SINGEM',
-        appVersion: window.APP_VERSION || '1.4.0',
+        appVersion: window.APP_VERSION || '1.2.1',
         dataVersion: this.dbVersion,
         exportedAt: new Date().toISOString(),
         environment: window.location.hostname === 'localhost' ? 'DEV' : 'PROD'

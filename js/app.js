@@ -445,6 +445,10 @@ class ControleMaterialApp {
       this.showScreen('consultasScreen');
     });
 
+    document.getElementById('systemStatusMenuItem')?.addEventListener('click', () => {
+      window.location.href = '/system-status/';
+    });
+
     // Botão/link de recuperar senha
     document.getElementById('btnRecuperarSenha')?.addEventListener('click', (e) => {
       e.preventDefault();

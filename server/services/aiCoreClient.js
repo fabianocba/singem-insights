@@ -54,7 +54,7 @@ function resolvePayloadMessage(payload, fallback) {
 
 async function invokeAi(pathname, { method = 'GET', body, requestId, timeoutMs } = {}) {
   if (!config.ai.enabled) {
-    throw new AppError(503, 'AI_CORE_DISABLED', 'Modulo de IA desabilitado no backend');
+    throw new AppError(503, 'AI_CORE_DISABLED', 'Módulo de IA desabilitado no backend');
   }
 
   const effectiveTimeout =
@@ -73,7 +73,7 @@ async function invokeAi(pathname, { method = 'GET', body, requestId, timeoutMs }
     const payload = await parsePayload(response);
     if (!response.ok) {
       if (response.status === 401 || response.status === 403) {
-        throw new AppError(503, 'AI_CORE_AUTH_FAILED', 'Servico de IA rejeitou autenticacao interna', {
+        throw new AppError(503, 'AI_CORE_AUTH_FAILED', 'Serviço de IA rejeitou autenticação interna', {
           upstreamStatus: response.status
         });
       }
@@ -82,7 +82,7 @@ async function invokeAi(pathname, { method = 'GET', body, requestId, timeoutMs }
       throw new AppError(
         statusCode,
         'AI_CORE_REQUEST_FAILED',
-        resolvePayloadMessage(payload, `Falha em chamada ao modulo IA (${response.status})`),
+        resolvePayloadMessage(payload, `Falha em chamada ao módulo IA (${response.status})`),
         { upstreamStatus: response.status, payload }
       );
     }
@@ -94,13 +94,13 @@ async function invokeAi(pathname, { method = 'GET', body, requestId, timeoutMs }
     }
 
     if (error?.name === 'AbortError') {
-      throw new AppError(504, 'AI_CORE_TIMEOUT', 'Servico de IA nao respondeu a tempo', {
+      throw new AppError(504, 'AI_CORE_TIMEOUT', 'Serviço de IA não respondeu a tempo', {
         timeoutMs: effectiveTimeout,
         url: buildAiUrl(pathname)
       });
     }
 
-    throw new AppError(503, 'AI_CORE_UNAVAILABLE', 'Servico de IA indisponivel', {
+    throw new AppError(503, 'AI_CORE_UNAVAILABLE', 'Serviço de IA indisponível', {
       reason: error?.message || 'Falha de rede',
       url: buildAiUrl(pathname)
     });

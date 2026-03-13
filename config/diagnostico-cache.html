@@ -101,8 +101,6 @@
     </div>
 
     <script>
-      const EXPECTED_VERSION = '20251105-002';
-
       function log(message, type = 'info') {
         const results = document.getElementById('results');
         const div = document.createElement('div');
@@ -118,6 +116,8 @@
       async function runTests() {
         clearResults();
 
+        const expectedVersion = window.APP_BUILD || window.APP_VERSION || '1.2.1';
+
         log('🔄 Iniciando testes de diagnóstico...', 'info');
 
         // Teste 1: Verificar se db.js carrega
@@ -125,7 +125,7 @@
 
         try {
           const timestamp = Date.now();
-          const response = await fetch(`../js/db.js?v=${EXPECTED_VERSION}&t=${timestamp}`);
+          const response = await fetch(`../js/db.js?v=${expectedVersion}&t=${timestamp}`);
           const headers = response.headers;
 
           const cacheControl = headers.get('cache-control');
@@ -172,7 +172,7 @@
         // Teste 3: Versão do carregamento
         log('📝 Teste 3: Verificando versão...', 'info');
         log(
-          `ℹ️ Versão esperada: <code>${EXPECTED_VERSION}</code><br>
+          `ℹ️ Versão esperada: <code>${expectedVersion}</code><br>
                  <span class="timestamp">Timestamp atual: ${new Date().toISOString()}</span>`,
           'info'
         );

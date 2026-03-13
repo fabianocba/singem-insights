@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+
+    <title>SINGEM System Status</title>
+
+    <script type="module" src="../js/versionManager.js"></script>
+    <link rel="stylesheet" href="../css/style.css" />
+    <link rel="stylesheet" href="../css/system-status.css" />
+  </head>
+  <body>
+    <main class="status-page">
+      <section class="status-header-card">
+        <div>
+          <h1>SINGEM System Status</h1>
+          <p>Painel operacional de monitoramento interno</p>
+        </div>
+        <div class="status-actions">
+          <button id="btnRefresh" class="btn btn-secondary">Atualizar agora</button>
+          <a class="btn btn-primary" href="../index.html">Voltar ao SINGEM</a>
+        </div>
+      </section>
+
+      <section class="status-overview">
+        <article class="status-overview-card">
+          <span class="label">Status Geral</span>
+          <div id="overallStatus" class="status-badge status-neutral">CARREGANDO</div>
+          <p id="statusMessage" class="status-message">Atualizando...</p>
+        </article>
+
+        <article class="status-meta-card">
+          <h2>Build</h2>
+          <ul class="meta-list">
+            <li><strong>Nome:</strong> <span id="metaName">-</span></li>
+            <li><strong>Versão:</strong> <span id="metaVersion">-</span></li>
+            <li><strong>Canal:</strong> <span id="metaChannel">-</span></li>
+            <li><strong>Build:</strong> <span id="metaBuild">-</span></li>
+            <li><strong>Build Timestamp:</strong> <span id="metaBuildTimestamp">-</span></li>
+          </ul>
+        </article>
+      </section>
+
+      <section>
+        <h2>Serviços</h2>
+        <div id="servicesGrid" class="services-grid"></div>
+      </section>
+
+      <section>
+        <h2>Métricas do Sistema</h2>
+        <div class="system-grid">
+          <article class="system-card">
+            <h3>Ambiente Node</h3>
+            <ul class="meta-list">
+              <li><strong>Hostname:</strong> <span id="sysHostname">-</span></li>
+              <li><strong>Plataforma:</strong> <span id="sysPlatform">-</span></li>
+              <li><strong>Node:</strong> <span id="sysNodeVersion">-</span></li>
+              <li><strong>Uptime:</strong> <span id="sysUptime">-</span></li>
+            </ul>
+          </article>
+
+          <article class="system-card">
+            <h3>Memória</h3>
+            <ul class="meta-list">
+              <li><strong>RSS:</strong> <span id="memRss">-</span></li>
+              <li><strong>Heap Used:</strong> <span id="memHeapUsed">-</span></li>
+              <li><strong>Heap Total:</strong> <span id="memHeapTotal">-</span></li>
+              <li><strong>CPU Load:</strong> <span id="sysCpuLoad">-</span></li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <section class="status-footer-card">
+        <p id="updateLabel">Última atualização: -</p>
+        <p id="refreshState">Atualização automática a cada 10 segundos.</p>
+      </section>
+
+      <section id="errorBox" class="error-box hidden" role="alert"></section>
+    </main>
+
+    <script type="module" src="../js/systemStatus/index.js"></script>
+  </body>
+</html>

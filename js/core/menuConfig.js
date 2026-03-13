@@ -89,6 +89,14 @@ const MENU_CONFIG = {
       screen: 'consultasScreen',
       icon: '🔍',
       category: 'consultas'
+    },
+    {
+      id: 'systemStatusMenuItem',
+      label: 'System Status',
+      description: 'Monitore o estado operacional dos serviços do SINGEM',
+      action: 'link:/system-status/',
+      icon: '🖥️',
+      category: 'sistema'
     }
   ],
 
@@ -229,6 +237,14 @@ function executeMenuAction(action, context = {}) {
     const screen = resolved.replace('nav:', '');
     if (window.app?.showScreen) {
       window.app.showScreen(screen);
+    }
+    return;
+  }
+
+  if (resolved.startsWith('link:')) {
+    const destination = resolved.replace('link:', '');
+    if (destination) {
+      window.location.href = destination;
     }
     return;
   }
