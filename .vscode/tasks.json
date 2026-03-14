@@ -2,9 +2,9 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "SINGEM: START",
+      "label": "SINGEM: UP",
       "type": "shell",
-      "command": "powershell",
+      "command": "pwsh",
       "args": [
         "-NoProfile",
         "-ExecutionPolicy",
@@ -12,7 +12,7 @@
         "-File",
         "${workspaceFolder}\\scripts\\dev-up.ps1",
         "-Action",
-        "start",
+        "up",
         "-ProjectRoot",
         "${workspaceFolder}",
         "-Branch",
@@ -31,7 +31,7 @@
     {
       "label": "SINGEM: TUNNEL",
       "type": "shell",
-      "command": "powershell",
+      "command": "pwsh",
       "args": [
         "-NoProfile",
         "-ExecutionPolicy",
@@ -57,7 +57,7 @@
     {
       "label": "SINGEM: BACKEND",
       "type": "shell",
-      "command": "powershell",
+      "command": "pwsh",
       "args": [
         "-NoProfile",
         "-ExecutionPolicy",
@@ -83,7 +83,7 @@
     {
       "label": "SINGEM: FRONTEND",
       "type": "shell",
-      "command": "powershell",
+      "command": "pwsh",
       "args": [
         "-NoProfile",
         "-ExecutionPolicy",
@@ -107,9 +107,35 @@
       "problemMatcher": []
     },
     {
+      "label": "SINGEM: AI",
+      "type": "shell",
+      "command": "pwsh",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "${workspaceFolder}\\scripts\\dev-up.ps1",
+        "-Action",
+        "ai",
+        "-ProjectRoot",
+        "${workspaceFolder}",
+        "-Branch",
+        "dev"
+      ],
+      "isBackground": true,
+      "presentation": {
+        "reveal": "always",
+        "focus": false,
+        "panel": "dedicated",
+        "group": "singem-ai"
+      },
+      "problemMatcher": []
+    },
+    {
       "label": "SINGEM: HEALTHCHECK",
       "type": "shell",
-      "command": "powershell",
+      "command": "pwsh",
       "args": [
         "-NoProfile",
         "-ExecutionPolicy",
@@ -134,14 +160,37 @@
     {
       "label": "SINGEM: STOP",
       "type": "shell",
-      "command": "powershell",
+      "command": "pwsh",
       "args": [
         "-NoProfile",
         "-ExecutionPolicy",
         "Bypass",
         "-File",
         "${workspaceFolder}\\scripts\\stop.ps1",
-        "-OnlyStop",
+        "-ProjectRoot",
+        "${workspaceFolder}",
+        "-Branch",
+        "dev"
+      ],
+      "presentation": {
+        "reveal": "always",
+        "focus": false,
+        "panel": "dedicated",
+        "group": "singem-stop"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "SINGEM: STOP+PUBLISH",
+      "type": "shell",
+      "command": "pwsh",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "${workspaceFolder}\\scripts\\stop.ps1",
+        "-Publish",
         "-ProjectRoot",
         "${workspaceFolder}",
         "-Branch",

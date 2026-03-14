@@ -1,13 +1,11 @@
-# Scripts de Desenvolvimento - SINGEM
+# Scripts de Desenvolvimento — SINGEM
 
-Padrão operacional recomendado para trocar de máquina sem reconfiguração manual. Não há mais camada de alias suportada neste fluxo.
+> Requer **PowerShell 7+** (`pwsh`). Documentação completa: [docs/AUTOMACAO-POWERSHELL7.md](../docs/AUTOMACAO-POWERSHELL7.md)
 
-## Modo Docker (recomendado para consistency)
-
-Para rodar o projeto completo com um único comando via Docker:
+## Modo Docker
 
 ```bash
-cp .env.example .env   # configure as variáveis
+cp .env.example .env
 docker compose up --build
 ```
 
@@ -15,32 +13,49 @@ Consulte [README_DOCKER.md](../README_DOCKER.md) para o guia completo.
 
 ---
 
-## Modo DEV local (PowerShell + VPS tunnel)
+## Modo DEV local (PowerShell 7 + túnel SSH)
 
-Use estes comandos quando não quiser usar Docker (desenvolvimento local com túnel SSH para o banco da VPS).
-
-### Iniciar ambiente DEV
+### Subir ambiente completo
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\dev-up.ps1 -Action start -ProjectRoot . -Branch dev
+pwsh -File .\scripts\dev-up.ps1 -Action up
 ```
 
-### Encerrar ambiente DEV
+### Ações individuais
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\stop.ps1 -OnlyStop -ProjectRoot . -Branch dev
+pwsh -File .\scripts\dev-up.ps1 -Action tunnel
+pwsh -File .\scripts\dev-up.ps1 -Action backend
+pwsh -File .\scripts\dev-up.ps1 -Action frontend
+pwsh -File .\scripts\dev-up.ps1 -Action ai
+pwsh -File .\scripts\dev-up.ps1 -Action health
+pwsh -File .\scripts\dev-up.ps1 -Action setup
+pwsh -File .\scripts\dev-up.ps1 -Action restart
 ```
 
-## Compatibilidade adicional
+### Parar serviços
 
-- `scripts/dev-up.ps1` continua aceitando `start`, `up`, `setup`, `restart`, `health`, `backend`, `frontend`, `ai` e `tunnel`.
-- `scripts/stop.ps1` é o comando estável para encerramento e publicação no GitHub (`origin/dev`).
-- `-OnlyStop` foi mantido apenas para compatibilidade de chamada, mas não desativa commit/push.
+```powershell
+pwsh -File .\scripts\stop.ps1                # apenas parar
+pwsh -File .\scripts\stop.ps1 -Publish       # parar + commit + push origin/dev
+```
 
-## Observações (modo DEV local)
+## Estrutura
 
-- Os dois comandos acima são os únicos que você precisa memorizar ao trocar de máquina.
-- O AI Core é opcional no fluxo de `up` e `health`: falhas no AI não impedem backend/frontend.
-- O health de backend aceita `OK` e `DEGRADED` quando o banco está conectado.
-- O túnel em `5433` é reutilizado automaticamente quando já for um túnel válido do projeto.
-- No Docker, o banco está em `postgres:5432` e **não** usa túnel SSH.
+| Script | Função |
+|--------|--------|
+| `dev-up.ps1` | Script principal — sobe e gerencia todos os serviços |
+| `stop.ps1` | Encerra serviços; com `-Publish` faz commit+push |
+| `util/reset-ifdesk.js` | Script de console para limpar storage no browser |
+| `docker-*.ps1` | Automação Docker (produção/staging) |
+
+## VS Code Tasks
+
+Todas as tasks (`SINGEM: UP`, `SINGEM: STOP`, etc.) já usam `pwsh` e estão prontas para uso direto no terminal integrado.
+
+## Observações
+
+- A ação `start` é um alias para `up` (compatibilidade mantida).
+- AI Core é opcional: falhas não impedem backend/frontend.
+- O túnel SSH em `5433` é reutilizado automaticamente quando já ativo.
+- No Docker, o banco usa `postgres:5432` sem túnel SSH.

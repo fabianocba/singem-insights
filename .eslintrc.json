@@ -44,7 +44,7 @@
       }
     },
     {
-      "files": ["scripts/util/reset-singem.js"],
+      "files": ["scripts/util/reset-ifdesk.js"],
       "env": {
         "browser": true,
         "node": false

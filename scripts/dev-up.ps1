@@ -1,3 +1,4 @@
+#Requires -Version 7.0
 [CmdletBinding()]
 param(
   [ValidateSet('setup', 'up', 'stop', 'restart', 'health', 'frontend', 'backend', 'ai', 'start', 'tunnel')]
@@ -1231,7 +1232,9 @@ function Start-ComponentWindow {
     $argumentList += '-NoTunnel'
   }
 
-  return Start-Process -FilePath 'powershell.exe' -ArgumentList $argumentList -PassThru
+  # Usa o mesmo executável PowerShell que está rodando este script (pwsh.exe no PS7+)
+  $psExe = (Get-Process -Id $PID).Path
+  return Start-Process -FilePath $psExe -ArgumentList $argumentList -PassThru
 }
 
 function Ensure-TunnelAvailable {
@@ -1574,17 +1577,17 @@ function Invoke-HealthChecks {
   param([switch]$TryRepairTunnel)
 
   $aiConfig = Get-AiRuntimeConfig
-  $backendPortCheck = Test-NetConnection 127.0.0.1 -Port $BackendPort -WarningAction SilentlyContinue
-  $frontendPortCheck = Test-NetConnection 127.0.0.1 -Port $FrontendPort -WarningAction SilentlyContinue
-  $dbPortCheck = Test-NetConnection 127.0.0.1 -Port $DbLocalPort -WarningAction SilentlyContinue
+  $backendPortOk = Test-LocalPort -Port $BackendPort
+  $frontendPortOk = Test-LocalPort -Port $FrontendPort
+  $dbPortOk = Test-LocalPort -Port $DbLocalPort
 
   $backendPayload = $null
-  if ($backendPortCheck.TcpTestSucceeded) {
+  if ($backendPortOk) {
     $backendPayload = Get-BackendHealthPayload -TimeoutSec 4
   }
 
   $repairedTunnel = $false
-  $dbLooksDown = -not $dbPortCheck.TcpTestSucceeded
+  $dbLooksDown = -not $dbPortOk
   $backendDbDown = $backendPayload -and ([string]$backendPayload.database -ne 'conectado')
 
   if (($dbLooksDown -or $backendDbDown) -and $TryRepairTunnel) {
@@ -1593,8 +1596,8 @@ function Invoke-HealthChecks {
     if ($repairResult.ok) {
       $repairedTunnel = $true
       Start-Sleep -Seconds 2
-      $dbPortCheck = Test-NetConnection 127.0.0.1 -Port $DbLocalPort -WarningAction SilentlyContinue
-      if ($backendPortCheck.TcpTestSucceeded) {
+      $dbPortOk = Test-LocalPort -Port $DbLocalPort
+      if ($backendPortOk) {
         $backendPayload = Get-BackendHealthPayload -TimeoutSec 4
       }
     }
@@ -1610,15 +1613,14 @@ function Invoke-HealthChecks {
       $aiStatus = [string]$backendPayload.aiCore.status
       $aiOk = [bool]$backendPayload.aiCore.ok
       $aiPortOk = if ($aiConfig.localManaged) {
-        [bool](Test-NetConnection 127.0.0.1 -Port $aiConfig.port -WarningAction SilentlyContinue).TcpTestSucceeded
+        Test-LocalPort -Port $aiConfig.port
       } else {
         $aiOk
       }
     } else {
       $aiStatus = 'offline'
       if ($aiConfig.localManaged) {
-        $aiPortCheck = Test-NetConnection 127.0.0.1 -Port $aiConfig.port -WarningAction SilentlyContinue
-        $aiPortOk = [bool]$aiPortCheck.TcpTestSucceeded
+        $aiPortOk = Test-LocalPort -Port $aiConfig.port
         if ($aiPortOk) {
           $aiPayload = Get-AiHealthPayload -TimeoutSec 4
           if ($aiPayload) {
@@ -1636,15 +1638,15 @@ function Invoke-HealthChecks {
   if ($backendPayload) {
     $backendStatus = [string]$backendPayload.status
     $databaseStatus = [string]$backendPayload.database
-  } elseif ($backendPortCheck.TcpTestSucceeded) {
+  } elseif ($backendPortOk) {
     $backendStatus = 'UNKNOWN'
     $databaseStatus = 'desconhecido'
   }
 
   return @{
-    backendPortOk = [bool]$backendPortCheck.TcpTestSucceeded
-    frontendPortOk = [bool]$frontendPortCheck.TcpTestSucceeded
-    dbPortOk = [bool]$dbPortCheck.TcpTestSucceeded
+    backendPortOk = [bool]$backendPortOk
+    frontendPortOk = [bool]$frontendPortOk
+    dbPortOk = [bool]$dbPortOk
     aiEnabled = [bool]$aiConfig.enabled
     aiPortOk = [bool]$aiPortOk
     aiOk = [bool]$aiOk
