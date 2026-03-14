@@ -1,0 +1,79 @@
+# ============================================================
+# SINGEM — Prometheus Configuration
+# Scrape targets para coleta de metricas
+# ============================================================
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  scrape_timeout: 10s
+
+# ---- Alertmanager (opcional, descomente para usar) ---------
+# alerting:
+#   alertmanagers:
+#     - static_configs:
+#         - targets: ['alertmanager:9093']
+
+# ---- Rules (opcional) --------------------------------------
+# rule_files:
+#   - /etc/prometheus/rules/*.yml
+
+scrape_configs:
+
+  # Prometheus self-monitoring
+  - job_name: "prometheus"
+    static_configs:
+      - targets: ["localhost:9090"]
+        labels:
+          instance: "prometheus"
+
+  # Backend Node.js (Express)
+  # Requer: app.get('/metrics', ...) no Express
+  - job_name: "singem-backend"
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["backend:3000"]
+        labels:
+          service: "backend"
+          environment: "docker"
+
+  # AI Core FastAPI
+  - job_name: "singem-ai-core"
+    metrics_path: /ai/metrics
+    scrape_interval: 30s
+    static_configs:
+      - targets: ["ai-core:8010"]
+        labels:
+          service: "ai-core"
+          environment: "docker"
+
+  # PostgreSQL Exporter
+  - job_name: "postgres"
+    static_configs:
+      - targets: ["postgres-exporter:9187"]
+        labels:
+          service: "postgresql"
+          environment: "docker"
+
+  # Redis Exporter
+  - job_name: "redis"
+    static_configs:
+      - targets: ["redis-exporter:9121"]
+        labels:
+          service: "redis"
+          environment: "docker"
+
+  # Node Exporter (host metrics)
+  - job_name: "node"
+    static_configs:
+      - targets: ["node-exporter:9100"]
+        labels:
+          service: "host"
+          environment: "docker"
+
+  # Nginx stub_status (se habilitado)
+  # - job_name: "nginx"
+  #   static_configs:
+  #     - targets: ["frontend:8080"]
+  #       labels:
+  #         service: "nginx"

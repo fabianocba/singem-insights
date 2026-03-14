@@ -39,6 +39,7 @@ on:
 permissions:
   contents: read
   packages: write
+  security-events: write
 
 concurrency:
   group: docker-${{ github.ref }}
@@ -130,6 +131,31 @@ jobs:
             docker exec test-container wget -qO- http://localhost/ || true
             docker stop test-container
           fi
+
+      - name: Trivy vulnerability scan
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: singem-${{ matrix.target }}:test
+          format: "sarif"
+          output: "trivy-${{ matrix.target }}.sarif"
+          severity: "CRITICAL,HIGH"
+          exit-code: "0"
+          ignore-unfixed: true
+
+      - name: Upload Trivy SARIF to GitHub Security
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: "trivy-${{ matrix.target }}.sarif"
+          category: "trivy-${{ matrix.target }}"
+
+      - name: Trivy summary (table)
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: singem-${{ matrix.target }}:test
+          format: "table"
+          severity: "CRITICAL,HIGH"
+          ignore-unfixed: true
 
   # ----------------------------------------------------------
   # Integration: sobe stack completa e testa conectividade

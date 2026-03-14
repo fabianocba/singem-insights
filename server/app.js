@@ -172,6 +172,60 @@ function createApp({ nodeEnv, bodyLimit, corsOrigins, trustProxy, nfeService, nf
     });
   });
 
+  // ---- Prometheus metrics endpoint --------------------------
+  const startTime = Date.now();
+  let requestCount = 0;
+  let errorCount = 0;
+  app.use((req, _res, next) => {
+    requestCount++;
+    next();
+  });
+  app.get('/metrics', async (req, res) => {
+    setNoCacheHeaders(res);
+    res.set('Content-Type', 'text/plain; version=0.0.4; charset=utf-8');
+
+    const uptimeSec = Math.floor((Date.now() - startTime) / 1000);
+    const memUsage = process.memoryUsage();
+    const dbStatus = await db.healthCheck().catch(() => ({ ok: false }));
+
+    const lines = [
+      '# HELP singem_up Whether the SINGEM backend is up (1=up, 0=down)',
+      '# TYPE singem_up gauge',
+      'singem_up 1',
+      '',
+      '# HELP singem_uptime_seconds Backend uptime in seconds',
+      '# TYPE singem_uptime_seconds gauge',
+      `singem_uptime_seconds ${uptimeSec}`,
+      '',
+      '# HELP singem_http_requests_total Total HTTP requests received',
+      '# TYPE singem_http_requests_total counter',
+      `singem_http_requests_total ${requestCount}`,
+      '',
+      '# HELP singem_database_up Whether the database is reachable (1=connected, 0=disconnected)',
+      '# TYPE singem_database_up gauge',
+      `singem_database_up ${dbStatus.ok ? 1 : 0}`,
+      '',
+      '# HELP singem_nodejs_heap_used_bytes Node.js heap used in bytes',
+      '# TYPE singem_nodejs_heap_used_bytes gauge',
+      `singem_nodejs_heap_used_bytes ${memUsage.heapUsed}`,
+      '',
+      '# HELP singem_nodejs_heap_total_bytes Node.js heap total in bytes',
+      '# TYPE singem_nodejs_heap_total_bytes gauge',
+      `singem_nodejs_heap_total_bytes ${memUsage.heapTotal}`,
+      '',
+      '# HELP singem_nodejs_rss_bytes Node.js resident set size in bytes',
+      '# TYPE singem_nodejs_rss_bytes gauge',
+      `singem_nodejs_rss_bytes ${memUsage.rss}`,
+      '',
+      `# HELP singem_nodejs_external_bytes Node.js external memory in bytes`,
+      '# TYPE singem_nodejs_external_bytes gauge',
+      `singem_nodejs_external_bytes ${memUsage.external}`,
+      ''
+    ];
+
+    return res.send(lines.join('\n'));
+  });
+
   app.use(express.static(path.join(__dirname, '..')));
 
   app.use((_req, _res, next) => {
@@ -201,7 +255,8 @@ function createApp({ nodeEnv, bodyLimit, corsOrigins, trustProxy, nfeService, nf
     '/api/nfe',
     '/api/nfe/v2',
     '/health',
-    '/api/info'
+    '/api/info',
+    '/metrics'
   ];
 
   return { app, registeredRoutes };

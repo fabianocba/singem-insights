@@ -165,3 +165,23 @@ services:
     depends_on:
       frontend-test:
         condition: service_healthy
+
+  # ----------------------------------------------------------
+  # Contract Tests — executa testes Node.js do backend
+  # ----------------------------------------------------------
+  contract-tests:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: singem-test-contracts
+    entrypoint: ["node", "--test", "tests/*.contract.test.js"]
+    working_dir: /app/server
+    environment:
+      NODE_ENV: test
+      TEST_BASE_URL: http://backend-test:3000
+      DATABASE_URL: postgresql://test_user:test_password_ci_only@postgres-test:5432/singem_test
+    networks:
+      - singem-test-network
+    depends_on:
+      backend-test:
+        condition: service_healthy

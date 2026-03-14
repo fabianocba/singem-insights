@@ -7,25 +7,30 @@ Guia completo para rodar, parar, rebuildar e monitorar o ambiente SINGEM via Doc
 ## Arquitetura
 
 ```
-┌─────────────────────────────────────────────────────────┐
-│                    singem-network                       │
-│                                                         │
-│  ┌──────────┐    ┌──────────┐    ┌──────────────────┐  │
-│  │ frontend │───▶│ backend  │───▶│    postgres       │  │
-│  │  :80     │    │  :3000   │    │     :5432         │  │
-│  │  nginx   │    │  node.js │    │  pgvector:pg15    │  │
-│  └──────────┘    └──────────┘    └──────────────────┘  │
-│      │                │                                 │
-│  host:8000       host:3000           host:5432          │
-│                       │                                 │
-│                  ┌────────┐   ┌────────────────────┐   │
-│                  │ redis  │   │     ai-core         │   │
-│                  │ :6379  │   │     :8010           │   │
-│                  │ redis:7│   │  python/fastapi      │   │
-│                  └────────┘   │  (profile: ai)       │   │
-│                host:6379      └────────────────────┘   │
-│                                     host:8010           │
-└─────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────┐
+│                       singem-network                             │
+│                                                                  │
+│  ┌──────────┐    ┌──────────┐    ┌──────────────────┐           │
+│  │ frontend │───▶│ backend  │───▶│    postgres       │           │
+│  │  :80     │    │  :3000   │    │     :5432         │           │
+│  │  nginx   │    │  node.js │    │  pgvector:pg15    │           │
+│  └──────────┘    └──────────┘    └──────────────────┘           │
+│      │                │                    │                     │
+│  host:8000       host:3000            host:5432                  │
+│                       │                    │                     │
+│                  ┌────────┐   ┌────────────────────┐            │
+│                  │ redis  │   │     ai-core         │            │
+│                  │ :6379  │   │     :8010           │            │
+│                  │ redis:7│   │  python/fastapi      │            │
+│                  └────────┘   │  (profile: ai)       │            │
+│                host:6379      └────────────────────┘            │
+│                                     host:8010                    │
+│                                                                  │
+│  ┌─────────────────── Observabilidade ─────────────────────┐    │
+│  │ prometheus:9090  grafana:3100   loki:3200   promtail    │    │
+│  │ node-exporter    postgres-exp   redis-exp   k6          │    │
+│  └─────────────────────────────────────────────────────────┘    │
+└──────────────────────────────────────────────────────────────────┘
 ```
 
 | Serviço | Imagem | Porta host | Descrição |
@@ -397,26 +402,236 @@ docker compose -f docker-compose.yml -f docker-compose.staging.yml up -d --build
 
 ```
 SINGEM/
-├── Dockerfile.backend          ← Node.js 20-alpine, multi-stage
-├── Dockerfile.frontend         ← nginx:alpine, arquivos estáticos
-├── Dockerfile.ai               ← python:3.12-slim, FastAPI
-├── docker-compose.yml          ← Orquestração completa (base)
-├── docker-compose.prod.yml     ← Override de produção (TLS, hardening)
-├── docker-compose.staging.yml  ← Override de staging
-├── .dockerignore               ← O que NÃO entra no build context
-├── .env.example                ← Template de variáveis Docker
+├── Dockerfile.backend              ← Node.js 20-alpine, multi-stage
+├── Dockerfile.frontend             ← nginx:alpine, arquivos estáticos
+├── Dockerfile.ai                   ← python:3.12-slim / nvidia-cuda (GPU)
+├── docker-compose.yml              ← Orquestração base (5 serviços)
+├── docker-compose.prod.yml         ← Override produção (TLS, hardening)
+├── docker-compose.staging.yml      ← Override staging (HTTP:8080, debug)
+├── docker-compose.test.yml         ← Testes isolados (tmpfs, portas alt.)
+├── docker-compose.gpu.yml          ← Override GPU NVIDIA
+├── docker-compose.monitoring.yml   ← Prometheus + Grafana + exporters
+├── docker-compose.logging.yml      ← Loki + Promtail (logs centralizados)
+├── docker-compose.waf.yml          ← WAF ModSecurity OWASP CRS
+├── docker-compose.loadtest.yml     ← k6 load testing (smoke/load/stress)
+├── .dockerignore
+├── .env.example
 ├── docker/
-│   ├── nginx.conf              ← Config NGINX (HTTP, dev)
-│   ├── nginx-ssl.conf          ← Config NGINX (HTTPS, produção)
-│   └── entrypoint-backend.sh   ← Script de espera por postgres
+│   ├── nginx.conf                  ← NGINX HTTP (dev, rate-limiting)
+│   ├── nginx-ssl.conf              ← NGINX HTTPS (prod, TLS 1.2+)
+│   ├── nginx-waf.conf              ← NGINX WAF (ModSecurity)
+│   ├── entrypoint-backend.sh       ← Espera por postgres + migrations
+│   ├── test-runner.js              ← Health checks integração
+│   ├── prometheus.yml              ← Scrape configs Prometheus
+│   ├── grafana/
+│   │   └── provisioning/
+│   │       ├── datasources/
+│   │       │   ├── prometheus.yml  ← Datasource Prometheus
+│   │       │   └── loki.yml        ← Datasource Loki
+│   │       └── dashboards/
+│   │           ├── dashboards.yml  ← Provider config
+│   │           └── singem-overview.json ← Dashboard pre-configurado
+│   ├── loki/
+│   │   ├── loki-config.yml         ← Loki storage/retention config
+│   │   └── promtail-config.yml     ← Coleta de logs Docker
+│   ├── modsecurity/
+│   │   └── singem-exclusions.conf  ← Regras contra false positives
+│   ├── k6/
+│   │   └── singem-load.js          ← Cenários k6 (smoke/load/stress)
+│   └── upstream/
+│       └── backend.conf            ← Upstream blue/green (gerado)
 └── scripts/
-    ├── docker-setup.ps1        ← Gera .env com secrets
-    ├── docker-health.ps1       ← Diagnóstico de containers
-    ├── docker-backup.ps1       ← Backup PostgreSQL com rotação
+    ├── docker-setup.ps1            ← Gera .env com secrets
+    ├── docker-health.ps1           ← Diagnóstico de containers
+    ├── docker-backup.ps1           ← Backup PostgreSQL com rotação
     ├── docker-backup-scheduler.ps1 ← Agendamento automático de backup
-    ├── docker-monitor.ps1      ← Monitoramento contínuo + alertas
-    ├── docker-logs.ps1         ← Visualização/filtro de logs
-    └── docker-ssl-setup.ps1    ← Setup de certificados TLS
+    ├── docker-monitor.ps1          ← Monitoramento contínuo + alertas
+    ├── docker-logs.ps1             ← Visualização/filtro de logs
+    ├── docker-ssl-setup.ps1        ← Setup de certificados TLS
+    ├── docker-ssl-renew.ps1        ← Renovação Let's Encrypt automática
+    ├── docker-bluegreen.ps1        ← Deploy blue/green (zero downtime)
+    └── docker-rollback.ps1         ← Rollback de versão com histórico
+```
+
+---
+
+## Observabilidade (Prometheus + Grafana)
+
+Stack de monitoramento com métricas, dashboards e alertas.
+
+```bash
+# Subir monitoring stack
+docker compose -f docker-compose.yml -f docker-compose.monitoring.yml up -d
+
+# Com logs centralizados (Loki)
+docker compose -f docker-compose.yml -f docker-compose.monitoring.yml -f docker-compose.logging.yml up -d
+```
+
+| URL | Serviço |
+|---|---|
+| http://localhost:9090 | Prometheus |
+| http://localhost:3100 | Grafana (admin / admin) |
+
+### Serviços de monitoramento
+
+| Serviço | Imagem | Função |
+|---|---|---|
+| `prometheus` | `prom/prometheus:v2.51.0` | Coleta e armazenamento de métricas (30d retenção) |
+| `grafana` | `grafana/grafana:11.0.0` | Dashboards e alertas visuais |
+| `node-exporter` | `prom/node-exporter:v1.8.0` | Métricas do host (CPU, memória, disco) |
+| `postgres-exporter` | `prometheuscommunity/postgres-exporter:v0.15.0` | Métricas do PostgreSQL |
+| `redis-exporter` | `oliver006/redis_exporter:v1.61.0` | Métricas do Redis |
+
+### Dashboard SINGEM Overview
+
+Dashboard pré-configurado em `docker/grafana/provisioning/dashboards/singem-overview.json` com:
+
+- **Status Geral** — Backend UP/DOWN, Database UP/DOWN, Uptime, Total Requests, Req/s, CPU Host
+- **Requests** — Rate (5m avg), requests/min
+- **Memória Node.js** — Heap Used/Total, RSS, External + Gauge de utilização
+- **PostgreSQL** — Conexões ativas, tamanho do banco, transações/s (commits vs rollbacks)
+- **Redis** — Memória, clientes conectados, comandos/s
+- **Host** — CPU %, memória usada/disponível, disco %
+
+### Logs centralizados (Loki)
+
+```bash
+# Subir com logging
+docker compose -f docker-compose.yml -f docker-compose.monitoring.yml -f docker-compose.logging.yml up -d
+```
+
+| Serviço | Imagem | Função |
+|---|---|---|
+| `loki` | `grafana/loki:3.0.0` | Armazenamento de logs (30d retenção) |
+| `promtail` | `grafana/promtail:3.0.0` | Coleta de logs dos containers Docker |
+
+No Grafana, vá em **Explore → Loki** para consultar logs. Filtros disponíveis:
+- `{service="backend"}` — logs do backend
+- `{service="backend"} |= "ERROR"` — apenas erros
+- `{service="postgres"} |= "checkpoint"` — checkpoints do banco
+
+---
+
+## WAF (Web Application Firewall)
+
+Proteção via ModSecurity com OWASP Core Rule Set.
+
+```bash
+# Subir com WAF
+docker compose -f docker-compose.yml -f docker-compose.waf.yml up -d
+```
+
+- OWASP CRS Paranoia Level 2
+- Rate limiting integrado (30r/s geral, 20r/s API, 5r/s auth)
+- Exclusões configuradas para evitar false positives em endpoints SINGEM
+- ModSecurity desabilitado para assets estáticos e `/metrics`
+
+---
+
+## Blue/Green Deployment
+
+Deploy com zero downtime via switching de upstream nginx.
+
+```powershell
+# Deploy nova versão
+.\scripts\docker-bluegreen.ps1 -Action deploy -Tag v1.2.0
+
+# Verificar estado
+.\scripts\docker-bluegreen.ps1 -Action status
+
+# Rollback para versão anterior
+.\scripts\docker-bluegreen.ps1 -Action rollback
+
+# Com webhook de notificação
+.\scripts\docker-bluegreen.ps1 -Action deploy -Tag v1.2.0 -WebhookUrl "https://hooks.slack.com/xxx"
+```
+
+---
+
+## Rollback de Versão
+
+Rollback rápido de imagens Docker com histórico.
+
+```powershell
+# Rollback do backend para tag anterior
+.\scripts\docker-rollback.ps1 -Service backend
+
+# Rollback para tag específica
+.\scripts\docker-rollback.ps1 -Service frontend -Tag v1.1.0
+
+# Rollback de todos os serviços
+.\scripts\docker-rollback.ps1 -Service all
+
+# Dry run (mostra o que seria feito)
+.\scripts\docker-rollback.ps1 -Service backend -DryRun
+```
+
+---
+
+## Load Testing (k6)
+
+Testes de carga automatizados com cenários progressivos.
+
+```bash
+# Smoke test rápido (30s, 2 VUs)
+docker compose -f docker-compose.yml -f docker-compose.loadtest.yml run --rm k6-smoke
+
+# Cenários completos (smoke → load → stress, ~9 min)
+docker compose -f docker-compose.yml -f docker-compose.loadtest.yml run --rm k6
+
+# Com output para Prometheus (requer monitoring stack)
+docker compose -f docker-compose.yml -f docker-compose.monitoring.yml -f docker-compose.loadtest.yml run --rm k6-prometheus
+```
+
+### Cenários
+
+| Cenário | VUs | Duração | Início |
+|---|---|---|---|
+| **Smoke** | 2 (constante) | 30s | 0s |
+| **Load** | 0→20→20→0 | 5min | 30s |
+| **Stress** | 0→50→100→0 | 3.5min | 5m30s |
+
+### Thresholds (SLOs)
+
+| Métrica | Limite |
+|---|---|
+| `http_req_duration` p95 | < 500ms |
+| `http_req_duration` p99 | < 1500ms |
+| `http_req_failed` | < 5% |
+| Health endpoint p95 | < 200ms |
+
+### Endpoints testados
+
+- `GET /health` — health check
+- `GET /api/info` — info do sistema
+- `GET /api/version` — versão
+- `GET /metrics` — métricas Prometheus
+- `GET /` — assets estáticos
+
+---
+
+## Security Scanning (CI/CD)
+
+O pipeline GitHub Actions inclui scan de vulnerabilidades com [Trivy](https://trivy.dev/):
+
+- Scan automático de imagens Docker (backend + frontend) a cada push
+- Severidade: CRITICAL e HIGH (vulnerabilidades não corrigidas ignoradas)
+- Resultados em formato SARIF enviados ao GitHub Security tab
+- Tabela resumo no log do workflow
+
+---
+
+## Renovação Automática de Certificados
+
+```powershell
+# Renovação manual
+.\scripts\docker-ssl-renew.ps1
+
+# Instalar tarefa agendada (renovação a cada 12h)
+.\scripts\docker-ssl-renew.ps1 -Install
+
+# Remover tarefa agendada
+.\scripts\docker-ssl-renew.ps1 -Uninstall
 ```
 
 ---

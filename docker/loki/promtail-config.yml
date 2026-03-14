@@ -1,0 +1,78 @@
+# ============================================================
+# Promtail Configuration — SINGEM
+# Coleta logs de containers Docker via docker socket
+# ============================================================
+
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+  log_level: warn
+
+positions:
+  filename: /positions/positions.yaml
+
+clients:
+  - url: http://loki:3100/loki/api/v1/push
+    batchwait: 1s
+    batchsize: 1048576
+    timeout: 10s
+
+scrape_configs:
+  # ----------------------------------------------------------
+  # Docker container logs (via docker socket)
+  # ----------------------------------------------------------
+  - job_name: docker
+    docker_sd_configs:
+      - host: unix:///var/run/docker.sock
+        refresh_interval: 5s
+        filters:
+          - name: label
+            values: ["com.docker.compose.project=singem"]
+    relabel_configs:
+      # Extrai nome do container
+      - source_labels: ["__meta_docker_container_name"]
+        regex: "/(.*)"
+        target_label: "container"
+      # Extrai nome do servico compose
+      - source_labels: ["__meta_docker_container_label_com_docker_compose_service"]
+        target_label: "service"
+      # Extrai project name
+      - source_labels: ["__meta_docker_container_label_com_docker_compose_project"]
+        target_label: "project"
+      # Adiciona label de ambiente
+      - source_labels: ["__meta_docker_container_label_com_docker_compose_project"]
+        target_label: "environment"
+        replacement: "docker"
+    pipeline_stages:
+      # Tenta parsear JSON (backend Node.js emite JSON)
+      - json:
+          expressions:
+            level: level
+            msg: msg
+            method: method
+            url: url
+            statusCode: statusCode
+            responseTime: responseTime
+            requestId: requestId
+        if: '{ .Entry | hasPrefix "{" }'
+      # Fallback — extrai level de texto plano
+      - regex:
+          expression: '(?i)(?P<level>ERROR|WARN|INFO|DEBUG|FATAL)'
+        if: '{ .Entry | not (hasPrefix "{") }'
+      # Normaliza level
+      - template:
+          source: level
+          template: '{{ ToLower .Value }}'
+      # Define label level
+      - labels:
+          level:
+          method:
+          statusCode:
+      # Timestamp do log (tenta extrair)
+      - timestamp:
+          source: time
+          format: RFC3339Nano
+          fallback_formats:
+            - "2006-01-02T15:04:05.000Z"
+            - UnixMs
+          action_on_failure: fudge
