@@ -98,7 +98,7 @@ END;
 INSERT INTO configuracoes (chave, valor, descricao)
 VALUES (
     'catmat_link_pedido',
-    '"https://www.gov.br/compras/pt-br/area-de-trabalho/materiais-e-servicos/catalogo/pedido-de-catalogacao"'::jsonb,
+    '"https://www.gov.br/compras/pt-br/area-de-trabalho/materiais-e-servicospwsh -v/catalogo/pedido-de-catalogacao"'::jsonb,
     'Link oficial para pedido de catalogação no Compras.gov.br'
 )
 ON CONFLICT (chave) DO UPDATE
