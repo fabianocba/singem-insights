@@ -1,15 +1,42 @@
 /**
  * Rotas Gov.br - SINGEM
- * Endpoints para autenticação via Login Único gov.br
+ * OAuth2 Authorization Code + PKCE (S256) para Login Único gov.br
  *
- * STUB: Endpoints placeholder para integração futura
+ * Endpoints:
+ *   GET  /api/auth/govbr/status   → Status da integração
+ *   GET  /api/auth/govbr/login    → Inicia fluxo OAuth2 (redirect para gov.br)
+ *   GET  /api/auth/govbr/callback → Recebe callback com code
+ *   POST /api/auth/govbr/link     → Vincula gov.br a usuário local existente
  */
 
 const express = require('express');
 const identityService = require('../domain/identity/identityService');
-const { authenticate } = require('../middleware/auth');
+const govbrProvider = require('../domain/identity/providers/govbrProvider');
+const { authenticate, generateAccessToken, generateRefreshToken, saveRefreshToken } = require('../middleware/auth');
+const db = require('../config/database');
+const { config } = require('../config');
 
 const router = express.Router();
+
+// ============================================================================
+// PKCE Store (state → { codeVerifier, nonce, createdAt })
+// Em produção com múltiplas instâncias, usar Redis ou tabela govbr_sessions
+// ============================================================================
+const pkceStore = new Map();
+
+// Limpa entradas expiradas a cada 5 minutos
+setInterval(
+  () => {
+    const now = Date.now();
+    const maxAge = 10 * 60 * 1000; // 10 minutos
+    for (const [key, value] of pkceStore.entries()) {
+      if (now - value.createdAt > maxAge) {
+        pkceStore.delete(key);
+      }
+    }
+  },
+  5 * 60 * 1000
+);
 
 // ============================================================================
 // GET /api/auth/govbr/status - Status da integração
@@ -21,35 +48,50 @@ router.get('/status', (_req, res) => {
     sucesso: true,
     govbr: {
       habilitado: providers.govbr.enabled,
-      issuer: providers.govbr.issuer,
-      _stub: true,
-      _message: 'Esta é uma implementação stub. Aguardando credenciais gov.br.'
+      configurado: govbrProvider.isConfigured(),
+      issuer: providers.govbr.issuer
     }
   });
 });
 
 // ============================================================================
-// GET /api/auth/govbr/authorize - Inicia fluxo OAuth2
+// GET /api/auth/govbr/login - Inicia fluxo OAuth2 + PKCE
 // ============================================================================
-router.get('/authorize', async (req, res) => {
+router.get('/login', (req, res) => {
   try {
-    const { state, nonce, redirectUri } = req.query ?? {};
-    const result = await identityService.getAuthorizationUrl('govbr', { state, nonce, redirectUri });
+    if (!identityService.isProviderEnabled('govbr')) {
+      return res.status(503).json({
+        sucesso: false,
+        erro: 'Login gov.br não está habilitado'
+      });
+    }
 
-    // Em produção, faria redirect para result.url
-    return res.json({
-      sucesso: true,
-      ...result,
-      _stub: true,
-      _message: 'Em produção, este endpoint redirecionaria para o gov.br'
+    if (!govbrProvider.isConfigured()) {
+      return res.status(503).json({
+        sucesso: false,
+        erro: 'Gov.br não está configurado corretamente'
+      });
+    }
+
+    // Gera URL de autorização com PKCE
+    const { url, state, nonce, codeVerifier } = govbrProvider.getAuthorizationUrl();
+
+    // Armazena PKCE associado ao state (anti-CSRF)
+    pkceStore.set(state, {
+      codeVerifier,
+      nonce,
+      createdAt: Date.now()
     });
+
+    console.log('[GovBr] Iniciando fluxo OAuth2, state:', state);
+
+    // Redireciona para o gov.br
+    return res.redirect(url);
   } catch (err) {
-    const status = err.statusCode || 500;
-    return res.status(status).json({
+    console.error('[GovBr] Erro ao iniciar login:', err);
+    return res.status(err.statusCode || 500).json({
       sucesso: false,
-      erro: err.message,
-      _stub: err._stub,
-      _contract: err._contract
+      erro: err.message
     });
   }
 });
@@ -58,119 +100,264 @@ router.get('/authorize', async (req, res) => {
 // GET /api/auth/govbr/callback - Callback OAuth2
 // ============================================================================
 router.get('/callback', async (req, res) => {
-  const { code, redirectUri, error, error_description } = req.query;
+  const { code, state, error, error_description } = req.query;
+  const frontendUrl = config.frontendUrl;
 
   // Erro retornado pelo gov.br
   if (error) {
-    return res.status(400).json({
-      sucesso: false,
-      erro: error_description || error,
-      _stub: true
-    });
+    console.error('[GovBr] Erro no callback:', error, error_description);
+    return res.redirect(`${frontendUrl}?error=${encodeURIComponent(error_description || error)}`);
   }
 
-  if (!code) {
-    return res.status(400).json({
-      sucesso: false,
-      erro: 'Parâmetro code é obrigatório',
-      _stub: true
-    });
+  // Validação de parâmetros obrigatórios
+  if (!code || !state) {
+    return res.redirect(`${frontendUrl}?error=${encodeURIComponent('Parâmetros code ou state ausentes')}`);
   }
+
+  // Valida state (anti-CSRF)
+  const pkceData = pkceStore.get(state);
+  if (!pkceData) {
+    console.error('[GovBr] State inválido ou expirado:', state);
+    return res.redirect(`${frontendUrl}?error=${encodeURIComponent('Sessão expirada. Tente novamente.')}`);
+  }
+
+  // Remove do store (single-use)
+  pkceStore.delete(state);
 
   try {
-    const profile = await identityService.exchangeCodeForProfile('govbr', { code, redirectUri });
+    console.log('[GovBr] Trocando code por token...');
 
-    // STUB: Em produção, vincularia profile ao usuário e emitiria tokens
-    return res.status(501).json({
-      sucesso: false,
-      mensagem: 'Callback gov.br stub - vinculação + emissão de token ainda não implementadas',
-      profile,
-      _stub: true
+    // Troca code por profile normalizado (inclui validação de id_token)
+    const profile = await govbrProvider.exchangeCodeForProfile({
+      code,
+      codeVerifier: pkceData.codeVerifier,
+      nonce: pkceData.nonce
     });
+
+    console.log('[GovBr] Profile obtido:', {
+      cpf: profile.cpf ? `***${profile.cpf.slice(-4)}` : null,
+      name: profile.name,
+      level: profile.level
+    });
+
+    // Busca ou cria usuário local
+    const user = await findOrCreateGovBrUser(profile);
+
+    if (!user) {
+      return res.redirect(
+        `${frontendUrl}?error=${encodeURIComponent('Usuário não autorizado no sistema. Contate o administrador.')}`
+      );
+    }
+
+    // Gera tokens SINGEM
+    const accessToken = generateAccessToken(user);
+    const refreshToken = generateRefreshToken(user);
+
+    // Salva refresh token
+    await saveRefreshToken(user.id, refreshToken);
+
+    // Log de auditoria
+    await logGovBrAuth(user.id, true, req.ip, req.headers['user-agent']);
+
+    console.log('[GovBr] Login bem-sucedido para usuário:', user.login, '| Nível:', profile.level);
+
+    // Redireciona para frontend com tokens
+    return res.redirect(
+      `${frontendUrl}?accessToken=${encodeURIComponent(accessToken)}&refreshToken=${encodeURIComponent(refreshToken)}&provider=govbr`
+    );
   } catch (err) {
-    const status = err.statusCode || 500;
-    return res.status(status).json({
-      sucesso: false,
-      erro: err.message,
-      _stub: err._stub,
-      _contract: err._contract
-    });
+    console.error('[GovBr] Erro no callback:', err);
+    await logGovBrAuth(null, false, req.ip, req.headers['user-agent'], err.message);
+    return res.redirect(`${frontendUrl}?error=${encodeURIComponent(err.message || 'Erro ao autenticar com gov.br')}`);
   }
 });
 
 // ============================================================================
-// POST /api/auth/govbr/link - Vincula conta gov.br a usuário local
+// POST /api/auth/govbr/link - Vincula conta gov.br a usuário local existente
 // ============================================================================
-router.post('/link', authenticate, async (_req, res) => {
-  // Futuro: vincular conta gov.br (cpf/sub) a user interno existente
-  return res.status(501).json({
-    sucesso: false,
-    mensagem: 'Vinculação gov.br <-> usuário interno ainda não implementada',
-    _stub: true
-  });
+router.post('/link', authenticate, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { govbrSub, govbrCpf } = req.body;
+
+    if (!govbrSub) {
+      return res.status(400).json({
+        sucesso: false,
+        erro: 'govbrSub é obrigatório para vinculação'
+      });
+    }
+
+    // Verifica se o sub já está vinculado a outro usuário
+    const existing = await db.query('SELECT id FROM usuarios WHERE govbr_sub = $1 AND id != $2', [govbrSub, userId]);
+
+    if (existing.rows.length > 0) {
+      return res.status(409).json({
+        sucesso: false,
+        erro: 'Esta conta gov.br já está vinculada a outro usuário'
+      });
+    }
+
+    // Vincula
+    await db.query(
+      `UPDATE usuarios
+       SET govbr_sub = $1, govbr_cpf = $2, auth_provider = 'ambos', govbr_vinculado_em = NOW()
+       WHERE id = $3`,
+      [govbrSub, govbrCpf || null, userId]
+    );
+
+    return res.json({
+      sucesso: true,
+      mensagem: 'Conta gov.br vinculada com sucesso'
+    });
+  } catch (err) {
+    console.error('[GovBr] Erro na vinculação:', err);
+    return res.status(500).json({
+      sucesso: false,
+      erro: 'Erro ao vincular conta gov.br'
+    });
+  }
 });
 
 // ============================================================================
 // DELETE /api/auth/govbr/link - Remove vinculação gov.br
 // ============================================================================
-router.delete('/link', authenticate, async (_req, res) => {
-  return res.status(501).json({
-    sucesso: false,
-    mensagem: 'Remoção de vinculação gov.br ainda não implementada',
-    _stub: true
-  });
+router.delete('/link', authenticate, async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    await db.query(
+      `UPDATE usuarios
+       SET govbr_sub = NULL, govbr_cpf = NULL, auth_provider = 'local', govbr_vinculado_em = NULL
+       WHERE id = $1`,
+      [userId]
+    );
+
+    return res.json({
+      sucesso: true,
+      mensagem: 'Vinculação gov.br removida'
+    });
+  } catch (err) {
+    console.error('[GovBr] Erro ao remover vinculação:', err);
+    return res.status(500).json({
+      sucesso: false,
+      erro: 'Erro ao remover vinculação gov.br'
+    });
+  }
 });
 
 // ============================================================================
-// GET /api/auth/govbr/contract - Documentação do contrato de integração
+// Função auxiliar: Busca ou cria usuário a partir do profile gov.br
 // ============================================================================
-router.get('/contract', (_req, res) => {
-  res.json({
-    titulo: 'Contrato de Integração Gov.br',
-    versao: '1.0.0',
-    status: 'STUB - Não implementado',
-    endpoints: {
-      'GET /authorize': {
-        descricao: 'Retorna URL de autorização gov.br',
-        parametros: ['state', 'nonce', 'redirectUri'],
-        resposta: { url: 'string', state: 'string', nonce: 'string' }
-      },
-      'GET /callback': {
-        descricao: 'Recebe callback do OAuth2 gov.br',
-        parametros: ['code', 'redirectUri'],
-        resposta: { profile: 'NormalizedProfile' }
-      },
-      'POST /link': {
-        descricao: 'Vincula conta gov.br a usuário existente',
-        autenticacao: 'Bearer token SINGEM',
-        body: { govBrToken: 'string' },
-        resposta: { sucesso: true }
-      },
-      'DELETE /link': {
-        descricao: 'Remove vinculação gov.br do usuário',
-        autenticacao: 'Bearer token SINGEM',
-        resposta: { sucesso: true }
-      }
-    },
-    normalizedProfile: {
-      provider: 'govbr',
-      providerUserId: 'sub do token',
-      cpf: '00000000000',
-      name: 'Nome completo',
-      email: 'email@gov.br',
-      level: 'bronze | prata | ouro'
-    },
-    configuracao: {
-      variaveis_env: [
-        'GOVBR_ENABLED=true',
-        'GOVBR_CLIENT_ID=<obtido no portal gov.br>',
-        'GOVBR_CLIENT_SECRET=<obtido no portal gov.br>',
-        'GOVBR_REDIRECT_URI=https://seu-dominio/api/auth/govbr/callback',
-        'GOVBR_ISSUER=https://sso.acesso.gov.br'
-      ],
-      documentacao: 'https://manual-roteiro-integracao-login-unico.servicos.gov.br/'
+async function findOrCreateGovBrUser(profile) {
+  const sub = profile.providerUserId;
+  const cpf = profile.cpf;
+
+  if (!sub) {
+    console.error('[GovBr] Sub (providerUserId) não encontrado no profile');
+    return null;
+  }
+
+  // 1. Busca por govbr_sub (vinculação direta)
+  const existingBySub = await db.query('SELECT * FROM usuarios WHERE govbr_sub = $1 AND ativo = true', [sub]);
+
+  if (existingBySub.rows.length > 0) {
+    const user = existingBySub.rows[0];
+    await db.query(
+      'UPDATE usuarios SET ultimo_login = NOW(), govbr_nivel_confiabilidade = $1 WHERE id = $2',
+      [profile.level === 'ouro' ? 3 : profile.level === 'prata' ? 2 : 1, user.id]
+    );
+    return user;
+  }
+
+  // 2. Busca por CPF (auto-vinculação)
+  if (cpf) {
+    const existingByCpf = await db.query(
+      'SELECT * FROM usuarios WHERE (cpf = $1 OR govbr_cpf = $1) AND ativo = true',
+      [cpf]
+    );
+
+    if (existingByCpf.rows.length > 0) {
+      const user = existingByCpf.rows[0];
+      // Auto-vincula gov.br ao usuário existente
+      await db.query(
+        `UPDATE usuarios
+         SET govbr_sub = $1, govbr_cpf = $2, auth_provider = 'ambos',
+             govbr_vinculado_em = NOW(), ultimo_login = NOW(),
+             govbr_nivel_confiabilidade = $3
+         WHERE id = $4`,
+        [sub, cpf, profile.level === 'ouro' ? 3 : profile.level === 'prata' ? 2 : 1, user.id]
+      );
+      console.log('[GovBr] Auto-vinculado ao usuário existente via CPF:', user.login);
+      return user;
     }
-  });
-});
+  }
+
+  // 3. Busca por email
+  if (profile.email && profile.emailVerified) {
+    const existingByEmail = await db.query('SELECT * FROM usuarios WHERE email = $1 AND ativo = true', [
+      profile.email.toLowerCase()
+    ]);
+
+    if (existingByEmail.rows.length > 0) {
+      const user = existingByEmail.rows[0];
+      await db.query(
+        `UPDATE usuarios
+         SET govbr_sub = $1, govbr_cpf = $2, auth_provider = 'ambos',
+             govbr_vinculado_em = NOW(), ultimo_login = NOW(),
+             govbr_nivel_confiabilidade = $3
+         WHERE id = $4`,
+        [sub, cpf, profile.level === 'ouro' ? 3 : profile.level === 'prata' ? 2 : 1, user.id]
+      );
+      console.log('[GovBr] Auto-vinculado ao usuário existente via email:', user.login);
+      return user;
+    }
+  }
+
+  // 4. Auto-criação de usuário (se habilitado)
+  if (config.govbr.autoCreateUser) {
+    const login = cpf ? `govbr_${cpf.slice(-6)}` : `govbr_${Date.now()}`;
+
+    const newUser = await db.insert('usuarios', {
+      login,
+      nome: profile.name,
+      email: profile.email?.toLowerCase() || null,
+      cpf: cpf || null,
+      govbr_sub: sub,
+      govbr_cpf: cpf || null,
+      govbr_nivel_confiabilidade: profile.level === 'ouro' ? 3 : profile.level === 'prata' ? 2 : 1,
+      govbr_vinculado_em: new Date(),
+      auth_provider: 'govbr',
+      perfil: 'operador',
+      ativo: true,
+      is_active: true,
+      senha_hash: null,
+      ultimo_login: new Date()
+    });
+
+    console.log('[GovBr] Novo usuário criado:', newUser.login, '| Nível:', profile.level);
+    return newUser;
+  }
+
+  console.warn('[GovBr] Usuário não encontrado e auto-criação desabilitada');
+  return null;
+}
+
+// ============================================================================
+// Log de auditoria
+// ============================================================================
+async function logGovBrAuth(userId, success, ip, userAgent, errorMessage) {
+  try {
+    await db.insert('auth_log', {
+      usuario_id: userId,
+      provider: 'govbr',
+      ip_address: ip || null,
+      user_agent: userAgent ? String(userAgent).slice(0, 500) : null,
+      success,
+      error_message: errorMessage ? String(errorMessage).slice(0, 1000) : null
+    });
+  } catch (err) {
+    console.error('[GovBr] Falha ao registrar log de auditoria:', err.message);
+  }
+}
 
 module.exports = router;

@@ -186,7 +186,9 @@ const config = {
     clientId: process.env.GOVBR_CLIENT_ID || '',
     clientSecret: process.env.GOVBR_CLIENT_SECRET || '',
     redirectUri: process.env.GOVBR_REDIRECT_URI || '',
-    issuer: process.env.GOVBR_ISSUER || 'https://sso.acesso.gov.br'
+    issuer: process.env.GOVBR_ISSUER || 'https://sso.acesso.gov.br',
+    autoCreateUser: parseBoolean(process.env.GOVBR_AUTO_CREATE_USER, false),
+    scopes: process.env.GOVBR_SCOPES || 'openid email profile govbr_confiabilidades govbr_empresa'
   },
   serproid: {
     enabled: parseBoolean(process.env.SERPROID_ENABLED, false),

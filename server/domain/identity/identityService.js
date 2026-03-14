@@ -10,7 +10,7 @@
  */
 
 const localProvider = require('./providers/localProvider');
-const govbrProvider = require('./providers/govbrProvider.stub');
+const govbrProvider = require('./providers/govbrProvider');
 const serproidProvider = require('./providers/serproidProvider');
 const { config } = require('../../config');
 

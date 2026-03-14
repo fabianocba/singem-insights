@@ -210,6 +210,7 @@ class ControleMaterialApp {
     const accessToken = urlParams.get('accessToken');
     const refreshToken = urlParams.get('refreshToken');
     const error = urlParams.get('error');
+    const provider = urlParams.get('provider') || 'oauth';
 
     // Limpa parâmetros da URL
     if (accessToken || refreshToken || error) {
@@ -239,7 +240,7 @@ class ControleMaterialApp {
 
         if (response.sucesso && response.usuario) {
           this.usuarioLogado = response.usuario;
-          console.log('[OAuth] ✅ Login via SerproID:', this.usuarioLogado.nome);
+          console.log(`[OAuth] ✅ Login via ${provider}:`, this.usuarioLogado.nome);
 
           // Atualiza UI
           this.atualizarUIUsuarioLogado();
