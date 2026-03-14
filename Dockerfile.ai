@@ -1,28 +1,69 @@
 # ============================================================
-# SINGEM AI Core — Dockerfile
+# SINGEM AI Core — Dockerfile (CPU + GPU)
 # Base: python:3.12-slim  |  Entry: python run.py
 # Perfil Docker: "ai" (opcional no docker compose up)
+#
+# Build CPU (padrao):
+#   docker build -f Dockerfile.ai -t singem-ai-core .
+#
+# Build GPU (NVIDIA CUDA):
+#   docker build -f Dockerfile.ai --build-arg GPU_ENABLED=true \
+#     -t singem-ai-core:gpu .
 # ============================================================
-FROM python:3.12-slim AS runtime
 
-# Dependências de sistema: libpq5 (psycopg) + curl (healthcheck)
+# ---- Argumento de build para GPU --------------------------
+ARG GPU_ENABLED=false
+
+# ---- Stage: base CPU -------------------------------------
+FROM python:3.12-slim AS base-false
+
+# ---- Stage: base GPU (NVIDIA CUDA 12.4 + cuDNN) ----------
+FROM nvidia/cuda:12.4.1-cudnn-runtime-ubuntu22.04 AS base-true
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        software-properties-common \
+    && add-apt-repository -y ppa:deadsnakes/ppa \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends \
+        python3.12 \
+        python3.12-venv \
+        python3.12-dev \
+        python3-pip \
+    && ln -sf /usr/bin/python3.12 /usr/bin/python \
+    && ln -sf /usr/bin/python3.12 /usr/bin/python3 \
+    && rm -rf /var/lib/apt/lists/*
+
+# ---- Stage: deps -----------------------------------------
+FROM base-${GPU_ENABLED} AS deps
+
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
         libpq5 \
         curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Usuário não-root
+WORKDIR /app
+
+COPY singem-ai/requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Extras GPU (PyTorch CUDA + sentence-transformers)
+ARG GPU_ENABLED=false
+RUN if [ "$GPU_ENABLED" = "true" ]; then \
+        pip install --no-cache-dir \
+            torch --index-url https://download.pytorch.org/whl/cu124 && \
+        pip install --no-cache-dir sentence-transformers; \
+    fi
+
+# ---- Stage: runtime --------------------------------------
+FROM deps AS runtime
+
 RUN addgroup --system --gid 1001 singem \
     && adduser --system --uid 1001 --ingroup singem --no-create-home singem
 
 WORKDIR /app
 
-# Instala dependências Python primeiro (cache layer)
-COPY singem-ai/requirements.txt ./
-RUN pip install --no-cache-dir -r requirements.txt
-
-# Copia o código da aplicação
 COPY singem-ai/ ./
 
 RUN chown -R singem:singem /app
@@ -30,6 +71,12 @@ RUN chown -R singem:singem /app
 USER singem
 
 EXPOSE 8010
+
+ARG GPU_ENABLED=false
+LABEL org.opencontainers.image.title="SINGEM AI Core" \
+      org.opencontainers.image.description="FastAPI AI service for SINGEM" \
+      org.opencontainers.image.source="https://github.com/fabianocba/SINGEM" \
+      singem.gpu.enabled="${GPU_ENABLED}"
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
     CMD curl -sf http://localhost:8010/ai/health || exit 1

@@ -88,10 +88,16 @@ services:
         max-file: "5"
 
   # ----------------------------------------------------------
-  # Frontend — hardening
+  # Frontend — hardening + TLS
   # ----------------------------------------------------------
   frontend:
     restart: always
+    ports: !override
+      - "${FRONTEND_PORT_HTTP:-80}:80"
+      - "${FRONTEND_PORT_HTTPS:-443}:443"
+    volumes:
+      - ./docker/ssl:/etc/nginx/ssl:ro
+      - ./docker/nginx-ssl.conf:/etc/nginx/conf.d/default.conf:ro
     deploy:
       resources:
         limits:
@@ -107,6 +113,9 @@ services:
   # ----------------------------------------------------------
   ai-core:
     restart: always
+    build:
+      args:
+        GPU_ENABLED: ${GPU_ENABLED:-false}
     environment:
       APP_ENV: production
       APP_DEBUG: "false"

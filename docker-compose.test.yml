@@ -1,0 +1,167 @@
+# ============================================================
+# SINGEM — docker-compose.test.yml
+# Ambiente isolado para testes de integração
+#
+# Uso local:
+#   docker compose -f docker-compose.test.yml up --build --abort-on-container-exit
+#   docker compose -f docker-compose.test.yml down -v
+#
+# Características:
+#   - Volumes efêmeros (sem persistência)
+#   - Banco de dados limpo a cada execução
+#   - Executa suite de testes e retorna exit code
+#   - Rede isolada (não conflita com ambiente de dev)
+#   - Portas diferentes para evitar colisão (5433, 3001, 8001)
+# ============================================================
+
+name: singem-test
+
+networks:
+  singem-test-network:
+    name: singem-test-network
+    driver: bridge
+
+services:
+
+  # ----------------------------------------------------------
+  # PostgreSQL — efêmero (sem volume persistente)
+  # ----------------------------------------------------------
+  postgres-test:
+    image: pgvector/pgvector:pg15
+    container_name: singem-test-postgres
+    environment:
+      POSTGRES_DB: singem_test
+      POSTGRES_USER: test_user
+      POSTGRES_PASSWORD: test_password_ci_only
+    tmpfs:
+      - /var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+    networks:
+      - singem-test-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U test_user -d singem_test"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+
+  # ----------------------------------------------------------
+  # Redis — efêmero
+  # ----------------------------------------------------------
+  redis-test:
+    image: redis:7-alpine
+    container_name: singem-test-redis
+    command: redis-server --save "" --loglevel warning
+    tmpfs:
+      - /data
+    ports:
+      - "6380:6379"
+    networks:
+      - singem-test-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  # ----------------------------------------------------------
+  # Backend — modo teste
+  # ----------------------------------------------------------
+  backend-test:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: singem-test-backend
+    environment:
+      NODE_ENV: test
+      PORT: 3000
+
+      DB_HOST: postgres-test
+      DB_PORT: 5432
+      DB_NAME: singem_test
+      DB_USER: test_user
+      DB_PASSWORD: test_password_ci_only
+      DATABASE_URL: postgresql://test_user:test_password_ci_only@postgres-test:5432/singem_test
+
+      JWT_SECRET: test-jwt-secret-for-ci-only-not-real-32chars!!
+      JWT_EXPIRES_IN: 1h
+      JWT_REFRESH_EXPIRES_IN: 1d
+
+      ADMIN_LOGIN: test_admin
+      ADMIN_NOME: Admin Teste
+      ADMIN_EMAIL: test@test.local
+      ADMIN_PASSWORD: TestPassword123!
+
+      TRUST_PROXY: "false"
+      CORS_ORIGINS: http://localhost:8001,http://localhost:3001
+      FRONTEND_URL: http://localhost:8001
+
+      AI_CORE_ENABLED: "false"
+      GOVBR_ENABLED: "false"
+      SERPRO_ENABLED: "false"
+
+      REDIS_URL: redis://redis-test:6379
+    ports:
+      - "3001:3000"
+    networks:
+      - singem-test-network
+    depends_on:
+      postgres-test:
+        condition: service_healthy
+      redis-test:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "require('http').get('http://localhost:3000/health',r=>process.exit(r.statusCode===200?0:1)).on('error',()=>process.exit(1))"
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # ----------------------------------------------------------
+  # Frontend — modo teste
+  # ----------------------------------------------------------
+  frontend-test:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    container_name: singem-test-frontend
+    ports:
+      - "8001:80"
+    networks:
+      - singem-test-network
+    depends_on:
+      backend-test:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost/"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  # ----------------------------------------------------------
+  # Test Runner — executa testes e encerra
+  # ----------------------------------------------------------
+  test-runner:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: singem-test-runner
+    entrypoint: ["node", "/tests/test-runner.js"]
+    command: []
+    volumes:
+      - ./docker/test-runner.js:/tests/test-runner.js:ro
+    environment:
+      DATABASE_URL: postgresql://test_user:test_password_ci_only@postgres-test:5432/singem_test
+    networks:
+      - singem-test-network
+    depends_on:
+      frontend-test:
+        condition: service_healthy
