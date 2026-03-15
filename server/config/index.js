@@ -188,7 +188,7 @@ const config = {
     redirectUri: process.env.GOVBR_REDIRECT_URI || '',
     issuer: process.env.GOVBR_ISSUER || 'https://sso.acesso.gov.br',
     autoCreateUser: parseBoolean(process.env.GOVBR_AUTO_CREATE_USER, false),
-    scopes: process.env.GOVBR_SCOPES || 'openid email profile govbr_confiabilidades govbr_empresa'
+    scopes: process.env.GOVBR_SCOPES || 'openid email profile govbr_confiabilidades govbr_confiabilidades_idtoken'
   },
   serproid: {
     enabled: parseBoolean(process.env.SERPROID_ENABLED, false),

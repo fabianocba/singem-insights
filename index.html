@@ -80,18 +80,17 @@
                 <a
                   id="btnGovBr"
                   href="#"
-                  onclick="
-                    window.location.href =
-                      (window.CONFIG?.api?.baseUrl || 'http://localhost:3000') +
-                      '/api/auth/govbr/login';
-                    return false;
-                  "
                   class="btn-govbr"
+                  onclick="return false;"
                 >
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                     ><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg>
                   Entrar com Gov.br
                 </a>
+
+                <div id="govbrUnavailable" class="govbr-unavailable">
+                  ⚠️ Login Gov.br não está disponível no momento. Use o acesso administrativo.
+                </div>
 
                 <div class="govbr-security-note">
                   <span class="govbr-security-icon">🔒</span>
@@ -166,22 +165,17 @@
                 </form>
 
                 <!-- Separador SerproID -->
-                <div class="login-separator">
+                <div id="serproidSeparator" class="login-separator">
                   <hr />
                   <span>ou</span>
                   <hr />
                 </div>
 
-                <!-- Botão SerproID -->
+                <!-- Botão SerproID (smart - verifica disponibilidade) -->
                 <a
                   id="btnSerproID"
                   href="#"
-                  onclick="
-                    window.location.href =
-                      (window.CONFIG?.api?.baseUrl || 'http://localhost:3000') +
-                      '/api/auth/serproid/login';
-                    return false;
-                  "
+                  onclick="return false;"
                   class="btn btn-outline btn-block"
                 >
                   <img
@@ -191,6 +185,10 @@
                   />
                   Certificado Digital (SerproID)
                 </a>
+
+                <div id="serproidUnavailable" class="serproid-unavailable">
+                  ⚠️ Certificado Digital (SerproID) não está disponível no momento.
+                </div>
               </div>
             </div>
 
@@ -1894,5 +1892,62 @@
     >
       <small id="app-version">SINGEM v...</small>
     </footer>
+
+    <!-- Gov.br + SerproID - Verifica disponibilidade e configura botões -->
+    <script>
+      (function () {
+        var base = (window.CONFIG && window.CONFIG.api && window.CONFIG.api.baseUrl) || 'http://localhost:3000';
+
+        // --- Gov.br ---
+        var btnGovBr = document.getElementById('btnGovBr');
+        var warnGovBr = document.getElementById('govbrUnavailable');
+
+        fetch(base + '/api/auth/govbr/status', { method: 'GET' })
+          .then(function (r) { return r.json(); })
+          .then(function (data) {
+            if (data.sucesso && data.govbr && data.govbr.habilitado) {
+              btnGovBr.onclick = function (e) {
+                e.preventDefault();
+                window.location.href = base + '/api/auth/govbr/login';
+              };
+            } else {
+              btnGovBr.classList.add('disabled');
+              if (warnGovBr) warnGovBr.classList.add('show');
+            }
+          })
+          .catch(function () {
+            btnGovBr.classList.add('disabled');
+            if (warnGovBr) warnGovBr.classList.add('show');
+          });
+
+        // --- SerproID ---
+        var btnSerpro = document.getElementById('btnSerproID');
+        var warnSerpro = document.getElementById('serproidUnavailable');
+        var sepSerpro = document.getElementById('serproidSeparator');
+
+        fetch(base + '/api/auth/serproid/status', { method: 'GET' })
+          .then(function (r) { return r.json(); })
+          .then(function (data) {
+            if (data.sucesso && data.serproid && data.serproid.habilitado && data.serproid.configurado) {
+              btnSerpro.onclick = function (e) {
+                e.preventDefault();
+                window.location.href = base + '/api/auth/serproid/login';
+              };
+            } else if (data.sucesso && data.serproid && data.serproid.habilitado && !data.serproid.configurado) {
+              btnSerpro.classList.add('disabled');
+              if (warnSerpro) warnSerpro.classList.add('show');
+            } else {
+              btnSerpro.classList.add('disabled');
+              if (btnSerpro) btnSerpro.style.display = 'none';
+              if (sepSerpro) sepSerpro.style.display = 'none';
+            }
+          })
+          .catch(function () {
+            btnSerpro.classList.add('disabled');
+            if (btnSerpro) btnSerpro.style.display = 'none';
+            if (sepSerpro) sepSerpro.style.display = 'none';
+          });
+      })();
+    </script>
   </body>
 </html>

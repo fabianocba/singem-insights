@@ -1535,36 +1535,37 @@ body {
 
 /* Login Screen */
 .login-container {
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 40px 20px;
+  min-height: calc(100vh - 200px);
   display: flex;
   flex-direction: column;
-  align-items: center;
   justify-content: center;
-  min-height: calc(100vh - 200px);
-  padding: 40px 20px;
-  max-width: 960px;
-  margin: 0 auto;
 }
 
 .login-header {
   text-align: center;
-  margin-bottom: 32px;
+  margin-bottom: 28px;
 }
 
 .login-logo {
   font-size: 48px;
-  margin-bottom: 8px;
+  margin-bottom: 4px;
+  line-height: 1;
 }
 
 .login-header h1 {
-  font-size: 1.6rem;
+  font-size: 1.5rem;
   color: #1a1a2e;
   margin: 0 0 4px;
+  font-weight: 700;
 }
 
 .login-header p {
   color: #666;
   margin: 0;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
 }
 
 .login-box {
@@ -1604,18 +1605,21 @@ body {
 
 .login-footer {
   text-align: center;
-  margin-top: 28px;
-  color: var(--gray-500);
-  font-size: 0.85rem;
+  margin-top: 24px;
+  color: #999;
+  font-size: 0.82rem;
 }
 
 .login-help {
   display: inline-block;
   text-align: left;
-  padding: 15px;
+  padding: 12px 16px;
   background: #f8f9fa;
   border-radius: 8px;
-  border: 1px solid #e0e0e0;
+  border: 1px solid #e8e8e8;
+  width: 100%;
+  max-width: 600px;
+  box-sizing: border-box;
 }
 
 /* Remember options */
@@ -1701,11 +1705,14 @@ body {
   font-weight: 600;
   font-size: 14px;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: all 0.2s;
+  box-sizing: border-box;
 }
 
 .login-card .btn-primary:hover {
   background: #1a202c;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 /* Login card separator */
@@ -1733,8 +1740,9 @@ body {
   align-items: center;
   justify-content: center;
   gap: 8px;
+  width: 100%;
   padding: 10px 16px;
-  border: 1px solid #ccc;
+  border: 1px solid #d0d0d0;
   color: #555;
   text-decoration: none;
   border-radius: 6px;
@@ -1742,11 +1750,37 @@ body {
   font-size: 13px;
   transition: all 0.2s;
   background: transparent;
+  box-sizing: border-box;
 }
 
 .login-card .btn-outline:hover {
   border-color: #1351b4;
   color: #1351b4;
+  background: #f0f4ff;
+}
+
+.login-card .btn-outline.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+  border-color: #d0d0d0;
+  color: #999;
+}
+
+.serproid-unavailable {
+  margin-top: 8px;
+  padding: 8px;
+  background: #fff3cd;
+  border: 1px solid #ffc107;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  color: #856404;
+  text-align: center;
+  display: none;
+}
+
+.serproid-unavailable.show {
+  display: block;
 }
 
 .serproid-icon {
@@ -1811,21 +1845,24 @@ body {
    ============================================================ */
 .login-cards-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  grid-template-columns: 1fr 1fr;
   gap: 24px;
-  align-items: start;
+  align-items: stretch;
+  width: 100%;
 }
 
 .login-card {
-  background: var(--white);
+  background: #fff;
   border-radius: 12px;
   padding: 28px 24px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  display: flex;
+  flex-direction: column;
 }
 
 .login-card-govbr {
   border: 2px solid #1351b4;
-  box-shadow: 0 2px 12px rgba(19, 81, 180, 0.08);
+  box-shadow: 0 4px 16px rgba(19, 81, 180, 0.1);
   position: relative;
   overflow: hidden;
 }
@@ -1841,33 +1878,36 @@ body {
 }
 
 .login-card-header h2 {
-  font-size: 1.15rem;
+  font-size: 1.1rem;
   color: #1a1a2e;
-  margin: 0 0 6px;
+  margin: 0 0 4px;
+  font-weight: 600;
 }
 
 .login-card-header p {
-  color: #666;
-  font-size: 0.85rem;
+  color: #777;
+  font-size: 0.82rem;
   margin: 0;
 }
 
 .login-card-icon {
   font-size: 28px;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
+  line-height: 1;
 }
 
 .govbr-logo-fallback {
   display: none;
-  font-size: 28px;
+  font-size: 26px;
   font-weight: 700;
   color: #1351b4;
+  margin-bottom: 8px;
 }
 
 .govbr-logo-img {
-  height: 40px;
+  height: 36px;
   width: auto;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
 .login-card-badge {
@@ -1897,25 +1937,35 @@ body {
   border-radius: 8px;
   font-weight: 600;
   font-size: 15px;
-  transition: background 0.2s;
+  transition: all 0.2s;
   cursor: pointer;
   border: none;
+  box-sizing: border-box;
 }
 
 .btn-govbr:hover {
   background: #0c326f;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(19, 81, 180, 0.3);
+}
+
+.btn-govbr.disabled {
+  background: #a0aec0;
+  cursor: not-allowed;
+  pointer-events: none;
 }
 
 .govbr-security-note {
   margin-top: 16px;
-  padding: 12px;
+  padding: 10px 12px;
   background: #f0f4ff;
   border-radius: 8px;
   display: flex;
   align-items: start;
   gap: 8px;
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   color: #555;
+  line-height: 1.4;
 }
 
 .govbr-security-icon {
@@ -1927,17 +1977,37 @@ body {
 }
 
 .govbr-selos {
-  margin-top: 12px;
+  margin-top: 14px;
   display: flex;
   justify-content: center;
-  gap: 20px;
-  font-size: 0.78rem;
-  color: #888;
+  gap: 16px;
+  font-size: 0.76rem;
+  color: #999;
 }
 
-@media (max-width: 700px) {
+/* Gov.br unavailable state */
+.govbr-unavailable {
+  margin-top: 12px;
+  padding: 10px;
+  background: #fff3cd;
+  border: 1px solid #ffc107;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  color: #856404;
+  text-align: center;
+  display: none;
+}
+
+.govbr-unavailable.show {
+  display: block;
+}
+
+@media (max-width: 720px) {
   .login-cards-grid {
     grid-template-columns: 1fr;
+  }
+  .login-container {
+    padding: 24px 16px;
   }
 }
 

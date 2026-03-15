@@ -38,19 +38,24 @@ class GovBrProvider {
     this.issuer = config.govbr.issuer;
     this.enabled = config.govbr.enabled;
 
+    // Remove trailing slash do issuer para consistência
+    this.issuer = this.issuer ? this.issuer.replace(/\/+$/, '') : '';
+
     // Endpoints OIDC derivados do issuer
     this.authorizeUrl = `${this.issuer}/authorize`;
     this.tokenUrl = `${this.issuer}/token`;
     this.userInfoUrl = `${this.issuer}/userinfo`;
     this.jwksUrl = `${this.issuer}/jwk`;
+    this.logoutUrl = `${this.issuer}/logout`;
 
-    // Scopes padrão gov.br
+    // Scopes padrão gov.br (conforme roteiro oficial de integração)
+    // https://acesso.gov.br/roteiro-tecnico/iniciarintegracao.html
     this.scopes = [
       'openid',
       'email',
       'profile',
       'govbr_confiabilidades',
-      'govbr_empresa'
+      'govbr_confiabilidades_idtoken'
     ].join(' ');
   }
 
@@ -59,7 +64,9 @@ class GovBrProvider {
   // ========================================================================
 
   generateCodeVerifier() {
-    return crypto.randomBytes(32).toString('base64url');
+    // RFC 7636: code_verifier deve ter entre 43 e 128 caracteres
+    // 48 bytes → 64 caracteres em base64url (margem segura)
+    return crypto.randomBytes(48).toString('base64url');
   }
 
   generateCodeChallenge(codeVerifier) {
@@ -158,8 +165,24 @@ class GovBrProvider {
     if (!response.ok) {
       const errorData = await response.text();
       console.error('[GovBr] Token exchange failed:', response.status, errorData);
-      const err = new Error(`Falha ao trocar code por token gov.br: ${response.status}`);
-      err.statusCode = 401;
+
+      // Mensagens amigáveis baseadas nos erros comuns do gov.br
+      // https://acesso.gov.br/roteiro-tecnico/erroscomuns.html
+      let message = 'Falha na autenticação gov.br';
+
+      if (response.status === 401) {
+        // invalid_client ou Bad credentials → client_secret errado
+        if (errorData.includes('invalid_client') || errorData.includes('Bad credentials')) {
+          message = 'Credenciais do sistema inválidas (client_id/client_secret). Contate o administrador.';
+        } else {
+          message = 'Credenciais rejeitadas pelo gov.br. Contate o administrador.';
+        }
+      } else if (errorData.includes('invalid_grant')) {
+        message = 'URL de retorno (redirect_uri) não cadastrada no gov.br. Contate o administrador.';
+      }
+
+      const err = new Error(message);
+      err.statusCode = response.status;
       err.details = errorData;
       throw err;
     }
@@ -280,8 +303,9 @@ class GovBrProvider {
     // Decodifica payload
     const payload = JSON.parse(Buffer.from(payloadB64, 'base64url').toString());
 
-    // Valida issuer
-    if (payload.iss !== this.issuer) {
+    // Valida issuer (tolera trailing slash - gov.br pode retornar com ou sem)
+    const normalizeIssuer = (iss) => String(iss || '').replace(/\/+$/, '');
+    if (normalizeIssuer(payload.iss) !== normalizeIssuer(this.issuer)) {
       const err = new Error(`Issuer inválido: esperado ${this.issuer}, recebido ${payload.iss}`);
       err.statusCode = 401;
       throw err;
@@ -331,11 +355,25 @@ class GovBrProvider {
       idTokenPayload = await this.validateIdToken(tokenData.id_token, nonce);
     }
 
-    // 3. Busca userinfo
+    // 3. Decodifica access_token para extrair AMR/2FA
+    // (conforme doc gov.br, amr com "mfa" indica 2FA ativado)
+    let accessTokenPayload = null;
+    if (tokenData.access_token) {
+      try {
+        const [, payloadB64] = tokenData.access_token.split('.');
+        if (payloadB64) {
+          accessTokenPayload = JSON.parse(Buffer.from(payloadB64, 'base64url').toString());
+        }
+      } catch {
+        console.warn('[GovBr] Não foi possível decodificar access_token payload');
+      }
+    }
+
+    // 4. Busca userinfo
     const userInfo = await this.getUserInfo(tokenData.access_token);
 
-    // 4. Normaliza para profile padrão SINGEM
-    return this.normalizeProfile(userInfo, idTokenPayload, tokenData);
+    // 5. Normaliza para profile padrão SINGEM
+    return this.normalizeProfile(userInfo, idTokenPayload, tokenData, accessTokenPayload);
   }
 
   // ========================================================================
@@ -349,29 +387,50 @@ class GovBrProvider {
    * @param {object} tokenData - Dados dos tokens
    * @returns {object} Profile normalizado
    */
-  normalizeProfile(userInfo, idTokenPayload, tokenData = {}) {
+  normalizeProfile(userInfo, idTokenPayload, tokenData = {}, accessTokenPayload = null) {
     // Gov.br retorna CPF no campo 'sub' (sem formatação, 11 dígitos)
+    // Formato pode ser "12345678900" ou "123456789-00" (com hífen)
     const sub = userInfo.sub || idTokenPayload?.sub;
     const cpf = sub ? sub.replace(/\D/g, '') : null;
 
-    // Nome: prioriza nome_social se disponível
-    const name = userInfo.name || userInfo.nome || idTokenPayload?.name || 'Usuário Gov.br';
+    // Nome: prioriza social_name conforme roteiro gov.br
+    const name =
+      userInfo.social_name ||
+      idTokenPayload?.social_name ||
+      userInfo.name ||
+      userInfo.nome ||
+      idTokenPayload?.name ||
+      'Usuário Gov.br';
 
-    // Email precisa de verificação
+    // Email (pode não vir se email_verified=false conforme doc)
     const email = userInfo.email || idTokenPayload?.email || null;
-    const emailVerified = userInfo.email_verified === true || idTokenPayload?.email_verified === true;
+    const emailVerified =
+      String(userInfo.email_verified) === 'true' || String(idTokenPayload?.email_verified) === 'true';
 
-    // Nível de confiabilidade (selos) do gov.br
-    // Retornado via scope govbr_confiabilidades
-    const confiabilidades = userInfo.govbr_confiabilidades || [];
-    const level = this.resolveConfiabilidade(confiabilidades);
+    // Nível de confiabilidade via reliability_info do id_token
+    // (scope govbr_confiabilidades_idtoken — roteiro oficial)
+    const reliabilityInfo = idTokenPayload?.reliability_info || null;
+    const level = reliabilityInfo ? this.resolveReliabilityLevel(reliabilityInfo) : 'bronze';
+    const confiabilidades = reliabilityInfo?.reliabilities || [];
 
-    // Foto de perfil (se disponível)
+    // Foto de perfil (protegida, necessita access_token para acessar)
     const picture = userInfo.picture || idTokenPayload?.picture || null;
 
-    // Telefone
+    // Telefone (pode não vir se phone_number_verified=false conforme doc)
     const phone = userInfo.phone_number || null;
-    const phoneVerified = userInfo.phone_number_verified === true;
+    const phoneVerified = String(userInfo.phone_number_verified) === 'true';
+
+    // Método de autenticação usado pelo cidadão
+    // AMR vem no access_token (fonte oficial do 2FA conforme doc gov.br)
+    // Fallback para id_token se access_token não decodificado
+    const amr = accessTokenPayload?.amr || idTokenPayload?.amr || [];
+
+    // Detecção de 2FA: presença de "mfa" no AMR indica segundo fator ativado
+    // https://acesso.gov.br/roteiro-tecnico/presenca2faautenticacao.html
+    const mfaEnabled = Array.isArray(amr) && amr.includes('mfa');
+
+    // CNPJ (quando autenticação por certificado digital de PJ)
+    const cnpj = accessTokenPayload?.cnpj || null;
 
     return {
       provider: 'govbr',
@@ -385,10 +444,18 @@ class GovBrProvider {
       picture,
       phone,
       phoneVerified,
+      amr,
+      mfaEnabled,
+      cnpj,
       _raw: {
         userInfo,
         idTokenPayload: idTokenPayload
-          ? { sub: idTokenPayload.sub, iss: idTokenPayload.iss, aud: idTokenPayload.aud }
+          ? {
+              sub: idTokenPayload.sub,
+              iss: idTokenPayload.iss,
+              aud: idTokenPayload.aud,
+              reliability_info: reliabilityInfo
+            }
           : null,
         tokenMeta: {
           token_type: tokenData.token_type,
@@ -400,23 +467,25 @@ class GovBrProvider {
   }
 
   /**
-   * Resolve nível de confiabilidade gov.br
-   * Selos: 1 = bronze (auto-cadastro), 2 = prata (validação facial), 3 = ouro (certificado digital)
-   * @param {number[]} confiabilidades
+   * Resolve nível de confiabilidade a partir do reliability_info do id_token
+   * Conforme roteiro oficial gov.br:
+   *   reliability_info.level: "gold" | "silver" | "bronze"
+   *   reliability_info.reliabilities: [{ id: "601", updatedAt: "..." }]
+   *
+   * Selos conhecidos (tabela oficial):
+   *   101=INSS, 201=RecFed → Bronze
+   *   301=ServPub*, 401=Facial(Senatran), 60x=Bancos → Prata
+   *   701=TSE, 702=BioDigital, 801=CertDigital, 901=CIN → Ouro
+   *
+   * @param {object} reliabilityInfo - { level, reliabilities }
    * @returns {'ouro'|'prata'|'bronze'}
    */
-  resolveConfiabilidade(confiabilidades) {
-    if (!Array.isArray(confiabilidades) || confiabilidades.length === 0) {
+  resolveReliabilityLevel(reliabilityInfo) {
+    if (!reliabilityInfo || !reliabilityInfo.level) {
       return 'bronze';
     }
-    const niveis = confiabilidades.map(Number);
-    if (niveis.includes(3)) {
-      return 'ouro';
-    }
-    if (niveis.includes(2)) {
-      return 'prata';
-    }
-    return 'bronze';
+    const levelMap = { gold: 'ouro', silver: 'prata', bronze: 'bronze' };
+    return levelMap[reliabilityInfo.level.toLowerCase()] || 'bronze';
   }
 
   // ========================================================================

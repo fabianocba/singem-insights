@@ -57,20 +57,51 @@ router.get('/status', (_req, res) => {
 // ============================================================================
 // GET /api/auth/govbr/login - Inicia fluxo OAuth2 + PKCE
 // ============================================================================
-router.get('/login', (req, res) => {
+router.get('/login', async (req, res) => {
+  const frontendUrl = config.frontendUrl;
+
   try {
     if (!identityService.isProviderEnabled('govbr')) {
-      return res.status(503).json({
-        sucesso: false,
-        erro: 'Login gov.br não está habilitado'
-      });
+      return res.redirect(
+        `${frontendUrl}?error=${encodeURIComponent('Login gov.br não está habilitado neste momento.')}`
+      );
     }
 
     if (!govbrProvider.isConfigured()) {
-      return res.status(503).json({
-        sucesso: false,
-        erro: 'Gov.br não está configurado corretamente'
-      });
+      return res.redirect(
+        `${frontendUrl}?error=${encodeURIComponent('Gov.br não está configurado corretamente. Contate o administrador.')}`
+      );
+    }
+
+    // Pre-flight: valida que o issuer gov.br está acessível
+    const wellKnownUrl = `${govbrProvider.issuer}/.well-known/openid-configuration`;
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 5000);
+
+    try {
+      const oidcRes = await fetch(wellKnownUrl, { signal: controller.signal });
+      clearTimeout(timeout);
+
+      if (!oidcRes.ok) {
+        console.error('[GovBr] OIDC discovery retornou status:', oidcRes.status);
+        return res.redirect(
+          `${frontendUrl}?error=${encodeURIComponent('Servidor gov.br indisponível. Tente novamente mais tarde.')}`
+        );
+      }
+
+      const oidcData = await oidcRes.json();
+      if (!oidcData.authorization_endpoint) {
+        console.error('[GovBr] OIDC discovery sem authorization_endpoint');
+        return res.redirect(
+          `${frontendUrl}?error=${encodeURIComponent('Configuração gov.br inválida. Contate o administrador.')}`
+        );
+      }
+    } catch (fetchErr) {
+      clearTimeout(timeout);
+      console.error('[GovBr] Pre-flight falhou:', fetchErr.message);
+      return res.redirect(
+        `${frontendUrl}?error=${encodeURIComponent('Não foi possível conectar ao servidor gov.br. Verifique sua conexão.')}`
+      );
     }
 
     // Gera URL de autorização com PKCE
@@ -89,10 +120,9 @@ router.get('/login', (req, res) => {
     return res.redirect(url);
   } catch (err) {
     console.error('[GovBr] Erro ao iniciar login:', err);
-    return res.status(err.statusCode || 500).json({
-      sucesso: false,
-      erro: err.message
-    });
+    return res.redirect(
+      `${frontendUrl}?error=${encodeURIComponent('Erro ao iniciar autenticação gov.br. Tente novamente.')}`
+    );
   }
 });
 
@@ -137,7 +167,9 @@ router.get('/callback', async (req, res) => {
     console.log('[GovBr] Profile obtido:', {
       cpf: profile.cpf ? `***${profile.cpf.slice(-4)}` : null,
       name: profile.name,
-      level: profile.level
+      level: profile.level,
+      mfa: profile.mfaEnabled,
+      amr: profile.amr
     });
 
     // Busca ou cria usuário local
@@ -159,7 +191,8 @@ router.get('/callback', async (req, res) => {
     // Log de auditoria
     await logGovBrAuth(user.id, true, req.ip, req.headers['user-agent']);
 
-    console.log('[GovBr] Login bem-sucedido para usuário:', user.login, '| Nível:', profile.level);
+    console.log('[GovBr] Login bem-sucedido para usuário:', user.login, '| Nível:', profile.level,
+      profile.mfaEnabled ? '| 2FA: ativado' : '| 2FA: não');
 
     // Redireciona para frontend com tokens
     return res.redirect(
@@ -243,6 +276,22 @@ router.delete('/link', authenticate, async (req, res) => {
       erro: 'Erro ao remover vinculação gov.br'
     });
   }
+});
+
+// ============================================================================
+// GET /api/auth/govbr/logout - Logout do gov.br (implementação obrigatória)
+// Conforme roteiro oficial: https://acesso.gov.br/roteiro-tecnico/iniciarintegracao.html
+// ============================================================================
+router.get('/logout', (req, res) => {
+  const frontendUrl = config.frontendUrl;
+  const postLogoutUri = req.query.redirect || frontendUrl;
+
+  // Redireciona para o endpoint de logout do gov.br
+  // O gov.br invalida a sessão SSO e redireciona de volta ao SINGEM
+  const logoutUrl = `${govbrProvider.logoutUrl}?post_logout_redirect_uri=${encodeURIComponent(postLogoutUri)}`;
+
+  console.log('[GovBr] Logout - redirecionando para gov.br');
+  return res.redirect(logoutUrl);
 });
 
 // ============================================================================

@@ -48,6 +48,7 @@ class ControleMaterialApp {
     this.currentEmpenho = null;
     this.currentNotaFiscal = null;
     this.usuarioLogado = null;
+    this.authProvider = null; // 'local' | 'govbr' | 'serproid'
 
     // Contadores para itens dinâmicos
     this.itemCounter = 0;
@@ -219,8 +220,15 @@ class ControleMaterialApp {
 
     // Trata erro do OAuth
     if (error) {
-      console.error('[OAuth] Erro no callback:', error);
-      this.showError('Erro na autenticação: ' + decodeURIComponent(error));
+      const decodedError = decodeURIComponent(error);
+      console.error('[OAuth] Erro no callback:', decodedError);
+
+      // Mostra erro na tela de login
+      const errorDiv = document.getElementById('loginError');
+      if (errorDiv) {
+        errorDiv.textContent = '⚠️ ' + decodedError;
+        errorDiv.classList.remove('hidden');
+      }
       return;
     }
 
@@ -240,6 +248,7 @@ class ControleMaterialApp {
 
         if (response.sucesso && response.usuario) {
           this.usuarioLogado = response.usuario;
+          this.authProvider = provider;
           console.log(`[OAuth] ✅ Login via ${provider}:`, this.usuarioLogado.nome);
 
           // Atualiza UI
@@ -1793,6 +1802,7 @@ class ControleMaterialApp {
         perfil: usuarioApi.perfil,
         login: usuarioApi.login || usuario
       };
+      this.authProvider = 'local';
 
       await this.salvarDadosLembradosPosLogin(usuario, '');
 
@@ -1860,6 +1870,8 @@ class ControleMaterialApp {
    * Realiza logout do sistema
    */
   async realizarLogout() {
+    const wasGovBr = this.authProvider === 'govbr';
+
     try {
       const apiClient = (await import('./services/apiClient.js')).default;
       await apiClient.logout();
@@ -1869,6 +1881,7 @@ class ControleMaterialApp {
 
     // Limpa usuário logado
     this.usuarioLogado = null;
+    this.authProvider = null;
 
     // Limpa campos de login
     const loginForm = document.getElementById('loginForm') || document.getElementById('formLogin');
@@ -1894,6 +1907,12 @@ class ControleMaterialApp {
 
     // Volta para tela de login
     this.showScreen('loginScreen');
+
+    // Logout SSO gov.br (obrigatório conforme roteiro de integração)
+    if (wasGovBr) {
+      const base = (window.CONFIG && window.CONFIG.api && window.CONFIG.api.baseUrl) || 'http://localhost:3000';
+      window.location.href = base + '/api/auth/govbr/logout?redirect=' + encodeURIComponent(window.location.origin);
+    }
   }
 
   /**
