@@ -25,8 +25,8 @@
 
 ## 📊 Métricas de Impacto
 
-| Métrica                     | Antes | Depois | Melhoria      |
-| ----------------------------- | ----- | ------ | ------------- |
+| Métrica                       | Antes | Depois | Melhoria     |
+| ----------------------------- | ----- | ------ | ------------ |
 | **Arquivos na raiz**          | 26    | 11     | **-58%** ✅  |
 | **PDFs na raiz**              | 12    | 0      | **-100%** ✅ |
 | **Console.log**               | ~60   | ~44    | **-27%** ✅  |
@@ -231,15 +231,15 @@ SINGEM/                         ← RAIZ LIMPA (11 arquivos)
 
 ## 📞 Referências Rápidas
 
-| Preciso de...             | Veja...               |
-| ------------------------- | --------------------- |
+| Preciso de...            | Veja...               |
+| ------------------------ | --------------------- |
 | **Visão geral**          | README.md             |
 | **Tutorial rápido**      | GUIA_INICIO_RAPIDO.md |
 | **Onde está cada coisa** | NAVEGACAO.md ⭐       |
-| **O que foi feito**       | LIMPEZA_EXECUTADA.md  |
-| **Este resumo**           | SUMARIO_LIMPEZA.md    |
+| **O que foi feito**      | LIMPEZA_EXECUTADA.md  |
+| **Este resumo**          | SUMARIO_LIMPEZA.md    |
 | **Histórico**            | CHANGELOG.md          |
-| **Testes**                | testes/README.md      |
+| **Testes**               | testes/README.md      |
 
 ---
 

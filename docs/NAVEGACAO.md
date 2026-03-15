@@ -30,75 +30,75 @@
 
 ### 🎨 Interface e Uso
 
-| O que procuro         | Onde está              |
+| O que procuro         | Onde está               |
 | --------------------- | ----------------------- |
 | **Sistema principal** | `index.html`            |
-| **Configurações**   | `configuracoes.html`    |
+| **Configurações**     | `configuracoes.html`    |
 | **Estilos**           | `css/style.css`         |
 | **Guia de uso**       | `GUIA_USO_APLICACAO.md` |
-| **Tutorial rápido**  | `GUIA_INICIO_RAPIDO.md` |
+| **Tutorial rápido**   | `GUIA_INICIO_RAPIDO.md` |
 
 ### 💻 Código JavaScript
 
-| Módulo                   | Arquivo                | Descrição                      |
-| ------------------------- | ---------------------- | -------------------------------- |
-| **Aplicação principal** | `js/app.js`            | Lógica completa do sistema      |
-| **Banco de dados**        | `js/db.js`             | IndexedDB e operações          |
-| **Parser de PDF**         | `js/pdfReader.js`      | Leitor genérico de PDFs        |
-| **Parser de NE**          | `js/neParser.js`       | Especializado em Nota de Empenho |
-| **Integração NF-e**     | `js/nfeIntegration.js` | Consulta de NF eletrônica       |
-| **Sistema de arquivos**   | `js/fsManager.js`      | Gerenciamento local de PDFs      |
-| **Configurações**       | `js/config.js`         | Parâmetros do sistema           |
+| Módulo                  | Arquivo                | Descrição                        |
+| ----------------------- | ---------------------- | -------------------------------- |
+| **Aplicação principal** | `js/app.js`            | Lógica completa do sistema       |
+| **Banco de dados**      | `js/db.js`             | IndexedDB e operações            |
+| **Parser de PDF**       | `js/pdfReader.js`      | Leitor genérico de PDFs          |
+| **Parser de NE**        | `js/neParser.js`       | Especializado em Nota de Empenho |
+| **Integração NF-e**     | `js/nfeIntegration.js` | Consulta de NF eletrônica        |
+| **Sistema de arquivos** | `js/fsManager.js`      | Gerenciamento local de PDFs      |
+| **Configurações**       | `js/config.js`         | Parâmetros do sistema            |
 
 ### ⚙️ Módulo de Configurações
 
-| Funcionalidade             | Arquivo                       | Descrição                 |
-| -------------------------- | ----------------------------- | --------------------------- |
-| **Controller**             | `js/settings/index.js`        | Gerenciador principal       |
+| Funcionalidade           | Arquivo                       | Descrição                   |
+| ------------------------ | ----------------------------- | --------------------------- |
+| **Controller**           | `js/settings/index.js`        | Gerenciador principal       |
 | **Unidade Orçamentária** | `js/settings/unidade.js`      | CNPJ e dados institucionais |
-| **Usuários**              | `js/settings/usuarios.js`     | Autenticação e CRUD       |
-| **Rede/LAN**               | `js/settings/rede.js`         | Compartilhamento em rede    |
-| **Preferências**          | `js/settings/preferencias.js` | Tema, tolerâncias, backup  |
+| **Usuários**             | `js/settings/usuarios.js`     | Autenticação e CRUD         |
+| **Rede/LAN**             | `js/settings/rede.js`         | Compartilhamento em rede    |
+| **Preferências**         | `js/settings/preferencias.js` | Tema, tolerâncias, backup   |
 
 ### 📚 Documentação
 
 #### 📖 Manuais do Usuário
 
-| Documento               | Descrição                              |
-| ----------------------- | ---------------------------------------- |
+| Documento               | Descrição                               |
+| ----------------------- | --------------------------------------- |
 | `README.md`             | **Leia primeiro!** Visão geral completa |
-| `GUIA_INICIO_RAPIDO.md` | Tutorial em 5 minutos                    |
-| `GUIA_USO_APLICACAO.md` | Manual detalhado passo a passo           |
-| `CHANGELOG.md`          | Histórico de versões e mudanças       |
+| `GUIA_INICIO_RAPIDO.md` | Tutorial em 5 minutos                   |
+| `GUIA_USO_APLICACAO.md` | Manual detalhado passo a passo          |
+| `CHANGELOG.md`          | Histórico de versões e mudanças         |
 
 #### 🔧 Documentação Técnica
 
 Pasta: `docs/`
 
-| Arquivo                | Conteúdo                        |
+| Arquivo                | Conteúdo                         |
 | ---------------------- | -------------------------------- |
 | `NE_PARSER.md`         | API e funcionamento do parser NE |
 | `GUIA_RAPIDO_NE.md`    | Como usar o parser NE            |
-| `LEIA-ME_NE_PARSER.md` | Introdução ao parser           |
-| `CONFIGURACOES.md`     | Módulo de configurações       |
-| `PADRONIZACAO_NF.md`   | Padrões de Nota Fiscal          |
-| `NE_PARSER.md`         | Validação e regras do parser   |
+| `LEIA-ME_NE_PARSER.md` | Introdução ao parser             |
+| `CONFIGURACOES.md`     | Módulo de configurações          |
+| `PADRONIZACAO_NF.md`   | Padrões de Nota Fiscal           |
+| `NE_PARSER.md`         | Validação e regras do parser     |
 
 #### 📝 Documentação de Implementação
 
 Pasta: `docs/implementacao/`
 
-| Arquivo                          | Conteúdo                                |
-| -------------------------------- | ---------------------------------------- |
-| `IMPLEMENTACAO_NE_PARSER.md`     | Como o parser NE foi implementado        |
+| Arquivo                          | Conteúdo                               |
+| -------------------------------- | -------------------------------------- |
+| `IMPLEMENTACAO_NE_PARSER.md`     | Como o parser NE foi implementado      |
 | `IMPLEMENTACAO_CONFIGURACOES.md` | Como configurações foram implementadas |
 | `RESTRICOES_SEGURANCA.md`        | Sistema de permissões e segurança      |
-| `INTEGRACOES_APLICADAS.md`       | Integrações entre módulos             |
+| `INTEGRACOES_APLICADAS.md`       | Integrações entre módulos              |
 
 #### 🧹 Relatórios de Manutenção
 
 | Arquivo                | Conteúdo                   |
-| ---------------------- | --------------------------- |
+| ---------------------- | -------------------------- |
 | `LIMPEZA_EXECUTADA.md` | Relatório final da limpeza |
 
 ### 🧪 Testes
@@ -109,13 +109,13 @@ Pasta: `testes/`
 
 Pasta: `testes/html/`
 
-| Arquivo                    | Testa                      |
-| -------------------------- | -------------------------- |
-| `teste.html`               | Todos os módulos básicos |
-| `teste-ne-parser.html`     | Parser de Nota de Empenho  |
-| `teste-nf-parser.html`     | Parser de Nota Fiscal      |
-| `teste-nf-validacao.html`  | Validação de NF          |
-| `teste-comparacao-nf.html` | Comparação NE vs NF      |
+| Arquivo                    | Testa                     |
+| -------------------------- | ------------------------- |
+| `teste.html`               | Todos os módulos básicos  |
+| `teste-ne-parser.html`     | Parser de Nota de Empenho |
+| `teste-nf-parser.html`     | Parser de Nota Fiscal     |
+| `teste-nf-validacao.html`  | Validação de NF           |
+| `teste-comparacao-nf.html` | Comparação NE vs NF       |
 
 #### PDFs de Teste
 
@@ -130,20 +130,20 @@ Pasta: `testes/pdfs/`
 
 Pasta: `data/`
 
-| Item                           | Localização              |
-| ------------------------------ | -------------------------- |
+| Item                         | Localização                |
+| ---------------------------- | -------------------------- |
 | **Configuração de exemplos** | `exemplos.json`            |
-| **PDFs de exemplo**            | `exemplos/` (~10 arquivos) |
-| **Info sobre exemplos**        | `README.md`                |
+| **PDFs de exemplo**          | `exemplos/` (~10 arquivos) |
+| **Info sobre exemplos**      | `README.md`                |
 
 ### 🌐 Servidor (Opcional)
 
 Pasta: `server/`
 
-| Arquivo        | Descrição              |
+| Arquivo        | Descrição                |
 | -------------- | ------------------------ |
 | `index.js`     | Servidor Express Node.js |
-| `package.json` | Dependências npm        |
+| `package.json` | Dependências npm         |
 | `README.md`    | Como usar o servidor     |
 
 **Iniciar:**
@@ -250,16 +250,16 @@ SINGEM/
 
 ### Procuro código sobre...
 
-| Assunto           | Onde buscar                                      |
-| ----------------- | ------------------------------------------------ |
+| Assunto           | Onde buscar                                    |
+| ----------------- | ---------------------------------------------- |
 | Upload de PDF     | `js/app.js` → `processarEmpenhoUpload()`       |
-| Extração de NE  | `js/neParser.js` → `extrairDadosNE()`          |
-| Extração de NF  | `js/pdfReader.js` → `extrairDadosNotaFiscal()` |
-| Validação CNPJ  | `js/app.js` → `validarCNPJ()`                  |
+| Extração de NE    | `js/neParser.js` → `extrairDadosNE()`          |
+| Extração de NF    | `js/pdfReader.js` → `extrairDadosNotaFiscal()` |
+| Validação CNPJ    | `js/app.js` → `validarCNPJ()`                  |
 | Salvar empenho    | `js/db.js` → `salvarEmpenho()`                 |
 | Comparar NE vs NF | `js/db.js` → `compararNotaFiscalComEmpenho()`  |
-| Autenticação    | `js/settings/usuarios.js` → `autenticar()`     |
-| Configurar rede   | `js/settings/rede.js`                            |
+| Autenticação      | `js/settings/usuarios.js` → `autenticar()`     |
+| Configurar rede   | `js/settings/rede.js`                          |
 
 ### Procuro documentação sobre...
 
@@ -267,10 +267,10 @@ SINGEM/
 | ------------------- | -------------------------------------------- |
 | Como usar o sistema | `GUIA_USO_APLICACAO.md`                      |
 | Parser de NE        | `docs/NE_PARSER.md`                          |
-| Configurações     | `docs/CONFIGURACOES.md`                      |
-| Segurança          | `docs/implementacao/RESTRICOES_SEGURANCA.md` |
+| Configurações       | `docs/CONFIGURACOES.md`                      |
+| Segurança           | `docs/implementacao/RESTRICOES_SEGURANCA.md` |
 | Testes              | `testes/README.md`                           |
-| Histórico          | `CHANGELOG.md`                               |
+| Histórico           | `CHANGELOG.md`                               |
 
 ---
 

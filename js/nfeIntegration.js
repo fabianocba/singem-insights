@@ -1,7 +1,11 @@
 /**
  * Módulo de Integração com APIs de Nota Fiscal Eletrônica
  * Sistema de Controle de Material - IF Baiano
+ * Integração com AI Core para matching inteligente
  */
+
+import { isAiAvailable, handleAiAvailabilityError } from './aiIntegration.js';
+import apiClient from './services/apiClient.js';
 
 class NFEIntegration {
   constructor() {
@@ -373,6 +377,117 @@ class NFEIntegration {
         protocolo: dadosAPI.protocolo,
         impostos: dadosAPI.impostos,
         observacoes: dadosAPI.dadosAdicionais?.observacoes
+      }
+    };
+  }
+
+  /**
+   * Busca fornecedor correspondente via IA usando CNPJ e razão social
+   * @param {string} cnpj - CNPJ do emitente (14 dígitos)
+   * @param {string} razaoSocial - Razão social do emitente
+   * @returns {Promise<Object|null>} Sugestão de fornecedor ou null
+   */
+  async matchFornecedorAI(cnpj, razaoSocial) {
+    try {
+      const available = await isAiAvailable();
+      if (!available) {
+        return null;
+      }
+
+      const text = razaoSocial || '';
+      const cleanCnpj = String(cnpj || '').replace(/\D/g, '');
+
+      if (!text && cleanCnpj.length < 14) {
+        return null;
+      }
+
+      const response = await apiClient.ai.suggestFornecedor({
+        text,
+        cnpj: cleanCnpj || undefined,
+        context_module: 'notas_fiscais',
+        limit: 3
+      });
+
+      return response?.suggestion_main || response?.alternatives?.[0] || null;
+    } catch (err) {
+      handleAiAvailabilityError(err);
+      return null;
+    }
+  }
+
+  /**
+   * Busca correspondência de itens da NF-e com o catálogo CATMAT via IA
+   * @param {Array} itens - Itens da NF-e
+   * @returns {Promise<Array>} Itens enriquecidos com sugestões CATMAT
+   */
+  async matchItensAI(itens) {
+    if (!Array.isArray(itens) || itens.length === 0) {
+      return itens;
+    }
+
+    try {
+      const available = await isAiAvailable();
+      if (!available) {
+        return itens;
+      }
+
+      const enriched = await Promise.all(
+        itens.map(async (item) => {
+          try {
+            const response = await apiClient.ai.suggestItem({
+              text: item.descricao || '',
+              context_module: 'notas_fiscais',
+              hints: { unidade: item.unidade || '' },
+              limit: 1
+            });
+
+            const suggestion = response?.suggestion_main;
+            if (suggestion && suggestion.confidence >= 0.5) {
+              return {
+                ...item,
+                _aiSuggestion: {
+                  catmatCodigo: suggestion.metadata?.codigo || suggestion.entity_id,
+                  catmatDescricao: suggestion.title,
+                  confidence: suggestion.confidence,
+                  entityType: suggestion.entity_type
+                }
+              };
+            }
+          } catch {
+            // best-effort per item
+          }
+          return item;
+        })
+      );
+
+      return enriched;
+    } catch (err) {
+      handleAiAvailabilityError(err);
+      return itens;
+    }
+  }
+
+  /**
+   * Analisa NF-e completa com IA, retornando fornecedor e itens enriquecidos
+   * @param {Object} dadosNFe - Dados da NF-e já convertidos
+   * @returns {Promise<Object>} Dados enriquecidos com sugestões AI
+   */
+  async enriquecerComIA(dadosNFe) {
+    if (!dadosNFe) {
+      return dadosNFe;
+    }
+
+    const [fornecedorMatch, itensEnriquecidos] = await Promise.all([
+      this.matchFornecedorAI(dadosNFe.cnpjEmitente, dadosNFe.razaoSocial),
+      this.matchItensAI(dadosNFe.itens || [])
+    ]);
+
+    return {
+      ...dadosNFe,
+      itens: itensEnriquecidos,
+      _aiEnrichment: {
+        fornecedor: fornecedorMatch,
+        processedAt: new Date().toISOString()
       }
     };
   }

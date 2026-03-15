@@ -359,6 +359,7 @@
         <button class="tab-button" data-tab="arquivos">📁 Arquivos</button>
         <button class="tab-button" data-tab="rede">🌐 Rede/LAN</button>
         <button class="tab-button" data-tab="integracoes">🔗 Integrações</button>
+        <button class="tab-button" data-tab="ia">🤖 Inteligência Artificial</button>
         <button class="tab-button" data-tab="preferencias">🎨 Preferências</button>
         <button class="tab-button" data-tab="diagnostico">🔍 Diagnóstico</button>
       </div>
@@ -1202,6 +1203,54 @@
         </div>
       </div>
 
+      <!-- Tab: Inteligência Artificial -->
+      <div id="tabIa" class="tab-content">
+        <div class="panel">
+          <div class="panel-header">🤖 Status do SINGEM AI Core</div>
+          <div id="aiStatusPanel" style="padding: 15px;">
+            <p style="color: #666;">Verificando status da IA...</p>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">📊 Funcionalidades IA Disponíveis</div>
+          <div style="padding: 15px;">
+            <table style="width:100%;border-collapse:collapse;">
+              <thead>
+                <tr style="background:#f5f5f5;">
+                  <th style="padding:8px;text-align:left;border-bottom:2px solid #ddd;">Funcionalidade</th>
+                  <th style="padding:8px;text-align:left;border-bottom:2px solid #ddd;">Módulo</th>
+                  <th style="padding:8px;text-align:center;border-bottom:2px solid #ddd;">Status</th>
+                </tr>
+              </thead>
+              <tbody id="aiFeaturesBody">
+                <tr><td style="padding:8px;border-bottom:1px solid #eee;">Sugestão de Fornecedor</td><td style="padding:8px;border-bottom:1px solid #eee;">Empenhos</td><td style="padding:8px;text-align:center;border-bottom:1px solid #eee;" id="aiFeatureFornecedor">-</td></tr>
+                <tr><td style="padding:8px;border-bottom:1px solid #eee;">Sugestão de Item/CATMAT</td><td style="padding:8px;border-bottom:1px solid #eee;">Empenhos</td><td style="padding:8px;text-align:center;border-bottom:1px solid #eee;" id="aiFeatureItem">-</td></tr>
+                <tr><td style="padding:8px;border-bottom:1px solid #eee;">Busca Inteligente CATMAT</td><td style="padding:8px;border-bottom:1px solid #eee;">CATMAT</td><td style="padding:8px;text-align:center;border-bottom:1px solid #eee;" id="aiFeatureCatmat">-</td></tr>
+                <tr><td style="padding:8px;border-bottom:1px solid #eee;">Matching NF-e</td><td style="padding:8px;border-bottom:1px solid #eee;">Notas Fiscais</td><td style="padding:8px;text-align:center;border-bottom:1px solid #eee;" id="aiFeatureNfe">-</td></tr>
+                <tr><td style="padding:8px;border-bottom:1px solid #eee;">Sugestões em Consultas</td><td style="padding:8px;border-bottom:1px solid #eee;">Consultas</td><td style="padding:8px;text-align:center;border-bottom:1px solid #eee;" id="aiFeatureConsultas">-</td></tr>
+                <tr><td style="padding:8px;border-bottom:1px solid #eee;">Resumo de Relatórios</td><td style="padding:8px;border-bottom:1px solid #eee;">Relatórios</td><td style="padding:8px;text-align:center;border-bottom:1px solid #eee;" id="aiFeatureRelatorios">-</td></tr>
+                <tr><td style="padding:8px;border-bottom:1px solid #eee;">Busca Semântica</td><td style="padding:8px;border-bottom:1px solid #eee;">Global</td><td style="padding:8px;text-align:center;border-bottom:1px solid #eee;" id="aiFeatureSearch">-</td></tr>
+                <tr><td style="padding:8px;">Entity Matching</td><td style="padding:8px;">Global</td><td style="padding:8px;text-align:center;" id="aiFeatureMatch">-</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">🔄 Ações Administrativas</div>
+          <div style="padding: 15px; display: flex; gap: 10px; flex-wrap: wrap;">
+            <button type="button" id="btnAiRebuildIndex" class="btn btn-primary" disabled>
+              ⚡ Reconstruir Índice AI
+            </button>
+            <button type="button" id="btnAiRefreshStatus" class="btn btn-secondary">
+              🔄 Atualizar Status
+            </button>
+          </div>
+          <div id="aiActionResult" style="padding: 10px 15px; display: none;"></div>
+        </div>
+      </div>
+
       <!-- Tab: Diagnóstico -->
       <div id="tabDiagnostico" class="tab-content">
         <div class="panel">
@@ -1343,6 +1392,7 @@
     <script type="module" src="../js/settings/integracoes.js"></script>
     <script type="module" src="../js/settings/preferencias.js"></script>
     <script type="module" src="../js/settings/backup.js"></script>
+    <script type="module" src="../js/settings/ia.js"></script>
     <script type="module" src="../js/settings/diagnostico.js"></script>
 
     <script>

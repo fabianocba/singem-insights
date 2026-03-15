@@ -13,26 +13,26 @@ on:
   push:
     branches: [main, dev]
     paths:
-      - "Dockerfile.*"
-      - "docker-compose*.yml"
-      - "docker/**"
-      - "server/**"
-      - "js/**"
-      - "css/**"
-      - "index.html"
-      - "sw.js"
-      - "version.json"
+      - 'Dockerfile.*'
+      - 'docker-compose*.yml'
+      - 'docker/**'
+      - 'server/**'
+      - 'js/**'
+      - 'css/**'
+      - 'index.html'
+      - 'sw.js'
+      - 'version.json'
   pull_request:
     branches: [main]
     paths:
-      - "Dockerfile.*"
-      - "docker-compose*.yml"
-      - "docker/**"
-      - "server/**"
+      - 'Dockerfile.*'
+      - 'docker-compose*.yml'
+      - 'docker/**'
+      - 'server/**'
   workflow_dispatch:
     inputs:
       push_images:
-        description: "Push images to GHCR"
+        description: 'Push images to GHCR'
         type: boolean
         default: false
 
@@ -136,25 +136,25 @@ jobs:
         uses: aquasecurity/trivy-action@0.28.0
         with:
           image-ref: singem-${{ matrix.target }}:test
-          format: "sarif"
-          output: "trivy-${{ matrix.target }}.sarif"
-          severity: "CRITICAL,HIGH"
-          exit-code: "0"
+          format: 'sarif'
+          output: 'trivy-${{ matrix.target }}.sarif'
+          severity: 'CRITICAL,HIGH'
+          exit-code: '0'
           ignore-unfixed: true
 
       - name: Upload Trivy SARIF to GitHub Security
         uses: github/codeql-action/upload-sarif@v3
         if: always()
         with:
-          sarif_file: "trivy-${{ matrix.target }}.sarif"
-          category: "trivy-${{ matrix.target }}"
+          sarif_file: 'trivy-${{ matrix.target }}.sarif'
+          category: 'trivy-${{ matrix.target }}'
 
       - name: Trivy summary (table)
         uses: aquasecurity/trivy-action@0.28.0
         with:
           image-ref: singem-${{ matrix.target }}:test
-          format: "table"
-          severity: "CRITICAL,HIGH"
+          format: 'table'
+          severity: 'CRITICAL,HIGH'
           ignore-unfixed: true
 
   # ----------------------------------------------------------

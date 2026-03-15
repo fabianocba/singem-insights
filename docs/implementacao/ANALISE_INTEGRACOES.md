@@ -26,12 +26,12 @@ A análise inicial estava **INCORRETA**. Após verificação minuciosa:
 
 ## 📊 MÉTRICAS DE INTEGRAÇÃO
 
-| Categoria      | Total  | OK     | Melhorias | % Sucesso    |
-| -------------- | ------ | ------ | --------- | ------------ |
-| **Principais** | 6      | 5      | 1         | 83%          |
-| **Settings**   | 6      | 5      | 1         | 83%          |
+| Categoria      | Total  | OK     | Melhorias | % Sucesso   |
+| -------------- | ------ | ------ | --------- | ----------- |
+| **Principais** | 6      | 5      | 1         | 83%         |
+| **Settings**   | 6      | 5      | 1         | 83%         |
 | **Refine**     | 13     | 13     | 0         | ✅ **100%** |
-| **Consultas**  | 3      | 3      | 0         | 100%         |
+| **Consultas**  | 3      | 3      | 0         | 100%        |
 | **TOTAL**      | **28** | **26** | **2**     | ✅ **93%**  |
 
 ---
@@ -80,51 +80,51 @@ if (window.neParserReady) {
 
 ### Módulos Principais
 
-| Módulo            | Global                 | Status                |
-| ------------------ | ---------------------- | --------------------- |
-| `db.js`            | `window.dbManager`     | ✅ OK                |
-| `fsManager.js`     | `window.fsManager`     | ✅ OK                |
-| `neParserInit.js`  | `window.neParser`      | ✅ OK                |
-| `neParserInit.js`  | `window.neParserReady` | ✅ OK                |
-| `platform-core.js` | `window.PlatformCore`  | ✅ OK                |
+| Módulo             | Global                 | Status            |
+| ------------------ | ---------------------- | ----------------- |
+| `db.js`            | `window.dbManager`     | ✅ OK             |
+| `fsManager.js`     | `window.fsManager`     | ✅ OK             |
+| `neParserInit.js`  | `window.neParser`      | ✅ OK             |
+| `neParserInit.js`  | `window.neParserReady` | ✅ OK             |
+| `platform-core.js` | `window.PlatformCore`  | ✅ OK             |
 | `exportCSV.js`     | `window.exportToCSV`   | ⚠️ Não verificado |
 
 ### Módulos Settings
 
-| Módulo                    | Global                        | Status                 |
-| -------------------------- | ----------------------------- | ---------------------- |
-| `settings/index.js`        | `window.SettingsManager`      | ✅ OK                 |
-| `settings/unidade.js`      | `window.settingsUnidade`      | ✅ OK                 |
-| `settings/usuarios.js`     | `window.settingsUsuarios`     | ✅ OK                 |
+| Módulo                     | Global                        | Status               |
+| -------------------------- | ----------------------------- | -------------------- |
+| `settings/index.js`        | `window.SettingsManager`      | ✅ OK                |
+| `settings/unidade.js`      | `window.settingsUnidade`      | ✅ OK                |
+| `settings/usuarios.js`     | `window.settingsUsuarios`     | ✅ OK                |
 | `settings/rede.js`         | `window.settingsRede`         | 🟡 Melhoria sugerida |
-| `settings/preferencias.js` | `window.settingsPreferencias` | ✅ OK                 |
-| `settings/arquivos.js`     | `window.settingsArquivos`     | ✅ OK                 |
+| `settings/preferencias.js` | `window.settingsPreferencias` | ✅ OK                |
+| `settings/arquivos.js`     | `window.settingsArquivos`     | ✅ OK                |
 
 ### Módulos Refine (VERIFICADO - TODOS OK)
 
-| Módulo                    | Global                | Linha | Status |
+| Módulo                     | Global                | Linha | Status |
 | -------------------------- | --------------------- | ----- | ------ |
-| `refine/index.js`          | `parsePdfRefined`     | 175   | ✅ OK |
-| `refine/patterns.js`       | `refinePatterns`      | 50    | ✅ OK |
-| `refine/logger.js`         | `RefineLogger`        | 25    | ✅ OK |
-| `refine/analyzer.js`       | `refineAnalyzer`      | 32    | ✅ OK |
-| `refine/detectors.js`      | `refineDetectors`     | 25    | ✅ OK |
-| `refine/extract/header.js` | `refineExtractHeader` | 34    | ✅ OK |
-| `refine/extract/items.js`  | `refineExtractItems`  | 31    | ✅ OK |
-| `refine/extract/totals.js` | `refineExtractTotals` | 30    | ✅ OK |
-| `refine/normalize.js`      | `refineNormalize`     | 92    | ✅ OK |
-| `refine/validate.js`       | `refineValidate`      | 77    | ✅ OK |
-| `refine/score.js`          | `refineScore`         | 31    | ✅ OK |
-| `refine/ocrFallback.js`    | `refineOcrFallback`   | 34    | ✅ OK |
-| `refine/ui-integration.js` | `refinedParserUI`     | 376   | ✅ OK |
+| `refine/index.js`          | `parsePdfRefined`     | 175   | ✅ OK  |
+| `refine/patterns.js`       | `refinePatterns`      | 50    | ✅ OK  |
+| `refine/logger.js`         | `RefineLogger`        | 25    | ✅ OK  |
+| `refine/analyzer.js`       | `refineAnalyzer`      | 32    | ✅ OK  |
+| `refine/detectors.js`      | `refineDetectors`     | 25    | ✅ OK  |
+| `refine/extract/header.js` | `refineExtractHeader` | 34    | ✅ OK  |
+| `refine/extract/items.js`  | `refineExtractItems`  | 31    | ✅ OK  |
+| `refine/extract/totals.js` | `refineExtractTotals` | 30    | ✅ OK  |
+| `refine/normalize.js`      | `refineNormalize`     | 92    | ✅ OK  |
+| `refine/validate.js`       | `refineValidate`      | 77    | ✅ OK  |
+| `refine/score.js`          | `refineScore`         | 31    | ✅ OK  |
+| `refine/ocrFallback.js`    | `refineOcrFallback`   | 34    | ✅ OK  |
+| `refine/ui-integration.js` | `refinedParserUI`     | 376   | ✅ OK  |
 
 ### Módulos Consultas
 
-| Módulo              | Global                        | Status |
+| Módulo               | Global                        | Status |
 | -------------------- | ----------------------------- | ------ |
-| `consultas/index.js` | `ConsultasModule.UIConsultas` | ✅ OK |
-| `consultas/index.js` | `initConsultas`               | ✅ OK |
-| `consultas/index.js` | `abrirConsulta`               | ✅ OK |
+| `consultas/index.js` | `ConsultasModule.UIConsultas` | ✅ OK  |
+| `consultas/index.js` | `initConsultas`               | ✅ OK  |
+| `consultas/index.js` | `abrirConsulta`               | ✅ OK  |
 
 ---
 

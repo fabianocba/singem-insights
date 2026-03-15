@@ -1,15 +1,15 @@
 # ============================================================
-# SINGEM — docker-compose.yml
-# Orquestração completa do ambiente
+# SINGEM — docker-compose.yml  [DEPRECATED]
 #
-# Uso básico (postgres + backend + frontend):
-#   docker compose up --build
+# ⚠ ESTE ARQUIVO SERÁ REMOVIDO EM VERSÃO FUTURA.
+# Use os novos arquivos standalone:
 #
-# Com AI Core:
-#   docker compose --profile ai up --build
+#   Desenvolvimento: docker/local/docker-compose.yml
+#   Produção (VPS):  docker/prod/docker-compose.yml
+#   Addons:          docker/addons/*.yml
 #
-# Com tudo (incluindo Redis explicitamente):
-#   docker compose --profile full up --build
+# Mantido temporariamente para compatibilidade com scripts
+# existentes e CI/CD.
 # ============================================================
 
 name: singem
@@ -28,7 +28,6 @@ volumes:
     name: singem_redis_data
 
 services:
-
   # ----------------------------------------------------------
   # PostgreSQL 15
   # ----------------------------------------------------------
@@ -44,11 +43,11 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
-      - "${DB_PORT_EXTERNAL:-5432}:5432"
+      - '${DB_PORT_EXTERNAL:-5432}:5432'
     networks:
       - singem-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-adm} -d ${DB_NAME:-singem}"]
+      test: ['CMD-SHELL', 'pg_isready -U ${DB_USER:-adm} -d ${DB_NAME:-singem}']
       interval: 10s
       timeout: 5s
       retries: 5
@@ -65,11 +64,11 @@ services:
     volumes:
       - redis_data:/data
     ports:
-      - "${REDIS_PORT_EXTERNAL:-6379}:6379"
+      - '${REDIS_PORT_EXTERNAL:-6379}:6379'
     networks:
       - singem-network
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ['CMD', 'redis-cli', 'ping']
       interval: 10s
       timeout: 5s
       retries: 3
@@ -143,7 +142,7 @@ services:
 
       FRONTEND_URL: ${FRONTEND_URL:-http://localhost:8000}
     ports:
-      - "${BACKEND_PORT_EXTERNAL:-3000}:3000"
+      - '${BACKEND_PORT_EXTERNAL:-3000}:3000'
     networks:
       - singem-network
     depends_on:
@@ -156,9 +155,9 @@ services:
     healthcheck:
       test:
         [
-          "CMD",
-          "node",
-          "-e",
+          'CMD',
+          'node',
+          '-e',
           "require('http').get('http://localhost:3000/health',r=>process.exit(r.statusCode===200?0:1)).on('error',()=>process.exit(1))"
         ]
       interval: 30s
@@ -176,7 +175,7 @@ services:
     container_name: singem-frontend
     restart: unless-stopped
     ports:
-      - "${FRONTEND_PORT_EXTERNAL:-8000}:80"
+      - '${FRONTEND_PORT_EXTERNAL:-8000}:80'
     networks:
       - singem-network
     depends_on:
@@ -214,7 +213,7 @@ services:
       EMBEDDING_DIMENSION: ${EMBEDDING_DIMENSION:-384}
       ENABLE_VECTOR_SEARCH: ${ENABLE_VECTOR_SEARCH:-true}
     ports:
-      - "${AI_PORT_EXTERNAL:-8010}:8010"
+      - '${AI_PORT_EXTERNAL:-8010}:8010'
     networks:
       - singem-network
     depends_on:

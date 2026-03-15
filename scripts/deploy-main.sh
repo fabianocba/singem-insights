@@ -1,14 +1,27 @@
 #!/usr/bin/env bash
+# ============================================================
+# SINGEM — Deploy para main (tag + push + Docker restart)
+#
+# Uso:
+#   bash scripts/deploy-main.sh                # deploy padrão
+#   CREATE_TAG=0 bash scripts/deploy-main.sh   # sem tag
+#   COMPOSE_DIR=docker/prod bash scripts/deploy-main.sh
+#
+# Pré-requisitos:
+#   - Branch main, working tree limpo
+#   - Docker Compose instalado na VPS
+#   - docker/prod/.env configurado
+# ============================================================
 set -euo pipefail
 
 REMOTE="${REMOTE:-origin}"
-APP_NAME="${APP_NAME:-singem-server}"
 CREATE_TAG="${CREATE_TAG:-1}"
-PM2_ENTRY="${PM2_ENTRY:-server/index.js}"
+COMPOSE_DIR="${COMPOSE_DIR:-docker/prod}"
 RUNTIME_VERSION_FILE="${RUNTIME_VERSION_FILE:-/opt/singem/runtime/version.json}"
 
 echo "🚀 Deploy main SINGEM (bump patch automático)"
 
+# --- Validações de segurança --------------------------------
 if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
   echo "❌ Não é um repositório git válido."
   exit 1
@@ -25,10 +38,12 @@ if ! git diff --quiet || ! git diff --cached --quiet; then
   exit 1
 fi
 
+# --- Atualiza código ----------------------------------------
 git fetch "$REMOTE" main
 git checkout main
 git pull "$REMOTE" main --ff-only
 
+# --- Bump de versão -----------------------------------------
 export SINGEM_RUNTIME_VERSION_FILE="$RUNTIME_VERSION_FILE"
 echo "🔢 Atualizando versão de runtime em: ${SINGEM_RUNTIME_VERSION_FILE}"
 npm --prefix server run version:deploy
@@ -60,6 +75,7 @@ fi
 
 echo "📦 Versão runtime ativa: v${NEW_VERSION} • build ${NEW_BUILD}"
 
+# --- Tag e push ---------------------------------------------
 if [[ "$CREATE_TAG" == "1" ]]; then
   if git rev-parse -q --verify "refs/tags/v${NEW_VERSION}" >/dev/null 2>&1; then
     echo "⚠️ Tag v${NEW_VERSION} já existe; pulando criação de tag."
@@ -73,24 +89,37 @@ if [[ "$CREATE_TAG" == "1" ]]; then
   git push "$REMOTE" --tags
 fi
 
-if command -v pm2 >/dev/null 2>&1; then
-  if pm2 describe "$APP_NAME" >/dev/null 2>&1; then
-    pm2 restart "$APP_NAME" --update-env
-    echo "✅ PM2 reiniciado: ${APP_NAME}"
-  else
-    if [[ -f "$PM2_ENTRY" ]]; then
-      pm2 start "$PM2_ENTRY" --name "$APP_NAME" --update-env
-      echo "✅ PM2 iniciado: ${APP_NAME} (${PM2_ENTRY})"
-    else
-      echo "❌ PM2 app '${APP_NAME}' não encontrada e entrypoint '${PM2_ENTRY}' inexistente."
-      exit 1
-    fi
-  fi
-
-  pm2 save
-  echo "✅ PM2 state salvo."
-else
-  echo "⚠️ PM2 não encontrado neste host. Reinicie o backend manualmente."
+# --- Restart via Docker Compose -----------------------------
+if ! command -v docker >/dev/null 2>&1; then
+  echo "❌ Docker não encontrado. Instale Docker + Compose antes do deploy."
+  exit 1
 fi
 
-echo "✅ Deploy main concluído."
+if [[ ! -f "${COMPOSE_DIR}/.env" ]]; then
+  echo "❌ ${COMPOSE_DIR}/.env não encontrado. Execute docker-setup primeiro."
+  exit 1
+fi
+
+echo "🐳 Reconstruindo containers via Docker Compose..."
+docker compose -f "${COMPOSE_DIR}/docker-compose.yml" up -d --build --remove-orphans
+
+# Aguarda backend saudável (max 90s)
+echo "⏳ Aguardando backend ficar saudável..."
+TRIES=0
+MAX=30
+until docker compose -f "${COMPOSE_DIR}/docker-compose.yml" exec -T backend \
+  wget -qO- http://localhost:3000/health >/dev/null 2>&1; do
+    TRIES=$((TRIES + 1))
+    if [ "$TRIES" -ge "$MAX" ]; then
+      echo "⚠️ Backend não respondeu após ${MAX} tentativas."
+      docker compose -f "${COMPOSE_DIR}/docker-compose.yml" logs --tail=30 backend
+      exit 1
+    fi
+    sleep 3
+done
+echo "✅ Backend saudável."
+
+# Limpa imagens antigas
+docker image prune -f --filter "until=72h" 2>/dev/null || true
+
+echo "✅ Deploy main concluído — v${NEW_VERSION} (${NEW_BUILD})"

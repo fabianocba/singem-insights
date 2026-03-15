@@ -19,10 +19,10 @@
     rollback — Reverte para o slot anterior
 
 .PARAMETER Compose
-    Arquivo compose base. Padrao: docker-compose.yml
+    Arquivo compose base. Padrao: docker/prod/docker-compose.yml
 
 .PARAMETER Override
-    Arquivo override. Padrao: docker-compose.prod.yml
+    Arquivo override (opcional).
 
 .PARAMETER GracePeriod
     Segundos antes de parar o container antigo. Padrao: 30.
@@ -42,7 +42,7 @@ param(
     [ValidateSet("deploy", "status", "rollback")]
     [string]$Action,
 
-    [string]$Compose = "docker-compose.yml",
+    [string]$Compose = "docker/prod/docker-compose.yml",
     [string]$Override = "",
     [int]$GracePeriod = 30,
     [string]$WebhookUrl = ""

@@ -11,35 +11,35 @@
 ### 🟢 ARQUIVOS CARREGADOS NO `index.html` (Ordem de Carregamento)
 
 | #     | Arquivo                       | Tipo         | Observação              |
-| ----- | ----------------------------- | ------------ | ------------------------- |
-| 1     | `js/config/version.js`        | ES Module    | Versão do sistema        |
-| 2     | `js/versionManager.js`        | Script       | Cache busting             |
+| ----- | ----------------------------- | ------------ | ----------------------- |
+| 1     | `js/config/version.js`        | ES Module    | Versão do sistema       |
+| 2     | `js/versionManager.js`        | Script       | Cache busting           |
 | 3     | `js/platform-core.js`         | Script       | Detecção de ambiente    |
 | 4     | `js/config.js`                | Script defer | Configurações globais   |
-| 5     | `js/db.js`                    | Script defer | IndexedDB setup           |
-| 6     | `js/utils/dbSafe.js`          | Script defer | Utilitários DB           |
-| 7     | `js/pdfReader.js`             | Script defer | Leitura de PDFs           |
+| 5     | `js/db.js`                    | Script defer | IndexedDB setup         |
+| 6     | `js/utils/dbSafe.js`          | Script defer | Utilitários DB          |
+| 7     | `js/pdfReader.js`             | Script defer | Leitura de PDFs         |
 | 8     | `js/neParserInit.js`          | ES Module    | Inicialização neParser  |
 | 9     | `js/nfeIntegration.js`        | Script defer | Integração NF-e         |
-| 10    | `js/fsManager.js`             | Script defer | File System API           |
+| 10    | `js/fsManager.js`             | Script defer | File System API         |
 | 11    | `js/core/protection.js`       | Script defer | Proteção de dados       |
-| 12    | `js/core/integrity.js`        | Script defer | Integridade               |
-| 13    | `js/core/trashManager.js`     | Script defer | Lixeira                   |
-| 14    | `js/core/fsManagerLegacy.js`  | Script defer | Compatibilidade FS        |
-| 15    | `js/core/dataBackup.js`       | Script defer | Backup automático        |
-| 16    | `js/utils/formatters.js`      | ES Module    | Formatadores              |
+| 12    | `js/core/integrity.js`        | Script defer | Integridade             |
+| 13    | `js/core/trashManager.js`     | Script defer | Lixeira                 |
+| 14    | `js/core/fsManagerLegacy.js`  | Script defer | Compatibilidade FS      |
+| 15    | `js/core/dataBackup.js`       | Script defer | Backup automático       |
+| 16    | `js/utils/formatters.js`      | ES Module    | Formatadores            |
 | 17    | `js/app.js`                   | ES Module    | **Aplicação principal** |
-| 18    | `js/settings/index.js`        | Script defer | Settings init             |
-| 19    | `js/settings/unidade.js`      | Script defer | Config unidade            |
+| 18    | `js/settings/index.js`        | Script defer | Settings init           |
+| 19    | `js/settings/unidade.js`      | Script defer | Config unidade          |
 | 20    | `js/settings/usuarios.js`     | Script defer | Gestão usuários         |
-| 21    | `js/settings/rede.js`         | Script defer | Config rede               |
-| 22    | `js/settings/preferencias.js` | Script defer | Preferências             |
-| 23    | `js/settings/arquivos.js`     | Script defer | Config arquivos           |
+| 21    | `js/settings/rede.js`         | Script defer | Config rede             |
+| 22    | `js/settings/preferencias.js` | Script defer | Preferências            |
+| 23    | `js/settings/arquivos.js`     | Script defer | Config arquivos         |
 | 24    | `js/ui/settings/protecao.js`  | Script defer | UI proteção             |
-| 25-36 | `js/refine/*.js`              | Script defer | Pipeline de parsing       |
+| 25-36 | `js/refine/*.js`              | Script defer | Pipeline de parsing     |
 | 37    | `js/softInit.js`              | ES Module    | Inicialização segura    |
 | 38    | `js/exportCSV.js`             | Script defer | Exportação CSV          |
-| 39    | `js/infrastructureInfo.js`    | Script defer | Info infraestrutura       |
+| 39    | `js/infrastructureInfo.js`    | Script defer | Info infraestrutura     |
 
 ### 🔵 ARQUIVOS IMPORTADOS VIA ES MODULES (Cadeia de Dependências)
 
@@ -107,22 +107,22 @@
 
 Os seguintes arquivos **existem** mas **NÃO são carregados** em nenhum HTML ou importados:
 
-| Arquivo                            | Status          | Recomendação                                   |
-| ---------------------------------- | --------------- | ------------------------------------------------ |
-| `js/bootstrap.js`                  | ⚠️ Órfão   | Sistema de carregamento alternativo - NÃO USADO |
-| `js/cacheBuster.js`                | ⚠️ Órfão   | Funcionalidade no `versionManager.js`            |
-| `js/dbInit.js`                     | ⚠️ Órfão   | Inicialização DB duplicada                     |
-| `js/quick-check.js`                | ⚠️ Órfão   | Ferramenta de diagnóstico manual (console)      |
-| `js/neParser.examples.js`          | ⚠️ Órfão   | Exemplos para documentação                     |
-| `js/core/dbOptimizations.js`       | ⚠️ Órfão   | Carregado só via bootstrap (não usado)         |
-| `js/core/errorBoundary.js`         | ⚠️ Órfão   | Carregado só via bootstrap (não usado)         |
-| `js/core/performance.js`           | ⚠️ Órfão   | Carregado só via bootstrap (não usado)         |
-| `js/core/security.js`              | ⚠️ Órfão   | Carregado só via bootstrap (não usado)         |
-| `js/core/env.js`                   | ⚠️ Órfão   | Variáveis de ambiente não usadas               |
-| `js/core/htmlSanitizer.js`         | ⚠️ Órfão   | Import removido do app.js                        |
-| `js/core/serviceWorker.js`         | ⚠️ Órfão   | SW não registrado                               |
-| `js/refine/parserUI.js`            | ⚠️ Órfão   | Carregado só via bootstrap (não usado)         |
-| `js/refine/worker/parse.worker.js` | ⚠️ Verificar | Pode ser carregado dinamicamente                 |
+| Arquivo                            | Status       | Recomendação                                    |
+| ---------------------------------- | ------------ | ----------------------------------------------- |
+| `js/bootstrap.js`                  | ⚠️ Órfão     | Sistema de carregamento alternativo - NÃO USADO |
+| `js/cacheBuster.js`                | ⚠️ Órfão     | Funcionalidade no `versionManager.js`           |
+| `js/dbInit.js`                     | ⚠️ Órfão     | Inicialização DB duplicada                      |
+| `js/quick-check.js`                | ⚠️ Órfão     | Ferramenta de diagnóstico manual (console)      |
+| `js/neParser.examples.js`          | ⚠️ Órfão     | Exemplos para documentação                      |
+| `js/core/dbOptimizations.js`       | ⚠️ Órfão     | Carregado só via bootstrap (não usado)          |
+| `js/core/errorBoundary.js`         | ⚠️ Órfão     | Carregado só via bootstrap (não usado)          |
+| `js/core/performance.js`           | ⚠️ Órfão     | Carregado só via bootstrap (não usado)          |
+| `js/core/security.js`              | ⚠️ Órfão     | Carregado só via bootstrap (não usado)          |
+| `js/core/env.js`                   | ⚠️ Órfão     | Variáveis de ambiente não usadas                |
+| `js/core/htmlSanitizer.js`         | ⚠️ Órfão     | Import removido do app.js                       |
+| `js/core/serviceWorker.js`         | ⚠️ Órfão     | SW não registrado                               |
+| `js/refine/parserUI.js`            | ⚠️ Órfão     | Carregado só via bootstrap (não usado)          |
+| `js/refine/worker/parse.worker.js` | ⚠️ Verificar | Pode ser carregado dinamicamente                |
 | `js/consultas/loader.js`           | ⚠️ Verificar | Não importado explicitamente                    |
 
 ---
@@ -147,7 +147,7 @@ Os seguintes arquivos **existem** mas **NÃO são carregados** em nenhum HTML ou
 | **Arquivos JS Total**         | ~70+       |
 | **Carregados em index.html**  | 39         |
 | **Importados via ES Modules** | ~25        |
-| **Potencialmente Órfãos**   | 15         |
+| **Potencialmente Órfãos**     | 15         |
 | **Linhas em app.js**          | 5036       |
 | **Testes**                    | 32 passing |
 | **Lint Warnings**             | 0          |

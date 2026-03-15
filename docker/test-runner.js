@@ -8,7 +8,7 @@ const http = require('http');
 const checks = [
   { name: 'Backend Health', url: 'http://backend-test:3000/health' },
   { name: 'Frontend Index', url: 'http://frontend-test:80/' },
-  { name: 'API Proxy', url: 'http://frontend-test:80/api/health' },
+  { name: 'API Proxy', url: 'http://frontend-test:80/api/health' }
 ];
 
 function checkUrl(name, url) {
@@ -38,7 +38,7 @@ async function runMigrationCheck() {
   try {
     const { Client } = require('pg');
     const client = new Client({
-      connectionString: process.env.DATABASE_URL,
+      connectionString: process.env.DATABASE_URL
     });
     await client.connect();
     const res = await client.query('SELECT COUNT(*) as total FROM _migrations');

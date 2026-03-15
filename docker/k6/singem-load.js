@@ -29,19 +29,19 @@ export const options = {
       vus: 2,
       duration: '30s',
       startTime: '0s',
-      tags: { scenario: 'smoke' },
+      tags: { scenario: 'smoke' }
     },
     // Load test: carga media sustentada
     load: {
       executor: 'ramping-vus',
       startVUs: 0,
       stages: [
-        { duration: '1m', target: 20 },   // ramp up
-        { duration: '3m', target: 20 },   // sustain
-        { duration: '1m', target: 0 },    // ramp down
+        { duration: '1m', target: 20 }, // ramp up
+        { duration: '3m', target: 20 }, // sustain
+        { duration: '1m', target: 0 } // ramp down
       ],
       startTime: '30s',
-      tags: { scenario: 'load' },
+      tags: { scenario: 'load' }
     },
     // Stress test: picos de carga
     stress: {
@@ -52,20 +52,20 @@ export const options = {
         { duration: '1m', target: 50 },
         { duration: '30s', target: 100 },
         { duration: '1m', target: 100 },
-        { duration: '30s', target: 0 },
+        { duration: '30s', target: 0 }
       ],
       startTime: '5m30s',
-      tags: { scenario: 'stress' },
-    },
+      tags: { scenario: 'stress' }
+    }
   },
   thresholds: {
     // SLOs
     http_req_duration: ['p(95)<500', 'p(99)<1500'],
-    http_req_failed: ['rate<0.05'],          // < 5% erro
-    singem_errors: ['rate<0.1'],             // < 10% erros customizados
-    singem_health_duration: ['p(95)<200'],   // health < 200ms p95
-    singem_api_info_duration: ['p(95)<300'], // info < 300ms p95
-  },
+    http_req_failed: ['rate<0.05'], // < 5% erro
+    singem_errors: ['rate<0.1'], // < 10% erros customizados
+    singem_health_duration: ['p(95)<200'], // health < 200ms p95
+    singem_api_info_duration: ['p(95)<300'] // info < 300ms p95
+  }
 };
 
 // ---- Funcao principal ------------------------------------
@@ -77,10 +77,13 @@ export default function () {
     const ok = check(res, {
       'health status 200': (r) => r.status === 200,
       'health body has status': (r) => {
-        try { return JSON.parse(r.body).status !== undefined; }
-        catch { return false; }
+        try {
+          return JSON.parse(r.body).status !== undefined;
+        } catch {
+          return false;
+        }
       },
-      'health response < 500ms': (r) => r.timings.duration < 500,
+      'health response < 500ms': (r) => r.timings.duration < 500
     });
     errorRate.add(!ok);
   });
@@ -94,9 +97,12 @@ export default function () {
     const ok = check(res, {
       'info status 200': (r) => r.status === 200,
       'info has nome': (r) => {
-        try { return JSON.parse(r.body).nome !== undefined; }
-        catch { return false; }
-      },
+        try {
+          return JSON.parse(r.body).nome !== undefined;
+        } catch {
+          return false;
+        }
+      }
     });
     errorRate.add(!ok);
   });
@@ -109,9 +115,12 @@ export default function () {
     const ok = check(res, {
       'version status 200': (r) => r.status === 200,
       'version has ok': (r) => {
-        try { return JSON.parse(r.body).ok === true; }
-        catch { return false; }
-      },
+        try {
+          return JSON.parse(r.body).ok === true;
+        } catch {
+          return false;
+        }
+      }
     });
     errorRate.add(!ok);
   });
@@ -123,7 +132,7 @@ export default function () {
 
     const ok = check(res, {
       'metrics status 200': (r) => r.status === 200,
-      'metrics has singem_up': (r) => r.body && r.body.includes('singem_up'),
+      'metrics has singem_up': (r) => r.body && r.body.includes('singem_up')
     });
     errorRate.add(!ok);
   });
@@ -134,7 +143,7 @@ export default function () {
     const res = http.get(`${BASE_URL}/`);
 
     const ok = check(res, {
-      'index status 200': (r) => r.status === 200,
+      'index status 200': (r) => r.status === 200
     });
     errorRate.add(!ok);
   });
@@ -148,13 +157,10 @@ export function handleSummary(data) {
     (m) => !m.thresholds || Object.values(m.thresholds).every((t) => t.ok)
   );
 
-  console.log(passed
-    ? '\n✅ Todos os thresholds passaram!'
-    : '\n❌ Alguns thresholds falharam!'
-  );
+  console.log(passed ? '\n✅ Todos os thresholds passaram!' : '\n❌ Alguns thresholds falharam!');
 
   return {
-    stdout: textSummary(data, { indent: '  ', enableColors: true }),
+    stdout: textSummary(data, { indent: '  ', enableColors: true })
   };
 }
 

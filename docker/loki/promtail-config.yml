@@ -27,22 +27,22 @@ scrape_configs:
         refresh_interval: 5s
         filters:
           - name: label
-            values: ["com.docker.compose.project=singem"]
+            values: ['com.docker.compose.project=singem']
     relabel_configs:
       # Extrai nome do container
-      - source_labels: ["__meta_docker_container_name"]
-        regex: "/(.*)"
-        target_label: "container"
+      - source_labels: ['__meta_docker_container_name']
+        regex: '/(.*)'
+        target_label: 'container'
       # Extrai nome do servico compose
-      - source_labels: ["__meta_docker_container_label_com_docker_compose_service"]
-        target_label: "service"
+      - source_labels: ['__meta_docker_container_label_com_docker_compose_service']
+        target_label: 'service'
       # Extrai project name
-      - source_labels: ["__meta_docker_container_label_com_docker_compose_project"]
-        target_label: "project"
+      - source_labels: ['__meta_docker_container_label_com_docker_compose_project']
+        target_label: 'project'
       # Adiciona label de ambiente
-      - source_labels: ["__meta_docker_container_label_com_docker_compose_project"]
-        target_label: "environment"
-        replacement: "docker"
+      - source_labels: ['__meta_docker_container_label_com_docker_compose_project']
+        target_label: 'environment'
+        replacement: 'docker'
     pipeline_stages:
       # Tenta parsear JSON (backend Node.js emite JSON)
       - json:
@@ -73,6 +73,6 @@ scrape_configs:
           source: time
           format: RFC3339Nano
           fallback_formats:
-            - "2006-01-02T15:04:05.000Z"
+            - '2006-01-02T15:04:05.000Z'
             - UnixMs
           action_on_failure: fudge

@@ -193,11 +193,11 @@ if ($Production) {
     Write-Host ""
     Write-Host "  Próximos passos:" -ForegroundColor Yellow
     Write-Host "    1. Revise o .env e ajuste SMTP, integrações, etc."
-    Write-Host "    2. docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build"
+    Write-Host "    2. cd docker/prod && docker compose up -d --build"
     Write-Host "    3. docker compose logs -f backend  # verificar migrations e saúde"
 } else {
     Write-Host "  [DEV] Próximos passos:" -ForegroundColor Yellow
-    Write-Host "    1. docker compose up --build"
+    Write-Host "    1. cd docker/local && docker compose up --build"
     Write-Host "    2. Acesse http://localhost:8000"
     Write-Host "    3. Login: admin / $adminPassword"
 }

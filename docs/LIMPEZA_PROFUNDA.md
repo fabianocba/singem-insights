@@ -16,13 +16,13 @@
 
 ### Arquivos na Raiz
 
-| Tipo           | Antes (v1.2.1) | Depois (v1.2.2) | Redução    |
-| -------------- | -------------- | --------------- | ------------ |
+| Tipo           | Antes (v1.2.1) | Depois (v1.2.2) | Redução     |
+| -------------- | -------------- | --------------- | ----------- |
 | **Arquivos**   | 11             | **4**           | **-64%** ✅ |
-| **HTML**       | 2              | 1               | -50%         |
-| **Markdown**   | 7              | 1               | -86%         |
-| **PowerShell** | 2              | 2 (atalhos)     | 0%           |
-| **Workspace**  | 1              | 0               | -100%        |
+| **HTML**       | 2              | 1               | -50%        |
+| **Markdown**   | 7              | 1               | -86%        |
+| **PowerShell** | 2              | 2 (atalhos)     | 0%          |
+| **Workspace**  | 1              | 0               | -100%       |
 
 ### Estrutura
 
@@ -146,17 +146,17 @@ SINGEM/                          ← RAIZ MINIMALISTA
 ## 🎯 Estrutura Final por Pasta
 
 | Pasta          | Arquivos        | Descrição                |
-| -------------- | --------------- | -------------------------- |
-| **`/` (raiz)** | **4**           | **Apenas essenciais** ⭐   |
+| -------------- | --------------- | ------------------------ |
+| **`/` (raiz)** | **4**           | **Apenas essenciais** ⭐ |
 | `config/`      | 3               | Configurações do sistema |
-| `scripts/`     | 3               | Scripts utilitários       |
+| `scripts/`     | 3               | Scripts utilitários      |
 | `docs/`        | 15              | Documentação completa    |
-| `css/`         | 1               | Estilos                    |
-| `js/`          | 11              | JavaScript                 |
-| `data/`        | 3 + exemplos    | Dados                      |
-| `testes/`      | 3 + html + pdfs | Testes                     |
-| `server/`      | 3               | Node.js                    |
-| `img/`         | 0               | Imagens (vazia)            |
+| `css/`         | 1               | Estilos                  |
+| `js/`          | 11              | JavaScript               |
+| `data/`        | 3 + exemplos    | Dados                    |
+| `testes/`      | 3 + html + pdfs | Testes                   |
+| `server/`      | 3               | Node.js                  |
+| `img/`         | 0               | Imagens (vazia)          |
 
 ---
 
@@ -250,10 +250,10 @@ SINGEM/                          ← RAIZ MINIMALISTA
 ### Comparativo Geral
 
 | Versão                       | Arquivos Raiz | Pastas | Organização |
-| ----------------------------- | ------------- | ------ | ------------- |
-| **1.0** (inicial)             | 26            | 6      | ⭐            |
-| **1.2.1** (após 1ª limpeza) | 11            | 9      | ⭐⭐⭐        |
-| **1.2.2** (limpeza profunda)  | **4**         | **10** | ⭐⭐⭐⭐⭐    |
+| ---------------------------- | ------------- | ------ | ----------- |
+| **1.0** (inicial)            | 26            | 6      | ⭐          |
+| **1.2.1** (após 1ª limpeza)  | 11            | 9      | ⭐⭐⭐      |
+| **1.2.2** (limpeza profunda) | **4**         | **10** | ⭐⭐⭐⭐⭐  |
 
 ### Redução Total
 

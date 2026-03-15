@@ -68,23 +68,27 @@
                     src="img/govbr-logo.svg"
                     alt="Gov.br"
                     class="govbr-logo-img"
-                    onerror="this.style.display='none'; this.nextElementSibling.style.display='block'"
+                    onerror="
+                      this.style.display = 'none';
+                      this.nextElementSibling.style.display = 'block';
+                    "
                   />
-                  <div class="govbr-logo-fallback">
-                    gov.br
-                  </div>
+                  <div class="govbr-logo-fallback">gov.br</div>
                   <h2>Login Único Gov.br</h2>
                   <p>Autenticação institucional do Governo Federal</p>
                 </div>
 
-                <a
-                  id="btnGovBr"
-                  href="#"
-                  class="btn-govbr"
-                  onclick="return false;"
-                >
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                    ><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg>
+                <a id="btnGovBr" href="#" class="btn-govbr" onclick="return false;">
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4M10 17l5-5-5-5M15 12H3" />
+                  </svg>
                   Entrar com Gov.br
                 </a>
 
@@ -95,8 +99,9 @@
                 <div class="govbr-security-note">
                   <span class="govbr-security-icon">🔒</span>
                   <div>
-                    <strong class="govbr-security-label">Segurança máxima</strong> — Suas credenciais são
-                    verificadas diretamente pelo portal gov.br. O SINGEM nunca armazena sua senha.
+                    <strong class="govbr-security-label">Segurança máxima</strong> — Suas
+                    credenciais são verificadas diretamente pelo portal gov.br. O SINGEM nunca
+                    armazena sua senha.
                   </div>
                 </div>
 
@@ -178,11 +183,7 @@
                   onclick="return false;"
                   class="btn btn-outline btn-block"
                 >
-                  <img
-                    src="img/icone-serproid-1024px.png"
-                    alt="SerproID"
-                    class="serproid-icon"
-                  />
+                  <img src="img/icone-serproid-1024px.png" alt="SerproID" class="serproid-icon" />
                   Certificado Digital (SerproID)
                 </a>
 
@@ -202,14 +203,21 @@
                 <div class="login-help-content">
                   <p><strong>Sistema SINGEM</strong></p>
                   <p>
-                    <strong>Gov.br (recomendado):</strong> Use sua conta gov.br para acesso rápido e seguro. Se ainda não tem, crie em
-                    <a href="https://acesso.gov.br" target="_blank" rel="noopener noreferrer">acesso.gov.br</a>.
+                    <strong>Gov.br (recomendado):</strong> Use sua conta gov.br para acesso rápido e
+                    seguro. Se ainda não tem, crie em
+                    <a href="https://acesso.gov.br" target="_blank" rel="noopener noreferrer"
+                      >acesso.gov.br</a
+                    >.
                   </p>
                   <p>
-                    <strong>Acesso administrativo:</strong> Credenciais fornecidas pelo administrador do sistema.
+                    <strong>Acesso administrativo:</strong> Credenciais fornecidas pelo
+                    administrador do sistema.
                   </p>
                   <p>
-                    <small>⚠️ Se é o primeiro acesso administrativo, contate o administrador para cadastro.</small>
+                    <small
+                      >⚠️ Se é o primeiro acesso administrativo, contate o administrador para
+                      cadastro.</small
+                    >
                   </p>
                 </div>
               </details>
@@ -1896,14 +1904,18 @@
     <!-- Gov.br + SerproID - Verifica disponibilidade e configura botões -->
     <script>
       (function () {
-        var base = (window.CONFIG && window.CONFIG.api && window.CONFIG.api.baseUrl) || 'http://localhost:3000';
+        var base =
+          (window.CONFIG && window.CONFIG.api && window.CONFIG.api.baseUrl) ||
+          'http://localhost:3000';
 
         // --- Gov.br ---
         var btnGovBr = document.getElementById('btnGovBr');
         var warnGovBr = document.getElementById('govbrUnavailable');
 
         fetch(base + '/api/auth/govbr/status', { method: 'GET' })
-          .then(function (r) { return r.json(); })
+          .then(function (r) {
+            return r.json();
+          })
           .then(function (data) {
             if (data.sucesso && data.govbr && data.govbr.habilitado) {
               btnGovBr.onclick = function (e) {
@@ -1926,14 +1938,26 @@
         var sepSerpro = document.getElementById('serproidSeparator');
 
         fetch(base + '/api/auth/serproid/status', { method: 'GET' })
-          .then(function (r) { return r.json(); })
+          .then(function (r) {
+            return r.json();
+          })
           .then(function (data) {
-            if (data.sucesso && data.serproid && data.serproid.habilitado && data.serproid.configurado) {
+            if (
+              data.sucesso &&
+              data.serproid &&
+              data.serproid.habilitado &&
+              data.serproid.configurado
+            ) {
               btnSerpro.onclick = function (e) {
                 e.preventDefault();
                 window.location.href = base + '/api/auth/serproid/login';
               };
-            } else if (data.sucesso && data.serproid && data.serproid.habilitado && !data.serproid.configurado) {
+            } else if (
+              data.sucesso &&
+              data.serproid &&
+              data.serproid.habilitado &&
+              !data.serproid.configurado
+            ) {
               btnSerpro.classList.add('disabled');
               if (warnSerpro) warnSerpro.classList.add('show');
             } else {

@@ -44,7 +44,7 @@ class FornecedorRepository:
                 ) AS metadata_json
             FROM consolidado
             WHERE (
-                %s IS NULL
+                CAST(%s AS TEXT) IS NULL
                 OR CASE
                     WHEN cnpj <> '' THEN cnpj
                     ELSE md5(lower(fornecedor))

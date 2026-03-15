@@ -119,7 +119,8 @@ function updateServices(data) {
   const services = Array.isArray(data?.services) ? data.services : [];
 
   if (services.length === 0) {
-    grid.innerHTML = '<article class="service-card"><h3>Sem dados</h3><p class="service-message">Nenhum serviço retornado pela API.</p></article>';
+    grid.innerHTML =
+      '<article class="service-card"><h3>Sem dados</h3><p class="service-message">Nenhum serviço retornado pela API.</p></article>';
     return;
   }
 
@@ -154,7 +155,8 @@ function updateSystemMetrics(data) {
   byId('memRss').textContent = formatMegabytes(memory.rss);
   byId('memHeapUsed').textContent = formatMegabytes(memory.heapUsed);
   byId('memHeapTotal').textContent = formatMegabytes(memory.heapTotal);
-  byId('sysCpuLoad').textContent = cpuLoad.length > 0 ? cpuLoad.map((item) => Number(item).toFixed(2)).join(' | ') : '-';
+  byId('sysCpuLoad').textContent =
+    cpuLoad.length > 0 ? cpuLoad.map((item) => Number(item).toFixed(2)).join(' | ') : '-';
 }
 
 function setRefreshState(text) {

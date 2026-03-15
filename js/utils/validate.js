@@ -227,19 +227,9 @@ export function normalizeCNPJ(cnpj) {
 }
 
 /**
- * Formata CNPJ
- * @param {string} cnpj - CNPJ sem formatação
- * @returns {string} CNPJ formatado (XX.XXX.XXX/XXXX-XX)
+ * @deprecated Use formatCNPJ from '../core/format.js' instead
  */
-export function formatCNPJ(cnpj) {
-  cnpj = normalizeCNPJ(cnpj);
-
-  if (cnpj.length !== 14) {
-    return cnpj;
-  }
-
-  return cnpj.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/, '$1.$2.$3/$4-$5');
-}
+export { formatCNPJ } from '../core/format.js';
 
 /**
  * Normaliza CPF (remove formatação)

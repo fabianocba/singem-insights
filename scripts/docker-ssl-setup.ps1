@@ -106,11 +106,8 @@ if ($Mode -eq "selfsigned") {
     Write-Host "    - $certFile"
     Write-Host "    - $keyFile"
     Write-Host ""
-    Write-Host "  Para usar com Docker Compose, adicione ao docker-compose.prod.yml:" -ForegroundColor Yellow
-    Write-Host "    frontend:"
-    Write-Host "      volumes:"
-    Write-Host "        - ./docker/ssl:/etc/nginx/ssl:ro"
-    Write-Host "        - ./docker/nginx-ssl.conf:/etc/nginx/conf.d/default.conf:ro"
+    Write-Host "  Para usar com Docker Compose (docker/prod/docker-compose.yml):" -ForegroundColor Yellow
+    Write-Host "    volumes do frontend ja mapeiam docker/ssl automaticamente."
     Write-Host ""
     Write-Host "  NOTA: Navegadores mostrarao aviso de seguranca (certificado auto-assinado)." -ForegroundColor Yellow
 

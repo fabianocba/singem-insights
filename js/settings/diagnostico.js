@@ -4,8 +4,9 @@
  * @module settings/diagnostico
  */
 
-import { detectStorageUsage, printStorageReport, getSystemStats } from '../core/storageAudit.js';
+import { detectStorageUsage, printStorageReport, getSystemStats, formatBytes } from '../core/storageAudit.js';
 import { StorageAdapter } from '../core/storageAdapter.js';
+import { escapeHTML as escapeHtml } from '../utils/sanitize.js';
 
 // ============================================================================
 // Estado do módulo
@@ -17,19 +18,6 @@ const SERVER_MODE = window.CONFIG?.storage?.mode === 'server';
 // ============================================================================
 // Funções de formatação
 // ============================================================================
-
-/**
- * Formata bytes para exibição legível
- */
-function formatBytes(bytes) {
-  if (bytes === 0) {
-    return '0 B';
-  }
-  const k = 1024;
-  const sizes = ['B', 'KB', 'MB', 'GB'];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-}
 
 /**
  * Formata data para exibição
@@ -304,15 +292,6 @@ function renderSystemInfo(containerId) {
 
   html += '</table>';
   container.innerHTML = html;
-}
-
-/**
- * Escapa HTML para prevenir XSS
- */
-function escapeHtml(text) {
-  const div = document.createElement('div');
-  div.textContent = text;
-  return div.innerHTML;
 }
 
 // ============================================================================

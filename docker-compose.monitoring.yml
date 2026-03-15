@@ -1,17 +1,13 @@
 # ============================================================
-# SINGEM — docker-compose.monitoring.yml
-# Observabilidade com Prometheus + Grafana
+# SINGEM — docker-compose.monitoring.yml  [DEPRECATED]
 #
-# Uso:
-#   docker compose -f docker-compose.yml -f docker-compose.monitoring.yml up -d
+# ⚠ ESTE ARQUIVO SERÁ REMOVIDO EM VERSÃO FUTURA.
+# Use: docker/addons/monitoring.yml
 #
-# Acessos:
-#   - Prometheus: http://localhost:9090
-#   - Grafana:    http://localhost:3100 (admin / admin)
+# Mantido temporariamente para compatibilidade.
 # ============================================================
 
 services:
-
   # ----------------------------------------------------------
   # Prometheus — coleta de metricas
   # ----------------------------------------------------------
@@ -23,16 +19,16 @@ services:
       - ./docker/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - prometheus_data:/prometheus
     ports:
-      - "${PROMETHEUS_PORT:-9090}:9090"
+      - '${PROMETHEUS_PORT:-9090}:9090'
     networks:
       - singem-network
     command:
-      - "--config.file=/etc/prometheus/prometheus.yml"
-      - "--storage.tsdb.path=/prometheus"
-      - "--storage.tsdb.retention.time=30d"
-      - "--web.enable-lifecycle"
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=30d'
+      - '--web.enable-lifecycle'
     healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost:9090/-/healthy"]
+      test: ['CMD', 'wget', '-qO-', 'http://localhost:9090/-/healthy']
       interval: 30s
       timeout: 5s
       retries: 3
@@ -47,20 +43,20 @@ services:
     environment:
       GF_SECURITY_ADMIN_USER: ${GRAFANA_USER:-admin}
       GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-admin}
-      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_USERS_ALLOW_SIGN_UP: 'false'
       GF_SERVER_ROOT_URL: ${GRAFANA_ROOT_URL:-http://localhost:3100}
     volumes:
       - grafana_data:/var/lib/grafana
       - ./docker/grafana/provisioning:/etc/grafana/provisioning:ro
     ports:
-      - "${GRAFANA_PORT:-3100}:3000"
+      - '${GRAFANA_PORT:-3100}:3000'
     networks:
       - singem-network
     depends_on:
       prometheus:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost:3000/api/health"]
+      test: ['CMD', 'wget', '-qO-', 'http://localhost:3000/api/health']
       interval: 30s
       timeout: 5s
       retries: 3
@@ -77,9 +73,9 @@ services:
       - /proc:/host/proc:ro
       - /sys:/host/sys:ro
     command:
-      - "--path.procfs=/host/proc"
-      - "--path.sysfs=/host/sys"
-      - "--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)"
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
     networks:
       - singem-network
 
@@ -91,7 +87,7 @@ services:
     container_name: singem-postgres-exporter
     restart: unless-stopped
     environment:
-      DATA_SOURCE_NAME: "postgresql://${DB_USER:-adm}:${DB_PASSWORD:-Singem@12345}@postgres:5432/${DB_NAME:-singem}?sslmode=disable"
+      DATA_SOURCE_NAME: 'postgresql://${DB_USER:-adm}:${DB_PASSWORD:-Singem@12345}@postgres:5432/${DB_NAME:-singem}?sslmode=disable'
     networks:
       - singem-network
     depends_on:

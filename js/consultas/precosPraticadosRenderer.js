@@ -1,6 +1,7 @@
 /**
  * Renderizador executivo do Módulo 3 - Inteligencia de Precos Publicos.
  */
+import { escapeHTML as escapeHtml } from '../utils/sanitize.js';
 
 const TABLE_PAGE_SIZE_OPTIONS = [10, 15, 25, 50, 100];
 
@@ -56,15 +57,6 @@ function clamp(value, min, max, fallback) {
   }
 
   return Math.max(min, Math.min(parsed, max));
-}
-
-function escapeHtml(value) {
-  return String(value ?? '')
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
 }
 
 function toNumber(value, fallback = null) {

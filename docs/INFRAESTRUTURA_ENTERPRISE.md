@@ -298,19 +298,19 @@ import * as asyncQueue from './core/asyncQueue.js';
 
 ### **Processamento de PDF**
 
-| Evento            | Quando           | Payload                                       |
-| ----------------- | ---------------- | --------------------------------------------- |
-| `pdf.parse:start` | Iniciando parse  | `{ filename }`                                |
+| Evento            | Quando          | Payload                                       |
+| ----------------- | --------------- | --------------------------------------------- |
+| `pdf.parse:start` | Iniciando parse | `{ filename }`                                |
 | `pdf.parse:done`  | Parse concluído | `{ tipoDocumento, textoCompleto, metadados }` |
-| `pdf.parse:error` | Erro no parse    | `{ message, stack }`                          |
+| `pdf.parse:error` | Erro no parse   | `{ message, stack }`                          |
 
 ### **Geração de Relatórios**
 
-| Evento                  | Quando                | Payload               |
-| ----------------------- | --------------------- | --------------------- |
-| `relatorio.gerar:start` | Iniciando relatório  | `{ tipo }`            |
+| Evento                  | Quando              | Payload               |
+| ----------------------- | ------------------- | --------------------- |
+| `relatorio.gerar:start` | Iniciando relatório | `{ tipo }`            |
 | `relatorio.gerar:done`  | Relatório concluído | `{ tipo, resultado }` |
-| `relatorio.gerar:error` | Erro no relatório    | `{ tipo, message }`   |
+| `relatorio.gerar:error` | Erro no relatório   | `{ tipo, message }`   |
 
 ### **Fila Assíncrona**
 
@@ -318,7 +318,7 @@ import * as asyncQueue from './core/asyncQueue.js';
 | ------------------ | ----------------- | ---------------------- |
 | `queue.task:added` | Tarefa adicionada | `{ id, tipo }`         |
 | `queue.task:start` | Iniciando tarefa  | `{ id, tipo }`         |
-| `queue.task:done`  | Tarefa concluída | `{ id, tipo, result }` |
+| `queue.task:done`  | Tarefa concluída  | `{ id, tipo, result }` |
 | `queue.task:error` | Erro na tarefa    | `{ id, tipo, error }`  |
 
 ---

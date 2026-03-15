@@ -1,17 +1,10 @@
 # ============================================================
-# SINGEM — docker-compose.test.yml
-# Ambiente isolado para testes de integração
+# SINGEM — docker-compose.test.yml  [DEPRECATED]
 #
-# Uso local:
-#   docker compose -f docker-compose.test.yml up --build --abort-on-container-exit
-#   docker compose -f docker-compose.test.yml down -v
+# ⚠ ESTE ARQUIVO SERÁ REMOVIDO EM VERSÃO FUTURA.
+# Use: docker/addons/test.yml
 #
-# Características:
-#   - Volumes efêmeros (sem persistência)
-#   - Banco de dados limpo a cada execução
-#   - Executa suite de testes e retorna exit code
-#   - Rede isolada (não conflita com ambiente de dev)
-#   - Portas diferentes para evitar colisão (5433, 3001, 8001)
+# Mantido temporariamente para compatibilidade com CI/CD.
 # ============================================================
 
 name: singem-test
@@ -22,7 +15,6 @@ networks:
     driver: bridge
 
 services:
-
   # ----------------------------------------------------------
   # PostgreSQL — efêmero (sem volume persistente)
   # ----------------------------------------------------------
@@ -36,11 +28,11 @@ services:
     tmpfs:
       - /var/lib/postgresql/data
     ports:
-      - "5433:5432"
+      - '5433:5432'
     networks:
       - singem-test-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U test_user -d singem_test"]
+      test: ['CMD-SHELL', 'pg_isready -U test_user -d singem_test']
       interval: 5s
       timeout: 3s
       retries: 10
@@ -56,11 +48,11 @@ services:
     tmpfs:
       - /data
     ports:
-      - "6380:6379"
+      - '6380:6379'
     networks:
       - singem-test-network
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ['CMD', 'redis-cli', 'ping']
       interval: 5s
       timeout: 3s
       retries: 5
@@ -93,17 +85,17 @@ services:
       ADMIN_EMAIL: test@test.local
       ADMIN_PASSWORD: TestPassword123!
 
-      TRUST_PROXY: "false"
+      TRUST_PROXY: 'false'
       CORS_ORIGINS: http://localhost:8001,http://localhost:3001
       FRONTEND_URL: http://localhost:8001
 
-      AI_CORE_ENABLED: "false"
-      GOVBR_ENABLED: "false"
-      SERPRO_ENABLED: "false"
+      AI_CORE_ENABLED: 'false'
+      GOVBR_ENABLED: 'false'
+      SERPRO_ENABLED: 'false'
 
       REDIS_URL: redis://redis-test:6379
     ports:
-      - "3001:3000"
+      - '3001:3000'
     networks:
       - singem-test-network
     depends_on:
@@ -114,9 +106,9 @@ services:
     healthcheck:
       test:
         [
-          "CMD",
-          "node",
-          "-e",
+          'CMD',
+          'node',
+          '-e',
           "require('http').get('http://localhost:3000/health',r=>process.exit(r.statusCode===200?0:1)).on('error',()=>process.exit(1))"
         ]
       interval: 10s
@@ -133,14 +125,14 @@ services:
       dockerfile: Dockerfile.frontend
     container_name: singem-test-frontend
     ports:
-      - "8001:80"
+      - '8001:80'
     networks:
       - singem-test-network
     depends_on:
       backend-test:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost/"]
+      test: ['CMD', 'wget', '-qO-', 'http://localhost/']
       interval: 10s
       timeout: 5s
       retries: 3
@@ -154,7 +146,7 @@ services:
       context: .
       dockerfile: Dockerfile.backend
     container_name: singem-test-runner
-    entrypoint: ["node", "/tests/test-runner.js"]
+    entrypoint: ['node', '/tests/test-runner.js']
     command: []
     volumes:
       - ./docker/test-runner.js:/tests/test-runner.js:ro
@@ -174,7 +166,7 @@ services:
       context: .
       dockerfile: Dockerfile.backend
     container_name: singem-test-contracts
-    entrypoint: ["node", "--test", "tests/*.contract.test.js"]
+    entrypoint: ['node', '--test', 'tests/*.contract.test.js']
     working_dir: /app/server
     environment:
       NODE_ENV: test

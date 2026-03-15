@@ -2,9 +2,9 @@
 apiVersion: 1
 
 providers:
-  - name: "SINGEM"
+  - name: 'SINGEM'
     orgId: 1
-    folder: "SINGEM"
+    folder: 'SINGEM'
     type: file
     disableDeletion: false
     editable: true

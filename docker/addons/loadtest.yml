@@ -1,0 +1,56 @@
+# ============================================================
+# SINGEM — Load Testing com k6
+# Addon plugável — requer backend healthy
+#
+# Uso:
+#   cd docker/local  (ou docker/prod)
+#   docker compose up -d
+#   docker compose -f ../addons/loadtest.yml run --rm k6-smoke
+#   docker compose -f ../addons/loadtest.yml run --rm k6
+# ============================================================
+
+services:
+  k6:
+    image: grafana/k6:0.51.0
+    container_name: singem-k6
+    volumes:
+      - ../k6:/scripts:ro
+    environment:
+      BASE_URL: http://backend:3000
+    command: run /scripts/singem-load.js
+    networks:
+      - singem-network
+    profiles:
+      - loadtest
+
+  k6-smoke:
+    image: grafana/k6:0.51.0
+    container_name: singem-k6-smoke
+    volumes:
+      - ../k6:/scripts:ro
+    environment:
+      BASE_URL: http://backend:3000
+    command: run --only smoke /scripts/singem-load.js
+    networks:
+      - singem-network
+    profiles:
+      - loadtest
+
+  k6-prometheus:
+    image: grafana/k6:0.51.0
+    container_name: singem-k6-prometheus
+    volumes:
+      - ../k6:/scripts:ro
+    environment:
+      BASE_URL: http://backend:3000
+      K6_PROMETHEUS_RW_SERVER_URL: http://prometheus:9090/api/v1/write
+      K6_PROMETHEUS_RW_TREND_AS_NATIVE_HISTOGRAM: 'true'
+    command: run -o experimental-prometheus-rw /scripts/singem-load.js
+    networks:
+      - singem-network
+    profiles:
+      - loadtest
+
+networks:
+  singem-network:
+    external: true

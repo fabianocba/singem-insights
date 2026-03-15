@@ -176,12 +176,12 @@ SINGEM/
 
 ### Store: `config`
 
-| ID                    | Conteúdo               | Estrutura                                                                                                                                 |
-| --------------------- | ----------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| ID                    | Conteúdo              | Estrutura                                                                                                                                 |
+| --------------------- | --------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
 | `unidadeOrcamentaria` | Dados da instituição  | `{ id, razaoSocial, cnpj, cnpjNumeros, ug, endereco, municipio, uf, dataAtualizacao }`                                                    |
-| `usuarios`            | Lista de usuários      | `{ id: 'usuarios', lista: [{ id, nome, login, senhaHash, perfil, ativo, dataCriacao, dataAtualizacao }] }`                                |
+| `usuarios`            | Lista de usuários     | `{ id: 'usuarios', lista: [{ id, nome, login, senhaHash, perfil, ativo, dataCriacao, dataAtualizacao }] }`                                |
 | `rede`                | Configurações de rede | `{ id: 'rede', habilitado, ip, porta, intervaloSync, urlBase, dataAtualizacao }`                                                          |
-| `preferencias`        | Preferências gerais    | `{ id: 'preferencias', tema, idioma, toleranciaValor, toleranciaQuantidade, notificacoes, autoSalvar, validacaoRigida, dataAtualizacao }` |
+| `preferencias`        | Preferências gerais   | `{ id: 'preferencias', tema, idioma, toleranciaValor, toleranciaQuantidade, notificacoes, autoSalvar, validacaoRigida, dataAtualizacao }` |
 
 **Nota:** Utiliza o store `config` existente (versão 2 do banco). Não requer migração se não houver conflito de IDs.
 

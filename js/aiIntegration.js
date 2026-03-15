@@ -1,5 +1,6 @@
 import * as FormatUtils from './core/format.js';
 import apiClient from './services/apiClient.js';
+import { escapeHTML as escapeHtml } from './utils/sanitize.js';
 
 const availabilityState = {
   value: null,
@@ -65,15 +66,6 @@ function debounce(fn, waitMs = 500) {
   };
 
   return wrapped;
-}
-
-function escapeHtml(value) {
-  return String(value || '')
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
 }
 
 function hideSuggestion(container) {

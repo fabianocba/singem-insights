@@ -8,11 +8,11 @@
 
 ## 📊 ESTATÍSTICAS
 
-| Categoria                  | Quantidade        | Status           |
-| -------------------------- | ----------------- | ---------------- |
-| **console.log/info/debug** | 200+ ocorrências | ⚠️ Mantidos   |
+| Categoria                  | Quantidade       | Status          |
+| -------------------------- | ---------------- | --------------- |
+| **console.log/info/debug** | 200+ ocorrências | ⚠️ Mantidos     |
 | **TODO/FIXME**             | 5 ocorrências    | 📝 Documentados |
-| **Código comentado**      | Mínimo           | ✅ OK           |
+| **Código comentado**       | Mínimo           | ✅ OK           |
 
 ---
 
@@ -44,13 +44,13 @@ Os logs atuais servem para:
 
 | Prefixo             | Uso                     |
 | ------------------- | ----------------------- |
-| `[App]`             | Aplicação principal   |
+| `[App]`             | Aplicação principal     |
 | `[State]`           | Gerenciamento de estado |
-| `[VALIDAR]`         | Validação de dados    |
-| `[REALIZAR_LOGIN]`  | Autenticação          |
-| `[EDIT]`            | Edição de empenhos    |
+| `[VALIDAR]`         | Validação de dados      |
+| `[REALIZAR_LOGIN]`  | Autenticação            |
+| `[EDIT]`            | Edição de empenhos      |
 | `[Parser Refinado]` | Pipeline de parsing     |
-| `🔐 🔑 ✅ ❌`   | Emojis indicativos      |
+| `🔐 🔑 ✅ ❌`       | Emojis indicativos      |
 
 ### Recomendação futura
 

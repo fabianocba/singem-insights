@@ -10,18 +10,18 @@
 
 ### Estatísticas Atuais
 
-| Métrica      | Valor | Threshold |
+| Métrica        | Valor | Threshold |
 | -------------- | ----- | --------- |
 | **Linhas**     | 0.84% | 70%       |
-| **Funções**  | 0.58% | 70%       |
+| **Funções**    | 0.58% | 70%       |
 | **Statements** | 0.83% | 70%       |
 | **Branches**   | 1.54% | 60%       |
 
 ### Módulo Testado
 
-| Arquivo                     | Linhas     | Branches   | Funções |
-| --------------------------- | ---------- | ---------- | --------- |
-| `js/core/inputValidator.js` | **84.61%** | **85.34%** | **100%**  |
+| Arquivo                     | Linhas     | Branches   | Funções  |
+| --------------------------- | ---------- | ---------- | -------- |
+| `js/core/inputValidator.js` | **84.61%** | **85.34%** | **100%** |
 
 ### Análise
 
@@ -49,7 +49,7 @@ O SINGEM é uma aplicação **web cliente** que:
 
 ### Módulos difíceis de testar
 
-| Módulo        | Motivo                   |
+| Módulo         | Motivo                   |
 | -------------- | ------------------------ |
 | `app.js`       | DOM + Estado + UI        |
 | `db.js`        | IndexedDB                |
@@ -107,13 +107,13 @@ e2e/
 ### Documentos criados nesta revisão
 
 | Documento                        | Conteúdo                        |
-| -------------------------------- | -------------------------------- |
+| -------------------------------- | ------------------------------- |
 | `ANALISE_GLOBAL.md`              | Mapa de arquivos e dependências |
 | `HIGIENE_CODIGO.md`              | Análise de console.log e TODOs  |
-| `SEPARACAO_RESPONSABILIDADES.md` | Estrutura do app.js              |
-| `PERFORMANCE_ESTABILIDADE.md`    | Carregamento e otimizações     |
-| `PADRAO_QUALIDADE.md`            | Este documento                   |
-| `_legacy/README.md`              | Arquivos movidos                 |
+| `SEPARACAO_RESPONSABILIDADES.md` | Estrutura do app.js             |
+| `PERFORMANCE_ESTABILIDADE.md`    | Carregamento e otimizações      |
+| `PADRAO_QUALIDADE.md`            | Este documento                  |
+| `_legacy/README.md`              | Arquivos movidos                |
 
 ### Documentação existente
 

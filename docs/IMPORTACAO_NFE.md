@@ -90,15 +90,15 @@ storage/nfe/
 
 ### Endpoints Disponíveis
 
-| Método | Endpoint                | Descrição             |
-| -------- | ----------------------- | ----------------------- |
-| `POST`   | `/api/nfe/importar`     | Importar NF-e via SEFAZ |
-| `POST`   | `/api/nfe/upload`       | Upload de arquivo XML   |
-| `POST`   | `/api/nfe/upload-text`  | Enviar XML como texto   |
-| `GET`    | `/api/nfe/danfe/:chave` | Obter PDF do DANFE      |
-| `GET`    | `/api/nfe/xml/:chave`   | Obter XML da NF-e       |
-| `GET`    | `/api/nfe/listar`       | Listar NF-e importadas  |
-| `GET`    | `/api/nfe/status`       | Status do serviço      |
+| Método | Endpoint                | Descrição               |
+| ------ | ----------------------- | ----------------------- |
+| `POST` | `/api/nfe/importar`     | Importar NF-e via SEFAZ |
+| `POST` | `/api/nfe/upload`       | Upload de arquivo XML   |
+| `POST` | `/api/nfe/upload-text`  | Enviar XML como texto   |
+| `GET`  | `/api/nfe/danfe/:chave` | Obter PDF do DANFE      |
+| `GET`  | `/api/nfe/xml/:chave`   | Obter XML da NF-e       |
+| `GET`  | `/api/nfe/listar`       | Listar NF-e importadas  |
+| `GET`  | `/api/nfe/status`       | Status do serviço       |
 
 ### Exemplos de Uso
 

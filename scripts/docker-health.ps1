@@ -104,9 +104,27 @@ Write-Host "2. Containers SINGEM" -ForegroundColor White
 $expectedContainers = @("singem-postgres", "singem-redis", "singem-backend", "singem-frontend")
 $optionalContainers = @("singem-ai-core")
 
-$allContainers = docker compose -f "$ProjectRoot\docker-compose.yml" ps --format json 2>$null
+# Detecta qual compose file está ativo (local > prod > raiz legado)
+$ComposeFile = $null
+foreach ($candidate in @(
+    "$ProjectRoot\docker\local\docker-compose.yml",
+    "$ProjectRoot\docker\prod\docker-compose.yml",
+    "$ProjectRoot\docker-compose.yml"
+)) {
+    if (Test-Path $candidate) {
+        $testOutput = docker compose -f $candidate ps --format json 2>$null
+        if ($testOutput) { $ComposeFile = $candidate; break }
+    }
+}
+
+$allContainers = if ($ComposeFile) {
+    docker compose -f $ComposeFile ps --format json 2>$null
+} else {
+    docker ps --format json --filter "name=singem" 2>$null
+}
+
 if (-not $allContainers) {
-    Write-Check "Compose" "FAIL" "Nenhum container encontrado. Execute: docker compose up --build"
+    Write-Check "Compose" "FAIL" "Nenhum container encontrado. Execute: cd docker/local && docker compose up --build"
     Write-Host ""
     exit 1
 }
@@ -278,7 +296,8 @@ Write-Check "Arquivos SQL" "INFO" "$totalMigrations encontrados"
 # Tentar consultar _migrations via docker exec
 $appliedMigrations = $null
 try {
-    $pgResult = docker compose -f "$ProjectRoot\docker-compose.yml" exec -T postgres psql -U adm -d singem -t -c "SELECT count(*) FROM _migrations;" 2>$null
+    $composeArg = if ($ComposeFile) { "-f `"$ComposeFile`"" } else { "" }
+    $pgResult = Invoke-Expression "docker compose $composeArg exec -T postgres psql -U adm -d singem -t -c `"SELECT count(*) FROM _migrations;`"" 2>$null
     if ($LASTEXITCODE -eq 0 -and $pgResult) {
         $appliedCount = [int]($pgResult.Trim())
         $pending = $totalMigrations - $appliedCount

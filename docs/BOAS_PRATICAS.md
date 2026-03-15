@@ -264,11 +264,11 @@ npm run quality       # Verificação completa de qualidade
 
 ### **Objetivos**
 
-| Métrica           | Meta  | Atual |
+| Métrica             | Meta  | Atual |
 | ------------------- | ----- | ----- |
 | Lint Errors         | 0     | 62    |
 | Lint Warnings       | < 10  | 81    |
-| Código Duplicado   | < 3%  | -     |
+| Código Duplicado    | < 3%  | -     |
 | Cobertura de Testes | > 70% | 0%    |
 
 ### **Score de Qualidade**

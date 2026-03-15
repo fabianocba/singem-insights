@@ -42,12 +42,12 @@ pwsh -File .\scripts\stop.ps1 -Publish       # parar + commit + push origin/dev
 
 ## Estrutura
 
-| Script | Função |
-|--------|--------|
-| `dev-up.ps1` | Script principal — sobe e gerencia todos os serviços |
-| `stop.ps1` | Encerra serviços; com `-Publish` faz commit+push |
-| `util/reset-ifdesk.js` | Script de console para limpar storage no browser |
-| `docker-*.ps1` | Automação Docker (produção/staging) |
+| Script                 | Função                                               |
+| ---------------------- | ---------------------------------------------------- |
+| `dev-up.ps1`           | Script principal — sobe e gerencia todos os serviços |
+| `stop.ps1`             | Encerra serviços; com `-Publish` faz commit+push     |
+| `util/reset-ifdesk.js` | Script de console para limpar storage no browser     |
+| `docker-*.ps1`         | Automação Docker (produção/staging)                  |
 
 ## VS Code Tasks
 

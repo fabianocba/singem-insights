@@ -198,6 +198,11 @@ class SettingsManager {
           await window.settingsIntegracoes.load();
         }
         break;
+      case 'ia':
+        if (window.settingsIA) {
+          await window.settingsIA.load();
+        }
+        break;
     }
   }
 

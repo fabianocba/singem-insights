@@ -11,14 +11,14 @@
 ### Ordem de Carregamento (index.html)
 
 | #    | Script                 | Tipo      | Tamanho Est. | Crítico? |
-| ---- | ---------------------- | --------- | ------------ | --------- |
+| ---- | ---------------------- | --------- | ------------ | -------- |
 | 1    | `js/config/version.js` | ES Module | ~1KB         | ✅       |
 | 2    | `js/versionManager.js` | Sync      | ~10KB        | ✅       |
 | 3    | `pdf.min.js` (CDN)     | Sync      | ~500KB       | ✅       |
-| 4    | `zxing` (CDN)          | Sync      | ~200KB       | ⚠️     |
+| 4    | `zxing` (CDN)          | Sync      | ~200KB       | ⚠️       |
 | 5    | `js/platform-core.js`  | Sync      | ~5KB         | ✅       |
-| 6-20 | Scripts defer          | Defer     | Variável    | ✅       |
-| 21+  | Scripts module         | ES Module | Variável    | ✅       |
+| 6-20 | Scripts defer          | Defer     | Variável     | ✅       |
+| 21+  | Scripts module         | ES Module | Variável     | ✅       |
 
 ### Análise de Performance
 
@@ -127,12 +127,12 @@ Tempo de carregamento está dentro do aceitável para aplicação web.
 
 ### Fallbacks Implementados
 
-| Funcionalidade  | Fallback             |
-| --------------- | -------------------- |
-| File System API | localStorage         |
-| IndexedDB       | Mensagem de erro     |
+| Funcionalidade  | Fallback           |
+| --------------- | ------------------ |
+| File System API | localStorage       |
+| IndexedDB       | Mensagem de erro   |
 | PDF parsing     | Método alternativo |
-| API externa     | Modo demo/mock       |
+| API externa     | Modo demo/mock     |
 
 ---
 

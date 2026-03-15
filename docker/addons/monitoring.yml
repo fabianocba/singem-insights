@@ -1,0 +1,109 @@
+# ============================================================
+# SINGEM — Observabilidade: Prometheus + Grafana
+# Addon plugável — requer que a rede singem-network já exista
+#
+# Uso com ambiente local:
+#   cd docker/local
+#   docker compose up -d
+#   docker compose -f ../addons/monitoring.yml up -d
+#
+# Uso com ambiente prod:
+#   cd docker/prod
+#   docker compose up -d
+#   docker compose -f ../addons/monitoring.yml up -d
+#
+# Acessos:
+#   - Prometheus: http://localhost:9090
+#   - Grafana:    http://localhost:3100 (admin / admin)
+# ============================================================
+
+services:
+  prometheus:
+    image: prom/prometheus:v2.51.0
+    container_name: singem-prometheus
+    restart: unless-stopped
+    volumes:
+      - ../prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    ports:
+      - '${PROMETHEUS_PORT:-9090}:9090'
+    networks:
+      - singem-network
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=30d'
+      - '--web.enable-lifecycle'
+    healthcheck:
+      test: ['CMD', 'wget', '-qO-', 'http://localhost:9090/-/healthy']
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  grafana:
+    image: grafana/grafana:11.0.0
+    container_name: singem-grafana
+    restart: unless-stopped
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-admin}
+      GF_USERS_ALLOW_SIGN_UP: 'false'
+      GF_SERVER_ROOT_URL: ${GRAFANA_ROOT_URL:-http://localhost:3100}
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ../grafana/provisioning:/etc/grafana/provisioning:ro
+    ports:
+      - '${GRAFANA_PORT:-3100}:3000'
+    networks:
+      - singem-network
+    depends_on:
+      prometheus:
+        condition: service_healthy
+    healthcheck:
+      test: ['CMD', 'wget', '-qO-', 'http://localhost:3000/api/health']
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  node-exporter:
+    image: prom/node-exporter:v1.8.0
+    container_name: singem-node-exporter
+    restart: unless-stopped
+    pid: host
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    networks:
+      - singem-network
+
+  postgres-exporter:
+    image: prometheuscommunity/postgres-exporter:v0.15.0
+    container_name: singem-postgres-exporter
+    restart: unless-stopped
+    environment:
+      DATA_SOURCE_NAME: 'postgresql://${DB_USER:-adm}:${DB_PASSWORD:-Singem@12345}@postgres:5432/${DB_NAME:-singem}?sslmode=disable'
+    networks:
+      - singem-network
+
+  redis-exporter:
+    image: oliver006/redis_exporter:v1.61.0
+    container_name: singem-redis-exporter
+    restart: unless-stopped
+    environment:
+      REDIS_ADDR: redis://redis:6379
+    networks:
+      - singem-network
+
+networks:
+  singem-network:
+    external: true
+
+volumes:
+  prometheus_data:
+    name: singem_prometheus_data
+  grafana_data:
+    name: singem_grafana_data

@@ -153,12 +153,12 @@ console.log('Parser especializado não disponível, usando parser genérico');
 
 ### Antes vs Depois
 
-| Métrica                     | Antes | Depois | Melhoria  |
-| ----------------------------- | ----- | ------ | --------- |
+| Métrica                       | Antes | Depois | Melhoria |
+| ----------------------------- | ----- | ------ | -------- |
 | **Arquivos na raiz**          | 26    | 10     | -61% ✅  |
 | **PDFs na raiz**              | 12    | 0      | -100% ✅ |
 | **HTML de teste na raiz**     | 5     | 0      | -100% ✅ |
-| **Docs técnicos na raiz**   | 4     | 0      | -100% ✅ |
+| **Docs técnicos na raiz**     | 4     | 0      | -100% ✅ |
 | **Pastas organizacionais**    | 6     | 9      | +50% ✅  |
 | **Linhas de console.log**     | ~60   | ~44    | -27% ✅  |
 | **Funcionalidades quebradas** | 0     | 0      | 0 ✅     |

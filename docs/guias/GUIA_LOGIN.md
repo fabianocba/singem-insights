@@ -190,13 +190,13 @@ Aparece uma mensagem no canto superior direito:
 
 ## 📱 ATALHOS ÚTEIS
 
-| Ação          | Atalho                                    |
-| --------------- | ----------------------------------------- |
-| Login           | `Enter` no campo de senha                 |
+| Ação            | Atalho                                 |
+| --------------- | -------------------------------------- |
+| Login           | `Enter` no campo de senha              |
 | Logout          | Botão 🚪 Sair (canto superior direito) |
-| Limpar cache    | `Ctrl + Shift + R`                        |
-| Console         | `F12`                                     |
-| Voltar ao login | Faça logout                              |
+| Limpar cache    | `Ctrl + Shift + R`                     |
+| Console         | `F12`                                  |
+| Voltar ao login | Faça logout                            |
 
 ---
 

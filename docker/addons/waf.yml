@@ -1,0 +1,46 @@
+# ============================================================
+# SINGEM — WAF ModSecurity + OWASP CRS
+# Addon plugável — substitui frontend por nginx + ModSecurity
+#
+# Uso:
+#   cd docker/prod
+#   docker compose -f docker-compose.yml -f ../addons/waf.yml up -d --build
+# ============================================================
+
+services:
+  frontend:
+    image: owasp/modsecurity-crs:nginx-alpine
+    container_name: singem-frontend-waf
+    volumes:
+      - ../nginx-waf.conf:/etc/nginx/templates/conf.d/default.conf.template:ro
+      - ../modsecurity/singem-exclusions.conf:/etc/modsecurity.d/owasp-crs/rules/RESPONSE-999-EXCLUSION-RULES-AFTER-CRS.conf:ro
+      - ../../index.html:/usr/share/nginx/html/index.html:ro
+      - ../../sw.js:/usr/share/nginx/html/sw.js:ro
+      - ../../version.json:/usr/share/nginx/html/version.json:ro
+      - ../../CHANGELOG.md:/usr/share/nginx/html/CHANGELOG.md:ro
+      - ../../js:/usr/share/nginx/html/js:ro
+      - ../../css:/usr/share/nginx/html/css:ro
+      - ../../img:/usr/share/nginx/html/img:ro
+      - ../../consultas:/usr/share/nginx/html/consultas:ro
+      - ../../config:/usr/share/nginx/html/config:ro
+      - ../../system-status:/usr/share/nginx/html/system-status:ro
+    environment:
+      MODSEC_RULE_ENGINE: 'On'
+      PARANOIA: 2
+      ANOMALY_INBOUND: 5
+      ANOMALY_OUTBOUND: 4
+      MODSEC_AUDIT_LOG: '/var/log/modsecurity/audit.log'
+      BACKEND: 'http://backend:3000'
+      ALLOWED_METHODS: 'GET HEAD POST PUT DELETE PATCH OPTIONS'
+      ALLOWED_REQUEST_CONTENT_TYPE: 'application/x-www-form-urlencoded|multipart/form-data|text/xml|application/xml|application/json|text/plain'
+      MAX_FILE_SIZE: '10485760'
+      MAX_NUM_ARGS: '512'
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+    logging:
+      driver: 'json-file'
+      options:
+        max-size: '10m'
+        max-file: '5'

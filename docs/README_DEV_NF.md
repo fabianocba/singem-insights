@@ -16,7 +16,7 @@ O módulo de **Entrada de Nota Fiscal** é **dependente do cadastro de Empenhos*
 | `js/db.js`                  | `DatabaseManager` — persistência e queries NF/Empenho   |
 | `js/nfeIntegration.js`      | Integração com APIs externas (consulta por chave)       |
 | `js/core/inputValidator.js` | Validação de dados de entrada da NF                     |
-| `js/nfValidator.js`         | **NOVO** — Validação cruzada NF ↔ Empenho              |
+| `js/nfValidator.js`         | **NOVO** — Validação cruzada NF ↔ Empenho               |
 | `index.html`                | Tela `#notaFiscalScreen` e `#formNotaFiscal`            |
 
 ---
@@ -158,7 +158,7 @@ Para vincular itens da NF aos itens do Empenho:
 | `processarNotaFiscalUpload()`             | ~L2885      | Processa PDF e extrai dados        |
 | `exibirPreviewNotaFiscal()`               | ~L2895      | Exibe preview dos dados extraídos  |
 | `buscarEmpenhoCorrespondente()`           | ~L2978      | Popula select de empenhos por CNPJ |
-| `verificarDivergencias()`                 | ~L3016      | Chama comparação NF ↔ Empenho     |
+| `verificarDivergencias()`                 | ~L3016      | Chama comparação NF ↔ Empenho      |
 | `salvarNotaFiscal()`                      | ~L4369      | Salva NF no banco                  |
 | `_validarCNPJDestinatarioContraUnidade()` | ~L4238      | Valida CNPJ destino                |
 | `_salvarArquivoNotaFiscal()`              | ~L4290      | Salva arquivo físico               |

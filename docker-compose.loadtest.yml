@@ -1,20 +1,13 @@
 # ============================================================
-# SINGEM — docker-compose.loadtest.yml
-# Load testing com k6 contra o backend
+# SINGEM — docker-compose.loadtest.yml  [DEPRECATED]
 #
-# Uso:
-#   # Smoke test rapido (30s)
-#   docker compose -f docker-compose.yml -f docker-compose.loadtest.yml run --rm k6-smoke
+# ⚠ ESTE ARQUIVO SERÁ REMOVIDO EM VERSÃO FUTURA.
+# Use: docker/addons/loadtest.yml
 #
-#   # Load test completo (todos os cenarios)
-#   docker compose -f docker-compose.yml -f docker-compose.loadtest.yml run --rm k6
-#
-#   # Com output para Prometheus (requer monitoring stack)
-#   docker compose -f docker-compose.yml -f docker-compose.monitoring.yml -f docker-compose.loadtest.yml run --rm k6-prometheus
+# Mantido temporariamente para compatibilidade.
 # ============================================================
 
 services:
-
   # ----------------------------------------------------------
   # k6 — cenarios completos (smoke + load + stress)
   # ----------------------------------------------------------
@@ -64,7 +57,7 @@ services:
     environment:
       BASE_URL: http://backend:3000
       K6_PROMETHEUS_RW_SERVER_URL: http://prometheus:9090/api/v1/write
-      K6_PROMETHEUS_RW_TREND_AS_NATIVE_HISTOGRAM: "true"
+      K6_PROMETHEUS_RW_TREND_AS_NATIVE_HISTOGRAM: 'true'
     command: run -o experimental-prometheus-rw /scripts/singem-load.js
     networks:
       - singem-network

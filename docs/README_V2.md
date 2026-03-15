@@ -406,13 +406,13 @@ Adicione no `<head>`:
 
 ### Métricas de Referência
 
-| Operação                        | Tempo Médio |
-| --------------------------------- | ------------- |
-| Parser Refinado (PDF texto)       | < 300ms       |
-| Parser Refinado (PDF + OCR)       | 2-5s          |
-| IndexedDB batch write (100 itens) | < 50ms        |
-| Virtual List render (1000 itens)  | < 100ms       |
-| Service Worker cache hit          | < 10ms        |
+| Operação                          | Tempo Médio |
+| --------------------------------- | ----------- |
+| Parser Refinado (PDF texto)       | < 300ms     |
+| Parser Refinado (PDF + OCR)       | 2-5s        |
+| IndexedDB batch write (100 itens) | < 50ms      |
+| Virtual List render (1000 itens)  | < 100ms     |
+| Service Worker cache hit          | < 10ms      |
 
 ### Otimizações Aplicadas
 

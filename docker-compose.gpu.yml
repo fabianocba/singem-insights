@@ -1,22 +1,17 @@
 # ============================================================
-# SINGEM — docker-compose.gpu.yml
-# Override para habilitar GPU NVIDIA no AI Core
+# SINGEM — docker-compose.gpu.yml  [DEPRECATED]
 #
-# Uso:
-#   docker compose -f docker-compose.yml -f docker-compose.gpu.yml \
-#     --profile ai up --build
+# ⚠ ESTE ARQUIVO SERÁ REMOVIDO EM VERSÃO FUTURA.
+# Use: docker/addons/gpu.yml
 #
-# Requisitos:
-#   - NVIDIA Driver instalado no host
-#   - NVIDIA Container Toolkit (nvidia-docker2)
-#   - GPU_ENABLED=true no .env
+# Mantido temporariamente para compatibilidade.
 # ============================================================
 
 services:
   ai-core:
     build:
       args:
-        GPU_ENABLED: "true"
+        GPU_ENABLED: 'true'
     deploy:
       resources:
         reservations:

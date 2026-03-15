@@ -50,13 +50,7 @@ class GovBrProvider {
 
     // Scopes padrão gov.br (conforme roteiro oficial de integração)
     // https://acesso.gov.br/roteiro-tecnico/iniciarintegracao.html
-    this.scopes = [
-      'openid',
-      'email',
-      'profile',
-      'govbr_confiabilidades',
-      'govbr_confiabilidades_idtoken'
-    ].join(' ');
+    this.scopes = ['openid', 'email', 'profile', 'govbr_confiabilidades', 'govbr_confiabilidades_idtoken'].join(' ');
   }
 
   // ========================================================================

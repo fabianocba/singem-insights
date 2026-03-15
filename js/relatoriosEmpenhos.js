@@ -7,6 +7,7 @@
 import { emit } from './core/eventBus.js';
 import { handleAiAvailabilityError, isAiAvailable } from './aiIntegration.js';
 import apiClient from './services/apiClient.js';
+import { escapeHTML as escapeHtml } from './utils/sanitize.js';
 
 /**
  * Configuração dos tipos de relatório disponíveis
@@ -277,15 +278,6 @@ function setupEventosResumoIA() {
 
 function getResumoRelatorioIAContainer() {
   return document.getElementById('resumoRelatorioIA');
-}
-
-function escapeHtml(value) {
-  return String(value || '')
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
 }
 
 function hideResumoRelatorioIA() {

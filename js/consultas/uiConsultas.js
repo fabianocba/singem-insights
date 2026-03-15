@@ -1,11 +1,15 @@
 /**
  * uiConsultas.js
  * Interface de usuário para Consulte Compras.gov (Dados Abertos Compras.gov.br)
+ * Integração com AI Core para sugestões inteligentes
  */
 
 import * as API from './apiCompras.js';
 import * as Mapeadores from './mapeadores.js';
 import * as Cache from './cache.js';
+import { isAiAvailable, handleAiAvailabilityError } from '../aiIntegration.js';
+import { escapeHTML as escapeHtmlContent } from '../utils/sanitize.js';
+import apiClient from '../services/apiClient.js';
 import {
   createPriceDashboardState,
   renderPriceDetailsModalContent,
@@ -68,15 +72,6 @@ function logPriceUi(scope, payload = {}) {
   }
 }
 
-function escapeHtmlContent(value) {
-  return String(value ?? '')
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
-}
-
 export function normalizeText(str) {
   return String(str || '')
     .normalize('NFD')
@@ -100,6 +95,80 @@ export function createDebouncedSearch(callback, delay = AUTO_SEARCH_DEBOUNCE_MS)
 
 export function shouldAutoSearch(text) {
   return normalizeText(text).length >= 3;
+}
+
+/**
+ * Busca sugestões AI para termos de busca em consultas
+ * Exibe card com resultados do índice interno quando disponível
+ */
+async function fetchAiSearchHints(query, dataset) {
+  const container = document.getElementById('aiConsultasSuggestion');
+  if (!container) {
+    return;
+  }
+
+  const safeQuery = normalizeText(query);
+  if (safeQuery.length < 3) {
+    container.innerHTML = '';
+    container.classList.add('hidden');
+    return;
+  }
+
+  try {
+    const available = await isAiAvailable();
+    if (!available) {
+      container.innerHTML = '';
+      container.classList.add('hidden');
+      return;
+    }
+
+    const entityTypes =
+      dataset === 'materiais' || dataset === 'servicos'
+        ? ['catmat_item', 'material']
+        : ['catmat_item', 'material', 'fornecedor'];
+
+    const response = await apiClient.ai.search({
+      query_text: query,
+      entity_types: entityTypes,
+      context_module: 'consultas',
+      page: 1,
+      page_size: 3
+    });
+
+    if (!response?.results?.length) {
+      container.innerHTML = '';
+      container.classList.add('hidden');
+      return;
+    }
+
+    const items = response.results
+      .map((r) => {
+        const conf = Math.round((r.score?.final || 0) * 100);
+        const meta = r.metadata || {};
+        const badge =
+          r.entity_type === 'fornecedor' ? 'Fornecedor' : r.entity_type === 'catmat_item' ? 'CATMAT' : 'Material';
+        const code = meta.codigo ? ` (${escapeHtmlContent(String(meta.codigo))})` : '';
+        return `<div class="ai-hint-item" style="padding:6px 8px;border-bottom:1px solid #eee;font-size:13px;">
+        <span style="font-size:10px;background:#e8f0fe;color:#1a73e8;padding:1px 6px;border-radius:8px;">${escapeHtmlContent(badge)}</span>
+        <span style="font-size:10px;color:#888;margin-left:4px;">${conf}%</span>
+        <div style="margin-top:2px;">${escapeHtmlContent(r.title || '')}${code}</div>
+      </div>`;
+      })
+      .join('');
+
+    container.innerHTML = `
+      <div style="border:1px solid #e0e0e0;border-radius:6px;background:#fafbff;margin-top:8px;">
+        <div style="padding:6px 8px;background:#e8f0fe;border-radius:6px 6px 0 0;font-size:11px;font-weight:600;color:#1a73e8;">
+          Sugestões IA
+        </div>
+        ${items}
+      </div>`;
+    container.classList.remove('hidden');
+  } catch (err) {
+    handleAiAvailabilityError(err);
+    container.innerHTML = '';
+    container.classList.add('hidden');
+  }
 }
 
 export function hasAtLeastOneFilter(filtersObject) {
@@ -1402,6 +1471,12 @@ function triggerSearch({ source = 'manual', force = false, resetPage = false } =
 
   setSearchHint('');
   executeSearch({ force });
+
+  // Busca sugestões AI em paralelo (best-effort)
+  const firstTextFilter = Object.values(state.filters).find((v) => String(v || '').trim().length >= 3);
+  if (firstTextFilter) {
+    fetchAiSearchHints(firstTextFilter, state.dataset).catch(() => {});
+  }
 }
 
 /**

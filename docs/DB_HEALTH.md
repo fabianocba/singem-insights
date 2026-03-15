@@ -204,14 +204,14 @@ console.log(`Total de unidades: ${total}`);
 
 ### Benchmarks Esperados
 
-| Operação               | Tempo Esperado | Observações               |
+| Operação                 | Tempo Esperado | Observações                 |
 | ------------------------ | -------------- | --------------------------- |
 | `open()`                 | < 100ms        | Primeira vez pode ser maior |
 | `get()` (por chave)      | < 10ms         | Acesso direto por ID        |
-| `getAll()` (< 100 itens) | < 50ms         | Sem índices                |
-| `put()` (1 item)         | < 20ms         | Transação simples         |
-| `batchPut()` (100 itens) | < 200ms        | Com transações em lote    |
-| `count()`                | < 30ms         | Operação otimizada        |
+| `getAll()` (< 100 itens) | < 50ms         | Sem índices                 |
+| `put()` (1 item)         | < 20ms         | Transação simples           |
+| `batchPut()` (100 itens) | < 200ms        | Com transações em lote      |
+| `count()`                | < 30ms         | Operação otimizada          |
 
 ### Como Medir
 

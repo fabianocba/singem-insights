@@ -4,14 +4,14 @@
 
 ## Pré-requisitos
 
-| Ferramenta | Verificação | Obrigatório |
-|------------|------------|-------------|
-| PowerShell 7+ | `pwsh --version` | Sim |
-| Node.js LTS | `node --version` | Sim |
-| npm | `npm --version` | Sim |
-| Git | `git --version` | Sim |
-| OpenSSH | `ssh -V` | Para túnel DB |
-| Python 3 | `python --version` | Para AI Core / frontend |
+| Ferramenta    | Verificação        | Obrigatório             |
+| ------------- | ------------------ | ----------------------- |
+| PowerShell 7+ | `pwsh --version`   | Sim                     |
+| Node.js LTS   | `node --version`   | Sim                     |
+| npm           | `npm --version`    | Sim                     |
+| Git           | `git --version`    | Sim                     |
+| OpenSSH       | `ssh -V`           | Para túnel DB           |
+| Python 3      | `python --version` | Para AI Core / frontend |
 
 O executável esperado do PowerShell é:
 
@@ -39,14 +39,14 @@ scripts/
 
 ### Scripts removidos (obsoletos)
 
-| Script removido | Motivo |
-|----------------|--------|
-| `util/abrir.ps1` | Redirecionava para `server/iniciar-proxy.ps1` que não existe |
-| `util/ABRIR_APLICACAO.ps1` | Substituído por `Open-DevPages` interno do dev-up.ps1 |
-| `util/ABRIR_APLICACAO.bat` | Versão batch do anterior — desnecessário |
-| `util/iniciar-servidor-sem-cache.ps1` | Substituído por `dev-up.ps1 -Action frontend` |
-| `util/REINICIAR_SEM_CACHE.ps1` | Substituído por `dev-up.ps1 -Action restart` |
-| `util/iniciar-proxy-siasg.ps1` | Proxy SIASG sem uso ativo no projeto |
+| Script removido                       | Motivo                                                       |
+| ------------------------------------- | ------------------------------------------------------------ |
+| `util/abrir.ps1`                      | Redirecionava para `server/iniciar-proxy.ps1` que não existe |
+| `util/ABRIR_APLICACAO.ps1`            | Substituído por `Open-DevPages` interno do dev-up.ps1        |
+| `util/ABRIR_APLICACAO.bat`            | Versão batch do anterior — desnecessário                     |
+| `util/iniciar-servidor-sem-cache.ps1` | Substituído por `dev-up.ps1 -Action frontend`                |
+| `util/REINICIAR_SEM_CACHE.ps1`        | Substituído por `dev-up.ps1 -Action restart`                 |
+| `util/iniciar-proxy-siasg.ps1`        | Proxy SIASG sem uso ativo no projeto                         |
 
 ---
 
@@ -81,17 +81,17 @@ pwsh -File .\scripts\stop.ps1 -Publish       # para + commit automático + push 
 
 ### Opções avançadas do dev-up.ps1
 
-| Parâmetro | Padrão | Descrição |
-|-----------|--------|-----------|
-| `-Action` | `up` | Ação a executar |
-| `-Branch` | `dev` | Branch Git |
-| `-ProjectRoot` | `$PWD` | Raiz do projeto |
-| `-NoTunnel` | — | Não abre túnel SSH |
-| `-NoOpenBrowser` | — | Não abre browser ao final |
-| `-SkipGitSync` | — | Pula fetch/checkout/pull |
-| `-SkipInstall` | — | Pula npm install |
-| `-ForceInstall` | — | Força npm ci mesmo com node_modules existente |
-| `-NoAutoRepairTunnel` | — | Não tenta recuperar túnel caído automaticamente |
+| Parâmetro             | Padrão | Descrição                                       |
+| --------------------- | ------ | ----------------------------------------------- |
+| `-Action`             | `up`   | Ação a executar                                 |
+| `-Branch`             | `dev`  | Branch Git                                      |
+| `-ProjectRoot`        | `$PWD` | Raiz do projeto                                 |
+| `-NoTunnel`           | —      | Não abre túnel SSH                              |
+| `-NoOpenBrowser`      | —      | Não abre browser ao final                       |
+| `-SkipGitSync`        | —      | Pula fetch/checkout/pull                        |
+| `-SkipInstall`        | —      | Pula npm install                                |
+| `-ForceInstall`       | —      | Força npm ci mesmo com node_modules existente   |
+| `-NoAutoRepairTunnel` | —      | Não tenta recuperar túnel caído automaticamente |
 
 ---
 
@@ -99,16 +99,16 @@ pwsh -File .\scripts\stop.ps1 -Publish       # para + commit automático + push 
 
 Todas as tasks usam `pwsh` e estão em `.vscode/tasks.json`:
 
-| Task | Ação |
-|------|------|
-| `SINGEM: UP` | `dev-up.ps1 -Action up` |
-| `SINGEM: TUNNEL` | `dev-up.ps1 -Action tunnel` |
-| `SINGEM: BACKEND` | `dev-up.ps1 -Action backend` |
-| `SINGEM: FRONTEND` | `dev-up.ps1 -Action frontend` |
-| `SINGEM: AI` | `dev-up.ps1 -Action ai` |
-| `SINGEM: HEALTHCHECK` | `dev-up.ps1 -Action health` |
-| `SINGEM: STOP` | `stop.ps1` |
-| `SINGEM: STOP+PUBLISH` | `stop.ps1 -Publish` |
+| Task                   | Ação                          |
+| ---------------------- | ----------------------------- |
+| `SINGEM: UP`           | `dev-up.ps1 -Action up`       |
+| `SINGEM: TUNNEL`       | `dev-up.ps1 -Action tunnel`   |
+| `SINGEM: BACKEND`      | `dev-up.ps1 -Action backend`  |
+| `SINGEM: FRONTEND`     | `dev-up.ps1 -Action frontend` |
+| `SINGEM: AI`           | `dev-up.ps1 -Action ai`       |
+| `SINGEM: HEALTHCHECK`  | `dev-up.ps1 -Action health`   |
+| `SINGEM: STOP`         | `stop.ps1`                    |
+| `SINGEM: STOP+PUBLISH` | `stop.ps1 -Publish`           |
 
 Acesse via: `Ctrl+Shift+P` → "Tasks: Run Task" → selecione a task.
 
@@ -116,12 +116,12 @@ Acesse via: `Ctrl+Shift+P` → "Tasks: Run Task" → selecione a task.
 
 ## Portas padrão
 
-| Serviço | Porta | Health |
-|---------|-------|--------|
-| Backend | 3000 | `http://localhost:3000/health` |
-| Frontend | 8000 | `http://localhost:8000/index.html` |
-| AI Core | 8010 | `http://127.0.0.1:8010/ai/health` |
-| Túnel SSH (PostgreSQL) | 5433 → VPS 5432 | Conexão TCP |
+| Serviço                | Porta           | Health                             |
+| ---------------------- | --------------- | ---------------------------------- |
+| Backend                | 3000            | `http://localhost:3000/health`     |
+| Frontend               | 8000            | `http://localhost:8000/index.html` |
+| AI Core                | 8010            | `http://127.0.0.1:8010/ai/health`  |
+| Túnel SSH (PostgreSQL) | 5433 → VPS 5432 | Conexão TCP                        |
 
 ---
 
@@ -133,6 +133,7 @@ Acesse via: `Ctrl+Shift+P` → "Tasks: Run Task" → selecione a task.
 **Depois:** `pwsh.exe` (PowerShell 7+)
 
 Alterado em:
+
 - `.vscode/tasks.json` — todas as tasks
 - `dev-up.ps1` → `Start-ComponentWindow` — terminais filhos usam o mesmo executável do processo pai
 
@@ -147,6 +148,7 @@ Adicionado no topo de `dev-up.ps1` e `stop.ps1`. Se alguém executar com PowerSh
 ### 4. Encoding UTF-8
 
 Já configurado no dev-up.ps1:
+
 ```powershell
 [Console]::InputEncoding  = [System.Text.UTF8Encoding]::new($false)
 [Console]::OutputEncoding = [System.Text.UTF8Encoding]::new($false)

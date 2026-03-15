@@ -1,12 +1,15 @@
 /**
  * CATMAT Integration - SINGEM Frontend
  * Componente de autocomplete e modal de pedido de catalogação
+ * Integração com AI Core para sugestões inteligentes
  */
 
 import { debounce } from './utils/throttle.js';
 import { showLoading, hideLoading, notifySuccess, notifyError, notifyInfo } from './ui/feedback.js';
 import { httpRequest } from './shared/lib/http.js';
 import { emit } from './core/eventBus.js';
+import { isAiAvailable, handleAiAvailabilityError } from './aiIntegration.js';
+import apiClient from './services/apiClient.js';
 
 /**
  * Configuração do módulo
@@ -162,6 +165,45 @@ function ensureOutsideClickHandler() {
 }
 
 /**
+ * Busca sugestões AI para complementar resultados CATMAT
+ * @param {string} query - Termo de busca
+ * @param {number} limit - Máximo de sugestões
+ * @returns {Promise<Array>} Itens sugeridos pela IA
+ */
+async function fetchAiSuggestions(query, limit = 5) {
+  try {
+    const available = await isAiAvailable();
+    if (!available) {
+      return [];
+    }
+
+    const response = await apiClient.ai.search({
+      query_text: query,
+      entity_types: ['catmat_item', 'material'],
+      context_module: 'catmat',
+      page: 1,
+      page_size: limit
+    });
+
+    if (!response?.results?.length) {
+      return [];
+    }
+
+    return response.results.map((r) => ({
+      codigo: r.metadata?.codigo || r.entity_id || '',
+      catmat_id: r.metadata?.codigo || r.entity_id || '',
+      descricao: r.title || '',
+      unidade: r.metadata?.unidade || 'UN',
+      _aiScore: r.score?.final || 0,
+      _aiSource: 'ai_suggest'
+    }));
+  } catch (err) {
+    handleAiAvailabilityError(err);
+    return [];
+  }
+}
+
+/**
  * Busca materiais na API CATMAT
  * @param {string} query - Termo de busca
  * @returns {Promise<{dados: Array, total: number}>}
@@ -241,6 +283,24 @@ export async function searchCatmat(query, { offset = 0, limite = config.maxResul
       offset: safeOffset,
       limite: safeLimite
     });
+
+    // Enriquece com sugestões AI quando há poucos resultados (primeira página apenas)
+    if (safeOffset === 0 && normalized.dados.length < 3) {
+      try {
+        const aiResults = await fetchAiSuggestions(safeQuery, 5);
+        if (aiResults.length > 0) {
+          const existingIds = new Set(normalized.dados.map((d) => String(d.codigo || d.catmat_id || '')));
+          const uniqueAi = aiResults.filter((ai) => !existingIds.has(String(ai.codigo || ai.catmat_id || '')));
+          if (uniqueAi.length > 0) {
+            normalized.dados.push(...uniqueAi);
+            normalized.total = Math.max(normalized.total, normalized.dados.length);
+            normalized.aiEnriched = true;
+          }
+        }
+      } catch {
+        // AI complementar é best-effort
+      }
+    }
 
     writeSearchCache(cacheKey, normalized);
 
@@ -429,9 +489,13 @@ function renderResults(dropdown, results, inputElement, onSelect, options = {}) 
       gap: 2px;
     `;
 
+    const aiBadge = material._aiSource
+      ? '<span style="font-size: 10px; background: #e8f0fe; color: #1a73e8; padding: 1px 6px; border-radius: 8px; margin-left: 6px;">IA</span>'
+      : '';
+
     item.innerHTML = `
       <div style="display: flex; justify-content: space-between; align-items: center;">
-        <strong style="color: #1351B4;">${material.catmat_id || material.codigo || '-'}</strong>
+        <strong style="color: #1351B4;">${material.catmat_id || material.codigo || '-'}${aiBadge}</strong>
         <span style="font-size: 12px; color: #666;">${material.unidade || 'UN'}</span>
       </div>
       <div style="font-size: 13px; color: #333; line-height: 1.4;">

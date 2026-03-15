@@ -21,12 +21,12 @@ User Input → InputValidator → Repository (validação) → dbManager (Indexe
 
 ### Arquivos Críticos
 
-| Arquivo                                        | Responsabilidade                                                    |
-| ---------------------------------------------- | ------------------------------------------------------------------- |
+| Arquivo                                        | Responsabilidade                                                  |
+| ---------------------------------------------- | ----------------------------------------------------------------- |
 | [js/app.js](js/app.js)                         | Aplicação principal (~7000 linhas) - classe `ControleMaterialApp` |
 | [js/db.js](js/db.js)                           | `window.dbManager` - operações IndexedDB                          |
-| [js/neParser.js](js/neParser.js)               | Parser de PDFs de Notas de Empenho (padrão IF Baiano)              |
-| [js/core/repository.js](js/core/repository.js) | Validação + persistência centralizada                            |
+| [js/neParser.js](js/neParser.js)               | Parser de PDFs de Notas de Empenho (padrão IF Baiano)             |
+| [js/core/repository.js](js/core/repository.js) | Validação + persistência centralizada                             |
 
 ## Convenções do Projeto
 

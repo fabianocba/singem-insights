@@ -27,7 +27,7 @@ class ItemRepository:
                     )
                 ) AS metadata_json
             FROM materials m
-            WHERE (%s IS NULL OR m.id::text = %s)
+            WHERE (CAST(%s AS TEXT) IS NULL OR m.id::text = %s)
             ORDER BY m.updated_at DESC
             LIMIT %s
         """
@@ -56,7 +56,7 @@ class ItemRepository:
                     'nomePdm', COALESCE(c.raw_json->>'nomePdm', '')
                 ) AS metadata_json
             FROM catmat_itens c
-            WHERE (%s IS NULL OR c.codigo::text = %s)
+            WHERE (CAST(%s AS TEXT) IS NULL OR c.codigo::text = %s)
             ORDER BY c.updated_at DESC
             LIMIT %s
         """

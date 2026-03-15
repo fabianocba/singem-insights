@@ -276,49 +276,99 @@ class AiRepository:
         if not documents:
             return 0
 
-        sql = """
-            INSERT INTO ai_documents (
-                entity_type,
-                entity_id,
-                title,
-                content,
-                content_normalized,
-                source_module,
-                metadata_json,
-                embedding,
-                status
-            ) VALUES (%s,%s,%s,%s,%s,%s,%s::jsonb,CASE WHEN %s IS NULL THEN NULL ELSE %s::vector END,%s)
-            ON CONFLICT (entity_type, entity_id) DO UPDATE
-            SET
-                title = EXCLUDED.title,
-                content = EXCLUDED.content,
-                content_normalized = EXCLUDED.content_normalized,
-                source_module = EXCLUDED.source_module,
-                metadata_json = EXCLUDED.metadata_json,
-                embedding = EXCLUDED.embedding,
-                status = EXCLUDED.status,
-                updated_at = NOW()
-        """
+        has_vector = self._has_embedding_column()
+
+        if has_vector:
+            sql = """
+                INSERT INTO ai_documents (
+                    entity_type,
+                    entity_id,
+                    title,
+                    content,
+                    content_normalized,
+                    source_module,
+                    metadata_json,
+                    embedding,
+                    status
+                ) VALUES (%s,%s,%s,%s,%s,%s,%s::jsonb,CASE WHEN %s IS NULL THEN NULL ELSE %s::vector END,%s)
+                ON CONFLICT (entity_type, entity_id) DO UPDATE
+                SET
+                    title = EXCLUDED.title,
+                    content = EXCLUDED.content,
+                    content_normalized = EXCLUDED.content_normalized,
+                    source_module = EXCLUDED.source_module,
+                    metadata_json = EXCLUDED.metadata_json,
+                    embedding = EXCLUDED.embedding,
+                    status = EXCLUDED.status,
+                    updated_at = NOW()
+            """
+        else:
+            sql = """
+                INSERT INTO ai_documents (
+                    entity_type,
+                    entity_id,
+                    title,
+                    content,
+                    content_normalized,
+                    source_module,
+                    metadata_json,
+                    status
+                ) VALUES (%s,%s,%s,%s,%s,%s,%s::jsonb,%s)
+                ON CONFLICT (entity_type, entity_id) DO UPDATE
+                SET
+                    title = EXCLUDED.title,
+                    content = EXCLUDED.content,
+                    content_normalized = EXCLUDED.content_normalized,
+                    source_module = EXCLUDED.source_module,
+                    metadata_json = EXCLUDED.metadata_json,
+                    status = EXCLUDED.status,
+                    updated_at = NOW()
+            """
 
         with get_conn() as conn:
             with conn.cursor() as cur:
                 for doc in documents:
-                    vector = _vector_literal(doc.get("embedding"))
-                    cur.execute(
-                        sql,
-                        [
-                            doc.get("entity_type"),
-                            doc.get("entity_id"),
-                            doc.get("title"),
-                            doc.get("content"),
-                            doc.get("content_normalized"),
-                            doc.get("source_module"),
-                            Json(doc.get("metadata_json", {})),
-                            vector,
-                            vector,
-                            doc.get("status", "active")
-                        ]
-                    )
+                    if has_vector:
+                        vector = _vector_literal(doc.get("embedding"))
+                        cur.execute(
+                            sql,
+                            [
+                                doc.get("entity_type"),
+                                doc.get("entity_id"),
+                                doc.get("title"),
+                                doc.get("content"),
+                                doc.get("content_normalized"),
+                                doc.get("source_module"),
+                                Json(doc.get("metadata_json", {})),
+                                vector,
+                                vector,
+                                doc.get("status", "active")
+                            ]
+                        )
+                    else:
+                        cur.execute(
+                            sql,
+                            [
+                                doc.get("entity_type"),
+                                doc.get("entity_id"),
+                                doc.get("title"),
+                                doc.get("content"),
+                                doc.get("content_normalized"),
+                                doc.get("source_module"),
+                                Json(doc.get("metadata_json", {})),
+                                doc.get("status", "active")
+                            ]
+                        )
             conn.commit()
 
         return len(documents)
+
+    def _has_embedding_column(self) -> bool:
+        with get_conn() as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    "SELECT EXISTS (SELECT 1 FROM information_schema.columns "
+                    "WHERE table_name = 'ai_documents' AND column_name = 'embedding') AS has_col"
+                )
+                row = cur.fetchone() or {}
+                return bool(row.get("has_col", False))

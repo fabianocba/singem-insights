@@ -34,17 +34,17 @@ O Sistema de Controle de Saldos foi desenvolvido para acompanhar em tempo real o
 
 ### Colunas Principais:
 
-| Coluna                  | Descrição                                      |
+| Coluna                  | Descrição                                        |
 | ----------------------- | ------------------------------------------------ |
-| **Seq**                 | Sequência do item no empenho (1, 2, 3...)       |
-| **Produto**             | Descrição completa do item + código           |
+| **Seq**                 | Sequência do item no empenho (1, 2, 3...)        |
+| **Produto**             | Descrição completa do item + código              |
 | **UN**                  | Unidade de medida (UN, CX, KG, etc.)             |
 | **Qtd Emp.**            | Quantidade total empenhada                       |
-| **Vlr. Unit.**          | Valor unitário do item                          |
-| **Vlr. Total**          | Valor total do item (Qtd × Vlr. Unit.)          |
+| **Vlr. Unit.**          | Valor unitário do item                           |
+| **Vlr. Total**          | Valor total do item (Qtd × Vlr. Unit.)           |
 | **Entradas (NF / Qtd)** | Lista de notas fiscais recebidas com quantidades |
-| **Saldo Qtd**           | Quantidade ainda não recebida                   |
-| **Saldo Valor**         | Valor ainda não recebido (em R$)                |
+| **Saldo Qtd**           | Quantidade ainda não recebida                    |
+| **Saldo Valor**         | Valor ainda não recebido (em R$)                 |
 
 ### Rodapé (Totais):
 

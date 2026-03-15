@@ -1,17 +1,13 @@
 # ============================================================
-# SINGEM — docker-compose.logging.yml
-# Agregacao de logs com Grafana Loki + Promtail
+# SINGEM — docker-compose.logging.yml  [DEPRECATED]
 #
-# Uso:
-#   docker compose -f docker-compose.yml -f docker-compose.monitoring.yml -f docker-compose.logging.yml up -d
+# ⚠ ESTE ARQUIVO SERÁ REMOVIDO EM VERSÃO FUTURA.
+# Use: docker/addons/logging.yml
 #
-# Acessos:
-#   - Loki:     http://localhost:3200 (API)
-#   - Grafana:  http://localhost:3100 (Explore -> Loki)
+# Mantido temporariamente para compatibilidade.
 # ============================================================
 
 services:
-
   # ----------------------------------------------------------
   # Loki — armazenamento de logs
   # ----------------------------------------------------------
@@ -24,11 +20,11 @@ services:
       - ./docker/loki/loki-config.yml:/etc/loki/loki-config.yml:ro
       - loki_data:/loki
     ports:
-      - "${LOKI_PORT:-3200}:3100"
+      - '${LOKI_PORT:-3200}:3100'
     networks:
       - singem-network
     healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost:3100/ready"]
+      test: ['CMD', 'wget', '-qO-', 'http://localhost:3100/ready']
       interval: 30s
       timeout: 5s
       retries: 5

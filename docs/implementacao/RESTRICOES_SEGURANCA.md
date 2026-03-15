@@ -222,28 +222,28 @@ if (btnImportarConfig) {
 
 ## 📊 Matriz de Permissões
 
-| Recurso                    | Administrador | Usuário Comum       |
-| -------------------------- | ------------- | -------------------- |
+| Recurso                  | Administrador | Usuário Comum       |
+| ------------------------ | ------------- | ------------------- |
 | **Unidade Orçamentária** |
-| Visualizar                 | ✅ Sim       | ✅ Sim              |
-| Editar                     | ✅ Sim       | ❌ Não              |
-| **Usuários**              |
-| Visualizar                 | ✅ Sim       | ❌ Não (aba oculta) |
-| Cadastrar                  | ✅ Sim       | ❌ Não              |
-| Editar                     | ✅ Sim       | ❌ Não              |
-| Excluir                    | ✅ Sim       | ❌ Não              |
-| **Rede/LAN**               |
-| Visualizar                 | ✅ Sim       | ❌ Não (aba oculta) |
-| Configurar                 | ✅ Sim       | ❌ Não              |
-| Testar conexão            | ✅ Sim       | ❌ Não              |
-| **Preferências**          |
-| Tema                       | ✅ Sim       | ✅ Sim              |
-| Idioma                     | ✅ Sim       | ✅ Sim              |
-| Tolerâncias               | ✅ Sim       | ✅ Sim              |
-| Notificações             | ✅ Sim       | ✅ Sim              |
-| Exportar config            | ✅ Sim       | ✅ Sim              |
-| Importar config            | ✅ Sim       | ❌ Não              |
-| Limpar banco               | ✅ Sim       | ❌ Não (oculto)     |
+| Visualizar               | ✅ Sim        | ✅ Sim              |
+| Editar                   | ✅ Sim        | ❌ Não              |
+| **Usuários**             |
+| Visualizar               | ✅ Sim        | ❌ Não (aba oculta) |
+| Cadastrar                | ✅ Sim        | ❌ Não              |
+| Editar                   | ✅ Sim        | ❌ Não              |
+| Excluir                  | ✅ Sim        | ❌ Não              |
+| **Rede/LAN**             |
+| Visualizar               | ✅ Sim        | ❌ Não (aba oculta) |
+| Configurar               | ✅ Sim        | ❌ Não              |
+| Testar conexão           | ✅ Sim        | ❌ Não              |
+| **Preferências**         |
+| Tema                     | ✅ Sim        | ✅ Sim              |
+| Idioma                   | ✅ Sim        | ✅ Sim              |
+| Tolerâncias              | ✅ Sim        | ✅ Sim              |
+| Notificações             | ✅ Sim        | ✅ Sim              |
+| Exportar config          | ✅ Sim        | ✅ Sim              |
+| Importar config          | ✅ Sim        | ❌ Não              |
+| Limpar banco             | ✅ Sim        | ❌ Não (oculto)     |
 
 ---
 

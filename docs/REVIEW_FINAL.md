@@ -8,11 +8,11 @@
 
 ## ✅ RESUMO EXECUTIVO
 
-| Item                  | Status                         |
-| --------------------- | ------------------------------ |
-| **ESLint**            | ✅ 0 erros, 0 warnings        |
-| **Testes**            | ✅ 32/32 passando             |
-| **Prettier**          | ✅ Todos formatados           |
+| Item                | Status                        |
+| ------------------- | ----------------------------- |
+| **ESLint**          | ✅ 0 erros, 0 warnings        |
+| **Testes**          | ✅ 32/32 passando             |
+| **Prettier**        | ✅ Todos formatados           |
 | **Arquivos órfãos** | ✅ 15 movidos para `_legacy/` |
 | **Documentação**    | ✅ 6 novos documentos         |
 
@@ -116,24 +116,24 @@ SINGEM/
 
 ## 🔧 ARQUIVOS MODIFICADOS
 
-| Arquivo          | Alteração                             |
-| ---------------- | --------------------------------------- |
+| Arquivo          | Alteração                              |
+| ---------------- | -------------------------------------- |
 | `.eslintrc.json` | Removida referência a arquivos movidos |
-| `.eslintignore`  | **CRIADO** - Ignora `_legacy/`          |
-| `package.json`   | Mantido (max-warnings 60)               |
+| `.eslintignore`  | **CRIADO** - Ignora `_legacy/`         |
+| `package.json`   | Mantido (max-warnings 60)              |
 
 ---
 
 ## 📊 MÉTRICAS FINAIS
 
-| Métrica       | Antes | Depois  |
+| Métrica         | Antes | Depois  |
 | --------------- | ----- | ------- |
 | Erros ESLint    | ~30   | **0**   |
 | Warnings ESLint | ~48   | **0**   |
 | Arquivos ativos | ~85   | **~70** |
 | Arquivos legacy | 0     | **15**  |
 | Testes          | 32    | **32**  |
-| Docs técnicos | ~40   | **~46** |
+| Docs técnicos   | ~40   | **~46** |
 
 ---
 

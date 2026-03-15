@@ -191,8 +191,13 @@ router.get('/callback', async (req, res) => {
     // Log de auditoria
     await logGovBrAuth(user.id, true, req.ip, req.headers['user-agent']);
 
-    console.log('[GovBr] Login bem-sucedido para usuário:', user.login, '| Nível:', profile.level,
-      profile.mfaEnabled ? '| 2FA: ativado' : '| 2FA: não');
+    console.log(
+      '[GovBr] Login bem-sucedido para usuário:',
+      user.login,
+      '| Nível:',
+      profile.level,
+      profile.mfaEnabled ? '| 2FA: ativado' : '| 2FA: não'
+    );
 
     // Redireciona para frontend com tokens
     return res.redirect(
@@ -311,19 +316,18 @@ async function findOrCreateGovBrUser(profile) {
 
   if (existingBySub.rows.length > 0) {
     const user = existingBySub.rows[0];
-    await db.query(
-      'UPDATE usuarios SET ultimo_login = NOW(), govbr_nivel_confiabilidade = $1 WHERE id = $2',
-      [profile.level === 'ouro' ? 3 : profile.level === 'prata' ? 2 : 1, user.id]
-    );
+    await db.query('UPDATE usuarios SET ultimo_login = NOW(), govbr_nivel_confiabilidade = $1 WHERE id = $2', [
+      profile.level === 'ouro' ? 3 : profile.level === 'prata' ? 2 : 1,
+      user.id
+    ]);
     return user;
   }
 
   // 2. Busca por CPF (auto-vinculação)
   if (cpf) {
-    const existingByCpf = await db.query(
-      'SELECT * FROM usuarios WHERE (cpf = $1 OR govbr_cpf = $1) AND ativo = true',
-      [cpf]
-    );
+    const existingByCpf = await db.query('SELECT * FROM usuarios WHERE (cpf = $1 OR govbr_cpf = $1) AND ativo = true', [
+      cpf
+    ]);
 
     if (existingByCpf.rows.length > 0) {
       const user = existingByCpf.rows[0];

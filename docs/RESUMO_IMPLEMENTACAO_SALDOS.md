@@ -166,17 +166,17 @@ Exibe resumo visual + gráficos
 
 ## 🎯 COLUNAS DA PLANILHA
 
-| #   | Coluna          | Tipo    | Descrição                     |
-| --- | --------------- | ------- | ------------------------------- |
+| #   | Coluna          | Tipo   | Descrição                      |
+| --- | --------------- | ------ | ------------------------------ |
 | 1   | **Seq**         | Número | Sequência do item (1, 2, 3...) |
-| 2   | **Produto**     | Texto   | Descrição + código do item   |
-| 3   | **UN**          | Texto   | Unidade de medida               |
-| 4   | **Qtd Emp.**    | Número | Quantidade total empenhada      |
-| 5   | **Vlr. Unit.**  | Moeda   | Valor unitário (R$)            |
-| 6   | **Vlr. Total**  | Moeda   | Quantidade × Vlr. Unit.        |
-| 7   | **Entradas**    | Lista   | Cards com NF + Qtd + Data       |
-| 8   | **Saldo Qtd**   | Número | Quantidade restante             |
-| 9   | **Saldo Valor** | Moeda   | Valor restante (R$)             |
+| 2   | **Produto**     | Texto  | Descrição + código do item     |
+| 3   | **UN**          | Texto  | Unidade de medida              |
+| 4   | **Qtd Emp.**    | Número | Quantidade total empenhada     |
+| 5   | **Vlr. Unit.**  | Moeda  | Valor unitário (R$)            |
+| 6   | **Vlr. Total**  | Moeda  | Quantidade × Vlr. Unit.        |
+| 7   | **Entradas**    | Lista  | Cards com NF + Qtd + Data      |
+| 8   | **Saldo Qtd**   | Número | Quantidade restante            |
+| 9   | **Saldo Valor** | Moeda  | Valor restante (R$)            |
 
 ### Rodapé (Totalizadores):
 

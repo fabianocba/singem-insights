@@ -19,57 +19,56 @@ global:
 #   - /etc/prometheus/rules/*.yml
 
 scrape_configs:
-
   # Prometheus self-monitoring
-  - job_name: "prometheus"
+  - job_name: 'prometheus'
     static_configs:
-      - targets: ["localhost:9090"]
+      - targets: ['localhost:9090']
         labels:
-          instance: "prometheus"
+          instance: 'prometheus'
 
   # Backend Node.js (Express)
   # Requer: app.get('/metrics', ...) no Express
-  - job_name: "singem-backend"
+  - job_name: 'singem-backend'
     metrics_path: /metrics
     static_configs:
-      - targets: ["backend:3000"]
+      - targets: ['backend:3000']
         labels:
-          service: "backend"
-          environment: "docker"
+          service: 'backend'
+          environment: 'docker'
 
   # AI Core FastAPI
-  - job_name: "singem-ai-core"
+  - job_name: 'singem-ai-core'
     metrics_path: /ai/metrics
     scrape_interval: 30s
     static_configs:
-      - targets: ["ai-core:8010"]
+      - targets: ['ai-core:8010']
         labels:
-          service: "ai-core"
-          environment: "docker"
+          service: 'ai-core'
+          environment: 'docker'
 
   # PostgreSQL Exporter
-  - job_name: "postgres"
+  - job_name: 'postgres'
     static_configs:
-      - targets: ["postgres-exporter:9187"]
+      - targets: ['postgres-exporter:9187']
         labels:
-          service: "postgresql"
-          environment: "docker"
+          service: 'postgresql'
+          environment: 'docker'
 
   # Redis Exporter
-  - job_name: "redis"
+  - job_name: 'redis'
     static_configs:
-      - targets: ["redis-exporter:9121"]
+      - targets: ['redis-exporter:9121']
         labels:
-          service: "redis"
-          environment: "docker"
+          service: 'redis'
+          environment: 'docker'
 
   # Node Exporter (host metrics)
-  - job_name: "node"
+  - job_name: 'node'
     static_configs:
-      - targets: ["node-exporter:9100"]
+      - targets: ['node-exporter:9100']
         labels:
-          service: "host"
-          environment: "docker"
+          service: 'host'
+          environment: 'docker'
 
   # Nginx stub_status (se habilitado)
   # - job_name: "nginx"

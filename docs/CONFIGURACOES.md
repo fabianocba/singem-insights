@@ -319,12 +319,12 @@ Requer **dupla confirmação**.
 
 Todas as configurações são armazenadas no store `config`:
 
-| ID                    | Conteúdo               |
-| --------------------- | ----------------------- |
+| ID                    | Conteúdo              |
+| --------------------- | --------------------- |
 | `unidadeOrcamentaria` | Dados da instituição  |
-| `usuarios`            | Lista de usuários      |
+| `usuarios`            | Lista de usuários     |
 | `rede`                | Configurações de rede |
-| `preferencias`        | Preferências gerais    |
+| `preferencias`        | Preferências gerais   |
 
 ### Estrutura
 

@@ -1,35 +1,28 @@
 # ============================================================
-# SINGEM — docker-compose.staging.yml
-# Override de staging — merge com docker-compose.yml
+# SINGEM — docker-compose.staging.yml  [DEPRECATED]
 #
-# Uso:
-#   docker compose -f docker-compose.yml -f docker-compose.staging.yml up -d --build
+# ⚠ ESTE ARQUIVO SERÁ REMOVIDO EM VERSÃO FUTURA.
+# Use docker/local/docker-compose.yml para staging local.
 #
-# Diferenças em relação a produção:
-#   - Sem TLS (HTTP apenas, porta 8080)
-#   - Logs mais verbosos para depuração
-#   - Limites de memória menores
-#   - Credenciais padrão permitidas (sem obrigatoriedade de secrets)
-#   - Backend acessível diretamente para debug
+# Mantido temporariamente para compatibilidade.
 # ============================================================
 
 services:
-
   # ----------------------------------------------------------
   # PostgreSQL — configuração leve
   # ----------------------------------------------------------
   postgres:
     restart: unless-stopped
     command:
-      - "postgres"
-      - "-c"
-      - "shared_buffers=128MB"
-      - "-c"
-      - "work_mem=8MB"
-      - "-c"
-      - "log_min_duration_statement=500"
-      - "-c"
-      - "log_statement=ddl"
+      - 'postgres'
+      - '-c'
+      - 'shared_buffers=128MB'
+      - '-c'
+      - 'work_mem=8MB'
+      - '-c'
+      - 'log_min_duration_statement=500'
+      - '-c'
+      - 'log_statement=ddl'
     deploy:
       resources:
         limits:
@@ -52,7 +45,7 @@ services:
     restart: unless-stopped
     environment:
       NODE_ENV: staging
-      TRUST_PROXY: "true"
+      TRUST_PROXY: 'true'
       LOG_LEVEL: debug
 
       CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:8080,http://staging.singem.ifbaiano.edu.br}
@@ -60,16 +53,16 @@ services:
 
       REDIS_URL: redis://redis:6379
     ports: !override
-      - "${BACKEND_PORT_EXTERNAL:-3000}:3000"
+      - '${BACKEND_PORT_EXTERNAL:-3000}:3000'
     deploy:
       resources:
         limits:
           memory: 384M
     logging:
-      driver: "json-file"
+      driver: 'json-file'
       options:
-        max-size: "10m"
-        max-file: "3"
+        max-size: '10m'
+        max-file: '3'
 
   # ----------------------------------------------------------
   # Frontend — staging (HTTP, porta 8080)
@@ -77,16 +70,16 @@ services:
   frontend:
     restart: unless-stopped
     ports: !override
-      - "${FRONTEND_PORT_EXTERNAL:-8080}:80"
+      - '${FRONTEND_PORT_EXTERNAL:-8080}:80'
     deploy:
       resources:
         limits:
           memory: 64M
     logging:
-      driver: "json-file"
+      driver: 'json-file'
       options:
-        max-size: "5m"
-        max-file: "3"
+        max-size: '5m'
+        max-file: '3'
 
   # ----------------------------------------------------------
   # AI Core — staging
@@ -95,13 +88,13 @@ services:
     restart: unless-stopped
     environment:
       APP_ENV: staging
-      APP_DEBUG: "true"
+      APP_DEBUG: 'true'
     deploy:
       resources:
         limits:
           memory: 384M
     logging:
-      driver: "json-file"
+      driver: 'json-file'
       options:
-        max-size: "5m"
-        max-file: "3"
+        max-size: '5m'
+        max-file: '3'

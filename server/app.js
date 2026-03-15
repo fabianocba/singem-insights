@@ -175,7 +175,7 @@ function createApp({ nodeEnv, bodyLimit, corsOrigins, trustProxy, nfeService, nf
   // ---- Prometheus metrics endpoint --------------------------
   const startTime = Date.now();
   let requestCount = 0;
-  let errorCount = 0;
+  const errorCount = 0;
   app.use((req, _res, next) => {
     requestCount++;
     next();
