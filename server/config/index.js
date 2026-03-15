@@ -2,8 +2,16 @@ const path = require('path');
 const fs = require('fs');
 const dotenv = require('dotenv');
 
+// Preserva NODE_ENV do sistema operacional (ex: PM2, Docker) antes de carregar .env
+const systemNodeEnv = process.env.NODE_ENV;
+
 const baseEnvPath = path.join(__dirname, '../.env');
 dotenv.config({ path: baseEnvPath });
+
+// Se o SO já definiu NODE_ENV, restaura (o .env base não deve sobrescrever)
+if (systemNodeEnv) {
+  process.env.NODE_ENV = systemNodeEnv;
+}
 
 const runtimeEnv = process.env.NODE_ENV || 'development';
 const envOverridePath = path.join(__dirname, `../.env.${runtimeEnv}`);
