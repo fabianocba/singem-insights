@@ -15,7 +15,7 @@ export const API_BASE_URL = (() => {
     return window.CONFIG?.api?.baseUrl || apiClient.config?.baseUrl || 'http://localhost:3000';
   }
 
-  return window.CONFIG?.api?.baseUrl || apiClient.config?.baseUrl || '';
+  return window.CONFIG?.api?.baseUrl || apiClient.config?.baseUrl || window.location.origin;
 })();
 
 function toErrorPayload(error) {

@@ -1906,7 +1906,7 @@
       (function () {
         var base =
           (window.CONFIG && window.CONFIG.api && window.CONFIG.api.baseUrl) ||
-          'http://localhost:3000';
+          window.location.origin;
 
         // --- Gov.br ---
         var btnGovBr = document.getElementById('btnGovBr');

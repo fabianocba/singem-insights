@@ -45,7 +45,7 @@ async function renderStorageStats(containerId) {
 
   if (SERVER_MODE) {
     const authAtivo = !!window.__SINGEM_AUTH?.accessToken;
-    const apiBase = window.CONFIG?.api?.baseUrl || 'http://localhost:3000';
+    const apiBase = window.CONFIG?.api?.baseUrl || window.location.origin;
     container.innerHTML = `
       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
         <div style="background: #e8f5e9; padding: 15px; border-radius: 8px; text-align: center;">

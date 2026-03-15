@@ -1910,7 +1910,7 @@ class ControleMaterialApp {
 
     // Logout SSO gov.br (obrigatório conforme roteiro de integração)
     if (wasGovBr) {
-      const base = (window.CONFIG && window.CONFIG.api && window.CONFIG.api.baseUrl) || 'http://localhost:3000';
+      const base = (window.CONFIG && window.CONFIG.api && window.CONFIG.api.baseUrl) || window.location.origin;
       window.location.href = base + '/api/auth/govbr/logout?redirect=' + encodeURIComponent(window.location.origin);
     }
   }

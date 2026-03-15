@@ -10,7 +10,7 @@
 
 const API_CONFIG = {
   // URL base do servidor
-  baseUrl: window.CONFIG?.api?.baseUrl || 'http://localhost:3000',
+  baseUrl: window.CONFIG?.api?.baseUrl || window.location.origin,
   timeout: 30000,
   retries: 3
 };

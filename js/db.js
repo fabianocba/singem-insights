@@ -1936,7 +1936,7 @@ function applyServerDatabaseAdapter() {
   const manager = window.dbManager;
   manager._serverConfigStore = manager._serverConfigStore || new Map();
 
-  const getApiBase = () => window.CONFIG?.api?.baseUrl || 'http://localhost:3000';
+  const getApiBase = () => window.CONFIG?.api?.baseUrl || window.location.origin;
   const getToken = () => window.__SINGEM_AUTH?.accessToken || null;
 
   const normalizeEmpenho = (item = {}) => ({
