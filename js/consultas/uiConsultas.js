@@ -1580,7 +1580,7 @@ function describeSearchError(error) {
       '• Proxy backend do SINGEM indisponível\n' +
       '• Upstream do Compras.gov.br fora do ar\n\n' +
       'Teste acessar no navegador:\n' +
-      'http://localhost:3000/api/compras/health';
+      (window.CONFIG?.api?.baseUrl || '') + '/api/compras/health';
     return info;
   }
 

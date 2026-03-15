@@ -12,7 +12,10 @@ window.CONFIG = {
     persistLocalConfig: false
   },
   api: {
-    baseUrl: 'http://localhost:3000'
+    // Auto-detecta: localhost usa porta 3000, produção usa proxy reverso (mesmo origin)
+    baseUrl: ['localhost', '127.0.0.1'].includes(window.location.hostname)
+      ? 'http://localhost:3000'
+      : ''
   },
   // Informações da Instituição
   instituicao: {
