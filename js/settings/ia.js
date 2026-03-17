@@ -6,6 +6,13 @@ import { escapeHTML as escapeHtml } from '../utils/sanitize.js';
 
 import { httpRequest } from '../shared/lib/http.js';
 import { notifyError, notifySuccess } from '../ui/feedback.js';
+import {
+  feedbackMarkup,
+  metricCardMarkup,
+  metricGridMarkup,
+  renderInto,
+  setFeedback
+} from './renderUtils.js';
 
 class SettingsIA {
   constructor() {
@@ -26,7 +33,7 @@ class SettingsIA {
   async load() {
     const panel = document.getElementById('aiStatusPanel');
     if (panel) {
-      panel.innerHTML = '<p style="color: #666;">⏳ Verificando status da IA...</p>';
+      renderInto(panel, feedbackMarkup('info', '⏳ Verificando status da IA...'));
     }
 
     try {
@@ -52,9 +59,8 @@ class SettingsIA {
     }
 
     const isOk = data.ok === true;
-    const statusColor = isOk ? '#2e7d32' : '#c62828';
     const statusLabel = isOk ? 'ONLINE' : 'OFFLINE';
-    const statusBg = isOk ? '#e8f5e9' : '#ffebee';
+    const statusTone = isOk ? 'success' : 'error';
 
     const featureEnabled = data.feature_enabled !== false;
     const vectorEnabled = data.vector_search_enabled === true;
@@ -62,36 +68,43 @@ class SettingsIA {
 
     const errors =
       Array.isArray(data.errors) && data.errors.length > 0
-        ? `<div style="margin-top:10px; padding:10px; background:#fff3e0; border-radius:6px; color:#e65100; font-size:13px;">
-           ⚠️ ${data.errors.map((e) => escapeHtml(String(e))).join('<br>')}
-         </div>`
+        ? feedbackMarkup('warning', `⚠️ ${data.errors.map((e) => escapeHtml(String(e))).join('<br>')}`)
         : '';
 
-    panel.innerHTML = `
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px;">
-        <div style="background: ${statusBg}; padding: 15px; border-radius: 8px; text-align: center;">
-          <div style="font-size: 22px; font-weight: bold; color: ${statusColor};">${statusLabel}</div>
-          <div style="color: #666; font-size: 13px;">Status do serviço</div>
-        </div>
-        <div style="background: #e3f2fd; padding: 15px; border-radius: 8px; text-align: center;">
-          <div style="font-size: 16px; font-weight: bold; color: #1565c0;">${escapeHtml(data.service || 'singem-ai')}</div>
-          <div style="color: #666; font-size: 13px;">v${escapeHtml(data.version || '?')}</div>
-        </div>
-        <div style="background: ${featureEnabled ? '#e8f5e9' : '#ffebee'}; padding: 15px; border-radius: 8px; text-align: center;">
-          <div style="font-size: 16px; font-weight: bold; color: ${featureEnabled ? '#2e7d32' : '#c62828'};">${featureEnabled ? 'ATIVO' : 'DESATIVADO'}</div>
-          <div style="color: #666; font-size: 13px;">Feature IA</div>
-        </div>
-        <div style="background: ${pgvectorEnabled ? '#e8f5e9' : '#fff3e0'}; padding: 15px; border-radius: 8px; text-align: center;">
-          <div style="font-size: 16px; font-weight: bold; color: ${pgvectorEnabled ? '#2e7d32' : '#e65100'};">${pgvectorEnabled ? 'SIM' : 'NÃO'}</div>
-          <div style="color: #666; font-size: 13px;">pgvector</div>
-        </div>
-        <div style="background: ${vectorEnabled ? '#e8f5e9' : '#fff3e0'}; padding: 15px; border-radius: 8px; text-align: center;">
-          <div style="font-size: 16px; font-weight: bold; color: ${vectorEnabled ? '#2e7d32' : '#e65100'};">${vectorEnabled ? 'SIM' : 'NÃO'}</div>
-          <div style="color: #666; font-size: 13px;">Busca vetorial</div>
-        </div>
-      </div>
-      ${errors}
-    `;
+    renderInto(
+      panel,
+      `
+      ${metricGridMarkup([
+        metricCardMarkup({
+          tone: statusTone,
+          value: statusLabel,
+          label: 'Status do serviço'
+        }),
+        metricCardMarkup({
+          tone: 'info',
+          value: escapeHtml(data.service || 'singem-ai'),
+          label: 'Serviço',
+          meta: `v${escapeHtml(data.version || '?')}`
+        }),
+        metricCardMarkup({
+          tone: featureEnabled ? 'success' : 'error',
+          value: featureEnabled ? 'ATIVO' : 'DESATIVADO',
+          label: 'Feature IA'
+        }),
+        metricCardMarkup({
+          tone: pgvectorEnabled ? 'success' : 'warning',
+          value: pgvectorEnabled ? 'SIM' : 'NÃO',
+          label: 'pgvector'
+        }),
+        metricCardMarkup({
+          tone: vectorEnabled ? 'success' : 'warning',
+          value: vectorEnabled ? 'SIM' : 'NÃO',
+          label: 'Busca vetorial'
+        })
+      ])}
+      ${errors ? `<div class="sg-status-slot">${errors}</div>` : ''}
+    `
+    );
 
     // Habilita botão de rebuild se serviço está online
     const btnRebuild = document.getElementById('btnAiRebuildIndex');
@@ -103,15 +116,16 @@ class SettingsIA {
   renderOffline(message) {
     const panel = document.getElementById('aiStatusPanel');
     if (panel) {
-      panel.innerHTML = `
-        <div style="background: #ffebee; padding: 20px; border-radius: 8px; text-align: center;">
-          <div style="font-size: 22px; font-weight: bold; color: #c62828;">OFFLINE</div>
-          <div style="color: #666; margin-top: 5px;">${escapeHtml(String(message))}</div>
-          <div style="color: #999; margin-top: 10px; font-size: 12px;">
-            Verifique se o serviço singem-ai está rodando na porta 8010
-          </div>
-        </div>
-      `;
+      renderInto(
+        panel,
+        feedbackMarkup(
+          'error',
+          `<strong class="settings-feedback__headline">OFFLINE</strong>
+           <p>${escapeHtml(String(message))}</p>
+           <span class="settings-feedback__note">Verifique se o serviço singem-ai está rodando na porta 8010</span>`,
+          { centered: true }
+        )
+      );
     }
 
     // Desabilita rebuild
@@ -172,10 +186,12 @@ class SettingsIA {
       btn.disabled = true;
     }
 
-    if (resultEl) {
-      resultEl.style.display = 'block';
-      resultEl.innerHTML = '<p style="color: #1565c0;">⏳ Reconstruindo índice... Isso pode levar alguns minutos.</p>';
-    }
+    setFeedback(
+      resultEl,
+      'info',
+      '⏳ Reconstruindo índice... Isso pode levar alguns minutos.',
+      { reveal: true }
+    );
 
     try {
       const response = await httpRequest('/api/ai/index/rebuild', {
@@ -189,23 +205,24 @@ class SettingsIA {
       if (!response.ok) {
         const msg = response.error?.message || 'Falha ao reconstruir índice';
         notifyError(msg);
-        if (resultEl) {
-          resultEl.innerHTML = `<p style="color: #c62828;">❌ ${escapeHtml(msg)}</p>`;
-        }
+        setFeedback(resultEl, 'error', `❌ ${escapeHtml(msg)}`, { reveal: true });
         return;
       }
 
       const data = response.data;
       const total = data?.indexed_count ?? data?.total ?? '?';
       notifySuccess(`Índice reconstruído com sucesso! (${total} documentos)`);
-      if (resultEl) {
-        resultEl.innerHTML = `<p style="color: #2e7d32;">✅ Índice reconstruído — ${escapeHtml(String(total))} documentos indexados.</p>`;
-      }
+      setFeedback(
+        resultEl,
+        'success',
+        `✅ Índice reconstruído — ${escapeHtml(String(total))} documentos indexados.`,
+        { reveal: true }
+      );
     } catch {
       notifyError('Erro ao reconstruir índice.');
-      if (resultEl) {
-        resultEl.innerHTML = '<p style="color: #c62828;">❌ Erro de conexão ao reconstruir índice.</p>';
-      }
+      setFeedback(resultEl, 'error', '❌ Erro de conexão ao reconstruir índice.', {
+        reveal: true
+      });
     } finally {
       if (btn) {
         btn.disabled = false;

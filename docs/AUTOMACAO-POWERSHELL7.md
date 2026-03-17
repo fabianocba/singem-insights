@@ -93,6 +93,21 @@ pwsh -File .\scripts\stop.ps1 -Publish       # para + commit automático + push 
 | `-ForceInstall`       | —      | Força npm ci mesmo com node_modules existente   |
 | `-NoAutoRepairTunnel` | —      | Não tenta recuperar túnel caído automaticamente |
 
+Variáveis de ambiente opcionais para testes de SSH sem editar o script:
+
+- `SINGEM_SSH_HOST`
+- `SINGEM_SSH_PORT`
+- `SINGEM_SSH_USER`
+
+Exemplo:
+
+```powershell
+$env:SINGEM_SSH_HOST = 'seu-host'
+$env:SINGEM_SSH_PORT = '2222'
+$env:SINGEM_SSH_USER = 'root'
+pwsh -File .\scripts\dev-up.ps1 -Action up
+```
+
 ---
 
 ## VS Code Tasks

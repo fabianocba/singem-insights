@@ -13,42 +13,109 @@
 
     <!-- Sistema de versionamento e cache busting -->
     <script type="module" src="js/versionManager.js"></script>
+    <script src="js/ui/themeBoot.js"></script>
     <link rel="stylesheet" href="css/style.css" />
     <link rel="stylesheet" href="css/consultas.css" />
     <link rel="stylesheet" href="css/protecao.css" />
     <link rel="stylesheet" href="css/reports.css" />
+    <link rel="stylesheet" href="css/tailwind.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script src="https://unpkg.com/@zxing/library@latest/umd/index.min.js"></script>
   </head>
-  <body>
+  <body data-page="main">
     <!-- Header -->
     <header class="header hidden" id="mainHeader">
       <div class="container">
-        <div class="logo">
-          <h1>📋 Controle de Material</h1>
-          <p>IF Baiano - Campus</p>
-        </div>
-        <nav class="nav">
-          <button id="btnHome" class="nav-btn active">🏠 Início</button>
-          <!-- Botão Exportar removido - funcionalidade centralizada em Configurações → Preferências -->
-          <button id="btnConfig" class="nav-btn">⚙️ Configurações</button>
-          <div
-            id="usuarioLogadoInfo"
-            class="usuario-info"
-            style="margin-right: 15px; color: #fff; font-size: 14px"
-          >
-            <span id="usuarioLogadoNome"></span>
+        <div class="premium-topbar">
+          <div class="premium-topbar__left">
+            <button id="sidebarToggle" class="icon-btn" type="button" aria-label="Alternar navegação">
+              ☰
+            </button>
+            <div class="logo">
+              <div class="logo-mark">SI</div>
+              <div class="logo-content">
+                <h1>Controle de Material</h1>
+                <p>IF Baiano - Campus</p>
+              </div>
+            </div>
+            <span id="currentSectionLabel" class="section-indicator">Painel executivo</span>
           </div>
-          <button id="btnSair" class="nav-btn btn-sair">🚪 Sair</button>
-        </nav>
+          <div class="premium-topbar__right">
+            <button id="btnHome" class="nav-btn active" type="button">🏠 Painel</button>
+            <!-- Botão Exportar removido - funcionalidade centralizada em Configurações → Preferências -->
+            <button id="btnConfig" class="nav-btn" type="button">⚙️ Configurações</button>
+            <button id="themeToggle" type="button" aria-label="Alternar tema"></button>
+            <div id="usuarioLogadoInfo" class="usuario-info">
+              <span id="usuarioAvatar" class="usuario-avatar">SG</span>
+              <div class="usuario-meta">
+                <span id="usuarioLogadoNome"></span>
+                <small id="usuarioLogadoPerfil">Sessão encerrada</small>
+              </div>
+            </div>
+            <button id="btnSair" class="nav-btn btn-sair" type="button">🚪 Sair</button>
+          </div>
+        </div>
       </div>
     </header>
+
+    <aside id="appSidebar" class="app-sidebar hidden" aria-label="Navegação principal">
+      <div class="app-sidebar__brand">
+        <div class="logo-mark">SI</div>
+        <div class="app-sidebar__brand-copy">
+          <strong>Operação</strong>
+          <span>SINGEM</span>
+        </div>
+      </div>
+
+      <nav class="app-sidebar__nav">
+        <button type="button" class="app-sidebar__link is-active" data-nav-screen="homeScreen">
+          <span aria-hidden="true">🏠</span>
+          <span>Painel executivo</span>
+        </button>
+        <button type="button" class="app-sidebar__link" data-nav-screen="empenhoScreen">
+          <span aria-hidden="true">📝</span>
+          <span>Empenhos</span>
+        </button>
+        <button type="button" class="app-sidebar__link" data-nav-screen="notaFiscalScreen">
+          <span aria-hidden="true">📄</span>
+          <span>Notas fiscais</span>
+        </button>
+        <button type="button" class="app-sidebar__link" data-nav-screen="entregaScreen">
+          <span aria-hidden="true">📦</span>
+          <span>Entregas</span>
+        </button>
+        <button type="button" class="app-sidebar__link" data-nav-screen="consultasScreen">
+          <span aria-hidden="true">🔍</span>
+          <span>Inteligência de compras</span>
+        </button>
+        <button type="button" class="app-sidebar__link" data-nav-screen="catalogacaoScreen">
+          <span aria-hidden="true">📋</span>
+          <span>Catalogação</span>
+        </button>
+        <button type="button" class="app-sidebar__link" data-nav-screen="relatoriosScreen">
+          <span aria-hidden="true">📊</span>
+          <span>Relatórios</span>
+        </button>
+        <button type="button" class="app-sidebar__link" data-nav-screen="configScreen">
+          <span aria-hidden="true">⚙️</span>
+          <span>Configurações</span>
+        </button>
+        <button type="button" class="app-sidebar__link" data-nav-href="/system-status/">
+          <span aria-hidden="true">🖥️</span>
+          <span>System Status</span>
+        </button>
+      </nav>
+
+      <div class="app-sidebar__footer">
+        Fluxo offline-first, dados versionados localmente e camada analítica integrada para compras públicas.
+      </div>
+    </aside>
 
     <!-- Main Content -->
     <main class="main">
       <div class="container">
         <!-- Tela de Login -->
-        <section id="loginScreen" class="screen active">
+        <section id="loginScreen" class="screen active sg-screen-shell">
           <div class="login-container">
             <!-- Header Institucional -->
             <div class="login-header">
@@ -57,8 +124,44 @@
               <p id="loginUnidadeInfo">Sistema Institucional de Gestão de Material — IF Baiano</p>
             </div>
 
-            <!-- Grid de 2 Cards -->
-            <div class="login-cards-grid">
+            <div class="login-experience-grid">
+              <aside class="login-intelligence-panel">
+                <span class="login-intelligence-panel__eyebrow">Executive Access Layer</span>
+                <h2>Entrada institucional com rastreabilidade financeira, continuidade local e inteligência pública acoplada.</h2>
+                <p>
+                  O SINGEM opera como um cockpit institucional: autenticação segura, dados
+                  persistidos localmente, trilha operacional auditável e consultas Compras.gov em
+                  um fluxo único.
+                </p>
+
+                <div class="login-intelligence-grid">
+                  <article class="login-intelligence-card">
+                    <span>Persistência</span>
+                    <strong>Offline-first</strong>
+                    <p>Fluxos de material continuam operacionais mesmo sem backend transacional.</p>
+                  </article>
+                  <article class="login-intelligence-card">
+                    <span>Governança</span>
+                    <strong>Trilha auditável</strong>
+                    <p>Empenhos, notas fiscais e preferências ficam sob controle institucional.</p>
+                  </article>
+                  <article class="login-intelligence-card">
+                    <span>Decisão</span>
+                    <strong>Radar Compras.gov</strong>
+                    <p>Preço, fornecedor e UASG acessíveis dentro do mesmo ambiente premium.</p>
+                  </article>
+                </div>
+
+                <div class="login-intelligence-ticker" aria-label="Destaques do sistema">
+                  <span>Dark mode completo</span>
+                  <span>IndexedDB local</span>
+                  <span>Backups e diagnósticos</span>
+                  <span>Integração analítica</span>
+                </div>
+              </aside>
+
+              <!-- Grid de 2 Cards -->
+              <div class="login-cards-grid">
               <!-- Card 1: Login Gov.br -->
               <div id="loginCardGovBr" class="login-card login-card-govbr">
                 <div class="login-card-badge">Recomendado</div>
@@ -68,17 +171,14 @@
                     src="img/govbr-logo.svg"
                     alt="Gov.br"
                     class="govbr-logo-img"
-                    onerror="
-                      this.style.display = 'none';
-                      this.nextElementSibling.style.display = 'block';
-                    "
+                    data-image-fallback=".govbr-logo-fallback"
                   />
                   <div class="govbr-logo-fallback">gov.br</div>
                   <h2>Login Único Gov.br</h2>
                   <p>Autenticação institucional do Governo Federal</p>
                 </div>
 
-                <a id="btnGovBr" href="#" class="btn-govbr" onclick="return false;">
+                <a id="btnGovBr" href="#" class="btn-govbr" data-prevent-default="true">
                   <svg
                     width="20"
                     height="20"
@@ -180,8 +280,8 @@
                 <a
                   id="btnSerproID"
                   href="#"
-                  onclick="return false;"
                   class="btn btn-outline btn-block"
+                  data-prevent-default="true"
                 >
                   <img src="img/icone-serproid-1024px.png" alt="SerproID" class="serproid-icon" />
                   Certificado Digital (SerproID)
@@ -192,6 +292,22 @@
                 </div>
               </div>
             </div>
+
+            <div class="login-trust-bar" aria-label="Destaques institucionais">
+              <span class="login-trust-pill">Ambiente institucional seguro</span>
+              <span class="login-trust-pill">Operação financeira orientada por evidência</span>
+              <span class="login-trust-pill">Preferências, backups e suporte em uma mesma trilha</span>
+            </div>
+
+            <div
+              id="loginVisualAudit"
+              class="sg-ai-audit-panel hidden"
+              data-ai-visual-audit="loginScreen"
+              data-ai-audit-root="#loginScreen"
+              data-ai-audit-report-key="frontend_visual_login"
+              data-ai-audit-title="Radar IA da Entrada"
+              data-ai-audit-label="Camada de acesso"
+            ></div>
 
             <!-- Mensagem de erro global -->
             <div id="loginError" class="login-error hidden"></div>
@@ -226,80 +342,206 @@
         </section>
 
         <!-- Tela Inicial - Menu Principal -->
-        <section id="homeScreen" class="screen">
-          <div class="welcome">
-            <h2>Sistema de Controle de Material</h2>
-            <p>Gerencie notas de empenho, recebimentos e relatórios de forma integrada</p>
-          </div>
+        <section id="homeScreen" class="screen sg-screen-shell">
+          <div class="dashboard-shell">
+            <section class="dashboard-hero">
+              <div>
+                <span class="dashboard-kicker">SINGEM Control Tower</span>
+                <h2>Operação de materiais com visão executiva, rastreabilidade e resposta rápida.</h2>
+                <p id="dashboardSubtitle">
+                  Base operacional do IF Baiano com monitoramento contínuo dos fluxos críticos e acesso imediato às rotinas mais usadas.
+                </p>
+              </div>
+              <div class="dashboard-hero__actions">
+                <button type="button" class="btn btn-secondary" data-nav-screen="empenhoScreen">
+                  📝 Novo empenho
+                </button>
+                <button type="button" class="btn btn-outline" data-nav-screen="notaFiscalScreen">
+                  📄 Registrar NF
+                </button>
+                <button type="button" class="btn btn-outline" data-nav-screen="consultasScreen">
+                  🔍 Abrir inteligência
+                </button>
+              </div>
+            </section>
 
-          <div class="menu-grid">
-            <div class="menu-item" data-screen="empenhoScreen">
-              <div class="menu-icon">📝</div>
-              <h3>Cadastro de Empenho</h3>
-              <p>Cadastre novas notas de empenho e faça upload dos PDFs</p>
+            <section id="dashboardMetrics" class="dashboard-metrics-grid">
+              <article class="dashboard-metric-card is-loading">
+                <span class="dashboard-metric-label">Empenhos</span>
+                <strong class="dashboard-metric-value">--</strong>
+                <p class="dashboard-metric-detail">Atualizando painel operacional...</p>
+              </article>
+              <article class="dashboard-metric-card is-loading">
+                <span class="dashboard-metric-label">Notas fiscais</span>
+                <strong class="dashboard-metric-value">--</strong>
+                <p class="dashboard-metric-detail">Consolidando registros ativos...</p>
+              </article>
+              <article class="dashboard-metric-card is-loading">
+                <span class="dashboard-metric-label">Fornecedores</span>
+                <strong class="dashboard-metric-value">--</strong>
+                <p class="dashboard-metric-detail">Calculando base ativa...</p>
+              </article>
+              <article class="dashboard-metric-card is-loading">
+                <span class="dashboard-metric-label">Valor empenhado</span>
+                <strong class="dashboard-metric-value">--</strong>
+                <p class="dashboard-metric-detail">Lendo exposição financeira...</p>
+              </article>
+            </section>
+
+            <section class="dashboard-detail-grid">
+              <article class="dashboard-panel dashboard-panel--spotlight">
+                <span class="dashboard-panel-kicker">Postura operacional</span>
+                <h3 id="dashboardUnitHeading">Carregando base institucional...</h3>
+                <p id="dashboardOperationalPulse">
+                  Consolidando empenhos, notas fiscais e inteligência de compras para a unidade ativa.
+                </p>
+
+                <div class="dashboard-signal-row">
+                  <div class="dashboard-signal-chip">
+                    <span>Validados</span>
+                    <strong id="dashboardValidatedCount">--</strong>
+                  </div>
+                  <div class="dashboard-signal-chip">
+                    <span>Rascunhos</span>
+                    <strong id="dashboardDraftCount">--</strong>
+                  </div>
+                  <div class="dashboard-signal-chip">
+                    <span>Base ativa</span>
+                    <strong id="dashboardSupplierActiveCount">--</strong>
+                  </div>
+                </div>
+              </article>
+
+              <article class="dashboard-panel">
+                <span class="dashboard-panel-kicker">Governança</span>
+                <h3>Controles críticos do dia</h3>
+                <ul class="dashboard-checklist">
+                  <li>Empenhos e notas fiscais com vínculo operacional rastreável.</li>
+                  <li>Consulta pública unificada para preço, fornecedor e UASG.</li>
+                  <li>Backups, preferências e diagnósticos acessíveis em um mesmo comando.</li>
+                </ul>
+              </article>
+
+              <article class="dashboard-panel">
+                <span class="dashboard-panel-kicker">Inteligência</span>
+                <h3>Radar de execução</h3>
+
+                <div class="dashboard-mini-metrics">
+                  <div>
+                    <span>Notas fiscais</span>
+                    <strong id="dashboardInvoiceCount">--</strong>
+                  </div>
+                  <div>
+                    <span>Última leitura</span>
+                    <strong id="dashboardLastRefresh">--:--</strong>
+                  </div>
+                </div>
+
+                <p class="dashboard-panel-note">
+                  Use o cockpit analítico para comparar preços praticados, validar fornecedores e
+                  reduzir atrito antes da emissão ou do vínculo documental.
+                </p>
+
+                <button type="button" class="btn btn-outline" data-nav-screen="consultasScreen">
+                  Abrir cockpit analítico
+                </button>
+              </article>
+            </section>
+
+            <div
+              id="dashboardVisualAudit"
+              class="sg-ai-audit-panel hidden"
+              data-ai-visual-audit="homeScreen"
+              data-ai-audit-root="#homeScreen"
+              data-ai-audit-report-key="frontend_visual_dashboard"
+              data-ai-audit-title="Radar IA do Painel"
+              data-ai-audit-label="Painel executivo"
+            ></div>
+
+            <div class="welcome">
+              <h2>Áreas operacionais</h2>
+              <p>Atalhos priorizados para cadastro, recebimento, inteligência de compras e acompanhamento diário.</p>
             </div>
 
-            <div class="menu-item" data-screen="entregaScreen">
-              <div class="menu-icon">📦</div>
-              <h3>Entrada de Entrega</h3>
-              <p>Registre recebimentos semanais de materiais</p>
-            </div>
+            <div class="menu-grid">
+              <div class="menu-item" data-screen="empenhoScreen">
+                <div class="menu-icon">📝</div>
+                <h3>Cadastro de Empenho</h3>
+                <p>Cadastre novas notas de empenho, valide o fluxo e anexe a documentação crítica.</p>
+              </div>
 
-            <div class="menu-item" data-screen="notaFiscalScreen">
-              <div class="menu-icon">📄</div>
-              <h3>Entrada de Nota Fiscal</h3>
-              <p>Cadastre notas fiscais e compare com empenhos</p>
-            </div>
+              <div class="menu-item" data-screen="entregaScreen">
+                <div class="menu-icon">📦</div>
+                <h3>Entrada de Entrega</h3>
+                <p>Registre recebimentos semanais e mantenha o histórico físico alinhado ao financeiro.</p>
+              </div>
 
-            <div class="menu-item" data-screen="relatoriosScreen">
-              <div class="menu-icon">📊</div>
-              <h3>Relatórios</h3>
-              <p>Gere relatórios de conferência e análises</p>
-            </div>
+              <div class="menu-item" data-screen="notaFiscalScreen">
+                <div class="menu-icon">📄</div>
+                <h3>Entrada de Nota Fiscal</h3>
+                <p>Cadastre notas fiscais, valide divergências e vincule ao empenho correto.</p>
+              </div>
 
-            <div class="menu-item" id="consultasMenuItem">
-              <div class="menu-icon">🔍</div>
-              <h3>Consulte Compras.gov</h3>
-              <p>Acesse dados abertos do Compras.gov.br</p>
-            </div>
+              <div class="menu-item" data-screen="relatoriosScreen">
+                <div class="menu-icon">📊</div>
+                <h3>Relatórios</h3>
+                <p>Gere painéis de conferência e recortes analíticos sem sair do fluxo principal.</p>
+              </div>
 
-            <div class="menu-item" data-screen="catalogacaoScreen">
-              <div class="menu-icon">📋</div>
-              <h3>Pedidos de Catalogação</h3>
-              <p>Gerencie pedidos de catalogação CATMAT/CATSER</p>
-            </div>
+              <div class="menu-item" id="consultasMenuItem">
+                <div class="menu-icon">🔍</div>
+                <h3>Consulte Compras.gov</h3>
+                <p>Acesse inteligência de preços, fornecedores, UASG e dados públicos do ecossistema.</p>
+              </div>
 
-            <div class="menu-item" id="systemStatusMenuItem">
-              <div class="menu-icon">🖥️</div>
-              <h3>System Status</h3>
-              <p>Monitore o estado operacional dos serviços do SINGEM</p>
+              <div class="menu-item" data-screen="catalogacaoScreen">
+                <div class="menu-icon">📋</div>
+                <h3>Pedidos de Catalogação</h3>
+                <p>Gerencie solicitações CATMAT/CATSER com visibilidade do backlog e do ciclo de ajuste.</p>
+              </div>
+
+              <div class="menu-item" id="systemStatusMenuItem">
+                <div class="menu-icon">🖥️</div>
+                <h3>System Status</h3>
+                <p>Monitore a saúde operacional dos serviços do SINGEM e acelere o diagnóstico.</p>
+              </div>
             </div>
           </div>
         </section>
 
         <!-- Tela de Pedidos de Catalogação -->
-        <section id="catalogacaoScreen" class="screen">
-          <div class="screen-header">
+        <section id="catalogacaoScreen" class="screen sg-screen-shell">
+          <div class="screen-header sg-screen-header">
             <button class="btn-back">← Voltar</button>
             <h2>📋 Pedidos de Catalogação</h2>
           </div>
 
           <div id="catalogacaoPedidosContainer" class="catalogacao-wrapper">
             <!-- Conteúdo carregado via JS -->
-            <p style="text-align: center; padding: 40px; color: #666">Carregando...</p>
+            <p class="sg-inline-loading">Carregando...</p>
           </div>
         </section>
 
         <!-- Tela de Consulte Compras.gov -->
-        <section id="consultasScreen" class="screen">
-          <div class="screen-header">
+        <section id="consultasScreen" class="screen sg-screen-shell">
+          <div class="screen-header sg-screen-header">
             <button class="btn-back">← Voltar</button>
             <h2>🔍 Consulte Compras.gov</h2>
           </div>
 
+          <div
+            id="consultasVisualAudit"
+            class="sg-ai-audit-panel hidden"
+            data-ai-visual-audit="consultasScreen"
+            data-ai-audit-root="#consultasScreen"
+            data-ai-audit-report-key="frontend_visual_consultas"
+            data-ai-audit-title="Radar IA da Consulta"
+            data-ai-audit-label="Inteligência de compras"
+          ></div>
+
           <div id="consultasContainer" class="consultas-wrapper">
             <!-- Menu de Consultas (Tela Inicial) -->
-            <div id="menuConsultas" class="menu-consultas">
+            <div id="menuConsultas" class="menu-consultas sg-section-shell">
               <!-- Controle de Modo API -->
               <div id="apiModeControl" class="api-mode-control">
                 <label class="api-status-label">
@@ -322,7 +564,8 @@
                 <div
                   class="menu-item-consulta"
                   data-consulta="materiais"
-                  onclick="window.abrirConsulta('materiais')"
+                  role="button"
+                  tabindex="0"
                 >
                   <div class="menu-icon-consulta">📦</div>
                   <h4>Catálogo de Material</h4>
@@ -332,7 +575,8 @@
                 <div
                   class="menu-item-consulta"
                   data-consulta="servicos"
-                  onclick="window.abrirConsulta('servicos')"
+                  role="button"
+                  tabindex="0"
                 >
                   <div class="menu-icon-consulta">🛠️</div>
                   <h4>Catálogo de Serviço</h4>
@@ -342,7 +586,8 @@
                 <div
                   class="menu-item-consulta"
                   data-consulta="precos-praticados"
-                  onclick="window.abrirConsulta('precos-praticados')"
+                  role="button"
+                  tabindex="0"
                 >
                   <div class="menu-icon-consulta">📈</div>
                   <h4>Módulo 3 - Preços Praticados (CATMAT/CATSER)</h4>
@@ -352,7 +597,8 @@
                 <div
                   class="menu-item-consulta"
                   data-consulta="uasg"
-                  onclick="window.abrirConsulta('uasg')"
+                  role="button"
+                  tabindex="0"
                 >
                   <div class="menu-icon-consulta">🏛️</div>
                   <h4>Consultar UASG</h4>
@@ -361,8 +607,20 @@
 
                 <div
                   class="menu-item-consulta"
+                  data-consulta="fornecedor"
+                  role="button"
+                  tabindex="0"
+                >
+                  <div class="menu-icon-consulta">🏢</div>
+                  <h4>Fornecedor</h4>
+                  <p>Consulte fornecedores por CNPJ, CPF, natureza jurídica, porte e CNAE</p>
+                </div>
+
+                <div
+                  class="menu-item-consulta"
                   data-consulta="arp"
-                  onclick="window.abrirConsulta('arp')"
+                  role="button"
+                  tabindex="0"
                 >
                   <div class="menu-icon-consulta">📋</div>
                   <h4>ARP - Atas de Preços</h4>
@@ -372,7 +630,8 @@
                 <div
                   class="menu-item-consulta"
                   data-consulta="pncp"
-                  onclick="window.abrirConsulta('pncp')"
+                  role="button"
+                  tabindex="0"
                 >
                   <div class="menu-icon-consulta">📑</div>
                   <h4>Contratações PNCP</h4>
@@ -382,7 +641,8 @@
                 <div
                   class="menu-item-consulta"
                   data-consulta="legado-licitacoes"
-                  onclick="window.abrirConsulta('legado-licitacoes')"
+                  role="button"
+                  tabindex="0"
                 >
                   <div class="menu-icon-consulta">📚</div>
                   <h4>Licitações (Legado)</h4>
@@ -392,7 +652,8 @@
                 <div
                   class="menu-item-consulta"
                   data-consulta="legado-itens"
-                  onclick="window.abrirConsulta('legado-itens')"
+                  role="button"
+                  tabindex="0"
                 >
                   <div class="menu-icon-consulta">📄</div>
                   <h4>Itens de Licitação (Legado)</h4>
@@ -402,7 +663,7 @@
             </div>
 
             <!-- Tela de Consulta (inicialmente oculta) -->
-            <div id="telaConsulta" class="tela-consulta hidden">
+            <div id="telaConsulta" class="tela-consulta hidden sg-section-shell" aria-hidden="true">
               <!-- Breadcrumb / Voltar -->
               <div class="consulta-nav">
                 <button id="btnVoltarMenu" class="btn btn-secondary">◀ Voltar ao Menu</button>
@@ -442,14 +703,24 @@
         </section>
 
         <!-- Tela de Cadastro de Empenho -->
-        <section id="empenhoScreen" class="screen">
-          <div class="screen-header">
+        <section id="empenhoScreen" class="screen sg-screen-shell">
+          <div class="screen-header sg-screen-header">
             <button class="btn-back">← Voltar</button>
             <h2>📝 Gerenciamento de Empenhos</h2>
           </div>
 
+          <div
+            id="empenhoVisualAudit"
+            class="sg-ai-audit-panel hidden"
+            data-ai-visual-audit="empenhoScreen"
+            data-ai-audit-root="#empenhoScreen"
+            data-ai-audit-report-key="frontend_visual_empenhos"
+            data-ai-audit-title="Radar IA do Cadastro de Empenhos"
+            data-ai-audit-label="Cadastro de empenho"
+          ></div>
+
           <!-- Abas de navegação -->
-          <div class="tabs-container">
+          <div class="tabs-container sg-command-cluster">
             <button class="tab-btn active" data-tab="cadastro">📝 Novo Cadastro</button>
             <button class="tab-btn" data-tab="controle-saldos">📊 Controle de Saldos</button>
             <button class="tab-btn" data-tab="relatorio">📋 Relatório de Empenhos</button>
@@ -458,89 +729,38 @@
           <!-- Conteúdo: Cadastro -->
           <div class="tab-content active" id="tabCadastro">
             <!-- Lista de Empenhos para Edição -->
-            <div
-              id="listaEmpenhosCadastro"
-              class="empenhos-lista-cadastro"
-              style="margin-bottom: 30px"
-            >
-              <div
-                style="
-                  display: flex;
-                  justify-content: space-between;
-                  align-items: center;
-                  margin-bottom: 15px;
-                  flex-wrap: wrap;
-                  gap: 10px;
-                "
-              >
-                <h3 style="margin: 0; color: #333">📋 Empenhos Cadastrados</h3>
-                <div style="display: flex; gap: 10px; align-items: center">
+            <div id="listaEmpenhosCadastro" class="empenhos-lista-cadastro mb-8">
+              <div class="sg-toolbar">
+                <h3 class="sg-toolbar__title">📋 Empenhos Cadastrados</h3>
+                <div class="sg-toolbar__actions">
                   <input
                     type="text"
                     id="buscaEmpenhoCadastro"
                     placeholder="🔍 Buscar empenho..."
-                    style="
-                      padding: 8px 12px;
-                      border: 1px solid #ddd;
-                      border-radius: 6px;
-                      min-width: 200px;
-                    "
+                    class="sg-inline-input"
                   />
-                  <select
-                    id="filtroAnoCadastro"
-                    style="padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px"
-                  >
+                  <select id="filtroAnoCadastro" class="sg-inline-select" aria-label="Filtrar empenhos cadastrados por ano">
                     <option value="">Todos os anos</option>
                   </select>
-                  <button
-                    type="button"
-                    id="btnNovoEmpenho"
-                    style="
-                      background: #28a745;
-                      color: white;
-                      border: none;
-                      padding: 8px 16px;
-                      border-radius: 6px;
-                      cursor: pointer;
-                      display: flex;
-                      align-items: center;
-                      gap: 5px;
-                    "
-                  >
+                  <button type="button" id="btnNovoEmpenho" class="btn btn-success">
                     ➕ Novo Empenho
                   </button>
                 </div>
               </div>
-              <div
-                id="empenhosPorAnoCadastro"
-                style="
-                  max-height: 400px;
-                  overflow-y: auto;
-                  border: 1px solid #e0e0e0;
-                  border-radius: 8px;
-                  background: #fafafa;
-                "
-              >
-                <p style="padding: 20px; text-align: center; color: #666">Carregando empenhos...</p>
+              <div id="empenhosPorAnoCadastro" class="sg-scroll-panel">
+                <p class="sg-inline-loading">Carregando empenhos...</p>
               </div>
             </div>
 
-            <hr style="border: none; border-top: 2px solid #e0e0e0; margin: 20px 0" />
+            <hr class="sg-divider" />
 
-            <div class="form-container">
-              <h2 style="margin-bottom: 20px; color: #333">� Cadastro Manual de Nota de Empenho</h2>
+            <div class="form-container sg-form-shell">
+              <h2 class="sg-section-title">📝 Cadastro Manual de Nota de Empenho</h2>
 
               <form id="formEmpenho" class="form">
                 <!-- CABEÇALHO DO EMPENHO -->
-                <fieldset
-                  style="
-                    border: 1px solid #ddd;
-                    padding: 15px;
-                    margin-bottom: 20px;
-                    border-radius: 5px;
-                  "
-                >
-                  <legend style="font-weight: bold; color: #333">📋 Cabeçalho do Empenho</legend>
+                <fieldset class="sg-fieldset">
+                  <legend class="sg-legend">📋 Cabeçalho do Empenho</legend>
 
                   <div class="form-row">
                     <div class="form-group">
@@ -566,25 +786,18 @@
                   </div>
 
                   <div class="form-row">
-                    <div class="form-group" style="flex: 1">
+                    <div class="form-group sg-inline-grow">
                       <label for="processoSuapEmpenho">Processo (SUAP)</label>
-                      <div style="display: flex; gap: 8px; align-items: flex-start">
-                        <div style="flex: 1">
-                          <input
-                            type="text"
-                            id="processoSuapEmpenho"
-                            placeholder="23000.000000/2024-00"
-                            style="width: 100%"
-                          />
+                      <div class="sg-inline-row">
+                        <div class="sg-inline-grow">
+                          <input type="text" id="processoSuapEmpenho" placeholder="23000.000000/2024-00" />
                           <small>Informe o processo do SUAP</small>
                         </div>
                         <button
                           type="button"
                           id="btnConsultarProcesso"
-                          class="btn btn-secondary"
+                          class="btn btn-secondary whitespace-nowrap px-3 py-2"
                           title="Consultar processo no SUAP"
-                          style="white-space: nowrap; padding: 8px 12px"
-                          onclick="window.consultarProcessoSuap()"
                         >
                           🔍 Consultar
                         </button>
@@ -602,15 +815,8 @@
                 </fieldset>
 
                 <!-- DADOS DO FORNECEDOR -->
-                <fieldset
-                  style="
-                    border: 1px solid #ddd;
-                    padding: 15px;
-                    margin-bottom: 20px;
-                    border-radius: 5px;
-                  "
-                >
-                  <legend style="font-weight: bold; color: #333">🏢 Dados do Fornecedor</legend>
+                <fieldset class="sg-fieldset">
+                  <legend class="sg-legend">🏢 Dados do Fornecedor</legend>
 
                   <div class="form-row">
                     <div class="form-group">
@@ -676,28 +882,16 @@
                 </div>
 
                 <!-- Seção: Anexar PDF da NE -->
-                <div
-                  class="anexo-section"
-                  style="
-                    margin-top: 20px;
-                    padding: 15px;
-                    border: 1px dashed #ccc;
-                    border-radius: 8px;
-                    background: #fafafa;
-                  "
-                >
-                  <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap">
+                <div class="anexo-section sg-upload-panel">
+                  <div class="sg-toolbar__actions">
                     <button
                       type="button"
                       id="btnAnexarPdfNE"
-                      class="btn btn-secondary"
-                      style="display: flex; align-items: center; gap: 6px"
+                      class="btn btn-secondary inline-flex items-center gap-1.5"
                     >
                       📎 Anexar PDF da NE
                     </button>
-                    <span id="statusAnexoPdfNE" style="color: #666; font-size: 14px"
-                      >Nenhum PDF anexado.</span
-                    >
+                    <span id="statusAnexoPdfNE" class="sg-help-text">Nenhum PDF anexado.</span>
                   </div>
                 </div>
 
@@ -713,7 +907,7 @@
 
           <!-- Conteúdo: Controle de Saldos -->
           <div class="tab-content" id="tabControleSaldos">
-            <div id="controleSaldosContainer">
+            <div id="controleSaldosContainer" class="sg-dynamic-panel-host">
               <!-- Conteúdo será carregado dinamicamente -->
             </div>
           </div>
@@ -721,43 +915,40 @@
           <!-- Conteúdo: Relatório (Somente Visualização) -->
           <div class="tab-content" id="tabRelatorio">
             <!-- Seletor de Tipo de Relatório -->
-            <div
-              class="relatorio-tipos"
-              style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap"
-            >
+            <div class="relatorio-tipos mb-5 flex flex-wrap gap-2.5">
               <button
-                class="btn-tipo-relatorio active"
+                class="btn-tipo-relatorio sg-report-type-button active"
                 data-tipo="todos"
                 title="Todos os empenhos cadastrados"
               >
                 📋 Todos os Empenhos
               </button>
-              <button class="btn-tipo-relatorio" data-tipo="ano" title="Empenhos filtrados por ano">
+              <button class="btn-tipo-relatorio sg-report-type-button" data-tipo="ano" title="Empenhos filtrados por ano">
                 📅 Por Ano
               </button>
               <button
-                class="btn-tipo-relatorio"
+                class="btn-tipo-relatorio sg-report-type-button"
                 data-tipo="com-saldo"
                 title="Empenhos com saldo disponível"
               >
                 💰 Com Saldo
               </button>
               <button
-                class="btn-tipo-relatorio"
+                class="btn-tipo-relatorio sg-report-type-button"
                 data-tipo="sem-saldo"
                 title="Empenhos totalmente utilizados"
               >
                 🔴 Sem Saldo
               </button>
               <button
-                class="btn-tipo-relatorio"
+                class="btn-tipo-relatorio sg-report-type-button"
                 data-tipo="rascunho"
                 title="Empenhos em fase de cadastro"
               >
                 📝 Em Cadastro
               </button>
               <button
-                class="btn-tipo-relatorio"
+                class="btn-tipo-relatorio sg-report-type-button"
                 data-tipo="validado"
                 title="Empenhos validados e prontos"
               >
@@ -766,41 +957,19 @@
             </div>
 
             <!-- Filtros específicos por tipo -->
-            <div
-              id="filtrosRelatorioContainer"
-              class="relatorio-header"
-              style="
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                margin-bottom: 20px;
-                flex-wrap: wrap;
-                gap: 10px;
-              "
-            >
-              <h3 id="tituloRelatorioAtual" style="margin: 0; color: #333">📋 Todos os Empenhos</h3>
-              <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap">
+            <div id="filtrosRelatorioContainer" class="relatorio-header sg-toolbar mb-5">
+              <h3 id="tituloRelatorioAtual" class="sg-toolbar__title">📋 Todos os Empenhos</h3>
+              <div class="sg-toolbar__actions">
                 <input
                   type="text"
                   id="buscaEmpenhoRelatorio"
                   placeholder="🔍 Buscar..."
-                  style="
-                    padding: 8px 12px;
-                    border: 1px solid #ddd;
-                    border-radius: 6px;
-                    min-width: 180px;
-                  "
+                  class="sg-inline-input min-w-45"
                 />
-                <select
-                  id="filtroAnoRelatorio"
-                  style="padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px"
-                >
+                <select id="filtroAnoRelatorio" class="sg-inline-select" aria-label="Filtrar relatório de empenhos por ano">
                   <option value="">Todos os anos</option>
                 </select>
-                <select
-                  id="ordenacaoRelatorio"
-                  style="padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px"
-                >
+                <select id="ordenacaoRelatorio" class="sg-inline-select" aria-label="Ordenar relatório de empenhos">
                   <option value="recente">📅 Mais recentes</option>
                   <option value="antigo">📅 Mais antigos</option>
                   <option value="numero">🔢 Por número</option>
@@ -809,59 +978,37 @@
                   <option value="saldo-desc">📊 Maior saldo</option>
                   <option value="saldo-asc">📊 Menor saldo</option>
                 </select>
-                <button
-                  id="btnExportarRelatorio"
-                  class="btn btn-secondary"
-                  style="padding: 8px 12px; display: flex; align-items: center; gap: 4px"
-                  title="Exportar relatório"
-                >
+                <button id="btnExportarRelatorio" class="btn btn-secondary inline-flex items-center gap-1 px-3 py-2" title="Exportar relatório">
                   📥 Exportar
                 </button>
               </div>
             </div>
 
             <!-- Resumo/Estatísticas -->
-            <div
-              id="resumoRelatorio"
-              style="
-                display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-                gap: 12px;
-                margin-bottom: 20px;
-              "
-            >
+            <div id="resumoRelatorio" class="sg-summary-grid">
               <!-- Preenchido dinamicamente -->
             </div>
 
             <div id="resumoRelatorioIA" class="ai-report-panel hidden" aria-live="polite"></div>
 
-            <p
-              style="
-                margin-bottom: 15px;
-                padding: 10px;
-                background: #e8f4f8;
-                border-radius: 6px;
-                color: #2c5282;
-                font-size: 0.9em;
-              "
-            >
+            <p class="sg-info-note">
               ℹ️ <strong>Modo Visualização:</strong> Para editar empenhos, utilize a aba "Novo
               Cadastro".
             </p>
-            <div id="relatorioEmpenhosContainer">
+            <div id="relatorioEmpenhosContainer" class="sg-dynamic-panel-host">
               <!-- Conteúdo será carregado dinamicamente -->
             </div>
           </div>
         </section>
 
         <!-- Tela de Entrada de Entrega -->
-        <section id="entregaScreen" class="screen">
-          <div class="screen-header">
+        <section id="entregaScreen" class="screen sg-screen-shell">
+          <div class="screen-header sg-screen-header">
             <button class="btn-back">← Voltar</button>
             <h2>📦 Entrada de Entrega</h2>
           </div>
 
-          <div class="form-container">
+          <div class="form-container sg-form-shell">
             <form id="formEntrega" class="form">
               <div class="form-row">
                 <div class="form-group">
@@ -897,49 +1044,32 @@
         </section>
 
         <!-- Tela de Nota Fiscal -->
-        <section id="notaFiscalScreen" class="screen nf-screen">
-          <div class="screen-header">
+        <section id="notaFiscalScreen" class="screen nf-screen sg-screen-shell">
+          <div class="screen-header sg-screen-header">
             <button class="btn-back">← Voltar</button>
             <h2>📄 Entrada de Nota Fiscal</h2>
           </div>
 
-          <div class="form-container">
+          <div
+            id="notaFiscalVisualAudit"
+            class="sg-ai-audit-panel hidden"
+            data-ai-visual-audit="notaFiscalScreen"
+            data-ai-audit-root="#notaFiscalScreen"
+            data-ai-audit-report-key="frontend_visual_nota_fiscal"
+            data-ai-audit-title="Radar IA da Nota Fiscal"
+            data-ai-audit-label="Entrada de nota fiscal"
+          ></div>
+
+          <div class="form-container sg-form-shell">
             <!-- ✅ ENTRADA MANUAL (PADRÃO) - Empenho obrigatório no topo -->
-            <div
-              class="nf-empenho-section"
-              style="
-                background: #e3f2fd;
-                padding: 20px;
-                border-radius: 8px;
-                margin-bottom: 20px;
-                border: 2px solid #1976d2;
-              "
-            >
-              <h3
-                style="
-                  margin: 0 0 15px 0;
-                  color: #1565c0;
-                  display: flex;
-                  align-items: center;
-                  gap: 10px;
-                "
-              >
+            <div class="nf-empenho-section sg-highlight-panel">
+              <h3 class="sg-highlight-title">
                 <span>📋</span> 1. Selecione o Empenho (Obrigatório)
               </h3>
-              <div
-                class="empenho-select-container"
-                style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap"
-              >
+              <div class="empenho-select-container sg-highlight-row">
                 <select
                   id="empenhoAssociado"
-                  style="
-                    flex: 1;
-                    min-width: 300px;
-                    padding: 12px;
-                    font-size: 16px;
-                    border: 2px solid #1976d2;
-                    border-radius: 6px;
-                  "
+                  class="sg-highlight-select"
                   required
                 >
                   <option value="">Selecione um empenho validado...</option>
@@ -949,22 +1079,12 @@
                   id="btnCadastrarEmpenho"
                   class="btn btn-outline"
                   title="Cadastrar novo empenho"
-                  style="padding: 12px 16px"
                 >
                   + Novo Empenho
                 </button>
               </div>
-              <div
-                id="infoEmpenhoSelecionado"
-                style="
-                  margin-top: 15px;
-                  padding: 10px;
-                  background: #fff;
-                  border-radius: 6px;
-                  display: none;
-                "
-              >
-                <small style="color: #666"
+              <div id="infoEmpenhoSelecionado" class="hidden sg-highlight-meta">
+                <small class="sg-help-text"
                   >Fornecedor: <strong id="nfFornecedorInfo">-</strong> | CNPJ:
                   <strong id="nfCnpjInfo">-</strong> | Itens:
                   <strong id="nfItensInfo">0</strong></small
@@ -973,64 +1093,31 @@
             </div>
 
             <!-- Importação Opcional (Colapsável) -->
-            <details
-              class="import-opcoes"
-              style="margin-bottom: 20px; border: 1px solid #ddd; border-radius: 8px"
-            >
-              <summary
-                style="
-                  padding: 15px;
-                  cursor: pointer;
-                  background: #f8f9fa;
-                  border-radius: 8px;
-                  font-weight: 600;
-                  color: #666;
-                "
-              >
+            <details class="import-opcoes sg-details">
+              <summary class="sg-details-summary">
                 📥 Importar dados (opcional) - Clique para expandir
               </summary>
-              <div style="padding: 15px">
-                <div
-                  class="opcoes-grid"
-                  style="
-                    display: grid;
-                    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-                    gap: 15px;
-                  "
-                >
+              <div class="sg-details-body">
+                <div class="opcoes-grid sg-option-grid">
                   <div
-                    class="opcao-card"
+                    class="opcao-card sg-option-card"
                     data-opcao="upload"
                     id="opcaoUpload"
-                    style="
-                      padding: 15px;
-                      border: 1px solid #ddd;
-                      border-radius: 8px;
-                      text-align: center;
-                      cursor: pointer;
-                    "
                   >
-                    <div class="opcao-icon" style="font-size: 32px">📎</div>
-                    <h4 style="margin: 10px 0 5px">Upload do PDF</h4>
-                    <p style="font-size: 12px; color: #666; margin: 0">
+                    <div class="opcao-icon">📎</div>
+                    <h4>Upload do PDF</h4>
+                    <p>
                       Extrair dados do PDF da NF
                     </p>
                   </div>
                   <div
-                    class="opcao-card"
+                    class="opcao-card sg-option-card"
                     data-opcao="chave"
                     id="opcaoChave"
-                    style="
-                      padding: 15px;
-                      border: 1px solid #ddd;
-                      border-radius: 8px;
-                      text-align: center;
-                      cursor: pointer;
-                    "
                   >
-                    <div class="opcao-icon" style="font-size: 32px">🔑</div>
-                    <h4 style="margin: 10px 0 5px">Chave de Acesso</h4>
-                    <p style="font-size: 12px; color: #666; margin: 0">
+                    <div class="opcao-icon">🔑</div>
+                    <h4>Chave de Acesso</h4>
+                    <p>
                       Buscar via chave de 44 dígitos
                     </p>
                   </div>
@@ -1213,7 +1300,7 @@
               </div>
 
               <div class="form-group">
-                <label for="empenhoAssociado" style="display: none">Empenho Associado</label>
+                <label for="empenhoAssociado" class="sg-hidden-label">Empenho Associado</label>
                 <!-- Select movido para o topo da tela -->
               </div>
 
@@ -1266,7 +1353,7 @@
                     <div class="tot-status ok" id="nfConciliacaoBadge">OK</div>
                   </div>
                 </div>
-                <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px">
+                <div class="sg-inline-actions">
                   <!-- REMOVIDO: Botão manual PROIBIDO - Itens só podem vir do Empenho -->
                   <button type="button" id="btnAddItemFromEmpenho" class="btn btn-primary">
                     📋 Adicionar do Empenho
@@ -1319,15 +1406,15 @@
             </form>
 
             <!-- Modal de Resultado da Validação -->
-            <div id="modalValidacaoNF" class="modal hidden">
-              <div class="modal-content" style="max-width: 700px">
+            <div id="modalValidacaoNF" class="modal hidden" aria-hidden="true">
+              <div class="modal-content sg-modal-wide sg-validation-modal">
                 <div class="modal-header">
-                  <h3 id="modalValidacaoTitulo">🔍 Resultado da Validação</h3>
+                  <h3 id="modalValidacaoTitulo" class="sg-modal-heading sg-modal-heading--primary">🔍 Resultado da Validação</h3>
                   <button type="button" class="modal-close" id="btnFecharValidacaoNF">
                     &times;
                   </button>
                 </div>
-                <div class="modal-body" id="modalValidacaoBody">
+                <div class="modal-body sg-validation-modal__body" id="modalValidacaoBody">
                   <!-- Conteúdo gerado dinamicamente -->
                 </div>
                 <div class="modal-footer">
@@ -1341,8 +1428,8 @@
         </section>
 
         <!-- Tela de Relatórios -->
-        <section id="relatoriosScreen" class="screen">
-          <div class="screen-header">
+        <section id="relatoriosScreen" class="screen sg-screen-shell">
+          <div class="screen-header sg-screen-header">
             <button class="btn-back">← Voltar</button>
             <h2>📊 Relatórios</h2>
           </div>
@@ -1427,10 +1514,10 @@
               </div>
             </div>
 
-            <hr style="margin: 2rem 0; border-color: #eee" />
+            <hr class="my-8 border-slate-200" />
 
             <!-- Relatórios Legados -->
-            <h3 style="margin-bottom: 1rem">📋 Relatórios Básicos</h3>
+            <h3 class="mb-4 text-xl font-semibold tracking-tight text-(--sg-text)">📋 Relatórios Básicos</h3>
             <div class="report-types">
               <div class="report-card" data-report="conferencia">
                 <h3>📋 Relatório de Conferência</h3>
@@ -1480,8 +1567,8 @@
         </section>
 
         <!-- Tela de Configurações -->
-        <section id="configScreen" class="screen">
-          <div class="screen-header">
+        <section id="configScreen" class="screen sg-screen-shell">
+          <div class="screen-header sg-screen-header">
             <button class="btn-back">← Voltar</button>
             <h2>⚙️ Configurações</h2>
           </div>
@@ -1540,6 +1627,7 @@
     <!-- Validador de NF (antes do app.js) -->
     <script src="js/nfValidator.js" defer></script>
     <script type="module" src="js/app.js"></script>
+    <script type="module" src="js/ui/pageEnhancer.js"></script>
 
     <!-- ========================================== -->
     <!-- MÓDULO DE RELATÓRIOS DINÂMICOS -->
@@ -1577,7 +1665,7 @@
     <script src="js/settings/unidade.js" defer></script>
     <script type="module" src="js/settings/usuarios.js"></script>
     <script type="module" src="js/settings/rede.js"></script>
-    <script src="js/settings/preferencias.js" defer></script>
+    <script type="module" src="js/settings/preferencias.js"></script>
     <script src="js/settings/arquivos.js" defer></script>
 
     <!-- UI Proteção de Pastas -->
@@ -1628,41 +1716,27 @@
         // Cria div de erro
         const divErro = document.createElement('div');
         divErro.id = 'erro-copivel';
-        divErro.style.cssText = `
-          position: fixed;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%);
-          background: white;
-          border: 3px solid #dc3545;
-          border-radius: 12px;
-          padding: 25px;
-          max-width: 600px;
-          width: 90%;
-          z-index: 10000;
-          box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-          font-family: Arial, sans-serif;
-        `;
+        divErro.className = 'sg-error-dialog';
 
         const conteudoCompleto = `${titulo}\n\n${mensagem}${
           detalhes ? '\n\nDetalhes:\n' + detalhes : ''
         }`;
 
         divErro.innerHTML = `
-          <div style="text-align: center; margin-bottom: 20px;">
-            <div style="font-size: 48px; color: #dc3545;">❌</div>
-            <h3 style="color: #dc3545; margin: 10px 0;">${titulo}</h3>
+          <div class="sg-error-dialog__header">
+            <div class="sg-error-dialog__icon">❌</div>
+            <h3 class="sg-error-dialog__title">${titulo}</h3>
           </div>
 
-          <div style="background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 6px; padding: 15px; margin-bottom: 20px; font-family: 'Courier New', monospace; font-size: 14px; white-space: pre-wrap; word-wrap: break-word; max-height: 300px; overflow-y: auto; text-align: left;"><!--
+          <div class="sg-error-dialog__details"><!--
           -->${mensagem}${detalhes ? '\n\nDetalhes:\n' + detalhes : ''}<!--
         --></div>
 
-          <div style="display: flex; gap: 10px; justify-content: center;">
-            <button id="btn-copiar-erro" style="background: #007bff; color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: bold;">
+          <div class="sg-error-dialog__actions">
+            <button id="btn-copiar-erro" class="sg-error-dialog__button sg-error-dialog__button--primary">
               📋 COPIAR ERRO
             </button>
-            <button id="btn-fechar-erro" style="background: #6c757d; color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: bold;">
+            <button id="btn-fechar-erro" class="sg-error-dialog__button sg-error-dialog__button--secondary">
               ✖️ FECHAR
             </button>
           </div>
@@ -1883,30 +1957,30 @@
     <!-- Módulo de Exportação CSV -->
     <script src="js/exportCSV.js" defer></script>
 
-    <footer
-      id="app-version-container"
-      style="
-        position: fixed;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        padding: 6px 10px;
-        font-size: 12px;
-        text-align: center;
-        z-index: 9999;
-        background: var(--bg-secondary);
-        border-top: 1px solid var(--border-color);
-      "
-    >
+    <footer id="app-version-container" class="app-version-footer">
       <small id="app-version">SINGEM v...</small>
     </footer>
 
     <!-- Gov.br + SerproID - Verifica disponibilidade e configura botões -->
     <script>
       (function () {
-        var base =
-          (window.CONFIG && window.CONFIG.api && window.CONFIG.api.baseUrl) ||
-          window.location.origin;
+        function resolveApiBase() {
+          if (window.__API_BASE_URL__) {
+            return String(window.__API_BASE_URL__).replace(/\/+$/, '');
+          }
+
+          if (window.CONFIG && window.CONFIG.api && window.CONFIG.api.baseUrl) {
+            return String(window.CONFIG.api.baseUrl).replace(/\/+$/, '');
+          }
+
+          if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+            return 'http://localhost:3000';
+          }
+
+          return window.location.origin;
+        }
+
+        var base = resolveApiBase();
 
         // --- Gov.br ---
         var btnGovBr = document.getElementById('btnGovBr');

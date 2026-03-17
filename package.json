@@ -5,10 +5,14 @@
   "main": "index.html",
   "type": "module",
   "scripts": {
+    "build": "npm run tailwind:build",
+    "dev": "concurrently -k \"npm:tailwind:watch\" \"npm:serve:dev\"",
     "version:bump": "node ./scripts/bump-version.js",
     "scan:orphans": "node ./scripts/scan-refs.cjs",
-    "serve": "python -m http.server 8000",
-    "serve:dev": "python -m http.server 8000 --bind localhost",
+    "serve": "node ./scripts/serve-dev.cjs --host 0.0.0.0 --port 8000 --directory .",
+    "serve:dev": "node ./scripts/serve-dev.cjs --host 127.0.0.1 --port 8000 --directory .",
+    "tailwind:build": "npx @tailwindcss/cli -i ./css/tailwind-source.css -o ./css/tailwind.css --minify",
+    "tailwind:watch": "npx @tailwindcss/cli -i ./css/tailwind-source.css -o ./css/tailwind.css --watch",
     "lint": "eslint . --ext .js --max-warnings 60",
     "lint:fix": "eslint . --ext .js --fix",
     "format": "prettier . --write --ignore-unknown",
@@ -24,9 +28,12 @@
   "author": "IF Baiano",
   "license": "MIT",
   "devDependencies": {
+    "@tailwindcss/cli": "^4.2.1",
+    "concurrently": "^9.2.1",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
-    "prettier": "^3.3.0"
+    "prettier": "^3.3.0",
+    "tailwindcss": "^4.2.1"
   },
   "engines": {
     "node": ">=14.0.0"

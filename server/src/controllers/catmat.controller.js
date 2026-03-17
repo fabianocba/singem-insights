@@ -5,7 +5,7 @@ async function search(req, res) {
   const result = await catmatService.search(req.query);
   const dados = Array.isArray(result?.dados) ? result.dados : [];
 
-  return ok(req, res, dados, {
+  return ok(req, res, result, {
     total: Number(result?.total || dados.length),
     pagina: Number(result?.pagina || 1),
     totalPaginas: result?.totalPaginas ?? null,

@@ -10,345 +10,24 @@
     <meta http-equiv="Expires" content="0" />
 
     <title>Configurações - SINGEM</title>
+  <script src="../js/ui/themeBoot.js"></script>
     <link rel="stylesheet" href="../css/style.css" />
-    <style>
-      .settings-container {
-        max-width: 1200px;
-        margin: 20px auto;
-        padding: 20px;
-      }
-
-      .settings-header {
-        background: linear-gradient(135deg, #1e7e34, #28a745);
-        color: white;
-        padding: 30px;
-        border-radius: 10px;
-        margin-bottom: 30px;
-        text-align: center;
-      }
-
-      .settings-tabs {
-        display: flex;
-        gap: 10px;
-        margin-bottom: 20px;
-        border-bottom: 2px solid #ddd;
-        flex-wrap: wrap;
-      }
-
-      .tab-button {
-        padding: 12px 24px;
-        background: transparent;
-        border: none;
-        border-bottom: 3px solid transparent;
-        cursor: pointer;
-        font-size: 16px;
-        color: #666;
-        transition: all 0.3s;
-      }
-
-      .tab-button:hover {
-        background: #f0f0f0;
-        color: #333;
-      }
-
-      .tab-button.active {
-        color: #1e7e34;
-        border-bottom-color: #1e7e34;
-        font-weight: bold;
-      }
-
-      .tab-content {
-        display: none;
-        animation: fadeIn 0.3s;
-      }
-
-      .tab-content.active {
-        display: block;
-      }
-
-      @keyframes fadeIn {
-        from {
-          opacity: 0;
-          transform: translateY(10px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-
-      @keyframes pulse {
-        0%,
-        100% {
-          transform: scale(1);
-        }
-        50% {
-          transform: scale(1.02);
-        }
-      }
-
-      @keyframes blink {
-        0%,
-        100% {
-          opacity: 1;
-        }
-        50% {
-          opacity: 0.7;
-        }
-      }
-
-      .form-group {
-        margin-bottom: 20px;
-      }
-
-      .form-group label {
-        display: block;
-        margin-bottom: 5px;
-        font-weight: bold;
-        color: #333;
-      }
-
-      .form-group input,
-      .form-group select,
-      .form-group textarea {
-        width: 100%;
-        padding: 10px;
-        border: 1px solid #ddd;
-        border-radius: 5px;
-        font-size: 14px;
-      }
-
-      .form-group input:focus,
-      .form-group select:focus,
-      .form-group textarea:focus {
-        outline: none;
-        border-color: #28a745;
-        box-shadow: 0 0 0 2px rgba(40, 167, 69, 0.1);
-      }
-
-      .form-group small {
-        display: block;
-        margin-top: 5px;
-        color: #666;
-        font-size: 12px;
-      }
-
-      .checkbox-group {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-      }
-
-      .checkbox-group input[type='checkbox'] {
-        width: auto;
-      }
-
-      .btn {
-        padding: 10px 20px;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        font-size: 14px;
-        font-weight: bold;
-        transition: all 0.3s;
-      }
-
-      .btn-primary {
-        background: #28a745;
-        color: white;
-      }
-
-      .btn-primary:hover {
-        background: #1e7e34;
-      }
-
-      .btn-secondary {
-        background: #6c757d;
-        color: white;
-      }
-
-      .btn-secondary:hover {
-        background: #545b62;
-      }
-
-      .btn-danger {
-        background: #dc3545;
-        color: white;
-      }
-
-      .btn-danger:hover {
-        background: #c82333;
-      }
-
-      .btn-outline {
-        background: transparent;
-        border: 1px solid #28a745;
-        color: #28a745;
-      }
-
-      .btn-outline:hover {
-        background: #28a745;
-        color: white;
-      }
-
-      .btn-sm {
-        padding: 5px 10px;
-        font-size: 12px;
-      }
-
-      .btn-info {
-        background: #17a2b8;
-        color: white;
-        border: 1px solid #17a2b8;
-      }
-
-      .btn-info:hover {
-        background: #138496;
-        border-color: #117a8b;
-      }
-
-      .table-container {
-        overflow-x: auto;
-      }
-
-      .table-container table td {
-        white-space: nowrap;
-      }
-
-      .table-container table td button {
-        margin-right: 5px;
-        margin-bottom: 5px;
-      }
-
-      .button-group {
-        display: flex;
-        gap: 10px;
-        margin-top: 20px;
-      }
-
-      .status-message {
-        padding: 15px;
-        border-radius: 5px;
-        margin-bottom: 20px;
-      }
-
-      .status-message.success {
-        background: #d4edda;
-        color: #155724;
-        border: 1px solid #c3e6cb;
-      }
-
-      .status-message.warning {
-        background: #fff3cd;
-        color: #856404;
-        border: 1px solid #ffeaa7;
-      }
-
-      .status-message.error {
-        background: #f8d7da;
-        color: #721c24;
-        border: 1px solid #f5c6cb;
-      }
-
-      .badge {
-        display: inline-block;
-        padding: 4px 8px;
-        border-radius: 3px;
-        font-size: 12px;
-        font-weight: bold;
-      }
-
-      .badge-primary {
-        background: #007bff;
-        color: white;
-      }
-
-      .badge-secondary {
-        background: #6c757d;
-        color: white;
-      }
-
-      table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 10px;
-      }
-
-      table th,
-      table td {
-        padding: 12px;
-        text-align: left;
-        border-bottom: 1px solid #ddd;
-      }
-
-      table th {
-        background: #f8f9fa;
-        font-weight: bold;
-        color: #333;
-      }
-
-      table tr:hover {
-        background: #f8f9fa;
-      }
-
-      .panel {
-        background: white;
-        padding: 20px;
-        border-radius: 10px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        margin-bottom: 20px;
-      }
-
-      .panel-header {
-        font-size: 18px;
-        font-weight: bold;
-        color: #1e7e34;
-        margin-bottom: 15px;
-        padding-bottom: 10px;
-        border-bottom: 2px solid #f0f0f0;
-      }
-
-      .loading {
-        text-align: center;
-        padding: 20px;
-        color: #666;
-      }
-
-      .hidden {
-        display: none;
-      }
-
-      input[type='file'] {
-        display: none;
-      }
-
-      .grid-2 {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 15px;
-      }
-
-      @media (max-width: 768px) {
-        .grid-2 {
-          grid-template-columns: 1fr;
-        }
-
-        .settings-tabs {
-          flex-direction: column;
-        }
-
-        .button-group {
-          flex-direction: column;
-        }
-      }
-    </style>
+    <link rel="stylesheet" href="../css/tailwind.css" />
   </head>
-  <body>
+  <body data-page="configuracoes">
     <div class="settings-container">
       <!-- Header -->
       <div class="settings-header">
-        <h1>⚙️ Configurações</h1>
-        <p>Sistema de Controle de Material - IF Baiano</p>
+        <div class="sg-page-header-grid">
+          <div>
+            <h1>⚙️ Configurações</h1>
+            <p>Sistema de Controle de Material - IF Baiano</p>
+          </div>
+          <div class="sg-page-header-actions">
+            <a class="btn btn-outline" href="../index.html">← Voltar ao painel</a>
+            <button type="button" data-theme-toggle aria-label="Alternar tema"></button>
+          </div>
+        </div>
       </div>
 
       <!-- Tabs -->
@@ -433,6 +112,7 @@
               <input
                 type="file"
                 id="logomarcaUnidade"
+                class="sg-hidden-file-input"
                 accept="image/png,image/jpeg,image/jpg,image/svg+xml"
               />
               <small
@@ -509,7 +189,7 @@
                     placeholder="Mínimo 6 caracteres"
                   />
                   <div id="indicadorForcaSenha"></div>
-                  <small style="color: #666"
+                  <small class="sg-empty-copy"
                     >🔢 Um PIN de recuperação será gerado automaticamente</small
                   >
                 </div>
@@ -618,36 +298,27 @@
         <div class="panel">
           <div class="panel-header">📖 Como Funciona</div>
 
-          <div style="background: #f8f9fa; padding: 20px; border-radius: 8px">
-            <h4 style="margin-top: 0">📋 Operação em Banco/API</h4>
+          <div class="sg-note-card">
+            <h4>📋 Operação em Banco/API</h4>
 
             <p>Empenhos, Notas Fiscais e anexos são persistidos no banco de dados.</p>
             <p>Não há configuração de pastas locais neste modo.</p>
 
-            <p style="margin-top: 15px"><strong>3. Estrutura Automática:</strong></p>
+            <p class="sg-section-copy sg-top-gap"><strong>3. Estrutura Automática:</strong></p>
             <p>O sistema cria/detecta a seguinte estrutura:</p>
 
-            <div
-              style="
-                background: white;
-                padding: 15px;
-                border-left: 4px solid #28a745;
-                margin: 15px 0;
-                font-family: monospace;
-                font-size: 13px;
-              "
-            >
+            <div class="sg-code-block-note">
               📁 [Pasta Escolhida]/<br />
               &nbsp;&nbsp;└─ 📁 IF Guanambi/
-              <span style="color: #666">(abreviação da sua unidade)</span><br />
+              <span class="sg-muted-inline">(abreviação da sua unidade)</span><br />
               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└─ 📁 2024/
-              <span style="color: #666">(ano atual)</span><br />
+              <span class="sg-muted-inline">(ano atual)</span><br />
               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├─ 📁 Notas de Empenho/<br />
               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└─ 📁 Notas Fiscais/
             </div>
 
-            <p style="margin-top: 15px"><strong>4. Organização Inteligente:</strong></p>
-            <ul style="margin-left: 20px">
+            <p class="sg-section-copy sg-top-gap"><strong>4. Organização Inteligente:</strong></p>
+            <ul class="sg-list-compact">
               <li>
                 ✅ <strong>Ano Automático:</strong> Documentos são salvos na pasta do ano de emissão
               </li>
@@ -664,14 +335,16 @@
               </li>
             </ul>
 
-            <p style="margin-top: 15px"><strong>5. Exemplo Prático:</strong></p>
-            <div style="background: #e7f3ff; padding: 10px; border-radius: 5px; margin-top: 10px">
-              📝 NE emitida em <strong>15/03/2023</strong><br />
-              ➜ Salva em: <code>IF Guanambi/2023/Notas de Empenho/NE_2023_001.pdf</code>
-            </div>
-            <div style="background: #e7f3ff; padding: 10px; border-radius: 5px; margin-top: 10px">
-              📄 NF emitida em <strong>20/08/2024</strong><br />
-              ➜ Salva em: <code>IF Guanambi/2024/Notas Fiscais/NF_2024_123.pdf</code>
+            <p class="sg-section-copy sg-top-gap"><strong>5. Exemplo Prático:</strong></p>
+            <div class="sg-example-stack">
+              <div class="sg-example-item">
+                📝 NE emitida em <strong>15/03/2023</strong><br />
+                ➜ Salva em: <code>IF Guanambi/2023/Notas de Empenho/NE_2023_001.pdf</code>
+              </div>
+              <div class="sg-example-item">
+                📄 NF emitida em <strong>20/08/2024</strong><br />
+                ➜ Salva em: <code>IF Guanambi/2024/Notas Fiscais/NF_2024_123.pdf</code>
+              </div>
             </div>
           </div>
         </div>
@@ -679,7 +352,7 @@
         <div class="panel">
           <div class="panel-header">⚠️ Avisos Importantes</div>
 
-          <div class="alert alert-warning" style="margin-bottom: 15px">
+          <div class="alert alert-warning sg-status-slot">
             <strong>🔒 Permissões do Navegador:</strong><br />
             • Use Chrome, Edge ou Opera atualizado<br />
             • O sistema solicitará permissão para acessar a pasta escolhida<br />
@@ -698,95 +371,52 @@
         <div class="panel">
           <div class="panel-header">🛡️ Gerenciamento e Proteção de Arquivos</div>
 
-          <div class="alert alert-warning" style="margin-bottom: 20px">
+          <div class="alert alert-warning sg-status-slot">
             <strong>⚠️ IMPORTANTE - Proteção de Dados:</strong><br />
             • <strong>NÃO exclua arquivos pelo Windows Explorer!</strong><br />
             • Exclusões externas desvinculam o arquivo do registro no sistema<br />
             • Use sempre as ferramentas abaixo para manter a integridade dos dados
           </div>
 
-          <div style="display: grid; gap: 15px">
+          <div class="sg-action-card-grid">
             <!-- Sincronização de Arquivos -->
-            <div
-              style="
-                background: #f8f9fa;
-                padding: 20px;
-                border-radius: 8px;
-                border-left: 4px solid #17a2b8;
-              "
-            >
-              <h4 style="margin: 0 0 10px 0">🔄 Sincronização de Arquivos</h4>
-              <p style="margin: 0 0 15px 0; color: #666">
+            <div class="sg-action-card sg-action-card--info">
+              <h4>🔄 Sincronização de Arquivos</h4>
+              <p>
                 Detecta arquivos que foram deletados externamente e atualiza os registros do banco
                 de dados.
               </p>
-              <button
-                type="button"
-                onclick="parent.app?.sincronizarArquivos()"
-                class="btn"
-                style="background: #17a2b8; color: white"
-              >
+              <button type="button" onclick="parent.app?.sincronizarArquivos()" class="btn btn-info">
                 🔄 Sincronizar Agora
               </button>
             </div>
 
             <!-- Verificação de Integridade -->
-            <div
-              style="
-                background: #f8f9fa;
-                padding: 20px;
-                border-radius: 8px;
-                border-left: 4px solid #28a745;
-              "
-            >
-              <h4 style="margin: 0 0 10px 0">🔍 Verificar Integridade</h4>
-              <p style="margin: 0 0 15px 0; color: #666">
+            <div class="sg-action-card sg-action-card--success">
+              <h4>🔍 Verificar Integridade</h4>
+              <p>
                 Verifica se todas as pastas configuradas existem e se foram deletadas externamente.
               </p>
-              <button
-                type="button"
-                onclick="parent.app?.verificarIntegridadePastas()"
-                class="btn"
-                style="background: #28a745; color: white"
-              >
+              <button type="button" onclick="parent.app?.verificarIntegridadePastas()" class="btn btn-primary">
                 🔍 Verificar Estrutura
               </button>
             </div>
 
             <!-- Reparo de Estrutura -->
-            <div
-              style="
-                background: #f8f9fa;
-                padding: 20px;
-                border-radius: 8px;
-                border-left: 4px solid #ffc107;
-              "
-            >
-              <h4 style="margin: 0 0 10px 0">🔧 Reparar Estrutura</h4>
-              <p style="margin: 0 0 15px 0; color: #666">
+            <div class="sg-action-card sg-action-card--warning">
+              <h4>🔧 Reparar Estrutura</h4>
+              <p>
                 Recria pastas que foram deletadas externamente, restaurando a estrutura completa.
               </p>
-              <button
-                type="button"
-                onclick="parent.app?.repararEstrutura()"
-                class="btn"
-                style="background: #ffc107; color: #000"
-              >
+              <button type="button" onclick="parent.app?.repararEstrutura()" class="btn btn-warning">
                 🔧 Reparar Agora
               </button>
             </div>
 
             <!-- Limpeza de Registros -->
-            <div
-              style="
-                background: #fff5f5;
-                padding: 20px;
-                border-radius: 8px;
-                border-left: 4px solid #dc3545;
-              "
-            >
-              <h4 style="margin: 0 0 10px 0">🗑️ Limpar Registros Deletados</h4>
-              <p style="margin: 0 0 15px 0; color: #666">
+            <div class="sg-action-card sg-action-card--danger">
+              <h4>🗑️ Limpar Registros Deletados</h4>
+              <p>
                 Exclui permanentemente do banco de dados os registros de empenhos e notas fiscais
                 cujos arquivos foram deletados externamente.
               </p>
@@ -800,35 +430,22 @@
             </div>
 
             <!-- Limpeza de Órfãos -->
-            <div
-              style="
-                background: #fff8e1;
-                padding: 20px;
-                border-radius: 8px;
-                border-left: 4px solid #ff9800;
-                margin-top: 15px;
-              "
-            >
-              <h4 style="margin: 0 0 10px 0">🧹 Limpar Registros Órfãos</h4>
-              <p style="margin: 0 0 15px 0; color: #666">
+            <div class="sg-action-card sg-action-card--amber">
+              <h4>🧹 Limpar Registros Órfãos</h4>
+              <p>
                 Exclui permanentemente registros de empenhos/NFs que NÃO possuem arquivo PDF
                 vinculado. Use para limpar dados inconsistentes ou cadastrados incorretamente.
               </p>
-              <button
-                type="button"
-                onclick="parent.app?.limparRegistrosOrfaos()"
-                class="btn"
-                style="background: #ff9800; color: white"
-              >
+              <button type="button" onclick="parent.app?.limparRegistrosOrfaos()" class="btn btn-warning">
                 🧹 Limpar Órfãos
               </button>
             </div>
           </div>
 
           <!-- Estatísticas -->
-          <div style="margin-top: 20px; padding: 15px; background: #e7f3ff; border-radius: 8px">
-            <h4 style="margin: 0 0 10px 0">📊 Como Funciona:</h4>
-            <ul style="margin: 10px 0 0 20px; color: #333">
+          <div class="sg-note-card sg-note-card--info">
+            <h4>📊 Como Funciona:</h4>
+            <ul>
               <li><strong>Sincronização Automática:</strong> Executa ao iniciar o sistema</li>
               <li>
                 <strong>Detecção de Exclusões:</strong> Identifica arquivos deletados no Explorer
@@ -924,6 +541,7 @@
               <div class="form-group">
                 <label for="tema">Tema</label>
                 <select id="tema">
+                  <option value="system">Sistema</option>
                   <option value="light">Claro</option>
                   <option value="dark">Escuro</option>
                 </select>
@@ -989,12 +607,12 @@
         <!-- IMPORTANTE: Backup/Restore centralizados aqui - não duplicar em outras abas -->
         <div class="panel">
           <div class="panel-header">💾 Backup e Restauração</div>
-          <p style="color: #666; margin-bottom: 15px">
+          <p class="sg-section-copy">
             Exporte todos os seus dados para um arquivo JSON ou restaure a partir de um backup.
             Inclui: unidade gestora, usuários, empenhos, notas fiscais, configurações e storage.
           </p>
 
-          <div class="button-group" style="margin-bottom: 15px">
+          <div class="button-group sg-status-slot">
             <button type="button" id="btnExportarBackupPref" class="btn btn-primary">
               📤 Exportar Backup Completo
             </button>
@@ -1006,21 +624,12 @@
             </button>
           </div>
 
-          <div id="backupStatusPref" style="margin-bottom: 15px"></div>
+          <div id="backupStatusPref" class="sg-status-slot"></div>
 
           <!-- Resultado da verificação de dados -->
-          <div
-            id="dadosBancoResult"
-            style="
-              display: none;
-              margin-bottom: 15px;
-              padding: 15px;
-              background: #f8f9fa;
-              border-radius: 8px;
-            "
-          ></div>
+          <div id="dadosBancoResult" class="sg-result-shell hidden"></div>
 
-          <small style="color: #888; display: block">
+          <small class="sg-empty-copy">
             💡 <strong>Dica:</strong> Faça backup regularmente para evitar perda de dados.
           </small>
         </div>
@@ -1028,11 +637,11 @@
         <!-- Seção: Exportar/Importar CSV (movido do header Exportar) -->
         <div class="panel">
           <div class="panel-header">📥 Exportar / Importar Dados (CSV)</div>
-          <p style="color: #666; margin-bottom: 15px">
+          <p class="sg-section-copy">
             Exporte dados específicos em formato CSV para análise em planilhas.
           </p>
 
-          <div class="button-group" style="margin-bottom: 15px">
+          <div class="button-group sg-status-slot">
             <button type="button" id="btnExportarNFcsv" class="btn btn-secondary">
               📄 Exportar Notas Fiscais (CSV)
             </button>
@@ -1041,7 +650,7 @@
             </button>
           </div>
 
-          <small style="color: #888; display: block">
+          <small class="sg-empty-copy">
             💡 Arquivos CSV podem ser abertos no Excel, LibreOffice ou Google Sheets.
           </small>
         </div>
@@ -1065,7 +674,7 @@
         <!-- Seção: Informação sobre Backup -->
         <div class="panel">
           <div class="panel-header">💾 Backup e Restauração</div>
-          <p style="color: #666; margin-bottom: 15px">
+          <p class="sg-section-copy">
             As funções de backup foram centralizadas na aba <strong>Preferências</strong>.
           </p>
           <button type="button" id="btnIrParaBackupTab" class="btn btn-primary">
@@ -1076,14 +685,14 @@
         <!-- Seção: Dados de Teste (DEV) -->
         <div class="panel" id="panelDadosTeste">
           <div class="panel-header">🧪 Dados de Teste</div>
-          <p style="color: #666; margin-bottom: 15px">
+          <p class="sg-section-copy">
             Carrega um conjunto de dados fictícios para testar a aplicação sem precisar cadastrar
             manualmente.
           </p>
 
-          <div style="background: #e7f3ff; padding: 12px; border-radius: 8px; margin-bottom: 15px">
+          <div class="sg-note-card sg-note-card--info">
             <strong>📊 O dataset de teste inclui:</strong>
-            <ul style="margin: 8px 0 0 20px; color: #444">
+            <ul>
               <li>1 Unidade Gestora (IF Baiano - Campus Teste)</li>
               <li>3 Usuários (admin, almoxarife, consulta)</li>
               <li>5 Empenhos com itens variados</li>
@@ -1093,19 +702,19 @@
 
           <div class="form-group">
             <label>Modo de Carregamento:</label>
-            <div style="display: flex; gap: 20px; margin-top: 8px">
-              <label style="display: flex; align-items: center; gap: 8px; cursor: pointer">
+            <div class="sg-choice-row">
+              <label>
                 <input type="radio" name="testDataMode" value="merge" checked />
                 <span>🔀 <strong>Mesclar</strong> (mantém dados existentes)</span>
               </label>
-              <label style="display: flex; align-items: center; gap: 8px; cursor: pointer">
+              <label>
                 <input type="radio" name="testDataMode" value="replace" />
                 <span>🔄 <strong>Substituir</strong> (começa do zero)</span>
               </label>
             </div>
           </div>
 
-          <div id="testDataStatus" style="margin-bottom: 15px"></div>
+          <div id="testDataStatus" class="sg-status-slot"></div>
 
           <div class="button-group">
             <button type="button" id="btnCarregarDadosTeste" class="btn btn-warning">
@@ -1113,17 +722,17 @@
             </button>
           </div>
 
-          <small style="color: #888; display: block; margin-top: 10px">
+          <small class="sg-empty-copy">
             ⚠️ Ação manual - nunca executada automaticamente.
           </small>
         </div>
 
         <!-- Seção: Resetar Dados (DEV) -->
-        <div class="panel" id="panelResetarDados" style="display: none; border: 2px solid #dc3545">
-          <div class="panel-header" style="background: #dc3545; color: white">
+        <div class="panel sg-panel-danger hidden" id="panelResetarDados">
+          <div class="panel-header panel-header-danger">
             🗑️ Resetar Dados (DEV)
           </div>
-          <p style="color: #666; margin-bottom: 15px">
+          <p class="sg-section-copy">
             <strong>⚠️ PERIGO:</strong> Remove TODOS os dados do sistema. Esta ação é irreversível!
           </p>
 
@@ -1135,12 +744,11 @@
               type="text"
               id="confirmResetText"
               placeholder="Digite RESETAR TUDO"
-              class="form-control"
-              style="max-width: 250px"
+              class="form-control sg-max-w-xs"
             />
           </div>
 
-          <div id="resetStatus" style="margin-bottom: 15px"></div>
+          <div id="resetStatus" class="sg-status-slot"></div>
 
           <button type="button" id="btnResetarTudo" class="btn btn-danger" disabled>
             🗑️ Resetar Todos os Dados
@@ -1153,9 +761,18 @@
         <div class="panel">
           <div class="panel-header">🔗 Painel Administrativo de Integrações</div>
 
-          <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 15px">
+          <div class="sg-panel-actions sg-status-slot">
             <button type="button" id="btnIntegracoesRefresh" class="btn btn-primary">🔄 Atualizar Painel</button>
-            <select id="integracoesTipoSync" class="form-control" style="max-width: 240px">
+            <label id="integracoesTipoSyncLabel" for="integracoesTipoSync" class="sr-only"
+              >Tipo de sincronização das integrações</label
+            >
+            <select
+              id="integracoesTipoSync"
+              class="form-control sg-max-w-xs"
+              aria-label="Tipo de sincronização das integrações"
+              aria-labelledby="integracoesTipoSyncLabel"
+              title="Tipo de sincronização das integrações"
+            >
               <option value="all">Sync: Todos</option>
               <option value="catmat">Sync: CATMAT</option>
               <option value="catser">Sync: CATSER</option>
@@ -1181,7 +798,7 @@
 
         <div class="panel">
           <div class="panel-header">📄 Pesquisa de Preço — Relatório Oficial</div>
-          <div class="grid-2" style="align-items: end">
+          <div class="grid-2 sg-grid-end">
             <div class="form-group">
               <label for="integracoesSnapshotId">Snapshot ID</label>
               <input type="number" id="integracoesSnapshotId" placeholder="Informe o ID do snapshot" />
@@ -1207,31 +824,31 @@
       <div id="tabIa" class="tab-content">
         <div class="panel">
           <div class="panel-header">🤖 Status do SINGEM AI Core</div>
-          <div id="aiStatusPanel" style="padding: 15px;">
-            <p style="color: #666;">Verificando status da IA...</p>
+          <div id="aiStatusPanel" class="sg-panel-body">
+            <p class="sg-empty-copy">Verificando status da IA...</p>
           </div>
         </div>
 
         <div class="panel">
           <div class="panel-header">📊 Funcionalidades IA Disponíveis</div>
-          <div style="padding: 15px;">
-            <table style="width:100%;border-collapse:collapse;">
+          <div class="sg-panel-body">
+            <table class="sg-plain-table">
               <thead>
-                <tr style="background:#f5f5f5;">
-                  <th style="padding:8px;text-align:left;border-bottom:2px solid #ddd;">Funcionalidade</th>
-                  <th style="padding:8px;text-align:left;border-bottom:2px solid #ddd;">Módulo</th>
-                  <th style="padding:8px;text-align:center;border-bottom:2px solid #ddd;">Status</th>
+                <tr>
+                  <th>Funcionalidade</th>
+                  <th>Módulo</th>
+                  <th class="is-center">Status</th>
                 </tr>
               </thead>
               <tbody id="aiFeaturesBody">
-                <tr><td style="padding:8px;border-bottom:1px solid #eee;">Sugestão de Fornecedor</td><td style="padding:8px;border-bottom:1px solid #eee;">Empenhos</td><td style="padding:8px;text-align:center;border-bottom:1px solid #eee;" id="aiFeatureFornecedor">-</td></tr>
-                <tr><td style="padding:8px;border-bottom:1px solid #eee;">Sugestão de Item/CATMAT</td><td style="padding:8px;border-bottom:1px solid #eee;">Empenhos</td><td style="padding:8px;text-align:center;border-bottom:1px solid #eee;" id="aiFeatureItem">-</td></tr>
-                <tr><td style="padding:8px;border-bottom:1px solid #eee;">Busca Inteligente CATMAT</td><td style="padding:8px;border-bottom:1px solid #eee;">CATMAT</td><td style="padding:8px;text-align:center;border-bottom:1px solid #eee;" id="aiFeatureCatmat">-</td></tr>
-                <tr><td style="padding:8px;border-bottom:1px solid #eee;">Matching NF-e</td><td style="padding:8px;border-bottom:1px solid #eee;">Notas Fiscais</td><td style="padding:8px;text-align:center;border-bottom:1px solid #eee;" id="aiFeatureNfe">-</td></tr>
-                <tr><td style="padding:8px;border-bottom:1px solid #eee;">Sugestões em Consultas</td><td style="padding:8px;border-bottom:1px solid #eee;">Consultas</td><td style="padding:8px;text-align:center;border-bottom:1px solid #eee;" id="aiFeatureConsultas">-</td></tr>
-                <tr><td style="padding:8px;border-bottom:1px solid #eee;">Resumo de Relatórios</td><td style="padding:8px;border-bottom:1px solid #eee;">Relatórios</td><td style="padding:8px;text-align:center;border-bottom:1px solid #eee;" id="aiFeatureRelatorios">-</td></tr>
-                <tr><td style="padding:8px;border-bottom:1px solid #eee;">Busca Semântica</td><td style="padding:8px;border-bottom:1px solid #eee;">Global</td><td style="padding:8px;text-align:center;border-bottom:1px solid #eee;" id="aiFeatureSearch">-</td></tr>
-                <tr><td style="padding:8px;">Entity Matching</td><td style="padding:8px;">Global</td><td style="padding:8px;text-align:center;" id="aiFeatureMatch">-</td></tr>
+                <tr><td>Sugestão de Fornecedor</td><td>Empenhos</td><td class="is-center" id="aiFeatureFornecedor">-</td></tr>
+                <tr><td>Sugestão de Item/CATMAT</td><td>Empenhos</td><td class="is-center" id="aiFeatureItem">-</td></tr>
+                <tr><td>Busca Inteligente CATMAT</td><td>CATMAT</td><td class="is-center" id="aiFeatureCatmat">-</td></tr>
+                <tr><td>Matching NF-e</td><td>Notas Fiscais</td><td class="is-center" id="aiFeatureNfe">-</td></tr>
+                <tr><td>Sugestões em Consultas</td><td>Consultas</td><td class="is-center" id="aiFeatureConsultas">-</td></tr>
+                <tr><td>Resumo de Relatórios</td><td>Relatórios</td><td class="is-center" id="aiFeatureRelatorios">-</td></tr>
+                <tr><td>Busca Semântica</td><td>Global</td><td class="is-center" id="aiFeatureSearch">-</td></tr>
+                <tr><td>Entity Matching</td><td>Global</td><td class="is-center" id="aiFeatureMatch">-</td></tr>
               </tbody>
             </table>
           </div>
@@ -1239,7 +856,7 @@
 
         <div class="panel">
           <div class="panel-header">🔄 Ações Administrativas</div>
-          <div style="padding: 15px; display: flex; gap: 10px; flex-wrap: wrap;">
+          <div class="sg-panel-body sg-panel-actions">
             <button type="button" id="btnAiRebuildIndex" class="btn btn-primary" disabled>
               ⚡ Reconstruir Índice AI
             </button>
@@ -1247,7 +864,7 @@
               🔄 Atualizar Status
             </button>
           </div>
-          <div id="aiActionResult" style="padding: 10px 15px; display: none;"></div>
+          <div id="aiActionResult" class="sg-result-shell hidden"></div>
         </div>
       </div>
 
@@ -1279,7 +896,7 @@
           <button type="button" id="btnPrintStorageReport" class="btn btn-info">
             📋 Imprimir Relatório no Console
           </button>
-          <small style="color: #666; display: block; margin-top: 10px">
+          <small class="sg-empty-copy">
             Abre o console do navegador (F12) e imprime um relatório detalhado de todo o
             armazenamento.
           </small>
@@ -1394,6 +1011,7 @@
     <script type="module" src="../js/settings/backup.js"></script>
     <script type="module" src="../js/settings/ia.js"></script>
     <script type="module" src="../js/settings/diagnostico.js"></script>
+    <script type="module" src="../js/ui/pageEnhancer.js"></script>
 
     <script>
       // AGUARDA evento "dbReady" do inicializador inline
@@ -1445,21 +1063,7 @@
       });
     </script>
 
-    <footer
-      id="app-version-container"
-      style="
-        position: fixed;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        padding: 6px 10px;
-        font-size: 12px;
-        text-align: center;
-        z-index: 9999;
-        background: #fff;
-        border-top: 1px solid #ddd;
-      "
-    >
+    <footer id="app-version-container" class="app-version-footer">
       <small id="app-version">Versão: carregando...</small>
     </footer>
   </body>

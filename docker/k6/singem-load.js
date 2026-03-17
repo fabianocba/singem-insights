@@ -1,3 +1,5 @@
+/* global __ENV */
+
 // ============================================================
 // SINGEM — k6 Load Test Scenarios
 // Testa endpoints criticos do backend sob carga

@@ -58,7 +58,50 @@ function toNumber(value, fallback = null) {
     return Number.isFinite(value) ? value : fallback;
   }
 
-  const normalized = String(value).replace(/\./g, '').replace(',', '.').trim();
+  const raw = String(value).trim();
+  if (!raw) {
+    return fallback;
+  }
+
+  const sanitized = raw.replace(/\s+/g, '').replace(/[^\d,.-]/g, '');
+  if (!sanitized || sanitized === '-' || sanitized === '.' || sanitized === ',') {
+    return fallback;
+  }
+
+  const hasComma = sanitized.includes(',');
+  const hasDot = sanitized.includes('.');
+  let normalized = sanitized;
+
+  if (hasComma && hasDot) {
+    const lastComma = sanitized.lastIndexOf(',');
+    const lastDot = sanitized.lastIndexOf('.');
+    const decimalSeparator = lastComma > lastDot ? ',' : '.';
+    const thousandSeparator = decimalSeparator === ',' ? '.' : ',';
+
+    normalized = sanitized.split(thousandSeparator).join('');
+    if (decimalSeparator === ',') {
+      normalized = normalized.replace(',', '.');
+    }
+  } else if (hasComma) {
+    normalized = sanitized.replace(',', '.');
+  } else if (hasDot) {
+    const dotCount = (sanitized.match(/\./g) || []).length;
+
+    if (dotCount > 1) {
+      const lastDot = sanitized.lastIndexOf('.');
+      const decimals = sanitized.slice(lastDot + 1);
+      normalized =
+        decimals.length === 3
+          ? sanitized.replace(/\./g, '')
+          : `${sanitized.slice(0, lastDot).replace(/\./g, '')}.${decimals}`;
+    } else {
+      const [integerPart, decimalPart = ''] = sanitized.split('.');
+      if (decimalPart.length === 3) {
+        normalized = `${integerPart}${decimalPart}`;
+      }
+    }
+  }
+
   const parsed = Number(normalized);
   return Number.isFinite(parsed) ? parsed : fallback;
 }
@@ -410,64 +453,70 @@ function matchesAnyModalidade(item, modalidades = []) {
   });
 }
 
-function applyLocalFilters(items = [], query) {
-  return items.filter((item) => {
-    if (query.estado && normalizeTextCompare(item.estado) !== normalizeTextCompare(query.estado)) {
-      return false;
-    }
+function matchesEstadoFilter(item, query) {
+  return !query.estado || normalizeTextCompare(item.estado) === normalizeTextCompare(query.estado);
+}
 
-    if (query.codigoUasg && String(item.codigoUasg || '') !== String(query.codigoUasg)) {
-      return false;
-    }
+function matchesCodigoUasgFilter(item, query) {
+  return !query.codigoUasg || String(item.codigoUasg || '') === String(query.codigoUasg);
+}
 
-    if (
-      query.fornecedor &&
-      !containsText(item.nomeFornecedor, query.fornecedor) &&
-      !containsText(item.niFornecedor, query.fornecedor)
-    ) {
-      return false;
-    }
+function matchesFornecedorFilter(item, query) {
+  return (
+    !query.fornecedor ||
+    containsText(item.nomeFornecedor, query.fornecedor) ||
+    containsText(item.niFornecedor, query.fornecedor)
+  );
+}
 
-    if (query.marca && !containsText(item.marca, query.marca)) {
-      return false;
-    }
+function matchesMarcaFilter(item, query) {
+  return !query.marca || containsText(item.marca, query.marca);
+}
 
-    if (!matchesAnyModalidade(item, query.modalidades)) {
-      return false;
-    }
+function matchesPrecoRangeFilter(item, query) {
+  return (
+    (query.precoMin === null || item.precoUnitario >= query.precoMin) &&
+    (query.precoMax === null || item.precoUnitario <= query.precoMax)
+  );
+}
 
-    if (query.precoMin !== null && item.precoUnitario < query.precoMin) {
-      return false;
-    }
+function matchesDateRangeFilter(item, query) {
+  return (
+    (!query.dateStart || !item.dataCompra || item.dataCompra >= query.dateStart) &&
+    (!query.dateEnd || !item.dataCompra || item.dataCompra <= query.dateEnd)
+  );
+}
 
-    if (query.precoMax !== null && item.precoUnitario > query.precoMax) {
-      return false;
-    }
-
-    if (query.dateStart && item.dataCompra && item.dataCompra < query.dateStart) {
-      return false;
-    }
-
-    if (query.dateEnd && item.dataCompra && item.dataCompra > query.dateEnd) {
-      return false;
-    }
-
-    if (query.year && item.dataCompra) {
-      const year = toInteger(item.dataCompra.slice(0, 4), null);
-      if (year !== query.year) {
-        return false;
-      }
-    }
-
-    if (query.month && item.dataCompra) {
-      const month = toInteger(item.dataCompra.slice(5, 7), null);
-      if (month !== query.month) {
-        return false;
-      }
-    }
-
+function matchesYearFilter(item, query) {
+  if (!query.year || !item.dataCompra) {
     return true;
-  });
+  }
+
+  return toInteger(item.dataCompra.slice(0, 4), null) === query.year;
+}
+
+function matchesMonthFilter(item, query) {
+  if (!query.month || !item.dataCompra) {
+    return true;
+  }
+
+  return toInteger(item.dataCompra.slice(5, 7), null) === query.month;
+}
+
+function applyLocalFilters(items = [], query) {
+  const predicates = [
+    (item) => matchesEstadoFilter(item, query),
+    (item) => matchesCodigoUasgFilter(item, query),
+    (item) => matchesFornecedorFilter(item, query),
+    (item) => matchesMarcaFilter(item, query),
+    (item) => matchesAnyModalidade(item, query.modalidades),
+    (item) => matchesPrecoRangeFilter(item, query),
+    (item) => matchesDateRangeFilter(item, query),
+    (item) => matchesYearFilter(item, query),
+    (item) => matchesMonthFilter(item, query)
+  ];
+
+  return items.filter((item) => predicates.every((predicate) => predicate(item)));
 }
 
 function compareNullableStrings(left, right) {
@@ -954,9 +1003,8 @@ function buildCsv(rows = []) {
   return output.join('\n');
 }
 
-function normalizeQueryInput(input = {}, moduleConfig) {
-  const catalogType = normalizeCatalogType(input.tipoCatalogo || input.catalogType || input.tipo || input.type);
-  const codes = parseCodes(
+function resolvePriceCodes(input = {}, moduleConfig) {
+  return parseCodes(
     input.codigos ||
       input.codes ||
       input.codigoItemCatalogo ||
@@ -965,13 +1013,9 @@ function normalizeQueryInput(input = {}, moduleConfig) {
       input.codigo,
     moduleConfig.maxCodesPerQuery
   );
+}
 
-  if (!codes.length) {
-    throw new AppError(400, 'VALIDATION_ERROR', 'Informe pelo menos um codigo CATMAT/CATSER valido.');
-  }
-
-  const year = toInteger(input.ano, null);
-  const month = clampNumber(input.mes, 1, 12, null);
+function resolvePriceDateRange(input = {}, year, month) {
   const explicitStart = normalizeDateOnly(input.dataCompraInicio || input.dataInicio);
   const explicitEnd = normalizeDateOnly(input.dataCompraFim || input.dataFim);
   const presetRange =
@@ -990,20 +1034,22 @@ function normalizeQueryInput(input = {}, moduleConfig) {
     dateEnd = `${year}-12-31`;
   }
 
-  if (dateStart && dateEnd && dateStart > dateEnd) {
-    throw new AppError(400, 'VALIDATION_ERROR', 'Intervalo de datas invalido: data inicial maior que a final.');
-  }
+  return {
+    dateStart,
+    dateEnd,
+    periodo: presetRange.preset
+  };
+}
 
-  const pageSize = clampNumber(input.tamanhoPagina || input.pageSize, 1, 500, DEFAULT_PAGE_SIZE);
-
+function buildPriceQueryPayload(input = {}, moduleConfig, catalogType, codes, year, month, dateRange) {
   return {
     catalogType,
     codes,
     year,
     month,
-    periodo: presetRange.preset,
-    dateStart,
-    dateEnd,
+    periodo: dateRange.periodo,
+    dateStart: dateRange.dateStart,
+    dateEnd: dateRange.dateEnd,
     modalidades: parseList(input.modalidade || input.modalidades, { maxItems: 10, maxLength: 60 }),
     estado: safeText(input.estado, 4).toUpperCase(),
     codigoUasg: safeText(input.codigoUasg, 20),
@@ -1026,15 +1072,34 @@ function normalizeQueryInput(input = {}, moduleConfig) {
       moduleConfig.upstreamPageSize
     ),
     page: clampNumber(input.pagina || input.page, 1, 100000, 1),
-    pageSize,
+    pageSize: clampNumber(input.tamanhoPagina || input.pageSize, 1, 500, DEFAULT_PAGE_SIZE),
     sort: normalizeSort(input.ordenacao || input.sort),
-    includeRaw: input.includeRaw === undefined ? true : parseBoolean(input.includeRaw),
+    includeRaw: input.includeRaw === undefined ? false : parseBoolean(input.includeRaw),
     forceRefresh: parseBoolean(input.forceRefresh || input.atualizarAgora || false),
     maxTotalItems: moduleConfig.maxTotalItems,
     rawItemsLimit: moduleConfig.maxReturnedRawItems,
     exportLimit: moduleConfig.maxExportItems,
     topLimit: moduleConfig.topLimit
   };
+}
+
+function normalizeQueryInput(input = {}, moduleConfig) {
+  const catalogType = normalizeCatalogType(input.tipoCatalogo || input.catalogType || input.tipo || input.type);
+  const codes = resolvePriceCodes(input, moduleConfig);
+
+  if (!codes.length) {
+    throw new AppError(400, 'VALIDATION_ERROR', 'Informe pelo menos um codigo CATMAT/CATSER valido.');
+  }
+
+  const year = toInteger(input.ano, null);
+  const month = clampNumber(input.mes, 1, 12, null);
+  const dateRange = resolvePriceDateRange(input, year, month);
+
+  if (dateRange.dateStart && dateRange.dateEnd && dateRange.dateStart > dateRange.dateEnd) {
+    throw new AppError(400, 'VALIDATION_ERROR', 'Intervalo de datas invalido: data inicial maior que a final.');
+  }
+
+  return buildPriceQueryPayload(input, moduleConfig, catalogType, codes, year, month, dateRange);
 }
 
 class PriceIntelligenceService {

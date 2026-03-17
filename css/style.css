@@ -2428,12 +2428,13 @@ body {
 /* ====================================
    BOTÕES DE TIPO DE RELATÓRIO
    ==================================== */
-.btn-tipo-relatorio {
+.btn-tipo-relatorio,
+.sg-report-type-button {
   padding: 10px 16px;
-  border: 2px solid #e0e0e0;
+  border: 2px solid var(--sg-border, #e0e0e0);
   border-radius: 8px;
-  background: var(--white);
-  color: #666;
+  background: var(--sg-surface-strong, var(--white));
+  color: var(--sg-text-muted, #666);
   cursor: pointer;
   font-size: 13px;
   font-weight: 500;
@@ -2443,18 +2444,21 @@ body {
   gap: 6px;
 }
 
-.btn-tipo-relatorio:hover {
-  border-color: var(--primary);
-  background: #f0f7ff;
-  color: var(--primary);
+.btn-tipo-relatorio:hover,
+.sg-report-type-button:hover {
+  border-color: var(--sg-brand-500, var(--primary));
+  background: var(--sg-surface-muted, #f0f7ff);
+  color: var(--sg-brand-600, var(--primary));
   transform: translateY(-1px);
 }
 
-.btn-tipo-relatorio.active {
-  background: var(--primary);
-  border-color: var(--primary);
+.btn-tipo-relatorio.active,
+.sg-report-type-button.active,
+.sg-report-type-button.is-active {
+  background: var(--sg-brand-600, var(--primary));
+  border-color: var(--sg-brand-600, var(--primary));
   color: white;
-  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.14);
 }
 
 /* Cards de Resumo do Relatório */
@@ -2503,11 +2507,13 @@ body {
 
 /* Containers das abas */
 #controleSaldosContainer,
-#relatorioEmpenhosContainer {
+#relatorioEmpenhosContainer,
+.sg-dynamic-panel-host {
   padding: var(--spacing-lg);
-  background: var(--white);
+  background: var(--sg-surface-strong, var(--white));
   border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--sg-border, rgba(148, 163, 184, 0.18));
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
 }
 
 /* ====================================
@@ -3073,6 +3079,7 @@ body {
   position: absolute;
   inset: 0;
   background: rgba(0, 0, 0, 0.45);
+  -webkit-backdrop-filter: blur(3px);
   backdrop-filter: blur(3px);
   cursor: pointer;
 }

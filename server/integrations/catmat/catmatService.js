@@ -6,6 +6,8 @@
 const db = require('../../config/database');
 const { config } = require('../../config');
 const comprasApiClient = require('../../services/comprasApiClient');
+const comprasGovGateway = require('../../services/gov-api/comprasGovGatewayService');
+const catalogSearchService = require('../../services/ai-core/catalogSearchService');
 const integrationCache = require('../core/integrationCache');
 const { normalizeText } = require('../../utils/textNormalize');
 
@@ -61,9 +63,9 @@ function normalizeMaterial(raw) {
     return null;
   }
 
-  const codigoRaw = raw.id || raw.codigo || raw.catmat_id || raw.cod_item || raw.cod;
+  const codigoRaw = raw.codigoItem || raw.id || raw.codigo || raw.catmat_id || raw.cod_item || raw.cod;
   const descricao =
-    raw.descricao || raw.descricao_item || raw.nome || raw.descricao_padrao || raw.catmat_padrao_desc || null;
+    raw.descricaoItem || raw.descricao || raw.descricao_item || raw.nome || raw.descricao_padrao || raw.catmat_padrao_desc || null;
 
   if (!codigoRaw || !descricao) {
     return null;
@@ -79,14 +81,73 @@ function normalizeMaterial(raw) {
   return {
     codigo,
     descricao: String(descricao).trim().slice(0, 500),
-    id_grupo: raw.id_grupo || raw.grupo_id || raw.cod_grupo || null,
-    id_classe: raw.id_classe || raw.classe_id || raw.cod_classe || null,
-    id_pdm: raw.id_pdm || raw.pdm_id || raw.cod_pdm || null,
-    status: raw.status || raw.situacao || (statusRaw === 'INATIVO' ? 'INATIVO' : 'ATIVO'),
-    sustentavel: Boolean(raw.sustentavel || raw.item_sustentavel || raw.catmat_sustentavel),
-    unidade: raw.unidade || raw.unidade_fornecimento || 'UN',
+    id_grupo: raw.codigoGrupo || raw.id_grupo || raw.grupo_id || raw.cod_grupo || raw.grupoMaterial?.codigo || null,
+    id_classe:
+      raw.codigoClasse || raw.id_classe || raw.classe_id || raw.cod_classe || raw.classeMaterial?.codigo || null,
+    id_pdm: raw.codigoPdm || raw.id_pdm || raw.pdm_id || raw.cod_pdm || raw.pdm?.codigo || null,
+    descricao_grupo: raw.descricaoGrupo || raw.nomeGrupo || raw.grupoMaterial?.descricao || null,
+    descricao_classe: raw.descricaoClasse || raw.nomeClasse || raw.classeMaterial?.descricao || null,
+    descricao_pdm: raw.descricaoPdm || raw.nomePdm || raw.pdm?.descricao || null,
+    status: raw.statusItem || raw.status || raw.situacao || (statusRaw === 'INATIVO' ? 'INATIVO' : 'ATIVO'),
+    sustentavel: Boolean(raw.itemSustentavel || raw.sustentavel || raw.item_sustentavel || raw.catmat_sustentavel),
+    unidade: raw.unidadeFornecimento || raw.unidade || raw.unidade_fornecimento || 'UN',
     fonte: 'api_oficial_compras',
     raw
+  };
+}
+
+function pickMaterialValue(...values) {
+  for (const value of values) {
+    if (value !== undefined && value !== null && value !== '') {
+      return value;
+    }
+  }
+
+  return null;
+}
+
+function normalizeMaterialCode(value) {
+  return String(value || '').replace(/\D/g, '');
+}
+
+function normalizeMaterialText(value) {
+  const text = String(value || '').trim();
+  return text || null;
+}
+
+function mapCatalogItemToSearchData(item = {}, extras = {}) {
+  const codigo = normalizeMaterialCode(pickMaterialValue(item.codigoItem, item.codigo));
+  const descricao = normalizeMaterialText(pickMaterialValue(item.descricaoItem, item.descricao)) || '';
+  const unidade = normalizeMaterialText(pickMaterialValue(item.unidadeFornecimento, item.unidade)) || 'UN';
+  const idGrupo = pickMaterialValue(item.codigoGrupo, item.id_grupo, item.grupoMaterial?.codigo);
+  const idClasse = pickMaterialValue(item.codigoClasse, item.id_classe, item.classeMaterial?.codigo);
+  const idPdm = pickMaterialValue(item.codigoPdm, item.id_pdm, item.pdm?.codigo);
+  const descricaoGrupo = normalizeMaterialText(pickMaterialValue(item.descricaoGrupo, item.grupoMaterial?.descricao));
+  const descricaoClasse = normalizeMaterialText(pickMaterialValue(item.descricaoClasse, item.classeMaterial?.descricao));
+  const descricaoPdm = normalizeMaterialText(pickMaterialValue(item.descricaoPdm, item.pdm?.descricao));
+  const status = normalizeMaterialText(pickMaterialValue(item.statusItem, item.status)) || 'ATIVO';
+  const fonte = normalizeMaterialText(pickMaterialValue(extras.fonte, item.fonte)) || 'api_oficial_compras';
+  const fetchedAt = extras.fetchedAt || new Date().toISOString();
+  const score = Number(extras.score || 0) || 0;
+
+  return {
+    codigo,
+    catmat_id: Number(codigo),
+    descricao,
+    catmat_padrao_desc: descricao,
+    unidade,
+    id_grupo: idGrupo,
+    id_classe: idClasse,
+    id_pdm: idPdm,
+    descricaoGrupo,
+    descricaoClasse,
+    descricaoPdm,
+    status,
+    catmat_sustentavel: Boolean(item.itemSustentavel || item.sustentavel || item.catmat_sustentavel),
+    fonte,
+    fetched_at: fetchedAt,
+    score,
+    raw: item
   };
 }
 
@@ -322,10 +383,10 @@ class CatmatService {
     }
   }
 
-  _buildSearchCacheKey(query, { limite, offset, apenasAtivos }) {
+  _buildSearchCacheKey(query, { limite, offset, apenasAtivos, codigoPdm, detalhar }) {
     return `${String(query || '')
       .trim()
-      .toLowerCase()}|${limite}|${offset}|${apenasAtivos ? 1 : 0}`;
+      .toLowerCase()}|${limite}|${offset}|${apenasAtivos ? 1 : 0}|${String(codigoPdm || '').trim()}|${detalhar ? 1 : 0}`;
   }
 
   async ensureMaterialMirror(material) {
@@ -376,7 +437,7 @@ class CatmatService {
     const params = [`%${query}%`];
     let sql = `
       SELECT codigo, descricao, id_grupo, id_classe, id_pdm, status, sustentavel,
-             unidade, fonte, fetched_at, updated_at
+             unidade, fonte, fetched_at, updated_at, payload_raw
       FROM catmat_cache
       WHERE (descricao ILIKE $1 OR codigo ILIKE $1)
     `;
@@ -403,17 +464,22 @@ class CatmatService {
       id_grupo: row.id_grupo,
       id_classe: row.id_classe,
       id_pdm: row.id_pdm,
+      descricaoGrupo: row.payload_raw?.descricaoGrupo || row.payload_raw?.nomeGrupo || row.payload_raw?.grupoMaterial?.descricao || null,
+      descricaoClasse:
+        row.payload_raw?.descricaoClasse || row.payload_raw?.nomeClasse || row.payload_raw?.classeMaterial?.descricao || null,
+      descricaoPdm: row.payload_raw?.descricaoPdm || row.payload_raw?.nomePdm || row.payload_raw?.pdm?.descricao || null,
       status: row.status,
       catmat_sustentavel: row.sustentavel,
       fonte: row.fonte,
       fetched_at: row.fetched_at,
-      updated_at: row.updated_at
+      updated_at: row.updated_at,
+      raw: row.payload_raw || null
     }));
 
     return { dados, total };
   }
 
-  async search(query, { limite = 20, offset = 0, apenasAtivos = true } = {}) {
+  async search(query, { limite = 20, offset = 0, apenasAtivos = true, codigoPdm = null, detalhar = false } = {}) {
     const safeQuery = String(query || '').trim();
     if (!safeQuery || safeQuery.length < 3) {
       return { dados: [], total: 0, pagina: 1, totalPaginas: 0 };
@@ -422,10 +488,14 @@ class CatmatService {
     const clampedLimit = Math.max(1, Math.min(Number(limite) || 20, 100));
     const safeOffset = Math.max(0, Number(offset) || 0);
     const safeApenasAtivos = String(apenasAtivos).toLowerCase() !== 'false';
+    const safeCodigoPdm = String(codigoPdm || '').trim() || null;
+    const safeDetalhar = detalhar === true || String(detalhar).toLowerCase() === 'true';
     const cacheKey = this._buildSearchCacheKey(safeQuery, {
       limite: clampedLimit,
       offset: safeOffset,
-      apenasAtivos: safeApenasAtivos
+      apenasAtivos: safeApenasAtivos,
+      codigoPdm: safeCodigoPdm,
+      detalhar: safeDetalhar
     });
 
     const cached = integrationCache.get(CATMAT_SEARCH_CACHE_NAMESPACE, cacheKey);
@@ -443,38 +513,43 @@ class CatmatService {
 
     const searchPromise = (async () => {
       try {
-        const payload = await this._fetchOfficial('/materiais/v1/materiais.json', {
-          descricao_item: safeQuery,
-          offset: safeOffset,
-          limit: clampedLimit
-        });
+        const ranked = await catalogSearchService.buscarMateriaisComRanking(
+          safeQuery,
+          {
+            limite: clampedLimit,
+            offset: safeOffset,
+            codigoPdm: safeCodigoPdm,
+            detalhar: safeDetalhar,
+            statusItem: safeApenasAtivos ? '1' : undefined,
+            tamanhoPagina: Math.max(clampedLimit * 4, 80)
+          },
+          {
+            routeInterna: '/api/catmat/search'
+          }
+        );
 
-        const normalized = extractMaterialList(payload).map(normalizeMaterial).filter(Boolean);
-        const filtered = safeApenasAtivos
-          ? normalized.filter((item) => String(item.status || 'ATIVO').toUpperCase() !== 'INATIVO')
-          : normalized;
+        const rawItems = Array.isArray(ranked?.dados) ? ranked.dados.map(normalizeMaterial).filter(Boolean) : [];
+        if (rawItems.length > 0) {
+          await this._upsertCacheBatch(rawItems);
+        }
 
-        await this._upsertCacheBatch(filtered);
-
+        const dados = Array.isArray(ranked?.rankedItems)
+          ? ranked.rankedItems.map((entry) => mapCatalogItemToSearchData(entry.item, { score: entry.score }))
+          : [];
         const result = {
-          dados: filtered.map((item) => ({
-            codigo: item.codigo,
-            catmat_id: Number(item.codigo),
-            descricao: item.descricao,
-            catmat_padrao_desc: item.descricao,
-            unidade: item.unidade,
-            id_grupo: item.id_grupo,
-            id_classe: item.id_classe,
-            id_pdm: item.id_pdm,
-            status: item.status,
-            catmat_sustentavel: item.sustentavel,
-            fonte: item.fonte,
-            fetched_at: new Date().toISOString()
-          })),
-          total: Number(payload?.total || payload?.count || filtered.length || 0),
+          dados,
+          total: Number(ranked?.totalRegistros || dados.length || 0),
           pagina: Math.floor(safeOffset / clampedLimit) + 1,
-          totalPaginas: null,
-          fonte: 'api_oficial_compras'
+          totalPaginas: Math.max(1, Math.ceil(Number(ranked?.totalRegistros || dados.length || 0) / clampedLimit)),
+          fonte: 'api_oficial_compras',
+          modo: ranked?.modo || 'items',
+          sugestoes: Array.isArray(ranked?.sugestoes) ? ranked.sugestoes : [],
+          filtros: ranked?.filtros || {
+            codigoPdm: safeCodigoPdm,
+            detalhar: safeDetalhar
+          },
+          contextoSelecionado: ranked?.contextoSelecionado || null,
+          groupedByPdm: Array.isArray(ranked?.groupedByPdm) ? ranked.groupedByPdm : []
         };
 
         integrationCache.set(CATMAT_SEARCH_CACHE_NAMESPACE, cacheKey, result, CATMAT_SEARCH_CACHE_TTL_SECONDS);
@@ -552,10 +627,42 @@ class CatmatService {
     }
 
     try {
-      const payload = await this._fetchOfficial(`/materiais/id/material/${cleanCode}.json`);
-      const normalized = normalizeMaterial(payload);
+      const payload = await comprasGovGateway.consultarItemMaterial(
+        {
+          codigoItem: cleanCode
+        },
+        {
+          pagina: 1,
+          tamanhoPagina: 1
+        },
+        {
+          routeInterna: `/api/catmat/${cleanCode}`
+        }
+      );
+      const normalized = normalizeMaterial(Array.isArray(payload?.resultado) ? payload.resultado[0] : payload);
 
       if (!normalized) {
+        const legacyPayload = await this._fetchOfficial(`/materiais/id/material/${cleanCode}.json`);
+        const legacyNormalized = normalizeMaterial(legacyPayload);
+        if (legacyNormalized) {
+          await this._upsertCache(legacyNormalized);
+
+          return {
+            codigo: legacyNormalized.codigo,
+            catmat_id: Number(legacyNormalized.codigo),
+            descricao: legacyNormalized.descricao,
+            catmat_padrao_desc: legacyNormalized.descricao,
+            unidade: legacyNormalized.unidade,
+            id_grupo: legacyNormalized.id_grupo,
+            id_classe: legacyNormalized.id_classe,
+            id_pdm: legacyNormalized.id_pdm,
+            status: legacyNormalized.status,
+            catmat_sustentavel: legacyNormalized.sustentavel,
+            fonte: legacyNormalized.fonte,
+            fetched_at: new Date().toISOString()
+          };
+        }
+
         if (cacheRow) {
           return {
             ...cacheRow,

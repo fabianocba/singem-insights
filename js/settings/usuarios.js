@@ -159,11 +159,7 @@ class SettingsUsuarios {
     try {
       this.usuarios = await this.getUsuarios();
       this.renderizarLista();
-
-      // Se não há usuários cadastrados, destaca o formulário
-      if (this.usuarios.length === 0) {
-        this.destacarFormularioPrimeiroUsuario();
-      }
+      this.atualizarDestaquePrimeiroUsuario();
     } catch (error) {
       console.error('Erro ao carregar usuários:', error);
     }
@@ -172,24 +168,28 @@ class SettingsUsuarios {
   /**
    * Destaca formulário para primeiro usuário
    */
-  destacarFormularioPrimeiroUsuario() {
+  atualizarDestaquePrimeiroUsuario() {
     const panel = document.querySelector('#tabUsuarios .panel:first-child');
-    if (panel) {
-      // Adiciona destaque visual
-      panel.style.border = '3px solid #ff9800';
-      panel.style.boxShadow = '0 0 20px rgba(255, 152, 0, 0.3)';
-      panel.style.animation = 'pulse 2s ease-in-out infinite';
+    const header = panel?.querySelector('.panel-header');
+    if (!panel || !header) {
+      return;
+    }
 
-      // Adiciona mensagem de destaque
-      const header = panel.querySelector('.panel-header');
-      if (header && !header.querySelector('.primeiro-acesso-badge')) {
-        const badge = document.createElement('span');
-        badge.className = 'primeiro-acesso-badge';
-        badge.innerHTML = '⚠️ PRIMEIRO USUÁRIO - OBRIGATÓRIO';
-        badge.style.cssText =
-          'background: #ff9800; color: white; padding: 5px 10px; border-radius: 5px; margin-left: 10px; font-size: 0.9em; animation: blink 1.5s ease-in-out infinite;';
-        header.appendChild(badge);
-      }
+    const destacar = this.usuarios.length === 0;
+    const badgeExistente = header.querySelector('.primeiro-acesso-badge');
+
+    panel.classList.toggle('settings-panel--first-user', destacar);
+
+    if (destacar && !badgeExistente) {
+      const badge = document.createElement('span');
+      badge.className = 'primeiro-acesso-badge';
+      badge.textContent = '⚠️ PRIMEIRO USUÁRIO - OBRIGATÓRIO';
+      header.appendChild(badge);
+      return;
+    }
+
+    if (!destacar) {
+      badgeExistente?.remove();
     }
   }
 
@@ -205,7 +205,7 @@ class SettingsUsuarios {
     if (this.usuarios.length === 0) {
       tbody.innerHTML = `
         <tr>
-          <td colspan="5" style="text-align: center; color: #999;">
+          <td colspan="5" class="table-empty-message">
             Nenhum usuário cadastrado
           </td>
         </tr>
@@ -220,7 +220,7 @@ class SettingsUsuarios {
         <td>${user.nome}</td>
         <td>${user.login}</td>
         <td>
-          <span class="badge badge-${user.perfil === 'admin' ? 'primary' : 'secondary'}">
+          <span class="sg-badge sg-badge--${user.perfil === 'admin' ? 'primary' : 'secondary'}">
             ${user.perfil === 'admin' ? 'Administrador' : 'Usuário'}
           </span>
         </td>
@@ -245,8 +245,8 @@ class SettingsUsuarios {
     if (user.unidadeOrcamentaria && user.unidadeOrcamentaria.razaoSocial) {
       // Usuário vinculado a uma unidade
       return `
-        <div style="display: flex; align-items: center; gap: 8px;">
-          <span style="color: #4caf50; font-size: 12px;">
+        <div class="settings-user-unit">
+          <span class="settings-user-unit__status settings-user-unit__status--linked">
             ✅ ${user.unidadeOrcamentaria.razaoSocial}
           </span>
           <button
@@ -260,8 +260,8 @@ class SettingsUsuarios {
     } else {
       // Usuário sem vínculo
       return `
-        <div style="display: flex; align-items: center; gap: 8px;">
-          <span style="color: #ff9800; font-size: 12px;">
+        <div class="settings-user-unit">
+          <span class="settings-user-unit__status settings-user-unit__status--unlinked">
             ⚠️ Não vinculado
           </span>
           <button
@@ -412,8 +412,8 @@ class SettingsUsuarios {
     document.getElementById('ativoEdicaoUsuario').checked = usuario.ativo;
 
     // Mostra painel de edição
-    document.getElementById('panelNovoUsuario').style.display = 'none';
-    document.getElementById('panelEdicaoUsuario').style.display = 'block';
+    document.getElementById('panelNovoUsuario').classList.add('hidden');
+    document.getElementById('panelEdicaoUsuario').classList.remove('hidden');
   }
 
   /**
@@ -499,8 +499,8 @@ class SettingsUsuarios {
    * Cancela edição
    */
   cancelarEdicao() {
-    document.getElementById('panelNovoUsuario').style.display = 'block';
-    document.getElementById('panelEdicaoUsuario').style.display = 'none';
+    document.getElementById('panelNovoUsuario').classList.remove('hidden');
+    document.getElementById('panelEdicaoUsuario').classList.add('hidden');
     document.getElementById('novaSenhaEdicao').value = '';
   }
 
@@ -514,7 +514,8 @@ class SettingsUsuarios {
     }
 
     if (senha.length < 6) {
-      indicador.innerHTML = '<span style="color: #dc3545;">⚠️ Senha muito curta (mínimo 6 caracteres)</span>';
+      indicador.innerHTML =
+        '<span class="settings-password-strength settings-password-strength--weak">⚠️ Senha muito curta (mínimo 6 caracteres)</span>';
       return;
     }
 
@@ -533,10 +534,10 @@ class SettingsUsuarios {
     }
 
     const labels = ['Fraca', 'Média', 'Forte', 'Muito Forte'];
-    const colors = ['#dc3545', '#ffc107', '#28a745', '#007bff'];
+    const variants = ['weak', 'medium', 'strong', 'excellent'];
 
     indicador.innerHTML = `
-      <span style="color: ${colors[forca]};">
+      <span class="settings-password-strength settings-password-strength--${variants[forca] || 'weak'}">
         🔒 Senha ${labels[forca] || 'Fraca'}
       </span>
     `;

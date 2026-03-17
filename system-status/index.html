@@ -11,19 +11,24 @@
     <title>SINGEM System Status</title>
 
     <script type="module" src="../js/versionManager.js"></script>
+    <script src="../js/ui/themeBoot.js"></script>
     <link rel="stylesheet" href="../css/style.css" />
     <link rel="stylesheet" href="../css/system-status.css" />
+    <link rel="stylesheet" href="../css/tailwind.css" />
   </head>
-  <body>
+  <body data-page="system-status">
     <main class="status-page">
       <section class="status-header-card">
-        <div>
-          <h1>SINGEM System Status</h1>
-          <p>Painel operacional de monitoramento interno</p>
-        </div>
-        <div class="status-actions">
-          <button id="btnRefresh" class="btn btn-secondary">Atualizar agora</button>
-          <a class="btn btn-primary" href="../index.html">Voltar ao SINGEM</a>
+        <div class="sg-page-header-grid">
+          <div>
+            <h1>SINGEM System Status</h1>
+            <p>Painel operacional de monitoramento interno</p>
+          </div>
+          <div class="status-actions">
+            <button id="btnRefresh" class="btn btn-secondary">Atualizar agora</button>
+            <button type="button" data-theme-toggle aria-label="Alternar tema"></button>
+            <a class="btn btn-primary" href="../index.html">Voltar ao SINGEM</a>
+          </div>
         </div>
       </section>
 
@@ -84,6 +89,7 @@
       <section id="errorBox" class="error-box hidden" role="alert"></section>
     </main>
 
+    <script type="module" src="../js/ui/pageEnhancer.js"></script>
     <script type="module" src="../js/systemStatus/index.js"></script>
   </body>
 </html>

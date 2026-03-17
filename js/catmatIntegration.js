@@ -9,6 +9,7 @@ import { showLoading, hideLoading, notifySuccess, notifyError, notifyInfo } from
 import { httpRequest } from './shared/lib/http.js';
 import { emit } from './core/eventBus.js';
 import { isAiAvailable, handleAiAvailabilityError } from './aiIntegration.js';
+import { escapeHTML } from './utils/sanitize.js';
 import apiClient from './services/apiClient.js';
 
 /**
@@ -30,6 +31,8 @@ const state = {
   searchSeqByContext: new Map(),
   searchCache: new Map(),
   codigoCache: new Map(),
+  selectedSuggestionByContext: new Map(),
+  selectedPdmByContext: new Map(),
   outsideClickContexts: new Set(),
   outsideClickBound: false,
   initializedInputs: new WeakSet(),
@@ -42,21 +45,47 @@ function toNumberSafe(value, fallback = 0) {
   return Number.isFinite(parsed) ? parsed : fallback;
 }
 
+function isNumericCodeQuery(value) {
+  return /^\d+$/.test(String(value || '').trim());
+}
+
+function extractSearchItems(root, resultObject) {
+  if (Array.isArray(resultObject.dados)) {
+    return resultObject.dados;
+  }
+
+  if (Array.isArray(resultObject.resultado)) {
+    return resultObject.resultado;
+  }
+
+  if (Array.isArray(resultObject.items)) {
+    return resultObject.items;
+  }
+
+  return Array.isArray(root) ? root : [];
+}
+
+function resolveSearchMode(resultObject) {
+  if (resultObject.modo) {
+    return resultObject.modo;
+  }
+
+  return Array.isArray(resultObject.sugestoes) && resultObject.sugestoes.length > 0 ? 'suggestions' : 'items';
+}
+
+function resolveSelectedContext(resultObject) {
+  return resultObject.contextoSelecionado && typeof resultObject.contextoSelecionado === 'object'
+    ? resultObject.contextoSelecionado
+    : null;
+}
+
 function normalizeSearchPayload(payload, { offset = 0, limite = config.maxResults } = {}) {
   const envelope = payload && typeof payload === 'object' ? payload : {};
   const root = envelope.data !== undefined ? envelope.data : envelope;
   const meta = envelope.meta && typeof envelope.meta === 'object' ? envelope.meta : {};
 
   const resultObject = root && typeof root === 'object' && !Array.isArray(root) ? root : {};
-  const dados = Array.isArray(resultObject.dados)
-    ? resultObject.dados
-    : Array.isArray(resultObject.resultado)
-      ? resultObject.resultado
-      : Array.isArray(resultObject.items)
-        ? resultObject.items
-        : Array.isArray(root)
-          ? root
-          : [];
+  const dados = extractSearchItems(root, resultObject);
 
   const totalRaw =
     resultObject.total ?? resultObject.totalRegistros ?? resultObject.count ?? meta.total ?? meta.totalRegistros;
@@ -68,7 +97,11 @@ function normalizeSearchPayload(payload, { offset = 0, limite = config.maxResult
     offset: Math.max(0, toNumberSafe(resultObject.offset ?? meta.offset, offset)),
     limite: Math.max(1, toNumberSafe(resultObject.limite ?? meta.limite, limite)),
     aviso: resultObject.aviso ?? meta.aviso ?? null,
-    fonte: resultObject.fonte ?? meta.fonte ?? null
+    fonte: resultObject.fonte ?? meta.fonte ?? null,
+    modo: resolveSearchMode(resultObject),
+    sugestoes: Array.isArray(resultObject.sugestoes) ? resultObject.sugestoes : [],
+    filtros: resultObject.filtros && typeof resultObject.filtros === 'object' ? resultObject.filtros : {},
+    contextoSelecionado: resolveSelectedContext(resultObject)
   };
 }
 
@@ -87,10 +120,10 @@ function normalizeMaterialPayload(payload) {
   return null;
 }
 
-function buildSearchCacheKey(query, offset, limite) {
+function buildSearchCacheKey(query, offset, limite, codigoPdm = null, detalhar = false) {
   return `${String(query || '')
     .trim()
-    .toLowerCase()}|${offset}|${limite}`;
+    .toLowerCase()}|${offset}|${limite}|${String(codigoPdm || '').trim()}|${detalhar ? 1 : 0}`;
 }
 
 function readSearchCache(cacheKey) {
@@ -138,6 +171,150 @@ function writeCodigoCache(codigo, value) {
   state.codigoCache.set(cacheKey, {
     value,
     expiresAt: Date.now() + config.codigoCacheTtlMs
+  });
+}
+
+function normalizeSearchOptions(query, { offset = 0, limite = config.maxResults, contextKey = 'global', codigoPdm = null, detalhar = false } = {}) {
+  return {
+    safeQuery: String(query || '').trim(),
+    safeOffset: Math.max(0, toNumberSafe(offset, 0)),
+    safeLimite: Math.max(1, Math.min(toNumberSafe(limite, config.maxResults), 100)),
+    safeContextKey: String(contextKey || 'global'),
+    safeCodigoPdm: String(codigoPdm || '').trim() || null,
+    safeDetalhar: detalhar === true || String(detalhar).toLowerCase() === 'true'
+  };
+}
+
+function buildEmptySearchResult(offset, limite, extra = {}) {
+  return {
+    dados: [],
+    total: 0,
+    offset,
+    limite,
+    ...extra
+  };
+}
+
+function emitSearchDone(search, result, cache) {
+  emit('catmat.search:done', {
+    contextKey: search.safeContextKey,
+    query: search.safeQuery,
+    offset: search.safeOffset,
+    limite: search.safeLimite,
+    codigoPdm: search.safeCodigoPdm,
+    detalhar: search.safeDetalhar,
+    total: result.total,
+    cache,
+    fonte: result.fonte || null
+  });
+}
+
+function beginSearchRequest(search) {
+  const previousController = state.searchControllers.get(search.safeContextKey);
+  if (previousController) {
+    previousController.abort();
+  }
+
+  const controller = new AbortController();
+  state.searchControllers.set(search.safeContextKey, controller);
+
+  const seq = (state.searchSeqByContext.get(search.safeContextKey) || 0) + 1;
+  state.searchSeqByContext.set(search.safeContextKey, seq);
+
+  emit('catmat.search:start', {
+    contextKey: search.safeContextKey,
+    query: search.safeQuery,
+    offset: search.safeOffset,
+    limite: search.safeLimite,
+    codigoPdm: search.safeCodigoPdm,
+    detalhar: search.safeDetalhar
+  });
+
+  return { controller, seq };
+}
+
+function buildCatmatSearchParams(search) {
+  const params = new URLSearchParams({
+    q: search.safeQuery,
+    limite: String(search.safeLimite),
+    offset: String(search.safeOffset)
+  });
+
+  if (search.safeCodigoPdm) {
+    params.set('codigoPdm', search.safeCodigoPdm);
+  }
+
+  if (search.safeDetalhar) {
+    params.set('detalhar', 'true');
+  }
+
+  return params;
+}
+
+async function requestCatmatSearch(search, controller) {
+  const response = await httpRequest(`/api/catmat/search?${buildCatmatSearchParams(search).toString()}`, {
+    signal: controller.signal
+  });
+
+  if (!response.ok && response.error?.isAbort) {
+    const abortError = new Error('Busca CATMAT cancelada por nova requisição.');
+    abortError.name = 'AbortError';
+    throw abortError;
+  }
+
+  if (!response.ok) {
+    throw new Error(response.error?.message || 'Erro na busca CATMAT');
+  }
+
+  return response.data;
+}
+
+function shouldEnrichWithAi(search, normalized) {
+  return (
+    search.safeOffset === 0 &&
+    !search.safeCodigoPdm &&
+    !search.safeDetalhar &&
+    normalized.modo !== 'suggestions' &&
+    !isNumericCodeQuery(search.safeQuery) &&
+    normalized.dados.length < 3
+  );
+}
+
+async function enrichSearchWithAi(search, normalized) {
+  if (!shouldEnrichWithAi(search, normalized)) {
+    return;
+  }
+
+  try {
+    const aiResults = await fetchAiSuggestions(search.safeQuery, 5);
+    if (!aiResults.length) {
+      return;
+    }
+
+    const existingIds = new Set(normalized.dados.map((item) => String(item.codigo || item.catmat_id || '')));
+    const uniqueAi = aiResults.filter((item) => !existingIds.has(String(item.codigo || item.catmat_id || '')));
+
+    if (!uniqueAi.length) {
+      return;
+    }
+
+    normalized.dados.push(...uniqueAi);
+    normalized.total = Math.max(normalized.total, normalized.dados.length);
+    normalized.aiEnriched = true;
+  } catch {
+    // AI complementar é best-effort
+  }
+}
+
+function emitSearchError(search, err) {
+  emit('catmat.search:error', {
+    contextKey: search.safeContextKey,
+    query: search.safeQuery,
+    offset: search.safeOffset,
+    limite: search.safeLimite,
+    codigoPdm: search.safeCodigoPdm,
+    detalhar: search.safeDetalhar,
+    erro: err?.message || 'Erro desconhecido'
   });
 }
 
@@ -208,137 +385,62 @@ async function fetchAiSuggestions(query, limit = 5) {
  * @param {string} query - Termo de busca
  * @returns {Promise<{dados: Array, total: number}>}
  */
-export async function searchCatmat(query, { offset = 0, limite = config.maxResults, contextKey = 'global' } = {}) {
-  const safeQuery = String(query || '').trim();
-  const safeOffset = Math.max(0, toNumberSafe(offset, 0));
-  const safeLimite = Math.max(1, Math.min(toNumberSafe(limite, config.maxResults), 100));
-  const safeContextKey = String(contextKey || 'global');
+export async function searchCatmat(
+  query,
+  { offset = 0, limite = config.maxResults, contextKey = 'global', codigoPdm = null, detalhar = false } = {}
+) {
+  const search = normalizeSearchOptions(query, { offset, limite, contextKey, codigoPdm, detalhar });
 
-  if (safeQuery.length < config.minChars) {
-    return { dados: [], total: 0, offset: safeOffset, limite: safeLimite };
+  if (search.safeQuery.length < config.minChars) {
+    return buildEmptySearchResult(search.safeOffset, search.safeLimite);
   }
 
-  const cacheKey = buildSearchCacheKey(safeQuery, safeOffset, safeLimite);
+  const cacheKey = buildSearchCacheKey(
+    search.safeQuery,
+    search.safeOffset,
+    search.safeLimite,
+    search.safeCodigoPdm,
+    search.safeDetalhar
+  );
   const cached = readSearchCache(cacheKey);
   if (cached) {
-    emit('catmat.search:done', {
-      contextKey: safeContextKey,
-      query: safeQuery,
-      offset: safeOffset,
-      limite: safeLimite,
-      total: cached.total,
-      cache: 'HIT'
-    });
+    emitSearchDone(search, cached, 'HIT');
     return cached;
   }
 
-  const previousController = state.searchControllers.get(safeContextKey);
-  if (previousController) {
-    previousController.abort();
-  }
-
-  const controller = new AbortController();
-  state.searchControllers.set(safeContextKey, controller);
-
-  const seq = (state.searchSeqByContext.get(safeContextKey) || 0) + 1;
-  state.searchSeqByContext.set(safeContextKey, seq);
-
-  emit('catmat.search:start', {
-    contextKey: safeContextKey,
-    query: safeQuery,
-    offset: safeOffset,
-    limite: safeLimite
-  });
+  const { controller, seq } = beginSearchRequest(search);
 
   try {
-    const response = await httpRequest(
-      `/api/catmat/search?q=${encodeURIComponent(safeQuery)}&limite=${safeLimite}&offset=${safeOffset}`,
-      {
-        signal: controller.signal
-      }
-    );
-
-    if (!response.ok && response.error?.isAbort) {
-      const abortError = new Error('Busca CATMAT cancelada por nova requisição.');
-      abortError.name = 'AbortError';
-      throw abortError;
-    }
-
-    if (!response.ok) {
-      throw new Error(response.error?.message || 'Erro na busca CATMAT');
-    }
+    const rawData = await requestCatmatSearch(search, controller);
 
     // Ignora respostas antigas para manter consistência do campo ativo.
-    if (state.searchSeqByContext.get(safeContextKey) !== seq) {
-      return {
-        dados: [],
-        total: 0,
-        offset: safeOffset,
-        limite: safeLimite,
-        descartado: true
-      };
+    if (state.searchSeqByContext.get(search.safeContextKey) !== seq) {
+      return buildEmptySearchResult(search.safeOffset, search.safeLimite, { descartado: true });
     }
 
-    const normalized = normalizeSearchPayload(response.data, {
-      offset: safeOffset,
-      limite: safeLimite
+    const normalized = normalizeSearchPayload(rawData, {
+      offset: search.safeOffset,
+      limite: search.safeLimite
     });
 
-    // Enriquece com sugestões AI quando há poucos resultados (primeira página apenas)
-    if (safeOffset === 0 && normalized.dados.length < 3) {
-      try {
-        const aiResults = await fetchAiSuggestions(safeQuery, 5);
-        if (aiResults.length > 0) {
-          const existingIds = new Set(normalized.dados.map((d) => String(d.codigo || d.catmat_id || '')));
-          const uniqueAi = aiResults.filter((ai) => !existingIds.has(String(ai.codigo || ai.catmat_id || '')));
-          if (uniqueAi.length > 0) {
-            normalized.dados.push(...uniqueAi);
-            normalized.total = Math.max(normalized.total, normalized.dados.length);
-            normalized.aiEnriched = true;
-          }
-        }
-      } catch {
-        // AI complementar é best-effort
-      }
-    }
+    await enrichSearchWithAi(search, normalized);
 
     writeSearchCache(cacheKey, normalized);
-
-    emit('catmat.search:done', {
-      contextKey: safeContextKey,
-      query: safeQuery,
-      offset: safeOffset,
-      limite: safeLimite,
-      total: normalized.total,
-      cache: 'MISS',
-      fonte: normalized.fonte || null
-    });
+    emitSearchDone(search, normalized, 'MISS');
 
     return normalized;
   } catch (err) {
     if (err.name === 'AbortError') {
-      return {
-        dados: [],
-        total: 0,
-        offset: safeOffset,
-        limite: safeLimite,
-        abortado: true
-      };
+      return buildEmptySearchResult(search.safeOffset, search.safeLimite, { abortado: true });
     }
 
-    emit('catmat.search:error', {
-      contextKey: safeContextKey,
-      query: safeQuery,
-      offset: safeOffset,
-      limite: safeLimite,
-      erro: err?.message || 'Erro desconhecido'
-    });
+    emitSearchError(search, err);
 
     console.error('[CATMAT] Erro na busca:', err);
     throw err;
   } finally {
-    if (state.searchControllers.get(safeContextKey) === controller) {
-      state.searchControllers.delete(safeContextKey);
+    if (state.searchControllers.get(search.safeContextKey) === controller) {
+      state.searchControllers.delete(search.safeContextKey);
     }
   }
 }
@@ -431,12 +533,83 @@ function createDropdown(inputElement) {
   return dropdown;
 }
 
+function buildMaterialContext(material = {}) {
+  const pdmCode = material.id_pdm || material.codigoPdm || material.pdm?.codigo || null;
+  const groupCode = material.id_grupo || material.codigoGrupo || material.grupoMaterial?.codigo || null;
+  const classCode = material.id_classe || material.codigoClasse || material.classeMaterial?.codigo || null;
+  const parts = [];
+
+  if (material.descricaoPdm || pdmCode) {
+    parts.push(`PDM ${pdmCode || '-'}${material.descricaoPdm ? ` - ${material.descricaoPdm}` : ''}`);
+  }
+
+  if (material.descricaoGrupo || groupCode) {
+    parts.push(`Grupo ${groupCode || '-'}${material.descricaoGrupo ? ` - ${material.descricaoGrupo}` : ''}`);
+  }
+
+  if (material.descricaoClasse || classCode) {
+    parts.push(`Classe ${classCode || '-'}${material.descricaoClasse ? ` - ${material.descricaoClasse}` : ''}`);
+  }
+
+  return parts.join(' | ');
+}
+
+function buildSuggestionContext(suggestion = {}) {
+  return [suggestion.descricaoGrupo, suggestion.descricaoClasse].filter(Boolean).join(' | ');
+}
+
 /**
  * Renderiza resultados no dropdown
  */
 function renderResults(dropdown, results, inputElement, onSelect, options = {}) {
-  const { aviso = null, hasMore = false, onLoadMore = null } = options;
+  const {
+    aviso = null,
+    hasMore = false,
+    onLoadMore = null,
+    modo = 'items',
+    sugestoes = [],
+    contextoSelecionado = null,
+    detalhandoTodosGrupos = false,
+    onPickSuggestion = null,
+    onBackToSuggestions = null
+  } = options;
   dropdown.innerHTML = '';
+
+  if ((contextoSelecionado || detalhandoTodosGrupos) && typeof onBackToSuggestions === 'function') {
+    const contextHeader = document.createElement('div');
+    contextHeader.style.cssText = `
+      padding: 10px 12px;
+      background: #eef4ff;
+      border-bottom: 1px solid #d6e4ff;
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center;
+    `;
+
+    const title = detalhandoTodosGrupos
+      ? `Todos os grupos - ${String(inputElement?.value || '').trim()}`
+      : contextoSelecionado.descricaoPdm || `PDM ${contextoSelecionado.codigoPdm || '-'}`;
+    const subtitle = detalhandoTodosGrupos
+      ? 'Resultados detalhados em todo o catálogo CATMAT'
+      : [contextoSelecionado.descricaoGrupo, contextoSelecionado.descricaoClasse].filter(Boolean).join(' | ');
+    contextHeader.innerHTML = `
+      <div style="min-width: 0;">
+        <div style="font-size: 12px; color: #666;">Contexto selecionado</div>
+        <div style="font-size: 13px; color: #1351B4; font-weight: 700;">${escapeHTML(title)}</div>
+        ${subtitle ? `<div style="font-size: 11px; color: #555; margin-top: 2px;">${escapeHTML(subtitle)}</div>` : ''}
+      </div>
+      <button type="button" class="btn-voltar-grupos" style="border: none; background: #1351B4; color: white; padding: 6px 10px; border-radius: 4px; cursor: pointer; white-space: nowrap;">
+        Voltar aos grupos
+      </button>
+    `;
+
+    contextHeader.querySelector('.btn-voltar-grupos')?.addEventListener('click', (event) => {
+      event.preventDefault();
+      onBackToSuggestions();
+    });
+    dropdown.appendChild(contextHeader);
+  }
 
   if (aviso) {
     const avisoEl = document.createElement('div');
@@ -449,6 +622,52 @@ function renderResults(dropdown, results, inputElement, onSelect, options = {}) 
     `;
     avisoEl.textContent = aviso;
     dropdown.appendChild(avisoEl);
+  }
+
+  if (modo === 'suggestions' && Array.isArray(sugestoes) && sugestoes.length > 0) {
+    sugestoes.forEach((suggestion) => {
+      const item = document.createElement('div');
+      item.className = 'catmat-item';
+      item.style.cssText = `
+        padding: 10px 12px;
+        cursor: pointer;
+        border-bottom: 1px solid #eee;
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+      `;
+
+      const secondary = suggestion.tipo === 'todos_grupos' ? '' : buildSuggestionContext(suggestion);
+      const preview = suggestion.previewDescricao
+        ? `Ex.: ${suggestion.previewCodigo ? `${suggestion.previewCodigo} - ` : ''}${suggestion.previewDescricao}`
+        : '';
+
+      item.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px;">
+          <strong style="color: #1351B4; font-size: 13px;">${escapeHTML(
+            suggestion.label || suggestion.descricaoPdm || 'Sugestão CATMAT'
+          )}</strong>
+          <span style="font-size: 11px; color: #666; white-space: nowrap;">${Number(suggestion.totalItens || 0)} item(ns)</span>
+        </div>
+        ${secondary ? `<div style="font-size: 11px; color: #555;">${escapeHTML(secondary)}</div>` : ''}
+        ${preview ? `<div style="font-size: 11px; color: #777;">${escapeHTML(preview)}</div>` : ''}
+      `;
+
+      item.addEventListener('mouseenter', () => {
+        item.style.background = '#f5f5f5';
+      });
+      item.addEventListener('mouseleave', () => {
+        item.style.background = 'white';
+      });
+      item.addEventListener('click', () => {
+        onPickSuggestion?.(suggestion);
+      });
+
+      dropdown.appendChild(item);
+    });
+
+    dropdown.style.display = 'block';
+    return;
   }
 
   if (results.length === 0) {
@@ -492,15 +711,17 @@ function renderResults(dropdown, results, inputElement, onSelect, options = {}) 
     const aiBadge = material._aiSource
       ? '<span style="font-size: 10px; background: #e8f0fe; color: #1a73e8; padding: 1px 6px; border-radius: 8px; margin-left: 6px;">IA</span>'
       : '';
+    const contextLine = buildMaterialContext(material);
 
     item.innerHTML = `
       <div style="display: flex; justify-content: space-between; align-items: center;">
-        <strong style="color: #1351B4;">${material.catmat_id || material.codigo || '-'}${aiBadge}</strong>
-        <span style="font-size: 12px; color: #666;">${material.unidade || 'UN'}</span>
+        <strong style="color: #1351B4;">${escapeHTML(String(material.catmat_id || material.codigo || '-'))}${aiBadge}</strong>
+        <span style="font-size: 12px; color: #666;">${escapeHTML(String(material.unidade || 'UN'))}</span>
       </div>
       <div style="font-size: 13px; color: #333; line-height: 1.4;">
-        ${material.descricao}
+        ${escapeHTML(String(material.descricao || ''))}
       </div>
+      ${contextLine ? `<div style="font-size: 11px; color: #666;">${escapeHTML(contextLine)}</div>` : ''}
       ${material.catmat_sustentavel ? '<span style="font-size: 11px; color: green;">🌿 Sustentável</span>' : ''}
     `;
 
@@ -608,14 +829,21 @@ export function initCatmatAutocomplete(inputElement, onSelect) {
   let currentResults = [];
   let currentTotal = 0;
   let currentAviso = null;
+  let currentMode = 'items';
+  let currentSuggestions = [];
+  let currentCodigoPdm = null;
+  let currentContextoSelecionado = null;
+  let currentDetalharView = false;
 
-  const runSearch = async (query, { append = false } = {}) => {
+  const runSearch = async (query, { append = false, codigoPdm = null, detalhar = false } = {}) => {
     const safeQuery = String(query || '').trim();
     const targetOffset = append ? currentOffset + config.maxResults : 0;
     const result = await searchCatmat(safeQuery, {
       offset: targetOffset,
       limite: config.maxResults,
-      contextKey
+      contextKey,
+      codigoPdm,
+      detalhar
     });
     if (result.descartado || result.abortado) {
       return;
@@ -627,9 +855,14 @@ export function initCatmatAutocomplete(inputElement, onSelect) {
     currentOffset = targetOffset;
     currentTotal = Number(result.total || 0);
     currentAviso = result.aviso || null;
+    currentMode = result.modo || 'items';
+    currentSuggestions = Array.isArray(result.sugestoes) ? result.sugestoes : [];
+    currentCodigoPdm = result.filtros?.codigoPdm || codigoPdm || null;
+    currentContextoSelecionado = result.contextoSelecionado || null;
+    currentDetalharView = result.filtros?.detalhar === true || detalhar === true;
     currentResults = append ? [...currentResults, ...dados] : dados;
 
-    const hasMore = currentTotal > 0 && currentResults.length < currentTotal;
+    const hasMore = currentMode !== 'suggestions' && currentTotal > 0 && currentResults.length < currentTotal;
 
     renderResults(
       dropdown,
@@ -648,11 +881,40 @@ export function initCatmatAutocomplete(inputElement, onSelect) {
       },
       {
         aviso: currentAviso,
+        modo: currentMode,
+        sugestoes: currentSuggestions,
+        contextoSelecionado: currentContextoSelecionado,
+        detalhandoTodosGrupos: currentDetalharView && !currentCodigoPdm,
+        onPickSuggestion: async (suggestion) => {
+          state.selectedSuggestionByContext.set(contextKey, suggestion);
+          state.selectedPdmByContext.set(contextKey, suggestion.codigoPdm || null);
+          await runSearch(currentQuery, {
+            append: false,
+            codigoPdm: suggestion.codigoPdm || null,
+            detalhar: true
+          });
+        },
+        onBackToSuggestions:
+          currentCodigoPdm || currentContextoSelecionado
+            ? async () => {
+                state.selectedSuggestionByContext.delete(contextKey);
+                state.selectedPdmByContext.delete(contextKey);
+                await runSearch(currentQuery, {
+                  append: false,
+                  codigoPdm: null,
+                  detalhar: false
+                });
+              }
+            : null,
         hasMore,
         onLoadMore: hasMore
           ? async () => {
               try {
-                await runSearch(currentQuery, { append: true });
+                await runSearch(currentQuery, {
+                  append: true,
+                  codigoPdm: currentCodigoPdm,
+                  detalhar: currentDetalharView
+                });
               } catch {
                 dropdown.style.display = 'none';
               }
@@ -670,7 +932,15 @@ export function initCatmatAutocomplete(inputElement, onSelect) {
     }
 
     try {
-      await runSearch(safeQuery, { append: false });
+      state.selectedSuggestionByContext.delete(contextKey);
+      state.selectedPdmByContext.delete(contextKey);
+      currentCodigoPdm = null;
+      currentContextoSelecionado = null;
+      await runSearch(safeQuery, {
+        append: false,
+        codigoPdm: null,
+        detalhar: false
+      });
     } catch {
       dropdown.style.display = 'none';
     }

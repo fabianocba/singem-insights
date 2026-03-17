@@ -1,8 +1,8 @@
 const FALLBACK = Object.freeze({
   name: 'SINGEM',
-  version: '1.2.1',
-  build: '',
-  buildTimestamp: ''
+  version: '1.2.2',
+  build: '20260314-2350',
+  buildTimestamp: '2026-03-14T23:50:00.000Z'
 });
 
 function loadMetaSync() {

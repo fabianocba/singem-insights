@@ -49,19 +49,19 @@ class SettingsManager {
     // Oculta aba de Usuários
     const tabUsuarios = document.querySelector('[data-tab="usuarios"]');
     if (tabUsuarios) {
-      tabUsuarios.style.display = 'none';
+      tabUsuarios.classList.add('hidden');
     }
 
     // Oculta aba de Rede
     const tabRede = document.querySelector('[data-tab="rede"]');
     if (tabRede) {
-      tabRede.style.display = 'none';
+      tabRede.classList.add('hidden');
     }
 
     // Oculta aba de Integrações
     const tabIntegracoes = document.querySelector('[data-tab="integracoes"]');
     if (tabIntegracoes) {
-      tabIntegracoes.style.display = 'none';
+      tabIntegracoes.classList.add('hidden');
     }
 
     // Desabilita edição da Unidade Orçamentária
@@ -70,8 +70,7 @@ class SettingsManager {
       const inputs = formUnidade.querySelectorAll('input, select, button[type="submit"]');
       inputs.forEach((input) => {
         input.disabled = true;
-        input.style.cursor = 'not-allowed';
-        input.style.opacity = '0.6';
+        input.classList.add('settings-control--disabled');
       });
 
       // Adiciona mensagem informativa
@@ -89,13 +88,13 @@ class SettingsManager {
     // Oculta botão "Limpar Banco de Dados"
     const btnLimparBanco = document.getElementById('btnLimparBanco');
     if (btnLimparBanco) {
-      btnLimparBanco.style.display = 'none';
+      btnLimparBanco.classList.add('hidden');
     }
 
     // Oculta painel "Zona de Perigo"
     const painelPerigo = btnLimparBanco?.closest('.panel');
     if (painelPerigo) {
-      painelPerigo.style.display = 'none';
+      painelPerigo.classList.add('hidden');
     }
 
     // Desabilita exportar/importar configurações (pode modificar sistema)
@@ -104,7 +103,7 @@ class SettingsManager {
 
     if (btnImportarConfig) {
       btnImportarConfig.disabled = true;
-      btnImportarConfig.style.opacity = '0.5';
+      btnImportarConfig.classList.add('settings-control--disabled');
       btnImportarConfig.title = 'Apenas administradores podem importar configurações';
     }
 

@@ -1,3 +1,5 @@
+import { setFeedback } from './renderUtils.js';
+
 /**
  * ============================================================================
  * SINGEM - Módulo de Backup e Restauração
@@ -326,7 +328,7 @@ class BackupManager {
   _updateDevVisibility() {
     const panelReset = document.getElementById('panelResetarDados');
     if (panelReset) {
-      panelReset.style.display = this.isDevMode ? 'block' : 'none';
+      panelReset.classList.toggle('hidden', !this.isDevMode);
     }
   }
 
@@ -445,8 +447,10 @@ class BackupManager {
     const statusEl = document.getElementById('backupImportStatus');
 
     if (!file) {
-      previewEl.style.display = 'none';
-      btnImportar.disabled = true;
+      previewEl?.classList.add('hidden');
+      if (btnImportar) {
+        btnImportar.disabled = true;
+      }
       this.selectedFile = null;
       this.parsedBackup = null;
       return;
@@ -492,22 +496,26 @@ class BackupManager {
 
       // Mostra preview
       const stats = backup.stats || {};
-      previewContentEl.innerHTML = `
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px;">
-          <div><strong>📅 Data:</strong> ${new Date(backup.meta.exportedAt).toLocaleString('pt-BR')}</div>
-          <div><strong>📦 Versão:</strong> ${backup.meta.appVersion || 'N/A'}</div>
-          <div><strong>🏢 Origem:</strong> ${backup.meta.source || 'N/A'}</div>
-        </div>
-        <hr style="margin: 10px 0; border: none; border-top: 1px solid #ddd;">
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px;">
-          <div>📋 Empenhos: <strong>${stats.empenhos || 0}</strong></div>
-          <div>📄 Notas Fiscais: <strong>${stats.notasFiscais || 0}</strong></div>
-          <div>👥 Usuários: <strong>${stats.usuarios || 0}</strong></div>
-          <div>📦 Entregas: <strong>${stats.entregas || 0}</strong></div>
-          <div>📁 Arquivos: <strong>${stats.arquivos || 0}</strong></div>
-        </div>
-      `;
-      previewEl.style.display = 'block';
+      if (previewContentEl) {
+        previewContentEl.innerHTML = `
+          <div class="settings-backup-preview">
+            <div class="settings-backup-preview__grid">
+              <div class="settings-backup-preview__item"><strong>📅 Data</strong>${new Date(backup.meta.exportedAt).toLocaleString('pt-BR')}</div>
+              <div class="settings-backup-preview__item"><strong>📦 Versão</strong>${backup.meta.appVersion || 'N/A'}</div>
+              <div class="settings-backup-preview__item"><strong>🏢 Origem</strong>${backup.meta.source || 'N/A'}</div>
+            </div>
+            <hr class="settings-backup-divider">
+            <div class="settings-backup-preview__grid settings-backup-preview__grid--stats">
+              <div class="settings-backup-preview__item"><strong>📋 Empenhos</strong>${stats.empenhos || 0}</div>
+              <div class="settings-backup-preview__item"><strong>📄 Notas Fiscais</strong>${stats.notasFiscais || 0}</div>
+              <div class="settings-backup-preview__item"><strong>👥 Usuários</strong>${stats.usuarios || 0}</div>
+              <div class="settings-backup-preview__item"><strong>📦 Entregas</strong>${stats.entregas || 0}</div>
+              <div class="settings-backup-preview__item"><strong>📁 Arquivos</strong>${stats.arquivos || 0}</div>
+            </div>
+          </div>
+        `;
+      }
+      previewEl?.classList.remove('hidden');
 
       // Atualiza estado do botão baseado no modo
       const mode = document.querySelector('input[name="importMode"]:checked')?.value || 'merge';
@@ -517,8 +525,10 @@ class BackupManager {
     } catch (error) {
       console.error('[Backup] ❌ Erro ao ler arquivo:', error);
       this._showStatus(statusEl, 'error', `❌ Erro: ${error.message}`);
-      previewEl.style.display = 'none';
-      btnImportar.disabled = true;
+      previewEl?.classList.add('hidden');
+      if (btnImportar) {
+        btnImportar.disabled = true;
+      }
       this.selectedFile = null;
       this.parsedBackup = null;
     }
@@ -667,13 +677,19 @@ class BackupManager {
     const btnImportar = document.getElementById('btnImportarBackupCompleto');
 
     if (mode === 'replace') {
-      confirmSection.style.display = 'block';
-      confirmInput.value = '';
-      btnImportar.disabled = true;
+      confirmSection?.classList.remove('hidden');
+      if (confirmInput) {
+        confirmInput.value = '';
+      }
+      if (btnImportar) {
+        btnImportar.disabled = true;
+      }
     } else {
-      confirmSection.style.display = 'none';
+      confirmSection?.classList.add('hidden');
       // Habilita se tiver arquivo válido
-      btnImportar.disabled = !this.parsedBackup;
+      if (btnImportar) {
+        btnImportar.disabled = !this.parsedBackup;
+      }
     }
   }
 
@@ -1628,27 +1644,7 @@ class BackupManager {
    * Exibe status na UI
    */
   _showStatus(element, type, message) {
-    if (!element) {
-      return;
-    }
-
-    const colors = {
-      info: { bg: '#e7f3ff', border: '#2196f3', text: '#1565c0' },
-      success: { bg: '#e8f5e9', border: '#4caf50', text: '#2e7d32' },
-      error: { bg: '#ffebee', border: '#f44336', text: '#c62828' },
-      warning: { bg: '#fff3e0', border: '#ff9800', text: '#e65100' }
-    };
-
-    const style = colors[type] || colors.info;
-
-    element.innerHTML = message;
-    element.style.cssText = `
-      padding: 12px;
-      border-radius: 8px;
-      background: ${style.bg};
-      border: 1px solid ${style.border};
-      color: ${style.text};
-    `;
+    setFeedback(element, type, message);
   }
 
   /**

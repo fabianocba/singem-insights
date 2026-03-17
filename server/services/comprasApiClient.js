@@ -2,6 +2,10 @@ const { config } = require('../config');
 
 const TRANSIENT_STATUS = new Set([502, 503, 504]);
 
+// Compras.gov.br às vezes retorna 4xx com erros internos de JPA/Spring (problema no lado deles).
+// Detectamos pelo conteúdo da mensagem de erro para reclassificar como 503 e habilitar retry.
+const JPA_ERROR_PATTERN = /EntityManager|JPA entity|HibernateException|could not open|datasource|transaction.*begin/i;
+
 function toNumber(value, fallback) {
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : fallback;
@@ -49,19 +53,60 @@ function normalizeQueryValue(value) {
 }
 
 function getComprasApiConfig() {
+  const comprasApiCfg = config.comprasApi || {};
+  const comprasGovCfg = config.comprasGov || {};
   const baseUrl = normalizeBaseUrl(
-    process.env.COMPRAS_API_BASE_URL || process.env.COMPRASGOV_BASE_URL || 'https://dadosabertos.compras.gov.br'
+    process.env.COMPRAS_API_BASE_URL ||
+      process.env.COMPRASGOV_BASE_URL ||
+      comprasApiCfg.baseUrl ||
+      comprasGovCfg.baseUrl ||
+      'https://dadosabertos.compras.gov.br'
   );
-  const timeoutMs = Math.max(1000, toNumber(process.env.COMPRAS_API_TIMEOUT_MS || config.comprasApi?.timeoutMs, 15000));
+  const timeoutMs = Math.max(
+    1000,
+    toNumber(
+      process.env.COMPRAS_API_TIMEOUT_MS || process.env.COMPRASGOV_TIMEOUT_MS || comprasApiCfg.timeoutMs || comprasGovCfg.timeoutMs,
+      15000
+    )
+  );
   const maxRetries = Math.max(
     0,
-    Math.min(toNumber(process.env.COMPRAS_API_MAX_RETRIES || config.comprasApi?.maxRetries, 2), 5)
+    Math.min(
+      toNumber(
+        process.env.COMPRAS_API_MAX_RETRIES ||
+          process.env.COMPRASGOV_MAX_RETRIES ||
+          comprasApiCfg.maxRetries ||
+          comprasGovCfg.maxRetries,
+        2
+      ),
+      5
+    )
   );
   const retryBaseDelayMs = Math.max(
     100,
-    toNumber(process.env.COMPRAS_API_RETRY_BASE_DELAY_MS || config.comprasApi?.retryBaseDelayMs, 400)
+    toNumber(
+      process.env.COMPRAS_API_RETRY_BASE_DELAY_MS ||
+        process.env.COMPRASGOV_RETRY_BASE_DELAY_MS ||
+        comprasApiCfg.retryBaseDelayMs ||
+        comprasGovCfg.retryBaseDelayMs,
+      400
+    )
   );
-  const apiToken = String(process.env.COMPRAS_API_TOKEN || process.env.COMPRASGOV_API_TOKEN || '').trim();
+  const apiToken = String(
+    process.env.COMPRAS_API_TOKEN ||
+      process.env.COMPRASGOV_API_TOKEN ||
+      comprasApiCfg.apiToken ||
+      comprasGovCfg.apiToken ||
+      ''
+  ).trim();
+  const acceptHeader =
+    String(
+      process.env.COMPRAS_API_ACCEPT_HEADER ||
+        process.env.COMPRASGOV_ACCEPT_HEADER ||
+        comprasApiCfg.acceptHeader ||
+        comprasGovCfg.acceptHeader ||
+        '*/*'
+    ).trim() || '*/*';
 
   return {
     baseUrl,
@@ -69,7 +114,7 @@ function getComprasApiConfig() {
     maxRetries,
     retryBaseDelayMs,
     apiToken,
-    acceptHeader: '*/*'
+    acceptHeader
   };
 }
 
@@ -110,6 +155,118 @@ function assertAllowedModuloPath(pathname) {
   return safePath;
 }
 
+function appendQueryParams(url, query = {}) {
+  Object.entries(query || {}).forEach(([key, value]) => {
+    if (value === undefined || value === null || value === '') {
+      return;
+    }
+
+    const normalizedValue = normalizeQueryValue(value);
+    if (Array.isArray(normalizedValue)) {
+      normalizedValue.forEach((entry) => {
+        if (entry === undefined || entry === null || entry === '') {
+          return;
+        }
+
+        url.searchParams.append(String(key), String(entry));
+      });
+      return;
+    }
+
+    if (normalizedValue === undefined || normalizedValue === null || normalizedValue === '') {
+      return;
+    }
+
+    url.searchParams.set(String(key), String(normalizedValue));
+  });
+}
+
+function createUpstreamError(payload, response, url, attempt) {
+  const upstreamStatus = Number(response.status || 0);
+  const err = new Error(
+    payload?.message || payload?.erro || `Falha no upstream Compras.gov.br (HTTP ${upstreamStatus})`
+  );
+
+  err.code = 'COMPRAS_UPSTREAM_ERROR';
+  err.statusCode = upstreamStatus;
+  err.upstreamStatus = upstreamStatus;
+  err.details = {
+    url: url.toString(),
+    response: payload,
+    attempt
+  };
+
+  if (upstreamStatus < 500 && JPA_ERROR_PATTERN.test(err.message)) {
+    err.statusCode = 503;
+    err.upstreamStatus = 503;
+  }
+
+  return err;
+}
+
+async function executeGetAttempt(url, { requestId, userAgent, effectiveTimeoutMs, startedAt, attempt }) {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), effectiveTimeoutMs);
+
+  try {
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: buildHeaders({ requestId, userAgent }),
+      signal: controller.signal
+    });
+
+    const rawText = await response.text();
+    const parsed = parseJsonSafe(rawText);
+    const payload = parsed !== null ? parsed : { message: rawText || `HTTP ${response.status}` };
+
+    if (!response.ok) {
+      throw createUpstreamError(payload, response, url, attempt);
+    }
+
+    return {
+      statusCode: Number(response.status || 200),
+      upstreamStatus: Number(response.status || 200),
+      data: payload,
+      latencyMs: Date.now() - startedAt,
+      attempt,
+      baseUrl: getComprasApiConfig().baseUrl,
+      url: url.toString(),
+      timeoutMs: effectiveTimeoutMs
+    };
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
+function normalizeRequestError(error, effectiveTimeoutMs, url) {
+  const statusCode = Number(error?.upstreamStatus || error?.statusCode || 0);
+  const timedOut = error?.name === 'AbortError';
+  const normalizedError = new Error(error?.message || 'Erro de rede ao consultar Compras.gov.br');
+  normalizedError.details = error?.details || null;
+
+  if (timedOut) {
+    normalizedError.code = 'COMPRAS_TIMEOUT';
+    normalizedError.statusCode = 504;
+    normalizedError.upstreamStatus = 504;
+    normalizedError.message = `Timeout ao consultar Compras.gov.br (${effectiveTimeoutMs} ms)`;
+  } else {
+    normalizedError.code = error?.code || 'COMPRAS_NETWORK_ERROR';
+    normalizedError.statusCode = statusCode || 502;
+    normalizedError.upstreamStatus = statusCode || 0;
+  }
+
+  normalizedError.timeoutMs = effectiveTimeoutMs;
+  normalizedError.upstreamUrl = url.toString();
+  normalizedError.errorType = timedOut ? 'timeout' : 'upstream';
+  normalizedError.transient = timedOut || TRANSIENT_STATUS.has(statusCode);
+
+  return normalizedError;
+}
+
+function shouldRetryRequest(error, attempt, maxRetries) {
+  return Boolean(error?.transient && attempt <= maxRetries);
+}
+
 class ComprasApiClient {
   getBaseUrl() {
     return getComprasApiConfig().baseUrl;
@@ -120,105 +277,24 @@ class ComprasApiClient {
     const safePath = assertAllowedModuloPath(pathname);
     const url = new URL(`${cfg.baseUrl}${safePath}`);
     const effectiveTimeoutMs = Math.max(1000, toNumber(timeoutOverrideMs, cfg.timeoutMs));
-
-    Object.entries(query || {}).forEach(([key, value]) => {
-      if (value === undefined || value === null || value === '') {
-        return;
-      }
-
-      const normalizedValue = normalizeQueryValue(value);
-      if (Array.isArray(normalizedValue)) {
-        normalizedValue.forEach((entry) => {
-          if (entry === undefined || entry === null || entry === '') {
-            return;
-          }
-
-          url.searchParams.append(String(key), String(entry));
-        });
-        return;
-      }
-
-      if (normalizedValue === undefined || normalizedValue === null || normalizedValue === '') {
-        return;
-      }
-
-      url.searchParams.set(String(key), String(normalizedValue));
-    });
+    appendQueryParams(url, query);
 
     let lastError = null;
     const startedAt = Date.now();
 
     for (let attempt = 1; attempt <= cfg.maxRetries + 1; attempt++) {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), effectiveTimeoutMs);
-
       try {
-        const response = await fetch(url, {
-          method: 'GET',
-          headers: buildHeaders({ requestId, userAgent }),
-          signal: controller.signal
+        return await executeGetAttempt(url, {
+          requestId,
+          userAgent,
+          effectiveTimeoutMs,
+          startedAt,
+          attempt
         });
-
-        clearTimeout(timeoutId);
-
-        const rawText = await response.text();
-        const parsed = parseJsonSafe(rawText);
-        const payload = parsed !== null ? parsed : { message: rawText || `HTTP ${response.status}` };
-
-        if (!response.ok) {
-          const upstreamStatus = Number(response.status || 0);
-          const err = new Error(
-            payload?.message || payload?.erro || `Falha no upstream Compras.gov.br (HTTP ${upstreamStatus})`
-          );
-          err.code = 'COMPRAS_UPSTREAM_ERROR';
-          err.statusCode = upstreamStatus;
-          err.upstreamStatus = upstreamStatus;
-          err.details = {
-            url: url.toString(),
-            response: payload,
-            attempt
-          };
-          throw err;
-        }
-
-        return {
-          statusCode: Number(response.status || 200),
-          upstreamStatus: Number(response.status || 200),
-          data: payload,
-          latencyMs: Date.now() - startedAt,
-          attempt,
-          baseUrl: cfg.baseUrl,
-          url: url.toString(),
-          timeoutMs: effectiveTimeoutMs
-        };
       } catch (error) {
-        clearTimeout(timeoutId);
+        lastError = normalizeRequestError(error, effectiveTimeoutMs, url);
 
-        const statusCode = Number(error?.upstreamStatus || error?.statusCode || 0);
-        const timedOut = error?.name === 'AbortError';
-        const transient = timedOut || TRANSIENT_STATUS.has(statusCode);
-
-        const normalizedError = new Error(error?.message || 'Erro de rede ao consultar Compras.gov.br');
-        normalizedError.details = error?.details || null;
-
-        if (timedOut) {
-          normalizedError.code = 'COMPRAS_TIMEOUT';
-          normalizedError.statusCode = 504;
-          normalizedError.upstreamStatus = 504;
-          normalizedError.message = `Timeout ao consultar Compras.gov.br (${effectiveTimeoutMs} ms)`;
-        } else {
-          normalizedError.code = error?.code || 'COMPRAS_NETWORK_ERROR';
-          normalizedError.statusCode = statusCode || 502;
-          normalizedError.upstreamStatus = statusCode || 0;
-        }
-
-        normalizedError.timeoutMs = effectiveTimeoutMs;
-        normalizedError.upstreamUrl = url.toString();
-        normalizedError.errorType = timedOut ? 'timeout' : 'upstream';
-
-        lastError = normalizedError;
-
-        if (!transient || attempt > cfg.maxRetries) {
+        if (!shouldRetryRequest(lastError, attempt, cfg.maxRetries)) {
           break;
         }
 

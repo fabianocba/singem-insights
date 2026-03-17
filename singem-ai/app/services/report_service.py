@@ -86,6 +86,11 @@ class ReportService:
         if context_module_norm == "empenhos" or report_key_norm == "relatorio_empenhos":
             return self._generate_empenhos_summary(data)
 
+        # NEW: Especializado para inteligencia de precos (Modulo 3)
+        if (context_module_norm == "precos" or context_module_norm == "inteligencia_precos" or
+            report_key_norm == "relatorio_preco" or report_key_norm == "relatorio_precos"):
+            return self._generate_price_intelligence_summary(data)
+
         numeric_fields: list[tuple[str, float]] = []
         non_null_fields = 0
         for key, value in data.items():
@@ -286,6 +291,136 @@ class ReportService:
             + (0.05 if total_empenhos > 0 else 0.0)
             + (0.03 if ticket_medio > 0 else 0.0)
             + (0.02 if fornecedores_unicos > 0 else 0.0)
+        )
+
+        return (" ".join(resumo_partes), insights[:5], alerts[:4], anomalies[:4], confidence)
+
+    def _generate_price_intelligence_summary(self, data: dict[str, Any]) -> tuple[str, list[str], list[str], list[str], float]:
+        """
+        Especializado para relatorios de inteligencia de precos (Modulo 3 - Precos Praticados).
+        Extrai metricas de preco, volatilidade, fornecedores e regionalizacao.
+        """
+        # Dados de preco
+        preco_medio = self._as_float(data.get("precoMedio"))
+        preco_minimo = self._as_float(data.get("precoMinimo"))
+        preco_maximo = self._as_float(data.get("precoMaximo"))
+        total_registros = self._as_int(data.get("totalRegistros"))
+
+        # Análise de fornecedores
+        fornecedores_unicos = self._as_int(data.get("fornecedoresUnicos"))
+        fornecedor_predominante = str(data.get("fornecedorPredominante", "")).strip()
+
+        # Dados regionais
+        regiao_predominante = str(data.get("regiaoPredominante", "")).strip()
+        estados_cobertos = self._as_int(data.get("estadosCobertos"))
+
+        # Série temporal
+        tendencia = str(data.get("tendencia", "")).strip().lower()  # 'crescente', 'decrescente', 'estavel'
+        variacao_mensal = self._as_float(data.get("variacaoMensal"))
+        variacao_anual = self._as_float(data.get("variacaoAnual"))
+
+        # Modalidades
+        modalidades_distintas = self._as_int(data.get("modalidadesDistintas"))
+
+        # Volatilidade
+        desvio_padrao = self._as_float(data.get("desviopadrao", data.get("desvioPadrao")))
+        coef_variacao = self._as_float(data.get("coefVariacao"))
+
+        if total_registros <= 0:
+            return (
+                "O recorte de inteligencia de precos nao possui registros suficientes para analise.",
+                [],
+                [],
+                [],
+                0.45
+            )
+
+        resumo_partes = [
+            (
+                f"O recorte revela {total_registros} registro(s) de preco com media de {self._format_currency(preco_medio)} "
+                f"e amplitude entre {self._format_currency(preco_minimo)} e {self._format_currency(preco_maximo)}."
+            ),
+            (
+                f"Os precos foram coletados de {fornecedores_unicos} fornecedor(es) distinto(s) "
+                f"em {estados_cobertos} estado(s), distribuidos em {modalidades_distintas} modalidade(s) de compra."
+            )
+        ]
+
+        if fornecedor_predominante:
+            resumo_partes.append(
+                f"O fornecedor predominante responde por registros #{fornecedor_predominante}."
+            )
+
+        if regiao_predominante:
+            resumo_partes.append(f"A regiao predominante nos registros e a {regiao_predominante}.")
+
+        if tendencia in ("crescente", "decrescente", "estavel"):
+            tendencia_label = {
+                "crescente": "crescente",
+                "decrescente": "descendente",
+                "estavel": "estavel"
+            }.get(tendencia, tendencia)
+            resumo_partes.append(
+                f"A tendencia dos precos ao longo do periodo e {tendencia_label}."
+            )
+
+        insights = [
+            f"Preco medio: {self._format_currency(preco_medio)}.",
+            f"Preco minimo: {self._format_currency(preco_minimo)}.",
+            f"Preco maximo: {self._format_currency(preco_maximo)}.",
+            f"Fornecedores unicos: {fornecedores_unicos}.",
+            f"Estados cobertos: {estados_cobertos}."
+        ]
+
+        alerts: list[str] = []
+        if coef_variacao > 50:
+            alerts.append(
+                f"Alta volatilidade de precos detectada (coef. variacao: {self._format_percent(coef_variacao)})."
+            )
+        if preco_maximo > 0 and preco_minimo > 0:
+            amplitude_pct = ((preco_maximo - preco_minimo) / preco_minimo) * 100
+            if amplitude_pct > 100:
+                alerts.append(
+                    f"Amplitude de preco superior a 100% ({self._format_percent(amplitude_pct)})."
+                )
+        if fornecedores_unicos <= 1:
+            alerts.append("Mercado com baixa competitividade: 1 ou menos fornecedores.")
+        if variacao_mensal != 0:
+            var_label = "aumento" if variacao_mensal > 0 else "reducao"
+            alerts.append(
+                f"Variacao mensal detectada: {var_label} de {self._format_percent(abs(variacao_mensal))}."
+            )
+
+        anomalies: list[str] = []
+        if coef_variacao > 75:
+            anomalies.append(
+                f"Volatilidade extrema: coeficiente de variacao {self._format_percent(coef_variacao)}."
+            )
+        if fornecedores_unicos == 1 and total_registros > 10:
+            anomalies.append(
+                f"Mercado monopolizado: unico fornecedor com {total_registros} registros."
+            )
+        if desvio_padrao > 0 and preco_medio > 0:
+            desvio_rel = (desvio_padrao / preco_medio) * 100
+            if desvio_rel > 50:
+                anomalies.append(
+                    f"Desvio padrao elevado em relacao a media: {self._format_percent(desvio_rel)}."
+                )
+
+        non_null_fields = sum(1 for value in data.values() if value is not None)
+        numeric_count = sum(1 for value in data.values() if isinstance(value, (int, float)) and not isinstance(value, bool))
+        confidence = self._confidence_score(
+            total_fields=len(data),
+            non_null_fields=non_null_fields,
+            numeric_count=numeric_count,
+            alerts_count=len(alerts),
+            anomalies_count=len(anomalies)
+        )
+        confidence = clamp_score(
+            confidence
+            + (0.05 if total_registros > 0 else 0.0)
+            + (0.03 if fornecedores_unicos > 1 else 0.0)
+            + (0.02 if estados_cobertos > 1 else 0.0)
         )
 
         return (" ".join(resumo_partes), insights[:5], alerts[:4], anomalies[:4], confidence)

@@ -263,7 +263,7 @@ class SettingsUnidade {
 
     if (preview && img) {
       img.src = base64;
-      preview.style.display = 'block';
+      preview.classList.remove('hidden');
     }
   }
 
@@ -282,7 +282,7 @@ class SettingsUnidade {
       img.src = '';
     }
     if (preview) {
-      preview.style.display = 'none';
+      preview.classList.add('hidden');
     }
   }
 
@@ -431,7 +431,7 @@ class SettingsUnidade {
     if (this.unidades.length === 0) {
       tbody.innerHTML = `
         <tr>
-          <td colspan="6" style="text-align: center; color: #999;">
+          <td colspan="6" class="table-empty-message">
             Nenhuma unidade cadastrada
           </td>
         </tr>
@@ -453,7 +453,7 @@ class SettingsUnidade {
         <td>
           ${
             unidade.logomarca
-              ? `<img src="${unidade.logomarca}" alt="Logo" style="width: 40px; height: 40px; object-fit: contain; border-radius: 4px;">`
+              ? `<img src="${unidade.logomarca}" alt="Logo" class="settings-logo-thumb">`
               : '🏛️'
           }
         </td>
@@ -492,8 +492,8 @@ class SettingsUnidade {
   renderizarUsuariosVinculados(unidadeId, usuarios) {
     if (usuarios.length === 0) {
       return `
-        <div style="display: flex; align-items: center; gap: 8px;">
-          <span style="color: #ff9800; font-size: 12px;">
+        <div class="settings-user-unit">
+          <span class="settings-user-unit__status settings-user-unit__status--unlinked">
             ⚠️ Nenhum usuário vinculado
           </span>
           <button
@@ -515,8 +515,8 @@ class SettingsUnidade {
       .join(', ');
 
     return `
-      <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-        <span style="color: #4caf50; font-size: 12px;">
+      <div class="settings-user-unit">
+        <span class="settings-user-unit__status settings-user-unit__status--linked">
           ✅ ${listaUsuarios}
         </span>
         <button

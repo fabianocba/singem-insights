@@ -10,10 +10,18 @@
 
 const API_CONFIG = {
   // URL base do servidor
-  baseUrl: window.CONFIG?.api?.baseUrl || window.location.origin,
+  baseUrl:
+    window.CONFIG?.api?.baseUrl ||
+    (['localhost', '127.0.0.1'].includes(window.location.hostname)
+      ? 'http://localhost:3000'
+      : window.location.origin),
   timeout: 30000,
-  retries: 3
+  retries: 3,
+  retryBaseDelayMs: 500
 };
+
+const RETRYABLE_METHODS = new Set(['GET', 'HEAD', 'OPTIONS']);
+const RETRYABLE_STATUS = new Set([408, 425, 429, 500, 502, 503, 504]);
 
 const authState = {
   accessToken: null,
@@ -63,6 +71,7 @@ function setStoredUser(user) {
  */
 async function request(endpoint, options = {}) {
   const url = `${API_CONFIG.baseUrl}${endpoint}`;
+  const method = String(options.method || 'GET').toUpperCase();
 
   const headers = {
     'Content-Type': 'application/json',
@@ -76,7 +85,7 @@ async function request(endpoint, options = {}) {
   }
 
   const config = {
-    method: options.method || 'GET',
+    method,
     headers,
     ...options
   };
@@ -121,6 +130,11 @@ async function request(endpoint, options = {}) {
         throw new Error('Sessão expirada. Faça login novamente.');
       }
 
+      if (attempt < API_CONFIG.retries && shouldRetryStatus(response.status, method)) {
+        await sleep(getRetryDelay(attempt));
+        continue;
+      }
+
       return handleResponse(response);
     } catch (err) {
       lastError = err;
@@ -140,6 +154,14 @@ async function request(endpoint, options = {}) {
   }
 
   throw lastError;
+}
+
+function shouldRetryStatus(status, method = 'GET') {
+  return RETRYABLE_METHODS.has(String(method || 'GET').toUpperCase()) && RETRYABLE_STATUS.has(Number(status || 0));
+}
+
+function getRetryDelay(attempt) {
+  return API_CONFIG.retryBaseDelayMs * attempt;
 }
 
 function unwrapSuccessPayload(data) {

@@ -5,7 +5,9 @@ const catmatSearchSchema = {
     q: z.string().min(3),
     limite: toInt(20),
     offset: toInt(0),
-    ativos: z.enum(['true', 'false']).optional().default('true')
+    ativos: z.enum(['true', 'false']).optional().default('true'),
+    codigoPdm: z.string().optional(),
+    detalhar: z.enum(['true', 'false']).optional().default('false')
   })
 };
 

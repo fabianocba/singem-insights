@@ -9,7 +9,9 @@ async function search(query) {
   const result = await catmatRepository.search(query.q, {
     limite: Math.min(Number.parseInt(query.limite, 10) || 20, 100),
     offset: Number.parseInt(query.offset, 10) || 0,
-    apenasAtivos: query.ativos !== 'false'
+    apenasAtivos: query.ativos !== 'false',
+    codigoPdm: query.codigoPdm || undefined,
+    detalhar: query.detalhar === 'true'
   });
 
   return {

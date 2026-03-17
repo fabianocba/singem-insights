@@ -3,9 +3,11 @@ const express = require('express');
 const { requireAdmin } = require('../middleware/auth');
 const validate = require('../middlewares/validate');
 const { ok } = require('../utils/httpResponse');
+const aiCoreServices = require('../services/ai-core');
 const aiCoreClient = require('../services/aiCoreClient');
 const {
   aiSearchSchema,
+  aiCatalogSearchSchema,
   aiSuggestItemSchema,
   aiSuggestFornecedorSchema,
   aiMatchEntitySchema,
@@ -17,14 +19,35 @@ const {
 
 const router = express.Router();
 
+function buildAiContext(req) {
+  return {
+    requestId: req.requestId || null,
+    routeInterna: req.originalUrl || req.url || '/api/ai'
+  };
+}
+
 router.get('/health', async (req, res) => {
-  const result = await aiCoreClient.healthCheck({ requestId: req.requestId });
+  const result = await aiCoreServices.aiCoreService.health(buildAiContext(req));
   return ok(req, res, result);
 });
 
 router.post('/search', validate(aiSearchSchema), async (req, res, next) => {
   try {
-    const result = await aiCoreClient.search(req.body, { requestId: req.requestId });
+    const result = await aiCoreServices.aiCoreService.searchCatalog(req.body, buildAiContext(req));
+    return ok(req, res, result);
+  } catch (error) {
+    return next(error);
+  }
+});
+
+router.post('/catalog/search', validate(aiCatalogSearchSchema), async (req, res, next) => {
+  try {
+    const { query_text: queryText, ...options } = req.body;
+    const result = await aiCoreServices.catalogSearchService.buscarMateriaisComRanking(
+      queryText,
+      options,
+      buildAiContext(req)
+    );
     return ok(req, res, result);
   } catch (error) {
     return next(error);
@@ -33,7 +56,7 @@ router.post('/search', validate(aiSearchSchema), async (req, res, next) => {
 
 router.post('/suggest/item', validate(aiSuggestItemSchema), async (req, res, next) => {
   try {
-    const result = await aiCoreClient.suggestItem(req.body, { requestId: req.requestId });
+    const result = await aiCoreServices.aiCoreService.suggestCatalogItem(req.body, buildAiContext(req));
     return ok(req, res, result);
   } catch (error) {
     return next(error);
@@ -42,7 +65,7 @@ router.post('/suggest/item', validate(aiSuggestItemSchema), async (req, res, nex
 
 router.post('/suggest/fornecedor', validate(aiSuggestFornecedorSchema), async (req, res, next) => {
   try {
-    const result = await aiCoreClient.suggestFornecedor(req.body, { requestId: req.requestId });
+    const result = await aiCoreServices.aiCoreService.suggestSupplier(req.body, buildAiContext(req));
     return ok(req, res, result);
   } catch (error) {
     return next(error);
@@ -51,7 +74,7 @@ router.post('/suggest/fornecedor', validate(aiSuggestFornecedorSchema), async (r
 
 router.post('/match/entity', validate(aiMatchEntitySchema), async (req, res, next) => {
   try {
-    const result = await aiCoreClient.matchEntity(req.body, { requestId: req.requestId });
+    const result = await aiCoreServices.entityMatchService.conciliarEntidade(req.body, buildAiContext(req));
     return ok(req, res, result);
   } catch (error) {
     return next(error);
@@ -60,7 +83,7 @@ router.post('/match/entity', validate(aiMatchEntitySchema), async (req, res, nex
 
 router.post('/report/summary', validate(aiReportSummarySchema), async (req, res, next) => {
   try {
-    const result = await aiCoreClient.reportSummary(req.body, { requestId: req.requestId });
+    const result = await aiCoreServices.reportInsightService.gerarInsight(req.body, buildAiContext(req));
     return ok(req, res, result);
   } catch (error) {
     return next(error);
@@ -83,7 +106,7 @@ router.post('/feedback', validate(aiFeedbackSchema), async (req, res, next) => {
           : null
       }
     };
-    const result = await aiCoreClient.saveFeedback(payload, { requestId: req.requestId });
+    const result = await aiCoreClient.saveFeedback(payload, buildAiContext(req));
     return ok(req, res, result);
   } catch (error) {
     return next(error);
@@ -92,7 +115,7 @@ router.post('/feedback', validate(aiFeedbackSchema), async (req, res, next) => {
 
 router.post('/index/rebuild', requireAdmin, validate(aiReindexSchema), async (req, res, next) => {
   try {
-    const result = await aiCoreClient.rebuildIndex(req.body, { requestId: req.requestId });
+    const result = await aiCoreClient.rebuildIndex(req.body, buildAiContext(req));
     return ok(req, res, result);
   } catch (error) {
     return next(error);
@@ -101,7 +124,7 @@ router.post('/index/rebuild', requireAdmin, validate(aiReindexSchema), async (re
 
 router.post('/index/clear', requireAdmin, validate(aiClearIndexSchema), async (req, res, next) => {
   try {
-    const result = await aiCoreClient.clearIndex(req.body, { requestId: req.requestId });
+    const result = await aiCoreClient.clearIndex(req.body, buildAiContext(req));
     return ok(req, res, result);
   } catch (error) {
     return next(error);

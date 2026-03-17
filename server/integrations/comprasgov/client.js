@@ -6,14 +6,19 @@ const integrationCache = require('../core/integrationCache');
 const { recordApiCall } = require('../core/auditApiCalls');
 
 const runtime = {
-  lastRequestAt: 0
+  lastRequestAt: 0,
+  rateLimitQueue: Promise.resolve()
 };
 
 const DEFAULT_ENDPOINTS = {
   catalogoMaterial: {
-    itens: '/modulo-material/4_consultarItemMaterial',
     grupos: '/modulo-material/1_consultarGrupoMaterial',
-    classes: '/modulo-material/2_consultarClasseMaterial'
+    classes: '/modulo-material/2_consultarClasseMaterial',
+    pdm: '/modulo-material/3_consultarPdmMaterial',
+    itens: '/modulo-material/4_consultarItemMaterial',
+    naturezaDespesa: '/modulo-material/5_consultarMaterialNaturezaDespesa',
+    unidadeFornecimento: '/modulo-material/6_consultarMaterialUnidadeFornecimento',
+    caracteristicas: '/modulo-material/7_consultarMaterialCaracteristicas'
   },
   catalogoServico: {
     itens: '/modulo-servico/6_consultarItemServico',
@@ -22,22 +27,31 @@ const DEFAULT_ENDPOINTS = {
   },
   pesquisaPreco: {
     material: '/modulo-pesquisa-preco/1_consultarMaterial',
-    servico: '/modulo-pesquisa-preco/3_consultarServico'
+    materialDetalhe: '/modulo-pesquisa-preco/2_consultarMaterialDetalhe',
+    servico: '/modulo-pesquisa-preco/3_consultarServico',
+    servicoDetalhe: '/modulo-pesquisa-preco/4_consultarServicoDetalhe'
   },
   uasgOrgao: {
-    consulta: '/modulo-uasg/1_consultarUasg'
+    consulta: '/modulo-uasg/1_consultarUasg',
+    orgao: '/modulo-uasg/2_consultarOrgao'
   },
   fornecedor: {
     consulta: '/modulo-fornecedor/1_consultarFornecedor'
   },
   contratacoes: {
-    consulta: '/modulo-contratacoes/1_consultarContratacoes_PNCP_14133'
+    consulta: '/modulo-contratacoes/1_consultarContratacoes_PNCP_14133',
+    itens: '/modulo-contratacoes/2_consultarItensContratacoes_PNCP_14133',
+    resultadosItens: '/modulo-contratacoes/3_consultarResultadoItensContratacoes_PNCP_14133'
   },
   arp: {
-    consulta: '/modulo-arp/2_consultarARPItem'
+    consulta: '/modulo-arp/1_consultarARP',
+    item: '/modulo-arp/2_consultarARPItem',
+    consultaId: '/modulo-arp/1.1_consultarARP_Id',
+    itemId: '/modulo-arp/2.1_consultarARPItem_Id'
   },
   contratos: {
-    consulta: '/modulo-contratos/1_consultarContratos'
+    consulta: '/modulo-contratos/1_consultarContratos',
+    item: '/modulo-contratos/2_consultarContratosItem'
   },
   legado: {
     licitacoes: '/modulo-legado/1_consultarLicitacao',
@@ -279,8 +293,26 @@ function normalizeResponse({ payload, pagina, tamanhoPagina, endpoint, dominio, 
   };
 }
 
-function buildCacheKey({ domain, pathTemplate, pagina, tamanhoPagina, params }) {
-  return sha1(JSON.stringify({ domain, pathTemplate, pagina, tamanhoPagina, params }));
+function buildCacheKey({
+  domain,
+  pathTemplate,
+  pagina,
+  tamanhoPagina,
+  params,
+  buscarTodasPaginas = false,
+  maxPaginas = 1
+}) {
+  return sha1(
+    JSON.stringify({
+      domain,
+      pathTemplate,
+      pagina,
+      tamanhoPagina,
+      params,
+      buscarTodasPaginas: Boolean(buscarTodasPaginas),
+      maxPaginas: Math.max(1, toNumber(maxPaginas, 1))
+    })
+  );
 }
 
 function getCacheNamespace(domain) {
@@ -340,11 +372,25 @@ async function persistAudit({ user, requestId, acao, status, details }) {
 class ComprasGovClient {
   async waitRateLimit() {
     const cfg = getComprasGovConfig();
-    const elapsed = Date.now() - runtime.lastRequestAt;
-    if (elapsed < cfg.rateLimitMs) {
-      await sleep(cfg.rateLimitMs - elapsed);
+    let releaseQueue = () => {};
+    const previousQueue = runtime.rateLimitQueue.catch(() => {});
+
+    runtime.rateLimitQueue = new Promise((resolve) => {
+      releaseQueue = resolve;
+    });
+
+    await previousQueue;
+
+    try {
+      const elapsed = Date.now() - runtime.lastRequestAt;
+      if (elapsed < cfg.rateLimitMs) {
+        await sleep(cfg.rateLimitMs - elapsed);
+      }
+
+      runtime.lastRequestAt = Date.now();
+    } finally {
+      releaseQueue();
     }
-    runtime.lastRequestAt = Date.now();
   }
 
   async fetchJson({ url, requestId, user, routeInterna, queryParams, cacheHit = false }) {
@@ -462,9 +508,19 @@ class ComprasGovClient {
     const cfg = getComprasGovConfig();
     const pathTemplate = resolveEndpointPath(domain, operation);
     const { pagina: page, tamanhoPagina: pageSize } = clampPagination(pagina, tamanhoPagina);
+    const maxPagesSafe = Math.max(1, Math.min(toNumber(maxPaginas, cfg.maxAutoPages), cfg.maxAutoPages));
 
-    const safeParams = sanitizeParams({ ...params, pagina: page, tamanhoPagina: pageSize });
-    const cacheKey = buildCacheKey({ domain, pathTemplate, pagina: page, tamanhoPagina: pageSize, params: safeParams });
+    const baseParams = sanitizeParams({ ...params, tamanhoPagina: pageSize });
+    const firstPageParams = sanitizeParams({ ...baseParams, pagina: page });
+    const cacheKey = buildCacheKey({
+      domain,
+      pathTemplate,
+      pagina: page,
+      tamanhoPagina: pageSize,
+      params: firstPageParams,
+      buscarTodasPaginas: Boolean(buscarTodasPaginas),
+      maxPaginas: buscarTodasPaginas ? maxPagesSafe : 1
+    });
 
     const cached = this.readCache(domain, cacheKey);
     if (cached) {
@@ -474,7 +530,7 @@ class ComprasGovClient {
         rotaInterna: routeInterna || 'comprasgov',
         endpointExterno: `${cfg.baseUrl}${buildEndpoint(pathTemplate, page)}`,
         metodo: 'GET',
-        queryParams: safeParams,
+        queryParams: firstPageParams,
         statusHttp: 200,
         duracaoMs: 0,
         cacheHit: true
@@ -490,7 +546,7 @@ class ComprasGovClient {
           domain,
           operation,
           endpoint: buildEndpoint(pathTemplate, page),
-          params: safeParams,
+          params: firstPageParams,
           cache: 'hit',
           dataHoraConsulta: nowIso()
         }
@@ -506,7 +562,7 @@ class ComprasGovClient {
 
     if (!buscarTodasPaginas) {
       const endpoint = buildEndpoint(pathTemplate, page);
-      const url = buildUrl(cfg.baseUrl, endpoint, safeParams);
+      const url = buildUrl(cfg.baseUrl, endpoint, firstPageParams);
 
       try {
         const response = await this.fetchJson({
@@ -514,7 +570,7 @@ class ComprasGovClient {
           requestId,
           user,
           routeInterna,
-          queryParams: safeParams,
+          queryParams: firstPageParams,
           cacheHit: false
         });
         const normalized = normalizeResponse({
@@ -538,7 +594,7 @@ class ComprasGovClient {
             domain,
             operation,
             endpoint,
-            params: safeParams,
+            params: firstPageParams,
             status: 200,
             duracaoMs: Date.now() - startedAt,
             cache: 'miss',
@@ -561,7 +617,7 @@ class ComprasGovClient {
             domain,
             operation,
             endpoint,
-            params: safeParams,
+            params: firstPageParams,
             status: Number(error.statusCode || 500),
             duracaoMs: Date.now() - startedAt,
             erro: error.message,
@@ -574,21 +630,21 @@ class ComprasGovClient {
       }
     }
 
-    const maxPagesSafe = Math.max(1, Math.min(toNumber(maxPaginas, cfg.maxAutoPages), cfg.maxAutoPages));
     const acumulado = [];
     let totalRegistros = null;
     let totalPaginas = null;
     let paginasConsumidas = 0;
 
     for (let currentPage = page; paginasConsumidas < maxPagesSafe; currentPage++) {
+      const currentParams = sanitizeParams({ ...baseParams, pagina: currentPage });
       const endpoint = buildEndpoint(pathTemplate, currentPage);
-      const url = buildUrl(cfg.baseUrl, endpoint, safeParams);
+      const url = buildUrl(cfg.baseUrl, endpoint, currentParams);
       const response = await this.fetchJson({
         url,
         requestId,
         user,
         routeInterna,
-        queryParams: safeParams,
+        queryParams: currentParams,
         cacheHit: false
       });
 
@@ -651,7 +707,11 @@ class ComprasGovClient {
         domain,
         operation,
         endpoint: merged.endpoint,
-        params: safeParams,
+        params: {
+          ...firstPageParams,
+          buscarTodasPaginas: true,
+          maxPaginas: maxPagesSafe
+        },
         status: 200,
         duracaoMs: Date.now() - startedAt,
         paginasConsumidas,
@@ -805,5 +865,11 @@ class ComprasGovClient {
 module.exports = {
   ComprasGovClient,
   parseBoolean,
-  sanitizeParams
+  sanitizeParams,
+  __testHooks: {
+    resetRateLimitRuntime() {
+      runtime.lastRequestAt = 0;
+      runtime.rateLimitQueue = Promise.resolve();
+    }
+  }
 };

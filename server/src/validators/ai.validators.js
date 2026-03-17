@@ -2,6 +2,15 @@ const { z } = require('./common');
 
 const entityTypesSchema = z.array(z.string().trim().min(1).max(80)).max(20).optional().default([]);
 const jsonObjectSchema = z.record(z.string(), z.any());
+const optionalScalarStringSchema = z
+  .union([z.string(), z.number()])
+  .optional()
+  .transform((value) => {
+    if (value === undefined || value === null || value === '') {
+      return undefined;
+    }
+    return String(value).trim();
+  });
 
 const searchBodySchema = z
   .object({
@@ -11,6 +20,18 @@ const searchBodySchema = z
     filters: jsonObjectSchema.optional().default({}),
     page: z.coerce.number().int().min(1).max(1000).optional().default(1),
     page_size: z.coerce.number().int().min(1).max(100).optional().default(20)
+  })
+  .passthrough();
+
+const catalogSearchBodySchema = z
+  .object({
+    query_text: z.string().trim().min(1).max(4000),
+    codigoGrupo: optionalScalarStringSchema,
+    codigoClasse: optionalScalarStringSchema,
+    codigoPdm: optionalScalarStringSchema,
+    statusItem: z.string().trim().max(10).optional().default('1'),
+    pagina: z.coerce.number().int().min(1).max(1000).optional().default(1),
+    tamanhoPagina: z.coerce.number().int().min(1).max(100).optional().default(25)
   })
   .passthrough();
 
@@ -114,6 +135,7 @@ const clearIndexBodySchema = z
 
 module.exports = {
   aiSearchSchema: { body: searchBodySchema },
+  aiCatalogSearchSchema: { body: catalogSearchBodySchema },
   aiSuggestItemSchema: { body: suggestItemBodySchema },
   aiSuggestFornecedorSchema: { body: suggestFornecedorBodySchema },
   aiMatchEntitySchema: { body: matchEntityBodySchema },

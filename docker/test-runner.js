@@ -1,3 +1,5 @@
+/* eslint-env node */
+
 /**
  * SINGEM — Integration Test Runner
  * Executa health checks automatizados nos servicos Docker.

@@ -13,23 +13,43 @@
 
     <!-- Sistema de versionamento -->
     <script type="module" src="../js/versionManager.js"></script>
+    <script src="../js/ui/themeBoot.js"></script>
 
     <link rel="stylesheet" href="../css/style.css" />
     <link rel="stylesheet" href="../css/consultas.css" />
+    <link rel="stylesheet" href="../css/tailwind.css" />
   </head>
-  <body>
+  <body data-page="consultas">
     <div class="consultas-container">
       <!-- Cabeçalho -->
       <header class="consultas-header">
-        <h1>🔍 Consulte Compras.gov - Dados Abertos Compras.gov.br</h1>
-        <p>
-          Consulte dados públicos de materiais, serviços, UASG, atas de registro de preços,
-          contratações PNCP e licitações do sistema legado.
-        </p>
+        <div class="sg-page-header-grid">
+          <div>
+            <h1>🔍 Consulte Compras.gov - Dados Abertos Compras.gov.br</h1>
+            <p>
+              Consulte dados públicos de materiais, serviços, UASG, atas de registro de preços,
+              contratações PNCP e licitações do sistema legado.
+            </p>
+          </div>
+          <div class="sg-page-header-actions">
+            <a class="btn btn-outline" href="../index.html">← Voltar ao painel</a>
+            <button type="button" data-theme-toggle aria-label="Alternar tema"></button>
+          </div>
+        </div>
       </header>
 
+      <div
+        id="consultasStandaloneVisualAudit"
+        class="sg-ai-audit-panel hidden"
+        data-ai-visual-audit="consultas"
+        data-ai-audit-root=".consultas-container"
+        data-ai-audit-report-key="frontend_visual_consultas_standalone"
+        data-ai-audit-title="Radar IA da Consulta Standalone"
+        data-ai-audit-label="Consulta externa"
+      ></div>
+
       <!-- Menu de Consultas (Tela Inicial) -->
-      <section id="menuConsultas" class="menu-consultas">
+      <section id="menuConsultas" class="menu-consultas sg-section-shell">
         <div class="welcome-consultas">
           <h2>Selecione o tipo de consulta</h2>
           <p>Escolha abaixo a categoria de dados que deseja consultar</p>
@@ -39,9 +59,10 @@
           <div
             class="menu-item-consulta"
             data-consulta="materiais"
-            onclick="window.abrirConsulta('materiais')"
+            role="button"
+            tabindex="0"
           >
-            <div class="menu-icon-consulta">�</div>
+            <div class="menu-icon-consulta">📦</div>
             <h3>Catálogo de Material</h3>
             <p>Consulte itens do CATMAT por descrição ou código CATMAT</p>
           </div>
@@ -49,7 +70,8 @@
           <div
             class="menu-item-consulta"
             data-consulta="servicos"
-            onclick="window.abrirConsulta('servicos')"
+            role="button"
+            tabindex="0"
           >
             <div class="menu-icon-consulta">🛠️</div>
             <h3>Catálogo de Serviço</h3>
@@ -59,7 +81,8 @@
           <div
             class="menu-item-consulta"
             data-consulta="precos-praticados"
-            onclick="window.abrirConsulta('precos-praticados')"
+            role="button"
+            tabindex="0"
           >
             <div class="menu-icon-consulta">📈</div>
             <h3>Módulo 3 - Preços Praticados (CATMAT/CATSER)</h3>
@@ -69,14 +92,26 @@
           <div
             class="menu-item-consulta"
             data-consulta="uasg"
-            onclick="window.abrirConsulta('uasg')"
+            role="button"
+            tabindex="0"
           >
             <div class="menu-icon-consulta">🏛️</div>
             <h3>Consultar UASG</h3>
-            <p>Busque unidades administrativas por código ou UF</p>
+            <p>Consulte UASG por código, CNPJ do órgão, UF, status e uso SISG</p>
           </div>
 
-          <div class="menu-item-consulta" data-consulta="arp" onclick="window.abrirConsulta('arp')">
+          <div
+            class="menu-item-consulta"
+            data-consulta="fornecedor"
+            role="button"
+            tabindex="0"
+          >
+            <div class="menu-icon-consulta">🏢</div>
+            <h3>Fornecedor</h3>
+            <p>Consulte fornecedores por CNPJ, CPF, natureza jurídica, porte e CNAE</p>
+          </div>
+
+          <div class="menu-item-consulta" data-consulta="arp" role="button" tabindex="0">
             <div class="menu-icon-consulta">📋</div>
             <h3>ARP - Atas de Preços</h3>
             <p>Consulte itens de Atas de Registro de Preços</p>
@@ -85,7 +120,8 @@
           <div
             class="menu-item-consulta"
             data-consulta="pncp"
-            onclick="window.abrirConsulta('pncp')"
+            role="button"
+            tabindex="0"
           >
             <div class="menu-icon-consulta">📑</div>
             <h3>Contratações PNCP</h3>
@@ -95,7 +131,8 @@
           <div
             class="menu-item-consulta"
             data-consulta="legado-licitacoes"
-            onclick="window.abrirConsulta('legado-licitacoes')"
+            role="button"
+            tabindex="0"
           >
             <div class="menu-icon-consulta">📚</div>
             <h3>Licitações (Legado)</h3>
@@ -105,7 +142,8 @@
           <div
             class="menu-item-consulta"
             data-consulta="legado-itens"
-            onclick="window.abrirConsulta('legado-itens')"
+            role="button"
+            tabindex="0"
           >
             <div class="menu-icon-consulta">📄</div>
             <h3>Itens de Licitação (Legado)</h3>
@@ -115,7 +153,7 @@
       </section>
 
       <!-- Tela de Consulta (inicialmente oculta) -->
-      <section id="telaConsulta" class="tela-consulta hidden">
+      <section id="telaConsulta" class="tela-consulta hidden sg-section-shell" aria-hidden="true">
         <!-- Breadcrumb / Voltar -->
         <div class="consulta-nav">
           <button id="btnVoltar" class="btn btn-secondary">◀ Voltar ao Menu</button>
@@ -171,6 +209,7 @@
         <p><small id="app-version">Versão: carregando...</small></p>
       </footer>
     </div>
+    <script type="module" src="../js/ui/pageEnhancer.js"></script>
     <!-- Scripts (módulos ES6) -->
     <script type="module">
       import * as UI from '../js/consultas/uiConsultas.js';

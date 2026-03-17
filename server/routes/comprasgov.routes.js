@@ -48,6 +48,16 @@ router.get('/health', (req, res) => execute(res, req, (request) => comprasGov.he
 router.get('/catmat/itens', (req, res) => execute(res, req, (request) => comprasGov.searchItemMaterial(request)));
 router.get('/catmat/grupos', (req, res) => execute(res, req, (request) => comprasGov.getGruposMaterial(request)));
 router.get('/catmat/classes', (req, res) => execute(res, req, (request) => comprasGov.getClassesMaterial(request)));
+router.get('/catmat/pdm', (req, res) => execute(res, req, (request) => comprasGov.getPdmMaterial(request)));
+router.get('/catmat/natureza-despesa', (req, res) =>
+  execute(res, req, (request) => comprasGov.getMaterialNaturezaDespesa(request))
+);
+router.get('/catmat/unidades-fornecimento', (req, res) =>
+  execute(res, req, (request) => comprasGov.getMaterialUnidadeFornecimento(request))
+);
+router.get('/catmat/caracteristicas', (req, res) =>
+  execute(res, req, (request) => comprasGov.getMaterialCaracteristicas(request))
+);
 
 router.get('/catser/itens', (req, res) => execute(res, req, (request) => comprasGov.searchItemServico(request)));
 router.get('/catser/grupos', (req, res) => execute(res, req, (request) => comprasGov.getGruposServico(request)));
@@ -61,12 +71,24 @@ router.get('/pesquisa-preco/servico', (req, res) =>
 );
 
 router.get('/uasg', (req, res) => execute(res, req, (request) => comprasGov.getUasg(request)));
+router.get('/uasg/orgao', (req, res) => execute(res, req, (request) => comprasGov.getOrgao(request)));
 router.get('/fornecedor', (req, res) => execute(res, req, (request) => comprasGov.getFornecedor(request)));
 router.get('/contratacoes', (req, res) => execute(res, req, (request) => comprasGov.getContratacoes(request)));
+router.get('/contratacoes/itens', (req, res) => execute(res, req, (request) => comprasGov.getContratacoesItens(request)));
+router.get('/contratacoes/resultados-itens', (req, res) =>
+  execute(res, req, (request) => comprasGov.getContratacoesResultadosItens(request))
+);
 router.get('/arp', (req, res) => execute(res, req, (request) => comprasGov.getArp(request)));
 router.get('/contratos', (req, res) => execute(res, req, (request) => comprasGov.getContratos(request)));
+router.get('/contratos/itens', (req, res) => execute(res, req, (request) => comprasGov.getContratosItem(request)));
 router.get('/legado/licitacoes', (req, res) => execute(res, req, (request) => comprasGov.getLegadoLicitacoes(request)));
 router.get('/legado/itens', (req, res) => execute(res, req, (request) => comprasGov.getLegadoItens(request)));
 router.get('/ocds', (req, res) => execute(res, req, (request) => comprasGov.getOcds(request)));
+router.get('/pesquisa-preco/material/detalhe', (req, res) =>
+  execute(res, req, (request) => comprasGov.getPesquisaPrecoMaterialDetalhe(request))
+);
+router.get('/pesquisa-preco/servico/detalhe', (req, res) =>
+  execute(res, req, (request) => comprasGov.getPesquisaPrecoServicoDetalhe(request))
+);
 
 module.exports = router;

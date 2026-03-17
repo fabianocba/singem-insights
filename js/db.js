@@ -1936,8 +1936,35 @@ function applyServerDatabaseAdapter() {
   const manager = window.dbManager;
   manager._serverConfigStore = manager._serverConfigStore || new Map();
 
-  const getApiBase = () => window.CONFIG?.api?.baseUrl || window.location.origin;
+  const getApiBase = () => {
+    if (window.__API_BASE_URL__) {
+      return String(window.__API_BASE_URL__);
+    }
+
+    if (window.CONFIG?.api?.baseUrl) {
+      return String(window.CONFIG.api.baseUrl);
+    }
+
+    if (['localhost', '127.0.0.1'].includes(window.location.hostname)) {
+      return 'http://localhost:3000';
+    }
+
+    return window.location.origin;
+  };
   const getToken = () => window.__SINGEM_AUTH?.accessToken || null;
+  const RETRYABLE_STATUS = new Set([0, 408, 425, 429, 500, 502, 503, 504]);
+  const API_RETRY_CONFIG = Object.freeze({
+    timeoutMs: 15000,
+    maxRetries: 2,
+    retryBaseDelayMs: 350
+  });
+
+  const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+  const isRetriableMethod = (method) => ['GET', 'HEAD', 'OPTIONS'].includes(String(method || 'GET').toUpperCase());
+  const shouldRetryApiError = ({ status = 0, message = '' } = {}) => {
+    const normalizedMessage = String(message || '');
+    return RETRYABLE_STATUS.has(Number(status || 0)) || /timeout|temporari|upstream|failed to fetch|network|conex/i.test(normalizedMessage);
+  };
 
   const normalizeEmpenho = (item = {}) => ({
     ...item,
@@ -1959,28 +1986,79 @@ function applyServerDatabaseAdapter() {
   });
 
   async function apiRequest(path, options = {}) {
-    const token = getToken();
-    const headers = {
-      'Content-Type': 'application/json',
-      ...(options.headers || {})
-    };
+    const method = String(options.method || 'GET').toUpperCase();
+    const retryableMethod = isRetriableMethod(method);
 
-    if (token) {
-      headers.Authorization = `Bearer ${token}`;
+    for (let attempt = 0; attempt <= API_RETRY_CONFIG.maxRetries; attempt += 1) {
+      const token = getToken();
+      const headers = {
+        'Content-Type': 'application/json',
+        ...(options.headers || {})
+      };
+
+      if (token) {
+        headers.Authorization = `Bearer ${token}`;
+      }
+
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), API_RETRY_CONFIG.timeoutMs);
+
+      try {
+        const response = await fetch(`${getApiBase()}${path}`, {
+          method,
+          headers,
+          body: options.body ? JSON.stringify(options.body) : undefined,
+          signal: controller.signal
+        });
+
+        clearTimeout(timeoutId);
+
+        const data = await response.json().catch(() => ({}));
+        if (response.ok) {
+          return data;
+        }
+
+        const error = new Error(data.erro || data.message || `HTTP ${response.status}`);
+        error.status = response.status;
+        error.details = data;
+
+        const canRetry =
+          retryableMethod &&
+          attempt < API_RETRY_CONFIG.maxRetries &&
+          shouldRetryApiError({ status: error.status, message: error.message });
+
+        if (canRetry) {
+          await sleep(API_RETRY_CONFIG.retryBaseDelayMs * 2 ** attempt);
+          continue;
+        }
+
+        throw error;
+      } catch (rawError) {
+        clearTimeout(timeoutId);
+
+        const normalizedError =
+          rawError?.name === 'AbortError'
+            ? Object.assign(new Error(`Timeout ao acessar API (${API_RETRY_CONFIG.timeoutMs} ms)`), { status: 504 })
+            : rawError;
+
+        const canRetry =
+          retryableMethod &&
+          attempt < API_RETRY_CONFIG.maxRetries &&
+          shouldRetryApiError({
+            status: Number(normalizedError?.status || 0),
+            message: normalizedError?.message || ''
+          });
+
+        if (canRetry) {
+          await sleep(API_RETRY_CONFIG.retryBaseDelayMs * 2 ** attempt);
+          continue;
+        }
+
+        throw normalizedError;
+      }
     }
 
-    const response = await fetch(`${getApiBase()}${path}`, {
-      method: options.method || 'GET',
-      headers,
-      body: options.body ? JSON.stringify(options.body) : undefined
-    });
-
-    const data = await response.json().catch(() => ({}));
-    if (!response.ok) {
-      throw new Error(data.erro || data.message || `HTTP ${response.status}`);
-    }
-
-    return data;
+    throw new Error('Falha na comunicacao com a API.');
   }
 
   manager.init = async function initServerMode() {

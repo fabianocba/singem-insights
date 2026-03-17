@@ -11,9 +11,9 @@ param(
   [string]$RepoUrl = 'https://github.com/fabianocba/SINGEM.git',
   [string]$GitRemote = 'origin',
 
-  [string]$SshHost = 'srv1401818.hstgr.cloud',
-  [int]$SshPort = 2222,
-  [string]$SshUser = 'root',
+  [string]$SshHost = $(if (-not [string]::IsNullOrWhiteSpace($env:SINGEM_SSH_HOST)) { $env:SINGEM_SSH_HOST } else { 'srv1401818.hstgr.cloud' }),
+  [int]$SshPort = $(try { if (-not [string]::IsNullOrWhiteSpace($env:SINGEM_SSH_PORT)) { [int]$env:SINGEM_SSH_PORT } else { 2222 } } catch { 2222 }),
+  [string]$SshUser = $(if (-not [string]::IsNullOrWhiteSpace($env:SINGEM_SSH_USER)) { $env:SINGEM_SSH_USER } else { 'root' }),
 
   [int]$DbLocalPort = 5433,
   [int]$DbRemotePort = 5432,
@@ -267,20 +267,68 @@ function Test-LocalPort {
     [int]$TimeoutMs = 1200
   )
 
-  $client = New-Object System.Net.Sockets.TcpClient
+  return Test-TcpEndpoint -TargetHost $TargetHost -Port $Port -TimeoutMs $TimeoutMs
+}
+
+function Test-TcpEndpoint {
+  param(
+    [string]$TargetHost = '127.0.0.1',
+    [int]$Port,
+    [int]$TimeoutMs = 1200,
+    [switch]$PreferIPv4
+  )
+
+  $targets = @($TargetHost)
   try {
-    $async = $client.BeginConnect($TargetHost, $Port, $null, $null)
-    if (-not $async.AsyncWaitHandle.WaitOne($TimeoutMs, $false)) {
-      return $false
+    $resolved = @([System.Net.Dns]::GetHostAddresses($TargetHost))
+    if ($resolved.Count -gt 0) {
+      if ($PreferIPv4) {
+        $resolved = @(
+          $resolved | Sort-Object -Property @{
+            Expression = {
+              if ($_.AddressFamily -eq [System.Net.Sockets.AddressFamily]::InterNetwork) {
+                0
+              } else {
+                1
+              }
+            }
+          }
+        )
+      }
+
+      $targets = @($resolved | ForEach-Object { $_.ToString() })
+    }
+  } catch {
+  }
+
+  $seen = @{}
+  foreach ($target in $targets) {
+    if ([string]::IsNullOrWhiteSpace($target)) {
+      continue
     }
 
-    $client.EndConnect($async)
-    return $true
-  } catch {
-    return $false
-  } finally {
-    $client.Dispose()
+    if ($seen.ContainsKey($target)) {
+      continue
+    }
+    $seen[$target] = $true
+
+    $client = New-Object System.Net.Sockets.TcpClient
+    try {
+      $async = $client.BeginConnect($target, $Port, $null, $null)
+      if (-not $async.AsyncWaitHandle.WaitOne($TimeoutMs, $false)) {
+        continue
+      }
+
+      $client.EndConnect($async)
+      return $true
+    } catch {
+      continue
+    } finally {
+      $client.Dispose()
+    }
   }
+
+  return $false
 }
 
 function Wait-LocalPort {
@@ -298,6 +346,19 @@ function Wait-LocalPort {
   }
 
   return $false
+}
+
+function Test-SshEndpointReachable {
+  param([int]$TimeoutMs = 4000)
+
+  return Test-TcpEndpoint -TargetHost $SshHost -Port $SshPort -TimeoutMs $TimeoutMs -PreferIPv4
+}
+
+function Write-SshEndpointUnavailable {
+  Write-ErrMsg ("Nao foi possivel conectar ao host SSH {0}:{1}." -f $SshHost, $SshPort)
+  Write-Host '    Isso acontece antes da autenticacao; portanto, nenhuma senha sera solicitada.' -ForegroundColor Yellow
+  Write-Host '    Verifique conectividade de rede, VPN, firewall, allowlist de IP e se host/porta SSH estao corretos.' -ForegroundColor Yellow
+  Write-Host '    Alternativa local: suba o PostgreSQL em docker/local e rode o dev-up com -NoTunnel -NoAutoRepairTunnel.' -ForegroundColor Yellow
 }
 
 function Get-PortProcessDetails {
@@ -883,6 +944,16 @@ function Get-BackendRunSpec {
 }
 
 function Get-FrontendRunnerSpec {
+  $localFrontendServer = Join-Path $script:ResolvedProjectRoot 'scripts\serve-dev.cjs'
+
+  if ((Get-Command 'node' -ErrorAction SilentlyContinue) -and (Test-Path -LiteralPath $localFrontendServer)) {
+    return @{
+      command = 'node'
+      args = @($localFrontendServer, '--host', '127.0.0.1', '--port', "$FrontendPort", '--directory', $script:ResolvedProjectRoot)
+      name = 'node'
+    }
+  }
+
   if (Get-Command 'python' -ErrorAction SilentlyContinue) {
     return @{
       command = 'python'
@@ -1122,13 +1193,58 @@ function Get-AiHealthPayload {
   }
 }
 
+function Test-AiProtectedReadiness {
+  param([int]$TimeoutSec = 3)
+
+  $aiConfig = Get-AiRuntimeConfig
+  if (-not $aiConfig.enabled) {
+    return @{ ok = $false; enabled = $false; status = 'disabled' }
+  }
+
+  $probeUrl = ('{0}{1}/search' -f $aiConfig.baseUrl.TrimEnd('/'), $aiConfig.apiPrefix)
+  $headers = @{
+    Accept = 'application/json'
+    'Content-Type' = 'application/json'
+  }
+
+  if (-not [string]::IsNullOrWhiteSpace([string]$aiConfig.internalToken)) {
+    $headers[[string]$aiConfig.internalTokenHeader] = [string]$aiConfig.internalToken
+  }
+
+  $body = @{
+    query_text = 'healthcheck'
+    page = 1
+    page_size = 1
+  } | ConvertTo-Json -Depth 4
+
+  try {
+    $response = Invoke-WebRequest -Uri $probeUrl -Method Post -Headers $headers -Body $body -TimeoutSec $TimeoutSec -SkipHttpErrorCheck
+    $statusCode = [int]$response.StatusCode
+    return @{
+      ok = ($statusCode -ge 200 -and $statusCode -lt 300)
+      statusCode = $statusCode
+      url = $probeUrl
+    }
+  } catch {
+    return @{
+      ok = $false
+      statusCode = 0
+      url = $probeUrl
+      error = $_.Exception.Message
+    }
+  }
+}
+
 function Wait-AiHealthy {
   param([int]$TimeoutSec = 50)
 
   for ($i = 0; $i -lt $TimeoutSec; $i++) {
     $payload = Get-AiHealthPayload -TimeoutSec 3
     if ($payload -and [bool]$payload.ok) {
-      return $payload
+      $protectedProbe = Test-AiProtectedReadiness -TimeoutSec 3
+      if ($protectedProbe -and [bool]$protectedProbe.ok) {
+        return $payload
+      }
     }
 
     Start-Sleep -Seconds 1
@@ -1289,6 +1405,11 @@ function Ensure-TunnelAvailable {
     return @{ ok = $false; reason = 'down' }
   }
 
+  if (-not (Test-SshEndpointReachable)) {
+    Write-SshEndpointUnavailable
+    return @{ ok = $false; reason = 'ssh-unreachable' }
+  }
+
   Write-Step ("Subindo túnel SSH para porta local {0}..." -f $DbLocalPort)
   $window = Start-ComponentWindow -ComponentAction 'tunnel'
   if (-not $window) {
@@ -1296,9 +1417,12 @@ function Ensure-TunnelAvailable {
     return @{ ok = $false; reason = 'spawn-failed' }
   }
 
-  $ready = Wait-LocalPort -Port $DbLocalPort -TimeoutSec 20
+  Write-Step 'Se a autenticacao SSH exigir senha, use a janela do tunel que acabou de abrir.'
+
+  $ready = Wait-LocalPort -Port $DbLocalPort -TimeoutSec 60
   if (-not $ready) {
-    Write-ErrMsg ("Túnel não ficou ativo na porta {0}." -f $DbLocalPort)
+    Write-ErrMsg ("Túnel não ficou ativo na porta {0} dentro do tempo limite." -f $DbLocalPort)
+    Write-Host '    Verifique a janela do tunel para prompts de senha, chave do host ou erros de autenticacao.' -ForegroundColor Yellow
     return @{ ok = $false; reason = 'startup-timeout'; windowPid = $window.Id }
   }
 
@@ -1815,6 +1939,14 @@ function Invoke-UpAction {
 
   $health = Invoke-HealthChecks -TryRepairTunnel:$false
 
+  if ((-not $NoTunnel) -and ([string]$health.databaseStatus -ne 'conectado')) {
+    Write-WarnMsg ("Backend respondeu com status de banco '{0}'. Aguardando estabilizacao..." -f [string]$health.databaseStatus)
+    $backendReadyWithDb = Wait-BackendHealthy -TimeoutSec 20 -RequireDatabaseConnected
+    if ($backendReadyWithDb) {
+      $health = Invoke-HealthChecks -TryRepairTunnel:$false
+    }
+  }
+
   Show-Summary -HealthResult $health -Mode 'up'
 
   if (-not $health.backendPortOk) {
@@ -1848,6 +1980,11 @@ function Invoke-TunnelAction {
   Write-Headline 'SINGEM TUNNEL'
   Validate-Prerequisites
   Initialize-Context
+
+  if (-not (Test-SshEndpointReachable)) {
+    Write-SshEndpointUnavailable
+    exit 1
+  }
 
   $matchingTunnel = @(Get-MatchingSshTunnelProcesses)
   if ((Test-LocalPort -Port $DbLocalPort) -and $matchingTunnel.Count -gt 0) {
@@ -1896,24 +2033,15 @@ function Invoke-TunnelAction {
     )
 
     Write-Step ("Abrindo túnel SSH: 127.0.0.1:{0} -> {1}:{2}" -f $DbLocalPort, $DbRemoteHost, $DbRemotePort)
-    $tunnelProc = Start-Process -FilePath 'ssh.exe' -ArgumentList $sshArgs -NoNewWindow -PassThru
+    Write-Host '    Se solicitado, digite a senha SSH nesta janela.' -ForegroundColor Yellow
 
-    $ready = Wait-LocalPort -Port $DbLocalPort -TimeoutSec 10
-    if ($ready) {
-      Update-Session -Patch @{
-        tunnel = @{
-          status = 'running'
-          processId = $tunnelProc.Id
-          windowPid = $PID
-        }
-      }
-      Write-Ok ("Túnel ativo na porta {0}." -f $DbLocalPort)
-    } else {
-      Write-WarnMsg 'Túnel não abriu a porta local no tempo esperado.'
+    try {
+      & ssh.exe @sshArgs
+      $exitCode = $LASTEXITCODE
+    } catch {
+      $exitCode = if ($LASTEXITCODE -ne $null) { $LASTEXITCODE } else { 1 }
+      Write-WarnMsg ("Falha ao executar ssh.exe: {0}" -f $_.Exception.Message)
     }
-
-    $tunnelProc.WaitForExit()
-    $exitCode = $tunnelProc.ExitCode
 
     Update-Session -Patch @{
       tunnel = @{

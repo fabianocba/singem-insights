@@ -2,7 +2,11 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 
 const AppError = require('../utils/appError');
-const { PriceIntelligenceService, normalizeQueryInput } = require('../services/price-intelligence.service');
+const {
+  PriceIntelligenceService,
+  normalizeQueryInput,
+  normalizePriceItem
+} = require('../services/price-intelligence.service');
 
 const MODULE_CONFIG = {
   maxCodesPerQuery: 10,
@@ -156,6 +160,22 @@ test('normalizeQueryInput exige codigo valido', () => {
     () => normalizeQueryInput({ tipoCatalogo: 'material' }, MODULE_CONFIG),
     (error) => error instanceof AppError && error.code === 'VALIDATION_ERROR'
   );
+});
+
+test('normalizePriceItem interpreta numeros em string sem distorcer decimais', () => {
+  const normalized = normalizePriceItem(
+    buildRawItem({
+      precoUnitario: '12.5',
+      quantidade: '1.250',
+      capacidadeUnidadeFornecimento: '500,5'
+    }),
+    'material',
+    '233420'
+  );
+
+  assert.equal(normalized.precoUnitario, 12.5);
+  assert.equal(normalized.quantidade, 1250);
+  assert.equal(normalized.capacidadeUnidadeFornecimento, 500.5);
 });
 
 test('query consolida resposta e reutiliza cache em memoria', async () => {
@@ -326,3 +346,83 @@ test('exportQuery valida formato permitido', async () => {
     (error) => error instanceof AppError && error.statusCode === 400 && error.code === 'VALIDATION_ERROR'
   );
 });
+
+test('[PATH 2] normalizeQueryInput agora padroa includeRaw=false (otimizacao de payload)', () => {
+  const query = normalizeQueryInput(
+    {
+      tipoCatalogo: 'material',
+      codigos: '233420'
+      // note: sem includeRaw => deve ser false agora
+    },
+    MODULE_CONFIG
+  );
+
+  assert.equal(query.includeRaw, false, 'Padrao deve ser false para payload leve');
+});
+
+test('[PATH 2] normalizeQueryInput respeita includeRaw=true quando passado explicitamente', () => {
+  const queryWithRaw = normalizeQueryInput(
+    {
+      tipoCatalogo: 'material',
+      codigos: '233420',
+      includeRaw: 'true'
+    },
+    MODULE_CONFIG
+  );
+
+  assert.equal(queryWithRaw.includeRaw, true, 'Deve respeitar includeRaw=true explicito');
+
+  const queryWithoutRaw = normalizeQueryInput(
+    {
+      tipoCatalogo: 'material',
+      codigos: '233420',
+      includeRaw: 'false'
+    },
+    MODULE_CONFIG
+  );
+
+  assert.equal(queryWithoutRaw.includeRaw, false, 'Deve respeitar includeRaw=false explicito');
+});
+
+test('[PATH 2] shapeResponse retorna array vazio em rawItems quando includeRaw=false', async () => {
+  const { service } = createServiceHarness({
+    resultsByCode: {
+      233420: [buildRawItem(), buildRawItem({ idCompra: 'COMPRA-002', precoUnitario: 11.0 })]
+    }
+  });
+
+  // Sem includeRaw (padrao false)
+  const response = await service.query({
+    tipoCatalogo: 'material',
+    codigos: '233420',
+    pagina: 1,
+    tamanhoPagina: 10
+    // note: sem includeRaw => false
+  });
+
+  assert.equal(response.rawItems.length, 0, 'rawItems deve estar vazio quando includeRaw=false');
+  assert.ok(response.metrics.totalRegistros > 0, 'Metricas ainda devem ser retornadas');
+  assert.ok(response.suppliers && typeof response.suppliers === 'object', 'Analytics (suppliers) devem estar disponiveis');
+  assert.ok(response.metrics, 'Métricas devem estar disponiveis');
+});
+
+test('[PATH 2] shapeResponse retorna rawItems quando includeRaw=true explicitamente', async () => {
+  const { service } = createServiceHarness({
+    resultsByCode: {
+      233420: [buildRawItem(), buildRawItem({ idCompra: 'COMPRA-002', precoUnitario: 11.0 })]
+    }
+  });
+
+  // Com includeRaw=true explicito
+  const response = await service.query({
+    tipoCatalogo: 'material',
+    codigos: '233420',
+    pagina: 1,
+    tamanhoPagina: 10,
+    includeRaw: 'true'
+  });
+
+  assert.ok(response.rawItems.length > 0, 'rawItems deve estar preenchido quando includeRaw=true');
+  assert.equal(response.query.includeRaw, true);
+});
+

@@ -5,19 +5,29 @@
  */
 
 import * as API from './apiCompras.js';
-import * as Mapeadores from './mapeadores.js';
+// Fornecedor já exportado do mesmo módulo apiCompras.js
 import * as Cache from './cache.js';
-import { isAiAvailable, handleAiAvailabilityError } from '../aiIntegration.js';
+import { isAiAvailable } from '../aiIntegration.js';
 import { escapeHTML as escapeHtmlContent } from '../utils/sanitize.js';
 import apiClient from '../services/apiClient.js';
 import {
   createPriceDashboardState,
-  renderPriceDetailsModalContent,
   renderPriceIntelligenceErrorState,
   renderPriceIntelligenceLoadingState,
   renderPriceIntelligenceResults,
   renderPriceIntelligenceZeroState
 } from './precosPraticadosRenderer.js';
+import { renderGovAnalyticsPanel } from './govAnalyticsRenderer.js';
+import {
+  activatePriceDetailTab,
+  exportConsultaResults,
+  exportGovAnalyticsData,
+  exportPriceIntelligenceData,
+  processConsultaResults,
+  showConsultaJsonModal,
+  showPriceDetailModal
+} from './uiConsultasActions.js';
+import { scheduleVisualAuditRefresh } from '../ui/aiVisualAudit.js';
 
 const AUTO_SEARCH_DEBOUNCE_MS = 650;
 const PRICE_INTELLIGENCE_DATASET = 'precos-praticados';
@@ -34,17 +44,45 @@ const state = {
   results: [],
   rawData: null,
   loading: false,
-  currentView: 'menu', // 'menu' ou 'consulta'
+  currentView: 'menu',
   hasActiveSearch: false,
   lastSearchSignature: null,
+  inFlightSignature: null,
   priceIntelligenceResponse: null,
+  analyticsResponse: null,
   pageRawItems: [],
   priceUiError: null,
-  priceDashboard: createPriceDashboardState()
+  priceDashboard: createPriceDashboardState(),
+  aiResults: null
 };
 
 let debouncedAutoSearch = null;
 let listenersAttached = false;
+
+function getConsultaResultDeps() {
+  return {
+    state,
+    isPriceIntelligenceDataset,
+    isGovAnalyticsDataset,
+    renderPagination,
+    renderTable,
+    saveToLocalStorage,
+    logPriceUi
+  };
+}
+
+function getConsultaActionDeps() {
+  return {
+    state,
+    isPriceIntelligenceDataset,
+    isGovAnalyticsDataset,
+    collectFilters,
+    canSearchWithFilters,
+    setSearchHint,
+    getRequiredHint,
+    datasets: DATASETS
+  };
+}
 
 function isPriceUiDebugEnabled() {
   if (typeof window === 'undefined') {
@@ -65,11 +103,254 @@ function logPriceUi(scope, payload = {}) {
   }
 
   try {
-    // eslint-disable-next-line no-console
     console.log(`[PRICE_UI][${scope}]`, payload);
   } catch {
     // noop
   }
+}
+
+function isPriceIntelligenceDataset(dataset = state.dataset) {
+  return dataset === PRICE_INTELLIGENCE_DATASET;
+}
+
+function isGovAnalyticsDataset(dataset = state.dataset) {
+  return dataset === 'fornecedor' || dataset === 'uasg';
+}
+
+function getDefaultFiltersForDataset(dataset = state.dataset) {
+  if (isPriceIntelligenceDataset(dataset)) {
+    return { tipoCatalogo: 'material' };
+  }
+
+  if (dataset === 'uasg') {
+    return {
+      entity: 'uasg',
+      tipoCatalogo: 'material'
+    };
+  }
+
+  if (dataset === 'fornecedor') {
+    return { tipoCatalogo: 'material' };
+  }
+
+  return {};
+}
+
+function setSearchHint(message = '') {
+  const hint = document.getElementById('consultaHint');
+  if (!hint) {
+    return;
+  }
+
+  hint.textContent = String(message || '').trim();
+}
+
+function sanitizeCodesInput(value) {
+  const source = Array.isArray(value) ? value : String(value || '').split(/[\s,;\n\r]+/);
+  const uniqueCodes = [];
+  const seen = new Set();
+
+  source.forEach((entry) => {
+    const normalized = String(entry || '').replace(/\D/g, '');
+    if (!normalized || seen.has(normalized)) {
+      return;
+    }
+
+    seen.add(normalized);
+    uniqueCodes.push(normalized);
+  });
+
+  return uniqueCodes.join(', ');
+}
+
+function getRequiredHint(config = DATASETS[state.dataset]) {
+  if (isPriceIntelligenceDataset()) {
+    return 'Informe ao menos um código CATMAT/CATSER para gerar o painel de preços.';
+  }
+
+  if (state.dataset === 'fornecedor') {
+    return 'Informe um filtro oficial do fornecedor ou códigos CATMAT/CATSER para cruzamento analítico.';
+  }
+
+  if (state.dataset === 'uasg') {
+    return 'Informe código UASG/órgão, CNPJ, UF, uso SISG ou códigos CATMAT/CATSER.';
+  }
+
+  const requiredFilters = Array.isArray(config?.requiredFilters) ? config.requiredFilters : [];
+  if (!requiredFilters.length) {
+    return 'Informe ao menos um filtro para pesquisar.';
+  }
+
+  const labels = (config?.filters || [])
+    .filter((filter) => requiredFilters.includes(filter.name))
+    .map((filter) => filter.label);
+
+  return `Preencha: ${(labels.length ? labels : requiredFilters).join(', ')}.`;
+}
+
+function canSearchWithFilters(filters = {}, dataset = state.dataset) {
+  const hasValue = (name) => {
+    const value = filters?.[name];
+    return value !== undefined && value !== null && String(value).trim() !== '';
+  };
+
+  if (isPriceIntelligenceDataset(dataset)) {
+    return hasValue('codigos');
+  }
+
+  if (dataset === 'fornecedor') {
+    return (
+      hasValue('cnpj') ||
+      hasValue('cpf') ||
+      hasValue('naturezaJuridicaId') ||
+      hasValue('porteEmpresaId') ||
+      hasValue('codigoCnae') ||
+      hasValue('ativo') ||
+      hasValue('codigos')
+    );
+  }
+
+  if (dataset === 'uasg') {
+    return (
+      hasValue('codigoUasg') ||
+      hasValue('codigoOrgao') ||
+      hasValue('cnpjCpfOrgao') ||
+      hasValue('cnpjCpfOrgaoVinculado') ||
+      hasValue('cnpjCpfOrgaoSuperior') ||
+      hasValue('siglaUf') ||
+      hasValue('usoSisg') ||
+      hasValue('codigos')
+    );
+  }
+
+  const requiredFilters = Array.isArray(DATASETS[dataset]?.requiredFilters) ? DATASETS[dataset].requiredFilters : [];
+  if (requiredFilters.length) {
+    return requiredFilters.every((name) => hasValue(name));
+  }
+
+  return Object.values(filters || {}).some((value) => String(value || '').trim() !== '');
+}
+
+function hasAnyTextFilterTooShort(filters = {}, dataset = state.dataset) {
+  const config = DATASETS[dataset];
+  if (!config?.filters) {
+    return false;
+  }
+
+  const ignoredFields = new Set([
+    'codigoItem',
+    'codigoGrupo',
+    'codigoClasse',
+    'codigoPdm',
+    'codigoUasg',
+    'codigoOrgao',
+    'cnpj',
+    'cpf',
+    'cnpjCpfOrgao',
+    'cnpjCpfOrgaoVinculado',
+    'cnpjCpfOrgaoSuperior',
+    'siglaUf',
+    'estado',
+    'codigoCnae',
+    'naturezaJuridicaId',
+    'porteEmpresaId',
+    'bps',
+    'codigo_ncm',
+    'numeroAtaRegistroPreco',
+    'codigoUnidadeGerenciadora',
+    'codigoModalidadeCompra',
+    'numeroCompra',
+    'niFornecedor',
+    'uasg',
+    'numeroLicitacao',
+    'modalidade',
+    'ano',
+    'mes'
+  ]);
+
+  return config.filters.some((filter) => {
+    if (filter.type !== 'text' || ignoredFields.has(filter.name)) {
+      return false;
+    }
+
+    const value = String(filters?.[filter.name] || '').trim();
+    return value.length > 0 && !shouldAutoSearch(value);
+  });
+}
+
+async function fetchAiSearchHints(queryText, dataset = state.dataset) {
+  try {
+    const available = await isAiAvailable();
+    if (!available) {
+      return null;
+    }
+
+    const entityTypes = dataset === 'fornecedor' ? ['fornecedor'] : ['catmat_item', 'material', 'fornecedor'];
+    return await apiClient.ai.search({
+      query_text: queryText,
+      entity_types: entityTypes,
+      context_module: 'consultas',
+      page: 1,
+      page_size: 5
+    });
+  } catch {
+    return null;
+  }
+}
+
+function stableSerialize(value) {
+  if (Array.isArray(value)) {
+    return `[${value.map((entry) => stableSerialize(entry)).join(',')}]`;
+  }
+
+  if (value && typeof value === 'object') {
+    return `{${Object.keys(value)
+      .sort()
+      .map((key) => `${JSON.stringify(key)}:${stableSerialize(value[key])}`)
+      .join(',')}}`;
+  }
+
+  return JSON.stringify(value);
+}
+
+function createSearchSignature(dataset, params = {}) {
+  return stableSerialize({ dataset, params });
+}
+
+function setFiltersOnForm(filters = {}) {
+  const config = DATASETS[state.dataset];
+  if (!config?.filters) {
+    return;
+  }
+
+  config.filters.forEach((filter) => {
+    const input = document.getElementById(`filter_${filter.name}`);
+    if (!input || filters[filter.name] === undefined || filters[filter.name] === null) {
+      return;
+    }
+
+    input.value = Array.isArray(filters[filter.name]) ? filters[filter.name].join(', ') : String(filters[filter.name]);
+  });
+}
+
+function getCatalogTypeForShortcut(dataset = state.dataset) {
+  if (dataset === 'servicos') {
+    return 'servico';
+  }
+
+  if (dataset === 'materiais') {
+    return 'material';
+  }
+
+  if (dataset === PRICE_INTELLIGENCE_DATASET) {
+    return state.filters.tipoCatalogo || 'material';
+  }
+
+  return null;
+}
+
+function getConsultaAuditScope() {
+  return document.body?.dataset?.page === 'main' ? 'consultasScreen' : 'consultas';
 }
 
 export function normalizeText(str) {
@@ -97,570 +378,582 @@ export function shouldAutoSearch(text) {
   return normalizeText(text).length >= 3;
 }
 
-/**
- * Busca sugestões AI para termos de busca em consultas
- * Exibe card com resultados do índice interno quando disponível
- */
-async function fetchAiSearchHints(query, dataset) {
-  const container = document.getElementById('aiConsultasSuggestion');
-  if (!container) {
-    return;
-  }
-
-  const safeQuery = normalizeText(query);
-  if (safeQuery.length < 3) {
-    container.innerHTML = '';
-    container.classList.add('hidden');
-    return;
-  }
-
-  try {
-    const available = await isAiAvailable();
-    if (!available) {
-      container.innerHTML = '';
-      container.classList.add('hidden');
-      return;
-    }
-
-    const entityTypes =
-      dataset === 'materiais' || dataset === 'servicos'
-        ? ['catmat_item', 'material']
-        : ['catmat_item', 'material', 'fornecedor'];
-
-    const response = await apiClient.ai.search({
-      query_text: query,
-      entity_types: entityTypes,
-      context_module: 'consultas',
-      page: 1,
-      page_size: 3
-    });
-
-    if (!response?.results?.length) {
-      container.innerHTML = '';
-      container.classList.add('hidden');
-      return;
-    }
-
-    const items = response.results
-      .map((r) => {
-        const conf = Math.round((r.score?.final || 0) * 100);
-        const meta = r.metadata || {};
-        const badge =
-          r.entity_type === 'fornecedor' ? 'Fornecedor' : r.entity_type === 'catmat_item' ? 'CATMAT' : 'Material';
-        const code = meta.codigo ? ` (${escapeHtmlContent(String(meta.codigo))})` : '';
-        return `<div class="ai-hint-item" style="padding:6px 8px;border-bottom:1px solid #eee;font-size:13px;">
-        <span style="font-size:10px;background:#e8f0fe;color:#1a73e8;padding:1px 6px;border-radius:8px;">${escapeHtmlContent(badge)}</span>
-        <span style="font-size:10px;color:#888;margin-left:4px;">${conf}%</span>
-        <div style="margin-top:2px;">${escapeHtmlContent(r.title || '')}${code}</div>
-      </div>`;
-      })
-      .join('');
-
-    container.innerHTML = `
-      <div style="border:1px solid #e0e0e0;border-radius:6px;background:#fafbff;margin-top:8px;">
-        <div style="padding:6px 8px;background:#e8f0fe;border-radius:6px 6px 0 0;font-size:11px;font-weight:600;color:#1a73e8;">
-          Sugestões IA
-        </div>
-        ${items}
-      </div>`;
-    container.classList.remove('hidden');
-  } catch (err) {
-    handleAiAvailabilityError(err);
-    container.innerHTML = '';
-    container.classList.add('hidden');
-  }
-}
-
-export function hasAtLeastOneFilter(filtersObject) {
-  return Object.values(filtersObject || {}).some((value) => String(value || '').trim() !== '');
-}
-
-function setSearchHint(message = '') {
-  const hint = document.getElementById('consultaHint');
-  if (!hint) {
-    return;
-  }
-
-  hint.textContent = String(message || '');
-}
-
-function createSearchSignature(dataset, params) {
-  const orderedEntries = Object.entries(params || {}).sort(([a], [b]) => a.localeCompare(b, 'pt-BR'));
-  return `${dataset || 'none'}::${JSON.stringify(orderedEntries)}`;
-}
-
-function hasAnyTextFilterTooShort(filtersObject) {
-  const config = DATASETS[state.dataset];
-  if (!config?.filters) {
-    return false;
-  }
-
-  if (config.autoSearch === false) {
-    return false;
-  }
-
-  return config.filters
-    .filter((filter) => filter.type === 'text')
-    .some((filter) => {
-      const value = filtersObject?.[filter.name];
-      if (!value) {
-        return false;
-      }
-
-      return normalizeText(value).length < 3;
-    });
-}
-
-function isPriceIntelligenceDataset(dataset = state.dataset) {
-  return dataset === PRICE_INTELLIGENCE_DATASET;
-}
-
-function getCatalogTypeForShortcut(dataset = state.dataset) {
-  if (dataset === 'materiais') {
-    return 'material';
-  }
-
-  if (dataset === 'servicos') {
-    return 'servico';
-  }
-
-  return null;
-}
-
-function getRequiredFilters(config, filtersObject = {}) {
-  const required = Array.isArray(config?.requiredFilters) ? config.requiredFilters : [];
-  return required.filter((key) => !String(filtersObject[key] || '').trim());
-}
-
-function sanitizeCodesInput(value) {
-  return String(value || '')
-    .split(/[;,\n\s]+/)
-    .map((entry) => entry.replace(/\D/g, '').trim())
-    .filter(Boolean)
-    .slice(0, 10)
-    .join(', ');
-}
-
-function setFiltersOnForm(filters = {}) {
-  const config = DATASETS[state.dataset];
-  if (!config?.filters) {
-    return;
-  }
-
-  config.filters.forEach((filter) => {
-    if (!Object.prototype.hasOwnProperty.call(filters, filter.name)) {
-      return;
-    }
-
-    const input = document.getElementById(`filter_${filter.name}`);
-    if (!input) {
-      return;
-    }
-
-    input.value = String(filters[filter.name] ?? '');
-  });
-}
-
-function getRequiredHint(config) {
-  if (!Array.isArray(config?.requiredFilters) || config.requiredFilters.length === 0) {
-    return 'Preencha pelo menos um campo para realizar a pesquisa';
-  }
-
-  return `Preencha os campos obrigatórios: ${config.requiredFilters.join(', ')}`;
-}
-
-function canSearchWithFilters(filtersObject) {
-  const config = DATASETS[state.dataset];
-  if (!config) {
-    return false;
-  }
-
-  if (Array.isArray(config.requiredFilters) && config.requiredFilters.length > 0) {
-    return getRequiredFilters(config, filtersObject).length === 0;
-  }
-
-  return hasAtLeastOneFilter(filtersObject);
-}
-
-/**
- * Configuração de datasets disponíveis
- */
 const DATASETS = {
-  materiais: {
-    label: 'Catálogo – Material',
-    apiFunction: API.getMateriais,
-    filters: [
-      {
-        name: 'descricao',
-        label: 'Nome/Descrição do Material',
-        type: 'text',
-        placeholder: 'Ex: papel sulfite'
-      },
-      {
-        name: 'codigoGrupo',
-        label: 'Código do Grupo',
-        type: 'text',
-        placeholder: 'Ex: 1'
-      },
-      {
-        name: 'codigoClasse',
-        label: 'Código da Classe',
-        type: 'text',
-        placeholder: 'Ex: 10'
-      },
-      {
-        name: 'codigoPdm',
-        label: 'Código PDM',
-        type: 'text',
-        placeholder: 'Ex: 123456'
-      },
-      {
-        name: 'status',
-        label: 'Status',
-        type: 'select',
-        options: [
-          { value: '', label: 'Todos' },
-          { value: '1', label: 'Ativo' },
-          { value: '0', label: 'Inativo' }
-        ]
-      }
-    ]
-  },
-  servicos: {
-    label: 'Catálogo – Serviço',
-    apiFunction: API.getServicos,
-    filters: [
-      {
-        name: 'descricao',
-        label: 'Nome/Descrição do Serviço',
-        type: 'text',
-        placeholder: 'Ex: manutenção predial'
-      },
-      {
-        name: 'codigoGrupo',
-        label: 'Código do Grupo',
-        type: 'text',
-        placeholder: 'Ex: 1'
-      },
-      {
-        name: 'codigoClasse',
-        label: 'Código da Classe',
-        type: 'text',
-        placeholder: 'Ex: 10'
-      },
-      {
-        name: 'status',
-        label: 'Status',
-        type: 'select',
-        options: [
-          { value: '', label: 'Todos' },
-          { value: '1', label: 'Ativo' },
-          { value: '0', label: 'Inativo' }
-        ]
-      }
-    ]
-  },
-  'precos-praticados': {
-    label: 'Módulo 3 - Preços Praticados (CATMAT/CATSER)',
-    apiFunction: API.getPrecosPraticados,
-    requiredFilters: ['codigos'],
-    autoSearch: false,
-    supportsBackendExport: true,
-    filters: [
-      {
-        name: 'tipoCatalogo',
-        label: 'Catálogo',
-        type: 'select',
-        options: [
-          { value: 'material', label: 'CATMAT (Material)' },
-          { value: 'servico', label: 'CATSER (Serviço)' }
-        ]
-      },
-      {
-        name: 'codigos',
-        label: 'Códigos CATMAT/CATSER',
-        type: 'text',
-        placeholder: 'Ex: 233420, 233421'
-      },
-      {
-        name: 'periodo',
-        label: 'Período rápido',
-        type: 'select',
-        options: [
-          { value: '', label: 'Sem período rápido' },
-          { value: '30d', label: 'Últimos 30 dias' },
-          { value: '90d', label: 'Últimos 90 dias' },
-          { value: '180d', label: 'Últimos 180 dias' },
-          { value: '12m', label: 'Últimos 12 meses' },
-          { value: 'ano-atual', label: 'Ano atual' }
-        ]
-      },
-      {
-        name: 'dataCompraInicio',
-        label: 'Data inicial',
-        type: 'date',
-        placeholder: ''
-      },
-      {
-        name: 'dataCompraFim',
-        label: 'Data final',
-        type: 'date',
-        placeholder: ''
-      },
-      {
-        name: 'ano',
-        label: 'Ano',
-        type: 'number',
-        placeholder: 'Ex: 2025'
-      },
-      {
-        name: 'mes',
-        label: 'Mês',
-        type: 'select',
-        options: [
-          { value: '', label: 'Todos os meses' },
-          { value: '1', label: '01 - Janeiro' },
-          { value: '2', label: '02 - Fevereiro' },
-          { value: '3', label: '03 - Março' },
-          { value: '4', label: '04 - Abril' },
-          { value: '5', label: '05 - Maio' },
-          { value: '6', label: '06 - Junho' },
-          { value: '7', label: '07 - Julho' },
-          { value: '8', label: '08 - Agosto' },
-          { value: '9', label: '09 - Setembro' },
-          { value: '10', label: '10 - Outubro' },
-          { value: '11', label: '11 - Novembro' },
-          { value: '12', label: '12 - Dezembro' }
-        ]
-      },
-      {
-        name: 'modalidade',
-        label: 'Modalidade',
-        type: 'text',
-        placeholder: 'Ex: pregão, dispensa, concorrência'
-      },
-      {
-        name: 'estado',
-        label: 'Estado (UF)',
-        type: 'text',
-        placeholder: 'Ex: BA',
-        maxLength: 2
-      },
-      {
-        name: 'codigoUasg',
-        label: 'Código UASG',
-        type: 'text',
-        placeholder: 'Ex: 158129'
-      },
-      {
-        name: 'fornecedor',
-        label: 'Fornecedor',
-        type: 'text',
-        placeholder: 'Razão social ou CNPJ'
-      },
-      {
-        name: 'marca',
-        label: 'Marca',
-        type: 'text',
-        placeholder: 'Ex: HP'
-      },
-      {
-        name: 'precoMin',
-        label: 'Preço mínimo',
-        type: 'number',
-        placeholder: 'Ex: 10.50'
-      },
-      {
-        name: 'precoMax',
-        label: 'Preço máximo',
-        type: 'number',
-        placeholder: 'Ex: 200.00'
-      },
-      {
-        name: 'ordenacao',
-        label: 'Ordenação',
-        type: 'select',
-        options: [
-          { value: 'data-desc', label: 'Data mais recente' },
-          { value: 'data-asc', label: 'Data mais antiga' },
-          { value: 'preco-desc', label: 'Maior preço' },
-          { value: 'preco-asc', label: 'Menor preço' },
-          { value: 'fornecedor-asc', label: 'Fornecedor (A-Z)' },
-          { value: 'fornecedor-desc', label: 'Fornecedor (Z-A)' }
-        ]
-      }
-    ]
-  },
-  uasg: {
-    label: 'UASG (Unidades)',
-    apiFunction: API.getUASG,
-    filters: [
-      {
-        name: 'nomeUasg',
-        label: 'Nome da UASG',
-        type: 'text',
-        placeholder: 'Ex: Instituto Federal'
-      },
-      {
-        name: 'nomeOrgao',
-        label: 'Nome do Órgão',
-        type: 'text',
-        placeholder: 'Ex: Ministério da Educação'
-      },
-      {
-        name: 'codigoUasg',
-        label: 'Código UASG',
-        type: 'text',
-        placeholder: 'Ex: 123456'
-      },
-      {
-        name: 'uf',
-        label: 'UF',
-        type: 'text',
-        placeholder: 'Ex: BA',
-        maxLength: 2
-      },
-      {
-        name: 'status',
-        label: 'Status',
-        type: 'select',
-        options: [
-          { value: '', label: 'Todos' },
-          { value: '1', label: 'Ativo' },
-          { value: '0', label: 'Inativo' }
-        ]
-      }
-    ]
-  },
-  arp: {
-    label: 'ARP – Itens (Atas de Registro de Preços)',
-    apiFunction: API.getARP,
-    filters: [
-      {
-        name: 'descricaoItem',
-        label: 'Nome/Descrição do Item',
-        type: 'text',
-        placeholder: 'Ex: toner impressora'
-      },
-      {
-        name: 'fornecedor',
-        label: 'Nome do Fornecedor',
-        type: 'text',
-        placeholder: 'Ex: Comércio LTDA'
-      },
-      {
-        name: 'numeroAta',
-        label: 'Número da Ata',
-        type: 'text',
-        placeholder: 'Ex: 12345'
-      },
-      {
-        name: 'anoAta',
-        label: 'Ano da Ata',
-        type: 'text',
-        placeholder: 'Ex: 2025'
-      },
-      {
-        name: 'orgao',
-        label: 'Código do Órgão',
-        type: 'text',
-        placeholder: 'Ex: 26000'
-      },
-      {
-        name: 'codigoItem',
-        label: 'Código do Item',
-        type: 'text',
-        placeholder: 'Ex: 123'
-      }
-    ]
-  },
-  pncp: {
-    label: 'Contratações – PNCP/Lei 14.133',
-    apiFunction: API.getPNCP,
-    filters: [
-      {
-        name: 'objeto',
-        label: 'Nome/Objeto da Contratação',
-        type: 'text',
-        placeholder: 'Ex: aquisição de notebooks'
-      },
-      {
-        name: 'cnpjOrgao',
-        label: 'CNPJ do Órgão',
-        type: 'text',
-        placeholder: 'Ex: 12345678000190'
-      },
-      { name: 'ano', label: 'Ano', type: 'text', placeholder: 'Ex: 2025' },
-      {
-        name: 'modalidade',
-        label: 'Modalidade',
-        type: 'text',
-        placeholder: 'Ex: pregao_eletronico'
-      },
-      {
-        name: 'situacao',
-        label: 'Situação',
-        type: 'text',
-        placeholder: 'Ex: em_andamento'
-      }
-    ]
-  },
-  'legado-licitacoes': {
-    label: 'Legado – Licitações (Sistema Antigo)',
-    apiFunction: API.getLegadoLicitacoes,
-    filters: [
-      {
-        name: 'objeto',
-        label: 'Nome/Objeto da Licitação',
-        type: 'text',
-        placeholder: 'Ex: material de expediente'
-      },
-      {
-        name: 'uasg',
-        label: 'Código UASG',
-        type: 'text',
-        placeholder: 'Ex: 123456'
-      },
-      {
-        name: 'modalidade',
-        label: 'Modalidade',
-        type: 'text',
-        placeholder: 'Ex: 1 (Pregão)'
-      },
-      { name: 'ano', label: 'Ano', type: 'text', placeholder: 'Ex: 2024' }
-    ]
-  },
-  'legado-itens': {
-    label: 'Legado – Itens de Licitação',
-    apiFunction: API.getLegadoItens,
-    filters: [
-      {
-        name: 'descricao',
-        label: 'Nome/Descrição do Item',
-        type: 'text',
-        placeholder: 'Ex: caneta esferográfica'
-      },
-      {
-        name: 'uasg',
-        label: 'Código UASG',
-        type: 'text',
-        placeholder: 'Ex: 123456'
-      },
-      {
-        name: 'modalidade',
-        label: 'Modalidade',
-        type: 'text',
-        placeholder: 'Ex: 1'
-      },
-      {
-        name: 'numeroLicitacao',
-        label: 'Número da Licitação',
-        type: 'text',
-        placeholder: 'Ex: 12345'
-      }
-    ]
-  }
-};
+    materiais: {
+      label: 'Catálogo – Material',
+      apiFunction: API.getMateriais,
+      filters: [
+        {
+          name: 'codigoItem',
+          label: 'Código CATMAT',
+          type: 'text',
+          placeholder: 'Ex: 233420'
+        },
+        {
+          name: 'descricaoItem',
+          label: 'Descrição do Material',
+          type: 'text',
+          placeholder: 'Ex: papel sulfite'
+        },
+        {
+          name: 'codigoGrupo',
+          label: 'Código do Grupo',
+          type: 'text',
+          placeholder: 'Ex: 1'
+        },
+        {
+          name: 'codigoClasse',
+          label: 'Código da Classe',
+          type: 'text',
+          placeholder: 'Ex: 10'
+        },
+        {
+          name: 'codigoPdm',
+          label: 'Código PDM',
+          type: 'text',
+          placeholder: 'Ex: 123456'
+        },
+        {
+          name: 'statusItem',
+          label: 'Status',
+          type: 'select',
+          options: [
+            { value: '', label: 'Todos' },
+            { value: '1', label: 'Ativo' },
+            { value: '0', label: 'Inativo' }
+          ]
+        },
+        {
+          name: 'bps',
+          label: 'BPS',
+          type: 'text',
+          placeholder: 'Ex: 123456'
+        },
+        {
+          name: 'codigo_ncm',
+          label: 'Código NCM',
+          type: 'text',
+          placeholder: 'Ex: 48025610'
+        }
+      ]
+    },
+    servicos: {
+      label: 'Catálogo – Serviço',
+      apiFunction: API.getServicos,
+      filters: [
+        {
+          name: 'descricaoItem',
+          label: 'Descrição do Serviço',
+          type: 'text',
+          placeholder: 'Ex: manutenção predial'
+        },
+        {
+          name: 'codigoGrupo',
+          label: 'Código do Grupo',
+          type: 'text',
+          placeholder: 'Ex: 1'
+        },
+        {
+          name: 'codigoClasse',
+          label: 'Código da Classe',
+          type: 'text',
+          placeholder: 'Ex: 10'
+        },
+        {
+          name: 'statusItem',
+          label: 'Status',
+          type: 'select',
+          options: [
+            { value: '', label: 'Todos' },
+            { value: '1', label: 'Ativo' },
+            { value: '0', label: 'Inativo' }
+          ]
+        }
+      ]
+    },
+    'precos-praticados': {
+      label: 'Módulo 3 - Preços Praticados (CATMAT/CATSER)',
+      apiFunction: API.getPrecosPraticados,
+      requiredFilters: ['codigos'],
+      autoSearch: false,
+      supportsBackendExport: true,
+      filters: [
+        {
+          name: 'tipoCatalogo',
+          label: 'Catálogo',
+          type: 'select',
+          options: [
+            { value: 'material', label: 'CATMAT (Material)' },
+            { value: 'servico', label: 'CATSER (Serviço)' }
+          ]
+        },
+        {
+          name: 'codigos',
+          label: 'Códigos CATMAT/CATSER',
+          type: 'text',
+          placeholder: 'Ex: 233420, 233421'
+        },
+        {
+          name: 'periodo',
+          label: 'Período rápido',
+          type: 'select',
+          options: [
+            { value: '', label: 'Sem período rápido' },
+            { value: '30d', label: 'Últimos 30 dias' },
+            { value: '90d', label: 'Últimos 90 dias' },
+            { value: '180d', label: 'Últimos 180 dias' },
+            { value: '12m', label: 'Últimos 12 meses' },
+            { value: 'ano-atual', label: 'Ano atual' }
+          ]
+        },
+        {
+          name: 'dataCompraInicio',
+          label: 'Data inicial',
+          type: 'date',
+          placeholder: ''
+        },
+        {
+          name: 'dataCompraFim',
+          label: 'Data final',
+          type: 'date',
+          placeholder: ''
+        },
+        {
+          name: 'ano',
+          label: 'Ano',
+          type: 'number',
+          placeholder: 'Ex: 2025'
+        },
+        {
+          name: 'mes',
+          label: 'Mês',
+          type: 'select',
+          options: [
+            { value: '', label: 'Todos os meses' },
+            { value: '1', label: '01 - Janeiro' },
+            { value: '2', label: '02 - Fevereiro' },
+            { value: '3', label: '03 - Março' },
+            { value: '4', label: '04 - Abril' },
+            { value: '5', label: '05 - Maio' },
+            { value: '6', label: '06 - Junho' },
+            { value: '7', label: '07 - Julho' },
+            { value: '8', label: '08 - Agosto' },
+            { value: '9', label: '09 - Setembro' },
+            { value: '10', label: '10 - Outubro' },
+            { value: '11', label: '11 - Novembro' },
+            { value: '12', label: '12 - Dezembro' }
+          ]
+        },
+        {
+          name: 'modalidade',
+          label: 'Modalidade',
+          type: 'text',
+          placeholder: 'Ex: pregão, dispensa, concorrência'
+        },
+        {
+          name: 'estado',
+          label: 'Estado (UF)',
+          type: 'text',
+          placeholder: 'Ex: BA',
+          maxLength: 2
+        },
+        {
+          name: 'codigoUasg',
+          label: 'Código UASG',
+          type: 'text',
+          placeholder: 'Ex: 158129'
+        },
+        {
+          name: 'fornecedor',
+          label: 'Fornecedor',
+          type: 'text',
+          placeholder: 'Razão social ou CNPJ'
+        },
+        {
+          name: 'marca',
+          label: 'Marca',
+          type: 'text',
+          placeholder: 'Ex: HP'
+        },
+        {
+          name: 'precoMin',
+          label: 'Preço mínimo',
+          type: 'number',
+          placeholder: 'Ex: 10.50'
+        },
+        {
+          name: 'precoMax',
+          label: 'Preço máximo',
+          type: 'number',
+          placeholder: 'Ex: 200.00'
+        },
+        {
+          name: 'ordenacao',
+          label: 'Ordenação',
+          type: 'select',
+          options: [
+            { value: 'data-desc', label: 'Data mais recente' },
+            { value: 'data-asc', label: 'Data mais antiga' },
+            { value: 'preco-desc', label: 'Maior preço' },
+            { value: 'preco-asc', label: 'Menor preço' },
+            { value: 'fornecedor-asc', label: 'Fornecedor (A-Z)' },
+            { value: 'fornecedor-desc', label: 'Fornecedor (Z-A)' }
+          ]
+        }
+      ]
+    },
+    uasg: {
+      label: '05 - UASG',
+      apiFunction: API.getUASG,
+      supportsBackendExport: true,
+      backendHint: 'Use filtros oficiais de UASG/órgão. Códigos CATMAT/CATSER ativam o cruzamento com preços praticados.',
+      columns: [
+        { label: 'Código UASG', key: 'codigo' },
+        { label: 'Nome UASG', key: 'descricao' },
+        { label: 'Órgão', key: 'orgao' },
+        { label: 'UF', key: 'unidade' },
+        { label: 'Status', key: 'status' },
+        { label: 'Uso SISG', key: 'usoSisg' }
+      ],
+      filters: [
+        {
+          name: 'entity',
+          label: 'Entidade',
+          type: 'select',
+          options: [
+            { value: 'uasg', label: 'UASG' },
+            { value: 'orgao', label: 'Órgão' }
+          ]
+        },
+        {
+          name: 'codigoUasg',
+          label: 'Código UASG',
+          type: 'text',
+          placeholder: 'Ex: 158129'
+        },
+        {
+          name: 'codigoOrgao',
+          label: 'Código do Órgão',
+          type: 'text',
+          placeholder: 'Ex: 26232'
+        },
+        {
+          name: 'cnpjCpfOrgao',
+          label: 'CNPJ do Órgão',
+          type: 'text',
+          placeholder: 'Ex: 10773122000176'
+        },
+        {
+          name: 'cnpjCpfOrgaoVinculado',
+          label: 'CNPJ Órgão Vinculado',
+          type: 'text',
+          placeholder: 'Ex: 10773122000176'
+        },
+        {
+          name: 'cnpjCpfOrgaoSuperior',
+          label: 'CNPJ Órgão Superior',
+          type: 'text',
+          placeholder: 'Ex: 00394445000108'
+        },
+        {
+          name: 'siglaUf',
+          label: 'UF',
+          type: 'text',
+          placeholder: 'Ex: BA',
+          maxLength: 2
+        },
+        {
+          name: 'statusUasg',
+          label: 'Status UASG',
+          type: 'select',
+          options: [
+            { value: '', label: 'Todos' },
+            { value: 'true', label: 'Ativa' },
+            { value: 'false', label: 'Inativa' }
+          ]
+        },
+        {
+          name: 'statusOrgao',
+          label: 'Status Órgão',
+          type: 'select',
+          options: [
+            { value: '', label: 'Todos' },
+            { value: 'true', label: 'Ativo' },
+            { value: 'false', label: 'Inativo' }
+          ]
+        },
+        {
+          name: 'usoSisg',
+          label: 'Uso SISG',
+          type: 'select',
+          options: [
+            { value: '', label: 'Todos' },
+            { value: 'true', label: 'Sim' },
+            { value: 'false', label: 'Não' }
+          ]
+        },
+        {
+          name: 'tipoCatalogo',
+          label: 'Catálogo p/ cruzamento',
+          type: 'select',
+          options: [
+            { value: 'material', label: 'CATMAT (Material)' },
+            { value: 'servico', label: 'CATSER (Serviço)' }
+          ]
+        },
+        {
+          name: 'codigos',
+          label: 'Códigos CATMAT/CATSER',
+          type: 'text',
+          placeholder: 'Ex: 233420, 302295'
+        }
+      ]
+    },
+    fornecedor: {
+      label: '10 - Fornecedor',
+      apiFunction: API.getFornecedor,
+      supportsBackendExport: true,
+      backendHint: 'Use filtros oficiais do fornecedor. Para busca aproximada por nome, informe também códigos CATMAT/CATSER para cruzamento analítico.',
+      columns: [
+        { label: 'CNPJ/CPF', key: 'codigo' },
+        { label: 'Nome', key: 'descricao' },
+        { label: 'Natureza Jurídica', key: 'naturezaJuridica' },
+        { label: 'Porte', key: 'porte' },
+        { label: 'CNAE', key: 'codigoCnae' },
+        { label: 'Status', key: 'status' }
+      ],
+      filters: [
+        {
+          name: 'cnpj',
+          label: 'CNPJ',
+          type: 'text',
+          placeholder: 'Ex: 10773122000176'
+        },
+        {
+          name: 'cpf',
+          label: 'CPF',
+          type: 'text',
+          placeholder: 'Ex: 12345678901'
+        },
+        {
+          name: 'nomeFornecedor',
+          label: 'Nome do Fornecedor',
+          type: 'text',
+          placeholder: 'Ex: Papelaria Bahia Ltda'
+        },
+        {
+          name: 'naturezaJuridicaId',
+          label: 'Natureza Jurídica',
+          type: 'text',
+          placeholder: 'Ex: 2062'
+        },
+        {
+          name: 'porteEmpresaId',
+          label: 'Porte',
+          type: 'text',
+          placeholder: 'Ex: 3'
+        },
+        {
+          name: 'codigoCnae',
+          label: 'CNAE',
+          type: 'text',
+          placeholder: 'Ex: 4751201'
+        },
+        {
+          name: 'ativo',
+          label: 'Ativo',
+          type: 'select',
+          options: [
+            { value: '', label: 'Todos' },
+            { value: 'true', label: 'Sim' },
+            { value: 'false', label: 'Não' }
+          ]
+        },
+        {
+          name: 'codigoUasg',
+          label: 'Código UASG relacionado',
+          type: 'text',
+          placeholder: 'Ex: 158129'
+        },
+        {
+          name: 'estado',
+          label: 'UF relacionada',
+          type: 'text',
+          placeholder: 'Ex: BA',
+          maxLength: 2
+        },
+        {
+          name: 'tipoCatalogo',
+          label: 'Catálogo p/ cruzamento',
+          type: 'select',
+          options: [
+            { value: 'material', label: 'CATMAT (Material)' },
+            { value: 'servico', label: 'CATSER (Serviço)' }
+          ]
+        },
+        {
+          name: 'codigos',
+          label: 'Códigos CATMAT/CATSER',
+          type: 'text',
+          placeholder: 'Ex: 233420, 302295'
+        }
+      ]
+    },
+    arp: {
+      label: 'ARP – Itens (Atas de Registro de Preços)',
+      apiFunction: API.getARP,
+      requiredFilters: ['dataVigenciaInicial', 'dataVigenciaFinal'],
+      filters: [
+        {
+          name: 'dataVigenciaInicial',
+          label: 'Vigência inicial',
+          type: 'date',
+          placeholder: ''
+        },
+        {
+          name: 'dataVigenciaFinal',
+          label: 'Vigência final',
+          type: 'date',
+          placeholder: ''
+        },
+        {
+          name: 'numeroAtaRegistroPreco',
+          label: 'Número da Ata',
+          type: 'text',
+          placeholder: 'Ex: 15/2025'
+        },
+        {
+          name: 'codigoUnidadeGerenciadora',
+          label: 'Código da Unidade Gerenciadora',
+          type: 'text',
+          placeholder: 'Ex: 158129'
+        },
+        {
+          name: 'codigoModalidadeCompra',
+          label: 'Modalidade da Compra',
+          type: 'text',
+          placeholder: 'Ex: 5'
+        },
+        {
+          name: 'codigoItem',
+          label: 'Código do Item',
+          type: 'text',
+          placeholder: 'Ex: 233420'
+        },
+        {
+          name: 'codigoPdm',
+          label: 'Código PDM',
+          type: 'text',
+          placeholder: 'Ex: 123456'
+        },
+        {
+          name: 'niFornecedor',
+          label: 'CNPJ do Fornecedor',
+          type: 'text',
+          placeholder: 'Ex: 10773122000176'
+        },
+        {
+          name: 'numeroCompra',
+          label: 'Número da Compra',
+          type: 'text',
+          placeholder: 'Ex: 00015/2025'
+        }
+      ]
+    },
+    pncp: {
+      label: 'Contratações – PNCP/Lei 14.133',
+      apiFunction: API.getPNCP,
+      filters: [
+        {
+          name: 'objeto',
+          label: 'Nome/Objeto da Contratação',
+          type: 'text',
+          placeholder: 'Ex: aquisição de notebooks'
+        },
+        {
+          name: 'cnpjOrgao',
+          label: 'CNPJ do Órgão',
+          type: 'text',
+          placeholder: 'Ex: 12345678000190'
+        },
+        { name: 'ano', label: 'Ano', type: 'text', placeholder: 'Ex: 2025' },
+        {
+          name: 'modalidade',
+          label: 'Modalidade',
+          type: 'text',
+          placeholder: 'Ex: pregao_eletronico'
+        },
+        {
+          name: 'situacao',
+          label: 'Situação',
+          type: 'text',
+          placeholder: 'Ex: em_andamento'
+        }
+      ]
+    },
+    'legado-licitacoes': {
+      label: 'Legado – Licitações (Sistema Antigo)',
+      apiFunction: API.getLegadoLicitacoes,
+      requiredFilters: ['data_publicacao_inicial', 'data_publicacao_final'],
+      filters: [
+        {
+          name: 'data_publicacao_inicial',
+          label: 'Data publicação inicial',
+          type: 'date',
+          placeholder: ''
+        },
+        {
+          name: 'data_publicacao_final',
+          label: 'Data publicação final',
+          type: 'date',
+          placeholder: ''
+        },
+        {
+          name: 'uasg',
+          label: 'Código UASG',
+          type: 'text',
+          placeholder: 'Ex: 123456'
+        },
+        {
+          name: 'modalidade',
+          label: 'Modalidade',
+          type: 'text',
+          placeholder: 'Ex: 1 (Pregão)'
+        }
+      ]
+    },
+    'legado-itens': {
+      label: 'Legado – Itens de Licitação',
+      apiFunction: API.getLegadoItens,
+      requiredFilters: ['modalidade'],
+      filters: [
+        {
+          name: 'modalidade',
+          label: 'Modalidade',
+          type: 'text',
+          placeholder: 'Ex: 1'
+        },
+        {
+          name: 'uasg',
+          label: 'Código UASG',
+          type: 'text',
+          placeholder: 'Ex: 123456'
+        },
+        {
+          name: 'numeroLicitacao',
+          label: 'Número da Licitação',
+          type: 'text',
+          placeholder: 'Ex: 12345'
+        },
+        {
+          name: 'descricao',
+          label: 'Nome/Descrição do Item',
+          type: 'text',
+          placeholder: 'Ex: caneta esferográfica'
+        }
+      ]
+    }
+  };
 
 /**
  * Inicializa a interface
@@ -682,7 +975,7 @@ export function init() {
   attachEventListeners();
   setupAPIModeToggle();
   updateAPIModeUI();
-  showMenu(); // Mostra menu inicial
+  showMenu();
   loadFromLocalStorage();
 
   console.log('✅ Módulo Consulte Compras.gov inicializado!');
@@ -714,9 +1007,8 @@ function updateAPIModeUI() {
 }
 
 /**
- * Adiciona event listeners diretos nos cards
- * DESABILITADA - Estava causando conflito ao clonar elementos
- * Os cards agora usam onclick inline diretamente
+ * Implementação legada preservada apenas como referência histórica.
+ * O menu ativo usa delegação de eventos em attachEventListeners().
  */
 /*
 function addCardListeners() {
@@ -757,7 +1049,8 @@ export function showMenu() {
   const tela = document.getElementById('telaConsulta');
 
   if (menu) {
-    menu.style.display = 'block';
+    menu.classList.remove('hidden');
+    menu.setAttribute('aria-hidden', 'false');
     console.log('✅ Menu exibido');
   } else {
     console.error('❌ Elemento menuConsultas não encontrado!');
@@ -765,6 +1058,7 @@ export function showMenu() {
 
   if (tela) {
     tela.classList.add('hidden');
+    tela.setAttribute('aria-hidden', 'true');
     console.log('✅ Tela de consulta ocultada');
   } else {
     console.error('❌ Elemento telaConsulta não encontrado!');
@@ -777,14 +1071,17 @@ export function showMenu() {
   state.currentPage = 1;
   state.hasActiveSearch = false;
   state.lastSearchSignature = null;
+  state.inFlightSignature = null;
+  state.rawData = null;
   state.priceIntelligenceResponse = null;
+  state.analyticsResponse = null;
   state.pageRawItems = [];
   state.priceUiError = null;
   state.priceDashboard = createPriceDashboardState();
+  state.aiResults = null;
 
   console.log('✅ Estado resetado para menu');
-
-  // Não precisa mais re-adicionar listeners pois usamos onclick inline
+  scheduleVisualAuditRefresh(getConsultaAuditScope());
 }
 
 /**
@@ -814,17 +1111,21 @@ export function showConsulta(dataset) {
   // Atualiza estado
   state.dataset = dataset;
   state.currentView = 'consulta';
-  state.filters = isPriceIntelligenceDataset(dataset) ? { tipoCatalogo: 'material' } : {};
+  state.filters = getDefaultFiltersForDataset(dataset);
   state.results = [];
   state.currentPage = 1;
   state.totalPages = 0;
   state.totalRecords = 0;
   state.hasActiveSearch = false;
   state.lastSearchSignature = null;
+  state.inFlightSignature = null;
+  state.rawData = null;
   state.priceIntelligenceResponse = null;
+  state.analyticsResponse = null;
   state.pageRawItems = [];
   state.priceUiError = null;
   state.priceDashboard = createPriceDashboardState();
+  state.aiResults = null;
 
   console.log('📊 Estado atualizado:', {
     dataset,
@@ -833,11 +1134,13 @@ export function showConsulta(dataset) {
 
   // Atualiza UI
   if (menu) {
-    menu.style.display = 'none';
+    menu.classList.add('hidden');
+    menu.setAttribute('aria-hidden', 'true');
     console.log('✅ Menu ocultado');
   }
   if (tela) {
     tela.classList.remove('hidden');
+    tela.setAttribute('aria-hidden', 'false');
     console.log('✅ Tela de consulta exibida');
   }
   if (titulo) {
@@ -857,6 +1160,7 @@ export function showConsulta(dataset) {
 
   // Scroll para o topo
   window.scrollTo({ top: 0, behavior: 'smooth' });
+  scheduleVisualAuditRefresh(getConsultaAuditScope());
 }
 
 /**
@@ -880,6 +1184,8 @@ function renderFilters() {
   }
 
   const isPriceModule = isPriceIntelligenceDataset();
+  const isGovAnalyticsModule = isGovAnalyticsDataset();
+  const isIntegratedAnalyticsModule = isPriceModule || isGovAnalyticsModule;
   const gridClass = isPriceModule ? 'filters-grid filters-grid--price' : 'filters-grid';
   const filtersSection = container.closest('.filters-section');
 
@@ -896,6 +1202,13 @@ function renderFilters() {
         <p>Defina o recorte de analise por catalogo, periodo, modalidade, localidade e fornecedores.</p>
       </div>
     `;
+  } else if (isGovAnalyticsModule) {
+    html += `
+      <div class="filters-header filters-header--price">
+        <h4>Painel analítico integrado</h4>
+        <p>Combine filtros oficiais de fornecedor/UASG com códigos CATMAT ou CATSER para cruzar histórico de preços.</p>
+      </div>
+    `;
   }
 
   html += `<div class="${gridClass}">`;
@@ -903,14 +1216,18 @@ function renderFilters() {
   config.filters.forEach((filter) => {
     const itemClasses = ['filter-item'];
 
-    if (isPriceModule) {
+    if (isIntegratedAnalyticsModule) {
       itemClasses.push('filter-item--price');
 
-      if (['codigos', 'fornecedor', 'marca'].includes(filter.name)) {
+      if (
+        ['codigos', 'fornecedor', 'marca', 'nomeFornecedor', 'cnpjCpfOrgao', 'cnpjCpfOrgaoVinculado', 'cnpjCpfOrgaoSuperior'].includes(
+          filter.name
+        )
+      ) {
         itemClasses.push('filter-item--wide');
       }
 
-      if (['dataCompraInicio', 'dataCompraFim', 'ano', 'mes', 'estado'].includes(filter.name)) {
+      if (['dataCompraInicio', 'dataCompraFim', 'ano', 'mes', 'estado', 'siglaUf', 'entity'].includes(filter.name)) {
         itemClasses.push('filter-item--compact');
       }
     }
@@ -971,8 +1288,10 @@ function renderFilters() {
       ${actionsHtml}
     </div>
     ${
-      config.supportsBackendExport
-        ? '<p class="text-muted">Aceita multiplos codigos CATMAT/CATSER separados por virgula, espaco ou quebra de linha.</p>'
+      config.backendHint
+        ? `<p class="text-muted">${escapeHtmlContent(config.backendHint)}</p>`
+        : config.supportsBackendExport
+          ? '<p class="text-muted">Aceita multiplos codigos CATMAT/CATSER separados por virgula, espaco ou quebra de linha.</p>'
         : ''
     }
     <p id="consultaHint" class="text-muted" aria-live="polite"></p>
@@ -1028,9 +1347,15 @@ function renderTable() {
     return;
   }
 
+  const analyticsPanelHtml =
+    isGovAnalyticsDataset() && state.analyticsResponse
+      ? renderGovAnalyticsPanel(state.analyticsResponse, state.dataset)
+      : '';
+
   if (state.loading) {
     if (isPriceIntelligenceDataset()) {
       container.innerHTML = renderPriceIntelligenceLoadingState();
+      scheduleVisualAuditRefresh(getConsultaAuditScope());
       return;
     }
 
@@ -1040,12 +1365,20 @@ function renderTable() {
         <p>Carregando dados...</p>
       </div>
     `;
+    scheduleVisualAuditRefresh(getConsultaAuditScope());
     return;
   }
 
   if (isPriceIntelligenceDataset()) {
+    if (state.aiResults && state.aiResults.length > 0) {
+      container.innerHTML = renderAiResultsHtml(state.aiResults, { dataset: state.dataset });
+      scheduleVisualAuditRefresh(getConsultaAuditScope());
+      return;
+    }
+
     if (state.priceUiError) {
       container.innerHTML = renderPriceIntelligenceErrorState(state.priceUiError);
+      scheduleVisualAuditRefresh(getConsultaAuditScope());
       return;
     }
 
@@ -1055,6 +1388,7 @@ function renderTable() {
         state.results || [],
         state.priceDashboard
       );
+      scheduleVisualAuditRefresh(getConsultaAuditScope());
       return;
     }
 
@@ -1062,18 +1396,44 @@ function renderTable() {
       title: 'Nenhuma consulta executada',
       message: 'Configure os filtros premium e clique em Buscar para gerar o dashboard executivo.'
     });
+    scheduleVisualAuditRefresh(getConsultaAuditScope());
     return;
   }
 
   if (!state.results || state.results.length === 0) {
-    container.innerHTML = `
+    if (state.aiResults && state.aiResults.length > 0) {
+      container.innerHTML = `${analyticsPanelHtml}${renderAiResultsHtml(state.aiResults)}`;
+      scheduleVisualAuditRefresh(getConsultaAuditScope());
+      return;
+    }
+
+    container.innerHTML = `${analyticsPanelHtml}
       <div class="empty-state">
         <p>📋 Nenhum resultado encontrado.</p>
         <p class="text-muted">Ajuste os filtros e tente novamente.</p>
       </div>
     `;
+    scheduleVisualAuditRefresh(getConsultaAuditScope());
     return;
   }
+
+  const config = DATASETS[state.dataset] || {};
+  const columns = Array.isArray(config.columns) && config.columns.length > 0
+    ? config.columns
+    : [
+        { label: 'Código', key: 'codigo' },
+        { label: 'Descrição', key: 'descricao' },
+        { label: 'Unidade/UF', key: 'unidade' },
+        { label: 'Órgão/UASG', key: 'orgao' },
+        { label: 'Status', key: 'status' },
+        { label: 'Atualização', key: 'dataAtualizacao' },
+        { label: 'Valor', key: 'valor' }
+      ];
+
+  const readColumnValue = (row, key) => {
+    const value = row?.[key] ?? row?.extras?.[key];
+    return value === undefined || value === null || value === '' ? '-' : String(value);
+  };
 
   let html = `
     <div class="table-actions">
@@ -1087,13 +1447,7 @@ function renderTable() {
       <table class="table table-striped">
         <thead>
           <tr>
-            <th>Código</th>
-            <th>Descrição</th>
-            <th>Unidade/UF</th>
-            <th>Órgão/UASG</th>
-            <th>Status</th>
-            <th>Atualização</th>
-            <th>Valor</th>
+            ${columns.map((column) => `<th>${escapeHtmlContent(column.label)}</th>`).join('')}
             <th>Ações</th>
           </tr>
         </thead>
@@ -1114,13 +1468,14 @@ function renderTable() {
 
     html += `
       <tr>
-        <td>${row.codigo}</td>
-        <td class="description-cell" title="${row.descricao}">${row.descricao}</td>
-        <td>${row.unidade}</td>
-        <td class="orgao-cell" title="${row.orgao}">${row.orgao}</td>
-        <td>${row.status}</td>
-        <td>${row.dataAtualizacao}</td>
-        <td>${row.valor}</td>
+        ${columns
+          .map((column) => {
+            const rawValue = readColumnValue(row, column.key);
+            const safeValue = escapeHtmlContent(rawValue);
+            const cellClass = column.key === 'descricao' ? 'description-cell' : column.key === 'orgao' ? 'orgao-cell' : '';
+            return `<td class="${cellClass}" title="${safeValue}">${safeValue}</td>`;
+          })
+          .join('')}
         <td>
           ${shortcutButton}
           <button class="btn btn-sm btn-info btn-view-json" data-index="${index}"
@@ -1138,7 +1493,8 @@ function renderTable() {
     </div>
   `;
 
-  container.innerHTML = html;
+  container.innerHTML = `${analyticsPanelHtml}${html}`;
+  scheduleVisualAuditRefresh(getConsultaAuditScope());
 }
 
 /**
@@ -1151,15 +1507,39 @@ function attachEventListeners() {
 
   console.log('🎯 Configurando event listeners...');
 
-  // O clique nos cards já é tratado por onclick inline em index.html.
-  // Aqui tratamos apenas voltar ao menu para evitar disparos duplicados.
   document.addEventListener('click', (e) => {
-    if (e.target.id === 'btnVoltarMenu' || e.target.closest('#btnVoltarMenu')) {
+    const consultaCard = e.target.closest('.menu-item-consulta[data-consulta]');
+    if (consultaCard && consultaCard.closest('#menuConsultas')) {
+      e.preventDefault();
+      showConsulta(consultaCard.dataset.consulta);
+      return;
+    }
+
+    if (
+      e.target.id === 'btnVoltarMenu' ||
+      e.target.closest('#btnVoltarMenu') ||
+      e.target.id === 'btnVoltar' ||
+      e.target.closest('#btnVoltar')
+    ) {
       console.log('🔙 Voltando ao menu...');
       e.preventDefault();
       e.stopPropagation();
       showMenu();
     }
+  });
+
+  document.addEventListener('keydown', (e) => {
+    const consultaCard = e.target.closest('.menu-item-consulta[data-consulta]');
+    if (!consultaCard || !consultaCard.closest('#menuConsultas')) {
+      return;
+    }
+
+    if (e.key !== 'Enter' && e.key !== ' ') {
+      return;
+    }
+
+    e.preventDefault();
+    showConsulta(consultaCard.dataset.consulta);
   });
 
   // Buscar
@@ -1273,16 +1653,21 @@ function attachEventListeners() {
   // Limpar filtros
   document.addEventListener('click', (e) => {
     if (e.target.id === 'btnLimpar') {
-      state.filters = {};
+      state.filters = getDefaultFiltersForDataset(state.dataset);
       state.currentPage = 1;
       state.results = [];
+      state.rawData = null;
       state.totalPages = 0;
       state.totalRecords = 0;
       state.hasActiveSearch = false;
+      state.lastSearchSignature = null;
+      state.inFlightSignature = null;
       state.priceIntelligenceResponse = null;
+      state.analyticsResponse = null;
       state.pageRawItems = [];
       state.priceUiError = null;
       state.priceDashboard = createPriceDashboardState();
+      state.aiResults = null;
       renderFilters();
       renderPagination();
       renderTable();
@@ -1374,7 +1759,11 @@ function attachEventListeners() {
       e.target.id === 'btnExportPriceData' ||
       e.target.id === 'btnExportPriceDataHeader'
     ) {
-      exportPriceIntelligence();
+      if (isPriceIntelligenceDataset()) {
+        exportPriceIntelligence();
+      } else if (isGovAnalyticsDataset()) {
+        exportGovAnalytics();
+      }
     }
   });
 
@@ -1467,6 +1856,8 @@ function triggerSearch({ source = 'manual', force = false, resetPage = false } =
 
   if (isPriceIntelligenceDataset()) {
     state.priceUiError = null;
+  } else if (isGovAnalyticsDataset()) {
+    state.analyticsResponse = null;
   }
 
   setSearchHint('');
@@ -1501,13 +1892,13 @@ function collectFilters() {
       return;
     }
 
-    if (isPriceIntelligenceDataset()) {
+    if (isPriceIntelligenceDataset() || isGovAnalyticsDataset()) {
       if (filter.name === 'codigos') {
         value = sanitizeCodesInput(value);
         input.value = value;
       }
 
-      if (filter.name === 'estado') {
+      if (filter.name === 'estado' || filter.name === 'siglaUf') {
         value = value.toUpperCase();
         input.value = value;
       }
@@ -1556,7 +1947,7 @@ function buildSearchParams(force, isPriceDataset) {
     tipoCatalogo: state.filters.tipoCatalogo || 'material'
   };
 
-  if (isPriceDataset && force) {
+  if ((isPriceDataset || isGovAnalyticsDataset()) && force) {
     params.forceRefresh = true;
   }
 
@@ -1573,6 +1964,12 @@ function describeSearchError(error) {
   const errorMessage = String(error?.message || '');
 
   if (errorMessage.includes('Failed to fetch') || errorMessage.includes('conectar com a API')) {
+    const apiBase =
+      window.__API_BASE_URL__ ||
+      window.CONFIG?.api?.baseUrl ||
+      (['localhost', '127.0.0.1'].includes(window.location.hostname) ? 'http://localhost:3000' : window.location.origin);
+    const healthUrl = `${String(apiBase).replace(/\/+$/, '')}/api/compras/health`;
+
     info.title = 'Erro de Conexão';
     info.details =
       'Possíveis causas:\n' +
@@ -1580,7 +1977,7 @@ function describeSearchError(error) {
       '• Proxy backend do SINGEM indisponível\n' +
       '• Upstream do Compras.gov.br fora do ar\n\n' +
       'Teste acessar no navegador:\n' +
-      (window.CONFIG?.api?.baseUrl || '') + '/api/compras/health';
+      healthUrl;
     return info;
   }
 
@@ -1639,6 +2036,177 @@ function presentSearchError(errorInfo, isPriceDataset) {
   renderTable();
 }
 
+function resolveAiFallbackQueryText(filters = {}, dataset = state.dataset) {
+  const valuesByKey = Object.entries(filters || {}).reduce((acc, [key, value]) => {
+    const normalizedKey = String(key || '').trim();
+    const normalizedValue = String(value || '').trim();
+    if (!normalizedKey || !normalizedValue) {
+      return acc;
+    }
+
+    acc[normalizedKey] = normalizedValue;
+    return acc;
+  }, {});
+
+  const priorityKeys =
+    dataset === PRICE_INTELLIGENCE_DATASET
+      ? ['codigos', 'descricao', 'fornecedor', 'marca', 'modalidade', 'estado']
+      : [
+          'descricao',
+          'objeto',
+          'descricaoItem',
+          'nomeUasg',
+          'nomeOrgao',
+          'fornecedor',
+          'numeroAta',
+          'codigoItem',
+          'cnpjOrgao',
+          'uasg',
+          'numeroLicitacao',
+          'codigoGrupo',
+          'codigoClasse'
+        ];
+
+  const ignoredValues = new Set(['material', 'servico', 'ativo', 'inativo']);
+
+  for (const key of priorityKeys) {
+    const candidate = valuesByKey[key];
+    if (!candidate) {
+      continue;
+    }
+
+    const normalizedCandidate = normalizeText(candidate);
+    if (normalizedCandidate.length >= 3 && !ignoredValues.has(normalizedCandidate)) {
+      return candidate;
+    }
+  }
+
+  const controlKeys = new Set([
+    'pagina',
+    'tipoCatalogo',
+    'status',
+    'periodo',
+    'mes',
+    'ano',
+    'ordenacao',
+    'forceRefresh',
+    'forcaRefresh',
+    'tamanhoPagina'
+  ]);
+
+  const fallbackEntry = Object.entries(valuesByKey).find(([key, value]) => {
+    if (controlKeys.has(String(key || '').trim())) {
+      return false;
+    }
+
+    const normalizedCandidate = normalizeText(value);
+    return normalizedCandidate.length >= 3 && !ignoredValues.has(normalizedCandidate);
+  });
+
+  return fallbackEntry?.[1] || null;
+}
+
+/**
+ * Tenta busca via AI Core como fallback quando upstream falha.
+ * Retorna array de resultados ou null se indisponível.
+ */
+async function tryAiFallback(filters, dataset) {
+  try {
+    const available = await isAiAvailable();
+    if (!available) {
+      return null;
+    }
+
+    const queryText = resolveAiFallbackQueryText(filters, dataset);
+    if (!queryText) {
+      return null;
+    }
+
+    const entityTypes =
+      dataset === 'materiais' || dataset === 'servicos' || dataset === PRICE_INTELLIGENCE_DATASET
+        ? ['catmat_item', 'material', 'fornecedor']
+        : ['catmat_item', 'material', 'fornecedor'];
+
+    const response = await apiClient.ai.search({
+      query_text: queryText,
+      entity_types: entityTypes,
+      context_module: 'consultas',
+      page: 1,
+      page_size: dataset === PRICE_INTELLIGENCE_DATASET ? 30 : 20
+    });
+
+    return response?.results?.length ? response.results : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Renderiza resultados do fallback AI (quando Compras.gov.br está indisponível)
+ */
+function renderAiResultsHtml(results, { dataset = state.dataset } = {}) {
+  const fallbackNotice =
+    dataset === PRICE_INTELLIGENCE_DATASET
+      ? 'Modulo 3 em contingencia: upstream indisponivel. Exibindo referencias da base local IA para apoio ate a normalizacao.'
+      : 'Compras.gov.br indisponivel: exibindo dados do indice local IA. Tente novamente mais tarde para resultados completos.';
+
+  const rows = results
+    .map((r) => {
+      const conf = Math.round((r.score?.final || 0) * 100);
+      const meta = r.metadata || {};
+      const badge =
+        r.entity_type === 'fornecedor' ? 'Fornecedor' : r.entity_type === 'catmat_item' ? 'CATMAT' : 'Material';
+      const codigo = meta.codigo ? escapeHtmlContent(String(meta.codigo)) : '-';
+      const unidade = escapeHtmlContent(String(meta.unidade_medida || meta.unidade || '-'));
+      const valor =
+        meta.preco_medio !== null && meta.preco_medio !== undefined
+          ? `R$ ${Number(meta.preco_medio).toFixed(2).replace('.', ',')}`
+          : '-';
+      return `<tr>
+        <td>${codigo}</td>
+        <td>${escapeHtmlContent(String(r.title || '-'))}</td>
+        <td>${unidade}</td>
+        <td>-</td>
+        <td><span class="sg-ai-result-chip">${escapeHtmlContent(badge)}</span></td>
+        <td>-</td>
+        <td>${escapeHtmlContent(valor)}</td>
+        <td><span class="sg-ai-result-score">${conf}%</span></td>
+      </tr>`;
+    })
+    .join('');
+
+  return `
+    <div class="sg-ai-callout">
+      <div class="sg-ai-callout__header">
+        <div>
+          <h5 class="sg-ai-callout__title">Resultado da Base Local (IA)</h5>
+          <p class="sg-ai-callout__meta">${escapeHtmlContent(fallbackNotice)}</p>
+        </div>
+        <div class="sg-ai-audit__status">
+          <span class="sg-ai-pill">IA Core</span>
+          <span class="sg-ai-pill is-muted">Contingencia</span>
+        </div>
+      </div>
+    </div>
+    <div class="table-responsive">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>Código</th>
+            <th>Descrição</th>
+            <th>Unidade</th>
+            <th>Órgão/UASG</th>
+            <th>Tipo</th>
+            <th>Atualização</th>
+            <th>Ref. Preço</th>
+            <th>Conf. IA</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
+}
+
 async function executeSearch({ force = false } = {}) {
   const config = DATASETS[state.dataset];
   if (!validateSearchExecution(config)) {
@@ -1646,8 +2214,13 @@ async function executeSearch({ force = false } = {}) {
   }
 
   const isPriceDataset = isPriceIntelligenceDataset();
+  const isAnalyticsDataset = isGovAnalyticsDataset();
   if (isPriceDataset) {
     state.priceUiError = null;
+  }
+
+  if (isAnalyticsDataset) {
+    state.analyticsResponse = null;
   }
 
   const params = buildSearchParams(force, isPriceDataset);
@@ -1665,6 +2238,7 @@ async function executeSearch({ force = false } = {}) {
   }
 
   state.lastSearchSignature = signature;
+  state.inFlightSignature = signature;
 
   const cached = Cache.get(state.dataset, params);
   if (cached) {
@@ -1674,11 +2248,13 @@ async function executeSearch({ force = false } = {}) {
     }
 
     state.hasActiveSearch = true;
+    state.inFlightSignature = null;
     processResults(cached);
     return;
   }
 
   state.loading = true;
+  state.aiResults = null;
   renderTable();
 
   try {
@@ -1686,18 +2262,65 @@ async function executeSearch({ force = false } = {}) {
       forceRefresh: isPriceDataset && force
     });
 
+    if (state.inFlightSignature !== signature) {
+      return;
+    }
+
     Cache.set(state.dataset, params, data);
     processResults(data);
+    if (state.inFlightSignature === signature) {
+      state.inFlightSignature = null;
+    }
   } catch (error) {
     if (error?.name === 'AbortError' || error?.isAbort === true) {
+      if (state.inFlightSignature === signature) {
+        state.inFlightSignature = null;
+      }
       state.loading = false;
       renderTable();
       return;
     }
 
+    // Fallback via AI Core quando upstream Compras.gov.br está indisponível (502/503/timeout)
+    const isUpstreamFailure =
+      /502|503|upstream|tempo limite|timeout|Failed to fetch|ECONNREFUSED|EntityManager|JPA entity|HibernateException|could not open|datasource/i.test(
+      String(error?.message || '')
+    );
+    if (isUpstreamFailure) {
+      const aiResult = await tryAiFallback(state.filters, state.dataset);
+      if (aiResult) {
+        if (state.inFlightSignature !== signature) {
+          return;
+        }
+
+        state.inFlightSignature = null;
+        state.loading = false;
+        state.hasActiveSearch = true;
+        state.aiResults = aiResult;
+        state.results = [];
+        state.totalRecords = aiResult.length;
+        state.totalPages = 1;
+        state.pageRawItems = [];
+        state.priceIntelligenceResponse = null;
+        state.analyticsResponse = null;
+
+        if (isPriceDataset) {
+          state.priceUiError = null;
+        }
+
+        renderPagination();
+        renderTable();
+        return;
+      }
+    }
+
+    if (state.inFlightSignature === signature) {
+      state.inFlightSignature = null;
+    }
     state.loading = false;
     state.hasActiveSearch = false;
     state.lastSearchSignature = null;
+    state.analyticsResponse = null;
     console.error('❌ Erro na busca:', error);
     console.error('   Dataset:', state.dataset);
     console.error('   Filtros:', state.filters);
@@ -1711,259 +2334,34 @@ async function executeSearch({ force = false } = {}) {
  * @param {Object} data - Resposta da API
  */
 function processResults(data) {
-  state.loading = false;
-  state.hasActiveSearch = true;
-  state.rawData = data;
-
-  if (isPriceIntelligenceDataset()) {
-    state.priceIntelligenceResponse = data._priceIntelligence || data._raw || null;
-    state.priceUiError = null;
-  } else {
-    state.priceIntelligenceResponse = null;
-  }
-
-  // Extrai metadados
-  const metadata = data._metadata || data.metadata || {};
-  state.totalRecords =
-    metadata.totalRecords || metadata.total || state.priceIntelligenceResponse?.page?.totalItems || 0;
-  state.totalPages = metadata.totalPages || metadata.pages || state.priceIntelligenceResponse?.page?.totalPages || 1;
-
-  // Extrai itens (vários formatos possíveis)
-  let items = [];
-
-  if (data._embedded) {
-    // Formato HAL (comum em APIs REST)
-    const keys = Object.keys(data._embedded);
-    if (keys.length > 0) {
-      items = data._embedded[keys[0]];
-    }
-  } else if (data.items || data.itens) {
-    items = data.items || data.itens;
-  } else if (data.data) {
-    items = data.data;
-  } else if (Array.isArray(data)) {
-    items = data;
-  }
-
-  state.pageRawItems = Array.isArray(items) ? items : [];
-
-  // Mapeia para formato padronizado
-  state.results = Mapeadores.mapear(state.dataset, items).map((row, index) => ({
-    ...row,
-    __sourceIndex: index
-  }));
-
-  if (isPriceIntelligenceDataset()) {
-    state.priceDashboard = createPriceDashboardState({
-      ...state.priceDashboard,
-      tablePage: 1
-    });
-  }
-
-  renderPagination();
-  renderTable();
-  saveToLocalStorage();
-
-  if (isPriceIntelligenceDataset()) {
-    logPriceUi('LOAD', {
-      status: 'success',
-      registros: state.results.length,
-      total: state.totalRecords,
-      paginas: state.totalPages
-    });
-  }
-
-  console.log(`Resultados: ${state.results.length} itens | Página ${state.currentPage}/${state.totalPages}`);
+  processConsultaResults(getConsultaResultDeps(), data);
 }
 
 /**
  * Exporta resultados para CSV
  */
 function exportToCSV() {
-  if (isPriceIntelligenceDataset()) {
-    exportPriceIntelligence('csv');
-    return;
-  }
-
-  if (!state.results || state.results.length === 0) {
-    alert('Nenhum dado para exportar.');
-    return;
-  }
-
-  // Cabeçalhos
-  const headers = ['Código', 'Descrição', 'Unidade/UF', 'Órgão/UASG', 'Status', 'Atualização', 'Valor'];
-
-  // Linhas
-  const rows = state.results.map((row) => [
-    row.codigo,
-    `"${row.descricao.replace(/"/g, '""')}"`,
-    row.unidade,
-    `"${row.orgao.replace(/"/g, '""')}"`,
-    row.status,
-    row.dataAtualizacao,
-    row.valor
-  ]);
-
-  // Monta CSV
-  let csv = headers.join(';') + '\n';
-  csv += rows.map((row) => row.join(';')).join('\n');
-
-  // Download
-  const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = `consulta_${state.dataset}_${new Date().toISOString().slice(0, 10)}.csv`;
-  link.click();
-  URL.revokeObjectURL(url);
-}
-
-function downloadBlobFile(blob, filename) {
-  const blobUrl = URL.createObjectURL(blob);
-  const anchor = document.createElement('a');
-  anchor.href = blobUrl;
-  anchor.download = filename;
-  anchor.click();
-  URL.revokeObjectURL(blobUrl);
+  return exportConsultaResults(getConsultaActionDeps());
 }
 
 async function exportPriceIntelligence(explicitFormat = null) {
-  if (!isPriceIntelligenceDataset()) {
-    return;
-  }
+  return exportPriceIntelligenceData(getConsultaActionDeps(), explicitFormat);
+}
 
-  collectFilters();
-
-  if (!canSearchWithFilters(state.filters)) {
-    setSearchHint(getRequiredHint(DATASETS[state.dataset]));
-    return;
-  }
-
-  const formatSelector = document.getElementById('priceExportFormat');
-  const selectedFormat = explicitFormat || formatSelector?.value || 'csv';
-  const payload = {
-    ...state.filters,
-    pagina: state.currentPage,
-    tipoCatalogo: state.filters.tipoCatalogo || 'material'
-  };
-
-  try {
-    const exported = await API.exportPrecosPraticados(payload, selectedFormat);
-    downloadBlobFile(exported.blob, exported.filename || `inteligencia-precos.${selectedFormat}`);
-  } catch (error) {
-    console.error('❌ Falha ao exportar Módulo 3:', error);
-    const mensagem = error?.message || 'Falha ao exportar os dados filtrados.';
-
-    if (typeof window.mostrarErroCopivel === 'function') {
-      window.mostrarErroCopivel('Falha na exportação', mensagem, 'Tente novamente com filtros mais restritos.');
-    } else {
-      alert(`Falha na exportação\n\n${mensagem}`);
-    }
-  }
+async function exportGovAnalytics(explicitFormat = null) {
+  return exportGovAnalyticsData(getConsultaActionDeps(), explicitFormat);
 }
 
 /**
  * Mostra modal com JSON completo
  * @param {number} sourceIndex - Índice de origem do resultado
  */
-function resolvePriceRowBySourceIndex(sourceIndex) {
-  const parsed = Number.parseInt(sourceIndex, 10);
-  if (!Number.isFinite(parsed)) {
-    return {
-      row: null,
-      rawItem: null
-    };
-  }
-
-  const row = state.results.find((entry) => Number(entry.__sourceIndex) === parsed) || null;
-  const fallbackRow = row || state.results[parsed] || null;
-  const rawItem = state.pageRawItems[parsed] || fallbackRow?.extras || fallbackRow;
-
-  return {
-    row: fallbackRow,
-    rawItem
-  };
-}
-
 function showJSONModal(sourceIndex) {
-  const { row, rawItem } = resolvePriceRowBySourceIndex(sourceIndex);
-  if (!row) {
-    return;
-  }
-
-  const json = JSON.stringify(rawItem || row.extras || row, null, 2);
-
-  const modal = `
-    <div class="modal-overlay" id="jsonModal">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h3>JSON Completo - ${escapeHtmlContent(row.codigo)}</h3>
-          <button class="btn-close" onclick="document.getElementById('jsonModal').remove()" aria-label="Fechar">×</button>
-        </div>
-        <div class="modal-body">
-          <pre><code>${escapeHtmlContent(json)}</code></pre>
-        </div>
-        <div class="modal-footer">
-          <button class="btn btn-secondary" onclick="document.getElementById('jsonModal').remove()">Fechar</button>
-        </div>
-      </div>
-    </div>
-  `;
-
-  document.body.insertAdjacentHTML('beforeend', modal);
-}
-
-function activatePriceDetailTab(tabButton) {
-  const tabValue = tabButton?.dataset?.detailTab;
-  if (!tabValue) {
-    return;
-  }
-
-  const root = tabButton.closest('.modal-body');
-  if (!root) {
-    return;
-  }
-
-  root.querySelectorAll('.pi-detail-tab').forEach((button) => {
-    button.classList.toggle('is-active', button.dataset.detailTab === tabValue);
-  });
-
-  root.querySelectorAll('.pi-detail-panel').forEach((panel) => {
-    const shouldActivate = panel.dataset.detailPanel === tabValue;
-    panel.classList.toggle('is-active', shouldActivate);
-    panel.hidden = !shouldActivate;
-  });
+  return showConsultaJsonModal({ state }, sourceIndex);
 }
 
 function showPriceDetailsModal(sourceIndex) {
-  if (!isPriceIntelligenceDataset()) {
-    return;
-  }
-
-  const { rawItem } = resolvePriceRowBySourceIndex(sourceIndex);
-  const item = rawItem;
-  if (!item) {
-    return;
-  }
-
-  const modal = `
-    <div class="modal-overlay" id="priceDetailsModal">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h3>Detalhes do Registro - ${escapeHtmlContent(item.codigoItemCatalogo || item.idItemCompra || 'Modulo 3')}</h3>
-          <button class="btn-close" onclick="document.getElementById('priceDetailsModal').remove()" aria-label="Fechar">×</button>
-        </div>
-        <div class="modal-body">
-          ${renderPriceDetailsModalContent(item)}
-        </div>
-        <div class="modal-footer">
-          <button class="btn btn-secondary" onclick="document.getElementById('priceDetailsModal').remove()">Fechar</button>
-        </div>
-      </div>
-    </div>
-  `;
-
-  document.body.insertAdjacentHTML('beforeend', modal);
+  return showPriceDetailModal({ state, isPriceIntelligenceDataset }, sourceIndex);
 }
 
 /**

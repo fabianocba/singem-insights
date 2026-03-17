@@ -5,180 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Gerenciar Backups - SINGEM</title>
     <script type="module" src="../js/versionManager.js"></script>
+    <script src="../js/ui/themeBoot.js"></script>
     <link rel="stylesheet" href="../css/style.css" />
-    <style>
-      .backup-container {
-        max-width: 1200px;
-        margin: 20px auto;
-        padding: 20px;
-      }
-
-      .backup-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 20px;
-      }
-
-      .backup-actions {
-        display: flex;
-        gap: 10px;
-      }
-
-      .backup-list {
-        background: white;
-        border-radius: 8px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-      }
-
-      .backup-item {
-        padding: 15px;
-        border-bottom: 1px solid #e0e0e0;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        transition: background 0.2s;
-      }
-
-      .backup-item:hover {
-        background: #f5f5f5;
-      }
-
-      .backup-item:last-child {
-        border-bottom: none;
-      }
-
-      .backup-info {
-        flex: 1;
-      }
-
-      .backup-meta {
-        display: flex;
-        gap: 20px;
-        margin-top: 5px;
-        font-size: 0.9em;
-        color: #666;
-      }
-
-      .backup-meta span {
-        display: flex;
-        align-items: center;
-        gap: 5px;
-      }
-
-      .backup-buttons {
-        display: flex;
-        gap: 10px;
-      }
-
-      .btn {
-        padding: 8px 16px;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 14px;
-        transition: all 0.2s;
-      }
-
-      .btn-primary {
-        background: #2e7d32;
-        color: white;
-      }
-
-      .btn-primary:hover {
-        background: #1b5e20;
-      }
-
-      .btn-secondary {
-        background: #1976d2;
-        color: white;
-      }
-
-      .btn-secondary:hover {
-        background: #1565c0;
-      }
-
-      .btn-danger {
-        background: #d32f2f;
-        color: white;
-      }
-
-      .btn-danger:hover {
-        background: #c62828;
-      }
-
-      .btn-warning {
-        background: #f57c00;
-        color: white;
-      }
-
-      .btn-warning:hover {
-        background: #ef6c00;
-      }
-
-      .changelog-section {
-        margin-top: 40px;
-        background: white;
-        border-radius: 8px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        padding: 20px;
-      }
-
-      .changelog-item {
-        padding: 10px;
-        border-left: 3px solid #2e7d32;
-        margin-bottom: 10px;
-        background: #f5f5f5;
-      }
-
-      .changelog-time {
-        font-size: 0.85em;
-        color: #666;
-        margin-bottom: 5px;
-      }
-
-      .changelog-action {
-        font-weight: 600;
-        color: #2e7d32;
-      }
-
-      .status-badge {
-        padding: 4px 8px;
-        border-radius: 4px;
-        font-size: 0.85em;
-        font-weight: 600;
-      }
-
-      .status-auto {
-        background: #e3f2fd;
-        color: #1976d2;
-      }
-
-      .status-manual {
-        background: #fff3e0;
-        color: #f57c00;
-      }
-
-      .status-restore {
-        background: #fce4ec;
-        color: #c2185b;
-      }
-
-      .empty-state {
-        text-align: center;
-        padding: 60px 20px;
-        color: #999;
-      }
-
-      .empty-state-icon {
-        font-size: 64px;
-        margin-bottom: 20px;
-      }
-    </style>
+    <link rel="stylesheet" href="../css/tailwind.css" />
   </head>
-  <body>
+  <body data-page="gerenciar-backups">
     <div class="backup-container">
-      <div class="backup-header">
+      <header class="backup-header">
         <div>
           <h1>🔒 Gerenciar Backups</h1>
           <p>Sistema de backup automático e restauração de dados</p>
@@ -190,18 +23,20 @@
           <button class="btn btn-secondary" onclick="document.getElementById('importFile').click()">
             📥 Importar Backup
           </button>
+          <button type="button" data-theme-toggle aria-label="Alternar tema"></button>
           <input
             type="file"
             id="importFile"
             accept=".json"
-            style="display: none"
+            class="sg-hidden-file-input"
+            title="Selecionar arquivo de backup para importacao"
             onchange="importarBackup(event)"
           />
           <button class="btn btn-warning" onclick="window.location.href = '../index.html'">
             ← Voltar
           </button>
         </div>
-      </div>
+      </header>
 
       <div class="backup-list" id="backupList">
         <div class="empty-state">
@@ -306,7 +141,7 @@
           const changes = await backupManager.getChangelog(20);
 
           if (changes.length === 0) {
-            list.innerHTML = '<p style="color: #999;">Nenhuma alteração registrada</p>';
+            list.innerHTML = '<p class="sg-empty-copy">Nenhuma alteração registrada</p>';
             return;
           }
 
@@ -426,22 +261,9 @@
       window.addEventListener('load', init);
     </script>
 
-    <footer
-      id="app-version-container"
-      style="
-        position: fixed;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        padding: 6px 10px;
-        font-size: 12px;
-        text-align: center;
-        z-index: 9999;
-        background: #fff;
-        border-top: 1px solid #ddd;
-      "
-    >
+    <footer id="app-version-container" class="app-version-footer">
       <small id="app-version">Versão: carregando...</small>
     </footer>
+    <script type="module" src="../js/ui/pageEnhancer.js"></script>
   </body>
 </html>

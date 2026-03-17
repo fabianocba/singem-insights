@@ -5,6 +5,16 @@
 
 import { httpRequest } from '../shared/lib/http.js';
 import { notifyError, notifySuccess } from '../ui/feedback.js';
+import { escapeHTML as escapeHtml } from '../utils/sanitize.js';
+import {
+  metricCardMarkup,
+  metricGridMarkup,
+  renderInto,
+  reportTableMarkup,
+  setFeedback,
+  tableCellMarkup,
+  tableRowMarkup
+} from './renderUtils.js';
 
 class SettingsIntegracoes {
   constructor() {
@@ -74,9 +84,7 @@ class SettingsIntegracoes {
 
   renderError(message) {
     const statusEl = document.getElementById('integracoesStatus');
-    if (statusEl) {
-      statusEl.innerHTML = `<div class="status-message error">${message}</div>`;
-    }
+    setFeedback(statusEl, 'error', escapeHtml(message));
   }
 
   render(payload) {
@@ -92,99 +100,81 @@ class SettingsIntegracoes {
     const jobs = Array.isArray(payload.sync?.jobs) ? payload.sync.jobs : [];
 
     if (statusEl) {
-      statusEl.innerHTML = `
-        <div class="grid-2">
-          <div class="status-message ${compras.ok ? 'success' : 'error'}">
-            <strong>ComprasGov:</strong> ${compras.status || '-'}
-          </div>
-          <div class="status-message ${dados.ok ? 'success' : 'error'}">
-            <strong>DadosGov CKAN:</strong> ${dados.status || '-'}
-          </div>
-        </div>
-        <div class="panel" style="margin-top:10px;">
-          <div><strong>Taxa de erro (24h):</strong> ${metrics.errorRate24h ?? 0}%</div>
-          <div><strong>Cache hit rate (24h):</strong> ${metrics.cacheHitRate24h ?? 0}%</div>
-          <div><strong>Cache hit rate (processo):</strong> ${cache.hitRate ?? 0}%</div>
-        </div>
-      `;
+      renderInto(
+        statusEl,
+        metricGridMarkup([
+          metricCardMarkup({
+            tone: compras.ok ? 'success' : 'error',
+            value: escapeHtml(String(compras.status || '-')),
+            label: 'ComprasGov'
+          }),
+          metricCardMarkup({
+            tone: dados.ok ? 'success' : 'error',
+            value: escapeHtml(String(dados.status || '-')),
+            label: 'DadosGov CKAN'
+          }),
+          metricCardMarkup({
+            tone: Number(metrics.errorRate24h || 0) > 0 ? 'warning' : 'success',
+            value: `${metrics.errorRate24h ?? 0}%`,
+            label: 'Taxa de erro (24h)'
+          }),
+          metricCardMarkup({
+            tone: 'info',
+            value: `${metrics.cacheHitRate24h ?? 0}%`,
+            label: 'Cache hit rate (24h)'
+          }),
+          metricCardMarkup({
+            tone: 'info',
+            value: `${cache.hitRate ?? 0}%`,
+            label: 'Cache hit rate (processo)'
+          })
+        ])
+      );
     }
 
     if (logsEl) {
-      if (logs.length === 0) {
-        logsEl.innerHTML = '<div class="loading">Sem logs recentes.</div>';
-      } else {
-        logsEl.innerHTML = `
-          <div class="table-container">
-            <table>
-              <thead>
-                <tr>
-                  <th>Data</th>
-                  <th>Rota</th>
-                  <th>Endpoint</th>
-                  <th>Status</th>
-                  <th>Cache</th>
-                  <th>Duração</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${logs
-                  .map(
-                    (item) => `
-                  <tr>
-                    <td>${new Date(item.created_at).toLocaleString('pt-BR')}</td>
-                    <td>${item.rota_interna || '-'}</td>
-                    <td title="${item.endpoint_externo || '-'}">${item.endpoint_externo || '-'}</td>
-                    <td>${item.status_http ?? '-'}</td>
-                    <td>${item.cache_hit ? 'HIT' : 'MISS'}</td>
-                    <td>${item.duracao_ms ?? 0} ms</td>
-                  </tr>
-                `
-                  )
-                  .join('')}
-              </tbody>
-            </table>
-          </div>
-        `;
-      }
+      renderInto(
+        logsEl,
+        reportTableMarkup({
+          headers: ['Data', 'Rota', 'Endpoint', 'Status', 'Cache', 'Duração'],
+          rows: logs.map((item) =>
+            tableRowMarkup([
+              tableCellMarkup({ html: new Date(item.created_at).toLocaleString('pt-BR') }),
+              tableCellMarkup({ html: escapeHtml(String(item.rota_interna || '-')) }),
+              tableCellMarkup({
+                html: escapeHtml(String(item.endpoint_externo || '-')),
+                title: escapeHtml(String(item.endpoint_externo || '-'))
+              }),
+              tableCellMarkup({ html: item.status_http ?? '-' }),
+              tableCellMarkup({ html: item.cache_hit ? 'HIT' : 'MISS' }),
+              tableCellMarkup({ html: `${item.duracao_ms ?? 0} ms` })
+            ])
+          ),
+          emptyMessage: 'Sem logs recentes.',
+          emptyTone: 'neutral'
+        })
+      );
     }
 
     if (syncEl) {
-      if (jobs.length === 0) {
-        syncEl.innerHTML = '<div class="loading">Nenhum sync executado.</div>';
-      } else {
-        syncEl.innerHTML = `
-          <div class="table-container">
-            <table>
-              <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>Tipo</th>
-                  <th>Status</th>
-                  <th>Início</th>
-                  <th>Fim</th>
-                  <th>Registros</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${jobs
-                  .map(
-                    (job) => `
-                  <tr>
-                    <td>${job.id}</td>
-                    <td>${job.tipo}</td>
-                    <td>${job.status}</td>
-                    <td>${job.inicio ? new Date(job.inicio).toLocaleString('pt-BR') : '-'}</td>
-                    <td>${job.fim ? new Date(job.fim).toLocaleString('pt-BR') : '-'}</td>
-                    <td>${job.registros_processados ?? 0}</td>
-                  </tr>
-                `
-                  )
-                  .join('')}
-              </tbody>
-            </table>
-          </div>
-        `;
-      }
+      renderInto(
+        syncEl,
+        reportTableMarkup({
+          headers: ['ID', 'Tipo', 'Status', 'Início', 'Fim', 'Registros'],
+          rows: jobs.map((job) =>
+            tableRowMarkup([
+              tableCellMarkup({ html: job.id }),
+              tableCellMarkup({ html: escapeHtml(String(job.tipo || '-')) }),
+              tableCellMarkup({ html: escapeHtml(String(job.status || '-')) }),
+              tableCellMarkup({ html: job.inicio ? new Date(job.inicio).toLocaleString('pt-BR') : '-' }),
+              tableCellMarkup({ html: job.fim ? new Date(job.fim).toLocaleString('pt-BR') : '-' }),
+              tableCellMarkup({ html: job.registros_processados ?? 0 })
+            ])
+          ),
+          emptyMessage: 'Nenhum sync executado.',
+          emptyTone: 'neutral'
+        })
+      );
     }
 
     this.lastSnapshotId = this.extractLastSnapshotId(logs);

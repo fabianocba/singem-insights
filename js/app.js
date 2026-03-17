@@ -26,6 +26,9 @@ import { hideLoader, showLoader } from './shared/ui/loader.js';
 import { focusField } from './shared/ui/formField.js';
 import { confirmAction } from './shared/ui/modal.js';
 import { initFornecedorAIAssist, initItemModalAIAssist } from './aiIntegration.js';
+import { initVisualAudits, scheduleVisualAuditRefresh } from './ui/aiVisualAudit.js';
+import { initPremiumShell, refreshPremiumShell } from './ui/premiumShell.js';
+import { escapeHTML } from './utils/sanitize.js';
 
 console.log('[App] 📦 Versão:', APP_VERSION, 'Build:', APP_BUILD);
 console.log('[App] 🔍 Repository importado:', typeof repository);
@@ -39,6 +42,23 @@ if (!repository) {
 if (!repository?.saveUnidade) {
   console.error('[App] ❌ saveUnidade não encontrado no repository!');
   console.error('[App] Repository keys:', Object.keys(repository || {}));
+}
+
+function createBrandImage(src, alt, variant = 'login') {
+  const img = document.createElement('img');
+  img.src = src;
+  img.alt = alt;
+  img.className = `sg-brand-image ${variant === 'header' ? 'sg-brand-image--header' : 'sg-brand-image--login'}`;
+  img.decoding = 'async';
+  return img;
+}
+
+function replaceElementChildren(element, children = []) {
+  if (!element) {
+    return;
+  }
+
+  element.replaceChildren(...children.filter(Boolean));
 }
 
 class ControleMaterialApp {
@@ -127,6 +147,7 @@ class ControleMaterialApp {
 
       // Listener crítico de login (evita submit nativo para / em falhas parciais de bootstrap)
       this.setupCriticalAuthListeners();
+      this.setupImageFallbacks();
 
       // Inicializa modo servidor (PostgreSQL via API)
       const apiClient = (await import('./services/apiClient.js')).default;
@@ -164,6 +185,9 @@ class ControleMaterialApp {
       // Configura event listeners
       this.setupEventListeners();
       console.log('✅ Event listeners configurados');
+
+      initVisualAudits();
+      initPremiumShell(this);
 
       // Restaura dados lembrados (login/senha) sem auto-login
       await this.restaurarDadosLembrados();
@@ -252,7 +276,7 @@ class ControleMaterialApp {
           console.log(`[OAuth] ✅ Login via ${provider}:`, this.usuarioLogado.nome);
 
           // Atualiza UI
-          this.atualizarUIUsuarioLogado();
+          this.atualizarUsuarioHeader();
           this.showScreen('homeScreen');
           this.showSuccess(`Bem-vindo(a), ${this.usuarioLogado.nome}!`);
         } else {
@@ -290,14 +314,15 @@ class ControleMaterialApp {
 
         // Esconde dica de primeiro acesso se houver usuários
         if (loginHelp) {
-          loginHelp.style.display = 'none';
+          loginHelp.hidden = true;
+          loginHelp.open = false;
         }
       } else {
         console.log('[VERIF_USUARIOS] ⚠️ Nenhum usuário cadastrado - mostrando dica de acesso');
 
         // Mostra dica de primeiro acesso
         if (loginHelp) {
-          loginHelp.style.display = 'block';
+          loginHelp.hidden = false;
           loginHelp.open = true; // Abre automaticamente
         }
       }
@@ -331,21 +356,10 @@ class ControleMaterialApp {
         // Atualiza logomarca na tela de login
         // Se houver logo cadastrada, usa ela. Senão, mantém a logo padrão do IF Baiano
         if (loginLogo && unidade.logomarca) {
-          // Prevenção XSS: usar createElement em vez de innerHTML
-          const img = document.createElement('img');
-          img.src = unidade.logomarca;
-          img.alt = 'Logo da Unidade';
-          img.style.cssText = 'max-width: 120px; max-height: 120px; object-fit: contain;';
-          loginLogo.innerHTML = '';
-          loginLogo.appendChild(img);
+          replaceElementChildren(loginLogo, [createBrandImage(unidade.logomarca, 'Logo da Unidade')]);
         } else if (loginLogo) {
           // Mantém logo padrão do IF Baiano (já está no HTML)
-          const img = document.createElement('img');
-          img.src = 'img/marca-if-baiano-campus-guanambi-horizontal.jpg';
-          img.alt = 'IF Baiano';
-          img.style.cssText = 'max-width: 180px; max-height: 120px; object-fit: contain;';
-          loginLogo.innerHTML = '';
-          loginLogo.appendChild(img);
+          replaceElementChildren(loginLogo, [createBrandImage('img/marca-if-baiano-campus-guanambi-horizontal.jpg', 'IF Baiano')]);
         }
 
         // Atualiza header também
@@ -356,14 +370,10 @@ class ControleMaterialApp {
 
         // Atualiza logo do header se houver logomarca cadastrada
         if (headerLogo && unidade.logomarca) {
-          // Prevenção XSS: usar createElement em vez de innerHTML
-          const img = document.createElement('img');
-          img.src = unidade.logomarca;
-          img.alt = 'Logo';
-          img.style.cssText = 'height: 40px; vertical-align: middle; margin-right: 10px;';
-          headerLogo.innerHTML = '';
-          headerLogo.appendChild(img);
-          headerLogo.appendChild(document.createTextNode(' Controle de Material'));
+          replaceElementChildren(headerLogo, [
+            createBrandImage(unidade.logomarca, 'Logo', 'header'),
+            document.createTextNode(' Controle de Material')
+          ]);
         } else if (headerLogo) {
           // Mantém título padrão sem logo no header
           headerLogo.textContent = '📋 Controle de Material';
@@ -371,7 +381,7 @@ class ControleMaterialApp {
       } else {
         // Se não houver unidade cadastrada, mostra logo padrão do IF Baiano
         if (loginLogo) {
-          loginLogo.innerHTML = `<img src="img/marca-if-baiano-campus-guanambi-horizontal.jpg" alt="IF Baiano" style="max-width: 180px; max-height: 120px; object-fit: contain;">`;
+          replaceElementChildren(loginLogo, [createBrandImage('img/marca-if-baiano-campus-guanambi-horizontal.jpg', 'IF Baiano')]);
         }
 
         const loginNome = document.getElementById('loginUnidadeNome');
@@ -485,6 +495,50 @@ class ControleMaterialApp {
     // Botão de limpar dados lembrados
     document.getElementById('btnClearRemember')?.addEventListener('click', async () => {
       await this.limparDadosLembrados();
+    });
+
+    document.querySelectorAll('[data-prevent-default="true"]').forEach((link) => {
+      if (link.dataset.preventDefaultBound === '1') {
+        return;
+      }
+
+      link.dataset.preventDefaultBound = '1';
+      link.addEventListener('click', (event) => {
+        event.preventDefault();
+      });
+    });
+
+    document.getElementById('btnConsultarProcesso')?.addEventListener('click', () => {
+      if (typeof window.consultarProcessoSuap === 'function') {
+        window.consultarProcessoSuap();
+      }
+    });
+
+    this.setupImageFallbacks();
+  }
+
+  setupImageFallbacks() {
+    document.querySelectorAll('[data-image-fallback]').forEach((image) => {
+      const applyFallback = () => {
+        image.classList.add('hidden');
+        const selector = String(image.dataset.imageFallback || '').trim();
+        const fallback = selector ? image.parentElement?.querySelector(selector) : null;
+        fallback?.classList.add('is-visible');
+      };
+
+      if (image.dataset.imageFallbackBound === '1') {
+        if (image.complete && image.naturalWidth === 0) {
+          applyFallback();
+        }
+        return;
+      }
+
+      image.dataset.imageFallbackBound = '1';
+      image.addEventListener('error', applyFallback);
+
+      if (image.complete && image.naturalWidth === 0) {
+        applyFallback();
+      }
     });
   }
 
@@ -801,48 +855,59 @@ class ControleMaterialApp {
 
       if (!empenhosCompletos || empenhosCompletos.length === 0) {
         container.innerHTML = `
-          <div style="text-align: center; padding: 40px;">
-            <p style="font-size: 18px; color: #666;">📭 Nenhum empenho cadastrado.</p>
-            <p>Cadastre empenhos para visualizar o controle de saldos.</p>
+          <div class="sg-empty-state">
+            <p class="sg-empty-state__title">📭 Nenhum empenho cadastrado.</p>
+            <p class="sg-empty-state__text">Cadastre empenhos para visualizar o controle de saldos.</p>
           </div>
         `;
         return;
       }
 
+      const optionsHtml = empenhosCompletos
+        .map((emp) => {
+          const numero = escapeHTML(String(emp.numero || 'Sem número'));
+          const fornecedor = escapeHTML(String(emp.fornecedor || 'Fornecedor não informado'));
+          const valorFormatado = escapeHTML(
+            FormatUtils.formatCurrencyBR(emp.valorTotalEmpenho ?? emp.valorTotal ?? 0)
+          );
+
+          return `
+            <option value="${emp.id}">
+              NE ${numero} - ${fornecedor} - ${valorFormatado}
+            </option>
+          `;
+        })
+        .join('');
+
       // Criar seletor e conteúdo (usar TODOS os empenhos)
-      const html = `
-        <div style="margin-bottom: 20px; padding: 15px; background: #f5f5f5; border-radius: 8px;">
-          <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
-            <div style="flex: 1; min-width: 300px;">
-              <label style="font-weight: bold; margin-right: 10px; display: block; margin-bottom: 5px;">Selecione o Empenho:</label>
-              <select id="saldoEmpenhoSelectTab" style="width: 100%; padding: 8px; font-size: 14px; border-radius: 4px; border: 1px solid #ccc;">
+      container.innerHTML = `
+        <section class="sg-section-shell sg-saldo-panel">
+          <div class="sg-toolbar sg-saldo-toolbar">
+            <div class="sg-saldo-toolbar__field">
+              <label for="saldoEmpenhoSelectTab" class="sg-saldo-toolbar__label">Selecione o Empenho:</label>
+              <select id="saldoEmpenhoSelectTab" class="sg-inline-select">
                 <option value="">-- Selecione um empenho --</option>
-                ${empenhosCompletos
-                  .map(
-                    (emp) => `
-                  <option value="${emp.id}">
-                    NE ${emp.numero} - ${emp.fornecedor} - ${FormatUtils.formatCurrencyBR(emp.valorTotalEmpenho ?? emp.valorTotal ?? 0)}
-                  </option>
-                `
-                  )
-                  .join('')}
+                ${optionsHtml}
               </select>
             </div>
             <button
-              onclick="window.app.carregarControleSaldos()"
-              style="padding: 10px 20px; background: #17a2b8; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; white-space: nowrap;"
+              type="button"
+              id="btnAtualizarControleSaldos"
+              class="btn btn-secondary inline-flex items-center gap-1 px-4 py-2 whitespace-nowrap"
               title="Recarregar lista de empenhos">
               🔄 Atualizar Lista
             </button>
           </div>
-          <p style="margin-top: 10px; font-size: 12px; color: #666;">
+          <p class="sg-info-note sg-saldo-toolbar__meta">
             💡 Total: ${empenhosCompletos.length} empenho(s) | ${empenhosComArquivo.length} com arquivo PDF vinculado
           </p>
-        </div>
-        <div id="saldoDetalhesTab" style="margin-top: 20px;"></div>
+          <div id="saldoDetalhesTab" class="sg-saldo-details" aria-live="polite"></div>
+        </section>
       `;
 
-      container.innerHTML = html;
+      document.getElementById('btnAtualizarControleSaldos')?.addEventListener('click', () => {
+        this.carregarControleSaldos();
+      });
 
       // Adicionar evento ao select
       document.getElementById('saldoEmpenhoSelectTab').addEventListener('change', async (e) => {
@@ -850,12 +915,15 @@ class ControleMaterialApp {
         if (empenhoId) {
           await this.carregarSaldoEmpenhoTab(empenhoId);
         } else {
-          document.getElementById('saldoDetalhesTab').innerHTML = '';
+          replaceElementChildren(document.getElementById('saldoDetalhesTab'));
         }
       });
     } catch (error) {
       console.error('Erro ao carregar controle de saldos:', error);
-      container.innerHTML = `<div class="alert alert-danger">Erro ao carregar: ${error.message}</div>`;
+      const errorDiv = document.createElement('div');
+      errorDiv.className = 'alert alert-danger';
+      errorDiv.textContent = `Erro ao carregar: ${error.message || 'Erro desconhecido'}`;
+      replaceElementChildren(container, [errorDiv]);
     }
   }
 
@@ -1599,6 +1667,18 @@ class ControleMaterialApp {
     // Botão de editar (criado dinamicamente)
     let btnEditarEmpenho = document.getElementById('btnHabilitarEdicao');
 
+    const setElementHidden = (element, isHidden) => {
+      if (element) {
+        element.hidden = isHidden;
+      }
+    };
+
+    const setCollectionHidden = (elements, isHidden) => {
+      Array.from(elements || []).forEach((element) => {
+        setElementHidden(element, isHidden);
+      });
+    };
+
     if (visualizacao) {
       // === MODO VISUALIZAÇÃO ===
       campos.forEach((campo) => {
@@ -1606,31 +1686,22 @@ class ControleMaterialApp {
         campo.classList.add('campo-visualizacao');
       });
 
-      botoesAcao.forEach((btn) => {
-        btn.style.display = 'none';
-      });
+      setCollectionHidden(botoesAcao, true);
 
       // Esconder botões de excluir item
-      botoesExcluirItem.forEach((btn) => {
-        btn.style.display = 'none';
-      });
+      setCollectionHidden(botoesExcluirItem, true);
 
-      if (btnSalvar) {
-        btnSalvar.style.display = 'none';
-      }
+      setElementHidden(btnSalvar, true);
 
-      if (btnAnexarPdf) {
-        btnAnexarPdf.style.display = 'none';
-      }
+      setElementHidden(btnAnexarPdf, true);
 
       // Adicionar botão "Editar" na área de ações (junto com Cancelar)
       if (!btnEditarEmpenho && formActions) {
         btnEditarEmpenho = document.createElement('button');
         btnEditarEmpenho.type = 'button';
         btnEditarEmpenho.id = 'btnHabilitarEdicao';
-        btnEditarEmpenho.className = 'btn btn-primary';
-        btnEditarEmpenho.innerHTML = '✏️ Editar Empenho';
-        btnEditarEmpenho.style.cssText = 'display: flex; align-items: center; gap: 6px;';
+        btnEditarEmpenho.className = 'btn btn-primary inline-flex items-center gap-1.5';
+        btnEditarEmpenho.textContent = '✏️ Editar Empenho';
 
         // Inserir após o botão Cancelar
         const btnCancelar = formActions.querySelector('#btnCancelarEmpenho');
@@ -1646,7 +1717,7 @@ class ControleMaterialApp {
           this.showInfo('Modo edição ativado');
         });
       } else if (btnEditarEmpenho) {
-        btnEditarEmpenho.style.display = 'flex';
+        setElementHidden(btnEditarEmpenho, false);
       }
 
       console.log('[APP] 👁️ Modo visualização ativado');
@@ -1657,26 +1728,18 @@ class ControleMaterialApp {
         campo.classList.remove('campo-visualizacao');
       });
 
-      botoesAcao.forEach((btn) => {
-        btn.style.display = '';
-      });
+      setCollectionHidden(botoesAcao, false);
 
       // Mostrar botões de excluir item
-      botoesExcluirItem.forEach((btn) => {
-        btn.style.display = '';
-      });
+      setCollectionHidden(botoesExcluirItem, false);
 
-      if (btnSalvar) {
-        btnSalvar.style.display = '';
-      }
+      setElementHidden(btnSalvar, false);
 
-      if (btnAnexarPdf) {
-        btnAnexarPdf.style.display = '';
-      }
+      setElementHidden(btnAnexarPdf, false);
 
       // Esconder botão de editar
       if (btnEditarEmpenho) {
-        btnEditarEmpenho.style.display = 'none';
+        setElementHidden(btnEditarEmpenho, true);
       }
 
       console.log('[APP] ✏️ Modo edição ativado');
@@ -1901,8 +1964,16 @@ class ControleMaterialApp {
 
     // Limpa nome do usuário no header
     const usuarioNome = document.getElementById('usuarioLogadoNome');
+    const usuarioAvatar = document.getElementById('usuarioAvatar');
+    const usuarioPerfil = document.getElementById('usuarioLogadoPerfil');
     if (usuarioNome) {
       usuarioNome.textContent = '';
+    }
+    if (usuarioAvatar) {
+      usuarioAvatar.textContent = 'SG';
+    }
+    if (usuarioPerfil) {
+      usuarioPerfil.textContent = 'Sessão encerrada';
     }
 
     // Volta para tela de login
@@ -1910,8 +1981,12 @@ class ControleMaterialApp {
 
     // Logout SSO gov.br (obrigatório conforme roteiro de integração)
     if (wasGovBr) {
-      const base = (window.CONFIG && window.CONFIG.api && window.CONFIG.api.baseUrl) || window.location.origin;
-      window.location.href = base + '/api/auth/govbr/logout?redirect=' + encodeURIComponent(window.location.origin);
+      const base =
+        window.__API_BASE_URL__ ||
+        (window.CONFIG && window.CONFIG.api && window.CONFIG.api.baseUrl) ||
+        (['localhost', '127.0.0.1'].includes(window.location.hostname) ? 'http://localhost:3000' : window.location.origin);
+      const normalizedBase = String(base).replace(/\/+$/, '');
+      window.location.href = normalizedBase + '/api/auth/govbr/logout?redirect=' + encodeURIComponent(window.location.origin);
     }
   }
 
@@ -1920,14 +1995,38 @@ class ControleMaterialApp {
    */
   atualizarUsuarioHeader() {
     const usuarioNome = document.getElementById('usuarioLogadoNome');
+    const usuarioAvatar = document.getElementById('usuarioAvatar');
+    const usuarioPerfil = document.getElementById('usuarioLogadoPerfil');
 
     if (usuarioNome && this.usuarioLogado) {
       const perfil = this.usuarioLogado.perfil === 'admin' ? '👑' : '👤';
       // Prevenção XSS: usar textContent para dados de usuário
       const nomeExibicao = this.usuarioLogado.nome || this.usuarioLogado.login;
       usuarioNome.textContent = `${perfil} ${nomeExibicao}`;
+
+      if (usuarioAvatar) {
+        const avatarBase = String(nomeExibicao || 'SG')
+          .trim()
+          .split(/\s+/)
+          .slice(0, 2)
+          .map((parte) => parte.charAt(0).toUpperCase())
+          .join('');
+        usuarioAvatar.textContent = avatarBase || 'SG';
+      }
+
+      if (usuarioPerfil) {
+        usuarioPerfil.textContent =
+          this.authProvider === 'govbr'
+            ? 'Autenticação Gov.br'
+            : this.usuarioLogado.perfil === 'admin'
+              ? 'Acesso administrativo'
+              : 'Sessão institucional';
+      }
+
       console.log('✅ Header atualizado com usuário:', this.usuarioLogado.nome);
     }
+
+    refreshPremiumShell(this);
   }
 
   /**
@@ -3088,10 +3187,14 @@ class ControleMaterialApp {
         divergencias.forEach((div) => {
           const divItem = document.createElement('div');
           divItem.className = 'divergencia-item';
+          const tipo = escapeHTML(String(div.tipo || '').replace('_', ' ').toUpperCase());
+          const mensagem = escapeHTML(String(div.mensagem || ''));
+          const valorNF = escapeHTML(String(div.valorNF || ''));
+          const valorEmpenho = escapeHTML(String(div.valorEmpenho || ''));
           divItem.innerHTML = `
-                        <strong>${div.tipo.replace('_', ' ').toUpperCase()}:</strong>
-                        <p>${div.mensagem}</p>
-                        ${div.valorNF ? `<small>NF: ${div.valorNF} | Empenho: ${div.valorEmpenho}</small>` : ''}
+                        <strong>${tipo}:</strong>
+                        <p>${mensagem}</p>
+                        ${div.valorNF ? `<small>NF: ${valorNF} | Empenho: ${valorEmpenho}</small>` : ''}
                     `;
           lista.appendChild(divItem);
         });
@@ -3165,8 +3268,9 @@ class ControleMaterialApp {
       // Atualizar título do modal
       const tituloModal = document.getElementById('modalValidacaoTitulo');
       if (tituloModal) {
-        tituloModal.innerHTML = resultado.ok ? '✅ Validação OK' : '❌ Divergências Encontradas';
-        tituloModal.style.color = resultado.ok ? '#28a745' : '#dc3545';
+        tituloModal.textContent = resultado.ok ? '✅ Validação OK' : '❌ Divergências Encontradas';
+        tituloModal.classList.remove('sg-modal-heading--success', 'sg-modal-heading--danger', 'sg-modal-heading--primary');
+        tituloModal.classList.add(resultado.ok ? 'sg-modal-heading--success' : 'sg-modal-heading--danger');
       }
 
       // Exibir no modal
@@ -3176,7 +3280,9 @@ class ControleMaterialApp {
       }
 
       // Mostrar modal
-      document.getElementById('modalValidacaoNF')?.classList.remove('hidden');
+      const modalValidacao = document.getElementById('modalValidacaoNF');
+      modalValidacao?.classList.remove('hidden');
+      modalValidacao?.setAttribute('aria-hidden', 'false');
 
       // Feedback visual
       if (resultado.ok) {
@@ -3277,9 +3383,11 @@ class ControleMaterialApp {
     // Fechar modal de validação
     document.getElementById('btnFecharValidacaoNF')?.addEventListener('click', () => {
       document.getElementById('modalValidacaoNF')?.classList.add('hidden');
+      document.getElementById('modalValidacaoNF')?.setAttribute('aria-hidden', 'true');
     });
     document.getElementById('btnFecharValidacaoNF2')?.addEventListener('click', () => {
       document.getElementById('modalValidacaoNF')?.classList.add('hidden');
+      document.getElementById('modalValidacaoNF')?.setAttribute('aria-hidden', 'true');
     });
   }
 
@@ -5137,7 +5245,13 @@ class ControleMaterialApp {
 
     if (screenId === 'homeScreen') {
       document.getElementById('btnHome')?.classList.add('active');
+    } else if (screenId === 'configScreen') {
+      document.getElementById('btnConfig')?.classList.add('active');
     }
+
+    document.body.dataset.currentScreen = screenId;
+    refreshPremiumShell(this);
+    scheduleVisualAuditRefresh(screenId);
   }
 
   /**

@@ -11,7 +11,7 @@ PORT="${DB_PORT:-5432}"
 MAX_TRIES=30
 TRIES=0
 
-echo "[Entrypoint] Aguardando PostgreSQL em ${HOST}:${PORT}..."
+echo "[DOCKER][BOOT] Aguardando PostgreSQL em ${HOST}:${PORT}..."
 
 until node -e "
   const s = require('net').createConnection({ host: '$HOST', port: $PORT });
@@ -21,17 +21,17 @@ until node -e "
 " 2>/dev/null; do
     TRIES=$((TRIES + 1))
     if [ "$TRIES" -ge "$MAX_TRIES" ]; then
-        echo "[Entrypoint] Aviso: PostgreSQL não respondeu após ${MAX_TRIES} tentativas."
-        echo "[Entrypoint] Iniciando servidor mesmo assim (bootstrap.js trata indisponibilidade)."
+        echo "[DOCKER][BOOT] Aviso: PostgreSQL não respondeu após ${MAX_TRIES} tentativas."
+        echo "[DOCKER][BOOT] Iniciando servidor mesmo assim (bootstrap.js trata indisponibilidade)."
         break
     fi
-    echo "[Entrypoint] Tentativa ${TRIES}/${MAX_TRIES} — aguardando 2s..."
+    echo "[DOCKER][BOOT] Tentativa ${TRIES}/${MAX_TRIES} — aguardando 2s..."
     sleep 2
 done
 
 if [ "$TRIES" -lt "$MAX_TRIES" ]; then
-    echo "[Entrypoint] PostgreSQL disponível."
+    echo "[DOCKER][BOOT] PostgreSQL disponível."
 fi
 
-echo "[Entrypoint] Iniciando servidor SINGEM..."
+echo "[DOCKER][BOOT] Iniciando servidor SINGEM..."
 exec "$@"

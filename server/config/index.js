@@ -2,22 +2,25 @@ const path = require('path');
 const fs = require('fs');
 const dotenv = require('dotenv');
 
-// Preserva NODE_ENV do sistema operacional (ex: PM2, Docker) antes de carregar .env
-const systemNodeEnv = process.env.NODE_ENV;
+// Preserva variaveis de ambiente do processo (ex: PM2, Docker, testes) antes de carregar .env.
+const systemEnv = { ...process.env };
+
+function restoreSystemEnv(overrides = {}) {
+  Object.entries(overrides).forEach(([key, value]) => {
+    process.env[key] = value;
+  });
+}
 
 const baseEnvPath = path.join(__dirname, '../.env');
 dotenv.config({ path: baseEnvPath });
-
-// Se o SO já definiu NODE_ENV, restaura (o .env base não deve sobrescrever)
-if (systemNodeEnv) {
-  process.env.NODE_ENV = systemNodeEnv;
-}
+restoreSystemEnv(systemEnv);
 
 const runtimeEnv = process.env.NODE_ENV || 'development';
 const envOverridePath = path.join(__dirname, `../.env.${runtimeEnv}`);
 
 if (fs.existsSync(envOverridePath)) {
   dotenv.config({ path: envOverridePath, override: true });
+  restoreSystemEnv(systemEnv);
 }
 
 const envPath = fs.existsSync(envOverridePath) ? envOverridePath : baseEnvPath;
@@ -71,8 +74,8 @@ const config = {
   catmatImportPath: process.env.CATMAT_IMPORT_PATH || '',
   catmatObrigatorio: parseBoolean(process.env.CATMAT_OBRIGATORIO, false),
   comprasApi: {
-    baseUrl: process.env.COMPRAS_API_BASE_URL || 'http://compras.dados.gov.br',
-    timeoutMs: Number(process.env.COMPRAS_API_TIMEOUT_MS || 8000),
+    baseUrl: process.env.COMPRAS_API_BASE_URL || 'https://dadosabertos.compras.gov.br',
+    timeoutMs: Number(process.env.COMPRAS_API_TIMEOUT_MS || 15000),
     maxRetries: Number(process.env.COMPRAS_API_MAX_RETRIES || 3),
     retryBaseDelayMs: Number(process.env.COMPRAS_API_RETRY_BASE_DELAY_MS || 500),
     rateLimitMs: Number(process.env.COMPRAS_API_RATE_LIMIT_MS || 250),
@@ -82,7 +85,7 @@ const config = {
   comprasGov: {
     baseUrl:
       process.env.COMPRASGOV_BASE_URL || process.env.COMPRAS_API_BASE_URL || 'https://dadosabertos.compras.gov.br',
-    timeoutMs: Number(process.env.COMPRASGOV_TIMEOUT_MS || process.env.COMPRAS_API_TIMEOUT_MS || 10000),
+    timeoutMs: Number(process.env.COMPRASGOV_TIMEOUT_MS || process.env.COMPRAS_API_TIMEOUT_MS || 15000),
     maxRetries: Number(process.env.COMPRASGOV_MAX_RETRIES || process.env.COMPRAS_API_MAX_RETRIES || 3),
     retryBaseDelayMs: Number(
       process.env.COMPRASGOV_RETRY_BASE_DELAY_MS || process.env.COMPRAS_API_RETRY_BASE_DELAY_MS || 400
@@ -101,10 +104,20 @@ const config = {
     acceptHeader: process.env.COMPRASGOV_ACCEPT_HEADER || process.env.COMPRAS_API_ACCEPT_HEADER || '*/*',
     endpoints: {
       catalogoMaterial: {
-        itens: process.env.COMPRASGOV_ENDPOINT_CATALOGO_MATERIAL_ITENS || '/modulo-material/4_consultarItemMaterial',
         grupos: process.env.COMPRASGOV_ENDPOINT_CATALOGO_MATERIAL_GRUPOS || '/modulo-material/1_consultarGrupoMaterial',
         classes:
-          process.env.COMPRASGOV_ENDPOINT_CATALOGO_MATERIAL_CLASSES || '/modulo-material/2_consultarClasseMaterial'
+          process.env.COMPRASGOV_ENDPOINT_CATALOGO_MATERIAL_CLASSES || '/modulo-material/2_consultarClasseMaterial',
+        pdm: process.env.COMPRASGOV_ENDPOINT_CATALOGO_MATERIAL_PDM || '/modulo-material/3_consultarPdmMaterial',
+        itens: process.env.COMPRASGOV_ENDPOINT_CATALOGO_MATERIAL_ITENS || '/modulo-material/4_consultarItemMaterial',
+        naturezaDespesa:
+          process.env.COMPRASGOV_ENDPOINT_CATALOGO_MATERIAL_NATUREZA_DESPESA ||
+          '/modulo-material/5_consultarMaterialNaturezaDespesa',
+        unidadeFornecimento:
+          process.env.COMPRASGOV_ENDPOINT_CATALOGO_MATERIAL_UNIDADE_FORNECIMENTO ||
+          '/modulo-material/6_consultarMaterialUnidadeFornecimento',
+        caracteristicas:
+          process.env.COMPRASGOV_ENDPOINT_CATALOGO_MATERIAL_CARACTERISTICAS ||
+          '/modulo-material/7_consultarMaterialCaracteristicas'
       },
       catalogoServico: {
         itens: process.env.COMPRASGOV_ENDPOINT_CATALOGO_SERVICO_ITENS || '/modulo-servico/6_consultarItemServico',
@@ -114,23 +127,39 @@ const config = {
       pesquisaPreco: {
         material:
           process.env.COMPRASGOV_ENDPOINT_PESQUISA_PRECO_MATERIAL || '/modulo-pesquisa-preco/1_consultarMaterial',
-        servico: process.env.COMPRASGOV_ENDPOINT_PESQUISA_PRECO_SERVICO || '/modulo-pesquisa-preco/3_consultarServico'
+        materialDetalhe:
+          process.env.COMPRASGOV_ENDPOINT_PESQUISA_PRECO_MATERIAL_DETALHE || '/modulo-pesquisa-preco/2_consultarMaterialDetalhe',
+        servico: process.env.COMPRASGOV_ENDPOINT_PESQUISA_PRECO_SERVICO || '/modulo-pesquisa-preco/3_consultarServico',
+        servicoDetalhe:
+          process.env.COMPRASGOV_ENDPOINT_PESQUISA_PRECO_SERVICO_DETALHE || '/modulo-pesquisa-preco/4_consultarServicoDetalhe'
       },
       uasgOrgao: {
-        consulta: process.env.COMPRASGOV_ENDPOINT_UASG || '/modulo-uasg/1_consultarUasg'
+        consulta: process.env.COMPRASGOV_ENDPOINT_UASG || '/modulo-uasg/1_consultarUasg',
+        orgao: process.env.COMPRASGOV_ENDPOINT_ORGAO || '/modulo-uasg/2_consultarOrgao'
       },
       fornecedor: {
         consulta: process.env.COMPRASGOV_ENDPOINT_FORNECEDOR || '/modulo-fornecedor/1_consultarFornecedor'
       },
       contratacoes: {
         consulta:
-          process.env.COMPRASGOV_ENDPOINT_CONTRATACOES || '/modulo-contratacoes/1_consultarContratacoes_PNCP_14133'
+          process.env.COMPRASGOV_ENDPOINT_CONTRATACOES || '/modulo-contratacoes/1_consultarContratacoes_PNCP_14133',
+        itens:
+          process.env.COMPRASGOV_ENDPOINT_CONTRATACOES_ITENS ||
+          '/modulo-contratacoes/2_consultarItensContratacoes_PNCP_14133',
+        resultadosItens:
+          process.env.COMPRASGOV_ENDPOINT_CONTRATACOES_RESULTADOS_ITENS ||
+          '/modulo-contratacoes/3_consultarResultadoItensContratacoes_PNCP_14133'
       },
       arp: {
-        consulta: process.env.COMPRASGOV_ENDPOINT_ARP || '/modulo-arp/2_consultarARPItem'
+        // BUGFIX: endpoint correto de CONSULTA da ARP (não o de itens)
+        consulta: process.env.COMPRASGOV_ENDPOINT_ARP || '/modulo-arp/1_consultarARP',
+        item: process.env.COMPRASGOV_ENDPOINT_ARP_ITEM || '/modulo-arp/2_consultarARPItem',
+        consultaId: process.env.COMPRASGOV_ENDPOINT_ARP_ID || '/modulo-arp/1.1_consultarARP_Id',
+        itemId: process.env.COMPRASGOV_ENDPOINT_ARP_ITEM_ID || '/modulo-arp/2.1_consultarARPItem_Id'
       },
       contratos: {
-        consulta: process.env.COMPRASGOV_ENDPOINT_CONTRATOS || '/modulo-contratos/1_consultarContratos'
+        consulta: process.env.COMPRASGOV_ENDPOINT_CONTRATOS || '/modulo-contratos/1_consultarContratos',
+        item: process.env.COMPRASGOV_ENDPOINT_CONTRATOS_ITEM || '/modulo-contratos/2_consultarContratosItem'
       },
       legado: {
         licitacoes: process.env.COMPRASGOV_ENDPOINT_LEGADO_LICITACOES || '/modulo-legado/1_consultarLicitacao',

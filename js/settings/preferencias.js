@@ -3,6 +3,17 @@
  * Gerencia preferências gerais do sistema
  */
 
+import { applyThemePreference, initTheme, resolveTheme } from '../ui/themeManager.js';
+import {
+  feedbackMarkup,
+  renderInto,
+  reportMarkup,
+  reportTableMarkup,
+  setFeedback,
+  tableCellMarkup,
+  tableRowMarkup
+} from './renderUtils.js';
+
 // Import backupManagerCore removido - agora usamos dbManager.exportBackup/importBackup diretamente
 
 class SettingsPreferencias {
@@ -13,6 +24,7 @@ class SettingsPreferencias {
   }
 
   init() {
+    initTheme();
     this.setupEventListeners();
   }
 
@@ -83,15 +95,22 @@ class SettingsPreferencias {
           : await window.dbManager.getAll('notasFiscais');
         if (!nfs || nfs.length === 0) {
           if (statusEl) {
-            statusEl.innerHTML =
-              '<div class="status-message warning">⚠️ Nenhuma Nota Fiscal encontrada para exportar.</div>';
+            this._showStatus(
+              statusEl,
+              'warning',
+              '⚠️ Nenhuma Nota Fiscal encontrada para exportar.'
+            );
           }
           return;
         }
         if (window.CSVExporter) {
           await window.CSVExporter.exportarNotasFiscais(nfs);
           if (statusEl) {
-            statusEl.innerHTML = `<div class="status-message success">✅ ${nfs.length} Nota(s) Fiscal(is) exportada(s) com sucesso!</div>`;
+            this._showStatus(
+              statusEl,
+              'success',
+              `✅ ${nfs.length} Nota(s) Fiscal(is) exportada(s) com sucesso!`
+            );
           }
         } else {
           throw new Error('Módulo CSVExporter não disponível');
@@ -102,15 +121,18 @@ class SettingsPreferencias {
           : await window.dbManager.getAll('empenhos');
         if (!empenhos || empenhos.length === 0) {
           if (statusEl) {
-            statusEl.innerHTML =
-              '<div class="status-message warning">⚠️ Nenhum Empenho encontrado para exportar.</div>';
+            this._showStatus(statusEl, 'warning', '⚠️ Nenhum Empenho encontrado para exportar.');
           }
           return;
         }
         if (window.CSVExporter) {
           await window.CSVExporter.exportarEmpenhos(empenhos);
           if (statusEl) {
-            statusEl.innerHTML = `<div class="status-message success">✅ ${empenhos.length} Empenho(s) exportado(s) com sucesso!</div>`;
+            this._showStatus(
+              statusEl,
+              'success',
+              `✅ ${empenhos.length} Empenho(s) exportado(s) com sucesso!`
+            );
           }
         } else {
           throw new Error('Módulo CSVExporter não disponível');
@@ -120,7 +142,7 @@ class SettingsPreferencias {
       console.error('[Preferencias] Erro ao exportar CSV:', error);
       const statusEl = document.getElementById('backupStatusPref');
       if (statusEl) {
-        statusEl.innerHTML = `<div class="status-message error">❌ Erro ao exportar: ${error.message}</div>`;
+        this._showStatus(statusEl, 'error', `❌ Erro ao exportar: ${error.message}`);
       }
     }
   }
@@ -172,10 +194,16 @@ class SettingsPreferencias {
       return;
     }
 
-    resultEl.style.display = 'block';
-    resultEl.innerHTML = this.serverMode
-      ? '<p>⏳ Verificando dados na API PostgreSQL...</p>'
-      : '<p>⏳ Verificando dados na base local legada...</p>';
+    renderInto(
+      resultEl,
+      feedbackMarkup(
+        'info',
+        this.serverMode
+          ? '⏳ Verificando dados na API PostgreSQL...'
+          : '⏳ Verificando dados na base local legada...'
+      ),
+      { reveal: true }
+    );
 
     try {
       if (!window.dbManager?.db) {
@@ -226,94 +254,111 @@ class SettingsPreferencias {
       const numUnidades = unidadesConfig?.unidades?.length || 0;
       const numUsuarios = usuariosConfig?.usuarios?.length || 0;
 
+      const empenhosSemArquivo = empenhos.length - empenhosComArquivo;
+
       // Storage no modo banco/API
       const storageStatus = '✅ Banco/API ativo (sem diretório externo)';
-      const storageColor = '#28a745';
+      const rows = [
+        tableRowMarkup([
+          tableCellMarkup({ html: '📋 Empenhos' }),
+          tableCellMarkup({
+            html: empenhos.length,
+            className: `settings-report__count settings-report__count--${empenhos.length > 0 ? 'success' : 'error'}`
+          })
+        ]),
+        tableRowMarkup([
+          tableCellMarkup({ html: '↳ Com arquivo vinculado', className: 'settings-report__label--indent' }),
+          tableCellMarkup({
+            html: empenhosComArquivo,
+            className: `settings-report__count settings-report__count--${empenhosComArquivo > 0 ? 'success' : 'error'}`
+          })
+        ]),
+        tableRowMarkup([
+          tableCellMarkup({ html: '↳ Sem arquivo vinculado', className: 'settings-report__label--indent' }),
+          tableCellMarkup({
+            html: empenhosSemArquivo,
+            className: `settings-report__count settings-report__count--${empenhosSemArquivo > 0 ? 'warning' : 'success'}`
+          })
+        ]),
+        tableRowMarkup([
+          tableCellMarkup({ html: '📄 Notas Fiscais' }),
+          tableCellMarkup({ html: notasFiscais.length, className: 'settings-report__count' })
+        ]),
+        tableRowMarkup([
+          tableCellMarkup({ html: '📎 Arquivos (PDFs)' }),
+          tableCellMarkup({ html: arquivos.length, className: 'settings-report__count' })
+        ]),
+        tableRowMarkup([
+          tableCellMarkup({ html: '↳ Empenhos', className: 'settings-report__label--indent' }),
+          tableCellMarkup({ html: arquivosEmpenho, className: 'settings-report__count' })
+        ]),
+        tableRowMarkup([
+          tableCellMarkup({ html: '↳ Notas Fiscais', className: 'settings-report__label--indent' }),
+          tableCellMarkup({ html: arquivosNF, className: 'settings-report__count' })
+        ]),
+        tableRowMarkup([
+          tableCellMarkup({ html: '🚚 Entregas' }),
+          tableCellMarkup({ html: entregas.length, className: 'settings-report__count' })
+        ]),
+        tableRowMarkup([
+          tableCellMarkup({ html: '💰 Saldos' }),
+          tableCellMarkup({ html: saldos.length, className: 'settings-report__count' })
+        ]),
+        tableRowMarkup(
+          [
+            tableCellMarkup({ html: '🏢 Unidades' }),
+            tableCellMarkup({ html: numUnidades, className: 'settings-report__count' })
+          ],
+          { rowClass: 'settings-report__row--muted' }
+        ),
+        tableRowMarkup(
+          [
+            tableCellMarkup({ html: '👤 Usuários' }),
+            tableCellMarkup({ html: numUsuarios, className: 'settings-report__count' })
+          ],
+          { rowClass: 'settings-report__row--muted' }
+        )
+      ];
 
-      resultEl.innerHTML = `
-        <h4 style="margin: 0 0 10px 0; color: #1e7e34;">📊 Dados em ${this.serverMode ? 'API PostgreSQL (VPS)' : 'Base local legada (ControleMaterialDB)'}</h4>
-        <table style="width: 100%; border-collapse: collapse;">
-          <tr style="background: #e9ecef;">
-            <td style="padding: 8px; border: 1px solid #ddd;"><strong>Store</strong></td>
-            <td style="padding: 8px; border: 1px solid #ddd; text-align: right;"><strong>Registros</strong></td>
-          </tr>
-          <tr>
-            <td style="padding: 8px; border: 1px solid #ddd;">📋 Empenhos</td>
-            <td style="padding: 8px; border: 1px solid #ddd; text-align: right; font-weight: bold; color: ${empenhos.length > 0 ? '#28a745' : '#dc3545'};">${empenhos.length}</td>
-          </tr>
-          <tr>
-            <td style="padding: 8px; border: 1px solid #ddd; padding-left: 20px;">↳ Com arquivo vinculado</td>
-            <td style="padding: 8px; border: 1px solid #ddd; text-align: right; color: ${empenhosComArquivo > 0 ? '#28a745' : '#dc3545'};">${empenhosComArquivo}</td>
-          </tr>
-          <tr>
-            <td style="padding: 8px; border: 1px solid #ddd; padding-left: 20px;">↳ Sem arquivo vinculado</td>
-            <td style="padding: 8px; border: 1px solid #ddd; text-align: right; color: ${empenhos.length - empenhosComArquivo > 0 ? '#ffc107' : '#28a745'};">${empenhos.length - empenhosComArquivo}</td>
-          </tr>
-          <tr>
-            <td style="padding: 8px; border: 1px solid #ddd;">📄 Notas Fiscais</td>
-            <td style="padding: 8px; border: 1px solid #ddd; text-align: right; font-weight: bold;">${notasFiscais.length}</td>
-          </tr>
-          <tr>
-            <td style="padding: 8px; border: 1px solid #ddd;">📎 Arquivos (PDFs)</td>
-            <td style="padding: 8px; border: 1px solid #ddd; text-align: right;">${arquivos.length}</td>
-          </tr>
-          <tr>
-            <td style="padding: 8px; border: 1px solid #ddd; padding-left: 20px;">↳ Empenhos</td>
-            <td style="padding: 8px; border: 1px solid #ddd; text-align: right;">${arquivosEmpenho}</td>
-          </tr>
-          <tr>
-            <td style="padding: 8px; border: 1px solid #ddd; padding-left: 20px;">↳ Notas Fiscais</td>
-            <td style="padding: 8px; border: 1px solid #ddd; text-align: right;">${arquivosNF}</td>
-          </tr>
-          <tr>
-            <td style="padding: 8px; border: 1px solid #ddd;">🚚 Entregas</td>
-            <td style="padding: 8px; border: 1px solid #ddd; text-align: right;">${entregas.length}</td>
-          </tr>
-          <tr>
-            <td style="padding: 8px; border: 1px solid #ddd;">💰 Saldos</td>
-            <td style="padding: 8px; border: 1px solid #ddd; text-align: right;">${saldos.length}</td>
-          </tr>
-          <tr style="background: #f8f9fa;">
-            <td style="padding: 8px; border: 1px solid #ddd;">🏢 Unidades</td>
-            <td style="padding: 8px; border: 1px solid #ddd; text-align: right;">${numUnidades}</td>
-          </tr>
-          <tr style="background: #f8f9fa;">
-            <td style="padding: 8px; border: 1px solid #ddd;">👤 Usuários</td>
-            <td style="padding: 8px; border: 1px solid #ddd; text-align: right;">${numUsuarios}</td>
-          </tr>
-        </table>
+      renderInto(
+        resultEl,
+        reportMarkup({
+          title: `📊 Dados em ${this.serverMode ? 'API PostgreSQL (VPS)' : 'Base local legada (ControleMaterialDB)'}`,
+          content: `
+            ${reportTableMarkup({
+              headers: ['Store', { label: 'Registros', className: 'is-center' }],
+              rows
+            })}
 
-        <h4 style="margin: 15px 0 10px 0; color: #1e7e34;">📁 Configuração de Storage</h4>
-        <div style="padding: 10px; background: #f8f9fa; border-radius: 5px; color: ${storageColor};">
-          ${storageStatus}
-        </div>
+            <h4 class="settings-report__title">📁 Configuração de Storage</h4>
+            ${feedbackMarkup('success', storageStatus)}
 
-        ${
-          !this.serverMode && empenhos.length > 0 && empenhosComArquivo === 0
-            ? `
-        <div style="margin-top: 15px; padding: 10px; background: #fff3cd; border-radius: 5px;">
-          <strong>⚠️ Atenção:</strong> Você tem ${empenhos.length} empenho(s) no banco, mas nenhum tem arquivo PDF vinculado.
-          <br>Os empenhos só aparecem na página principal quando têm um PDF de Nota de Empenho vinculado.
-          <br><br><strong>Solução:</strong> Vá para a página principal e faça upload dos PDFs das Notas de Empenho.
-        </div>
-        `
-            : ''
-        }
-        ${
-          empenhos.length === 0
-            ? `
-        <div style="margin-top: 15px; padding: 10px; background: #f8d7da; border-radius: 5px;">
-          <strong>❌ Nenhum empenho encontrado no banco.</strong>
-          <br>Se você acabou de importar um backup, o import pode ter falhado.
-          <br>Verifique o console (F12) para mais detalhes.
-        </div>
-        `
-            : ''
-        }
-      `;
+            ${
+              !this.serverMode && empenhos.length > 0 && empenhosComArquivo === 0
+                ? feedbackMarkup(
+                    'warning',
+                    `<strong>⚠️ Atenção:</strong> Você tem ${empenhos.length} empenho(s) no banco, mas nenhum tem arquivo PDF vinculado.<br>Os empenhos só aparecem na página principal quando têm um PDF de Nota de Empenho vinculado.<br><br><strong>Solução:</strong> Vá para a página principal e faça upload dos PDFs das Notas de Empenho.`
+                  )
+                : ''
+            }
+
+            ${
+              empenhos.length === 0
+                ? feedbackMarkup(
+                    'error',
+                    '<strong>❌ Nenhum empenho encontrado no banco.</strong><br>Se você acabou de importar um backup, o import pode ter falhado.<br>Verifique o console (F12) para mais detalhes.'
+                  )
+                : ''
+            }
+          `
+        }),
+        { reveal: true }
+      );
     } catch (error) {
       console.error('[Preferencias] Erro ao verificar dados:', error);
-      resultEl.innerHTML = `<p style="color: #dc3545;">❌ Erro: ${error.message}</p>`;
+      renderInto(resultEl, feedbackMarkup('error', `❌ Erro: ${error.message}`), {
+        reveal: true
+      });
     }
   }
 
@@ -414,8 +459,9 @@ class SettingsPreferencias {
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = '.json,application/json';
-    input.style.display = 'none';
+    input.className = 'sg-hidden-file-input';
     input.id = 'backupFileInput_' + Date.now();
+    input.title = 'Selecionar arquivo de backup';
 
     console.log('[Preferencias] 📎 Input criado:', input.id);
 
@@ -616,23 +662,7 @@ class SettingsPreferencias {
    * Mostra status de backup
    */
   _showStatus(el, type, message) {
-    if (!el) {
-      return;
-    }
-
-    const colors = {
-      info: '#0d6efd',
-      success: '#198754',
-      error: '#dc3545'
-    };
-
-    el.innerHTML = `<div style="padding: 10px; border-radius: 4px; background: ${colors[type]}20; color: ${colors[type]}; border: 1px solid ${colors[type]}40">${message}</div>`;
-
-    if (type !== 'info') {
-      setTimeout(() => {
-        el.innerHTML = '';
-      }, 5000);
-    }
+    setFeedback(el, type, message, { autoHideMs: type !== 'info' ? 5000 : 0 });
   }
 
   /**
@@ -646,7 +676,7 @@ class SettingsPreferencias {
       this.preferencias = await this.getPreferencias();
 
       if (this.preferencias) {
-        document.getElementById('tema').value = this.preferencias.tema || 'light';
+        document.getElementById('tema').value = this.preferencias.tema || 'system';
         document.getElementById('idioma').value = this.preferencias.idioma || 'pt-BR';
         document.getElementById('toleranciaValor').value = this.preferencias.toleranciaValor || '0.01';
         document.getElementById('toleranciaQuantidade').value = this.preferencias.toleranciaQuantidade || '0';
@@ -654,10 +684,10 @@ class SettingsPreferencias {
         document.getElementById('autoSalvar').checked = this.preferencias.autoSalvar || true;
         document.getElementById('validacaoRigida').checked = this.preferencias.validacaoRigida || false;
 
-        this.aplicarTema(this.preferencias.tema || 'light');
+        this.aplicarTema(this.preferencias.tema || 'system');
       } else {
         // Preferências padrão
-        this.aplicarTema('light');
+        this.aplicarTema('system');
       }
     } catch (error) {
       console.error('Erro ao carregar preferências:', error);
@@ -698,8 +728,12 @@ class SettingsPreferencias {
    */
   aplicarTema(tema) {
     const root = document.documentElement;
+    const preferencia = ['light', 'dark', 'system'].includes(tema) ? tema : 'system';
+    const resolvedTheme = resolveTheme(preferencia);
 
-    if (tema === 'dark') {
+    applyThemePreference(preferencia);
+
+    if (resolvedTheme === 'dark') {
       root.style.setProperty('--cor-fundo', '#1a1a1a');
       root.style.setProperty('--cor-texto', '#f0f0f0');
       root.style.setProperty('--cor-card', '#2d2d2d');

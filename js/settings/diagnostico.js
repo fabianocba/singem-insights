@@ -7,6 +7,17 @@
 import { detectStorageUsage, printStorageReport, getSystemStats, formatBytes } from '../core/storageAudit.js';
 import { StorageAdapter } from '../core/storageAdapter.js';
 import { escapeHTML as escapeHtml } from '../utils/sanitize.js';
+import {
+  feedbackMarkup,
+  metricCardMarkup,
+  metricGridMarkup,
+  progressMarkup,
+  renderInto,
+  reportMarkup,
+  reportTableMarkup,
+  tableCellMarkup,
+  tableRowMarkup
+} from './renderUtils.js';
 
 // ============================================================================
 // Estado do módulo
@@ -45,82 +56,70 @@ async function renderStorageStats(containerId) {
 
   if (SERVER_MODE) {
     const authAtivo = !!window.__SINGEM_AUTH?.accessToken;
-    const apiBase = window.CONFIG?.api?.baseUrl || window.location.origin;
-    container.innerHTML = `
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
-        <div style="background: #e8f5e9; padding: 15px; border-radius: 8px; text-align: center;">
-          <div style="font-size: 24px; font-weight: bold; color: #2e7d32;">SERVER</div>
-          <div style="color: #666;">Modo de armazenamento</div>
-        </div>
-        <div style="background: #e3f2fd; padding: 15px; border-radius: 8px; text-align: center;">
-          <div style="font-size: 24px; font-weight: bold; color: #1565c0;">${authAtivo ? 'ATIVA' : 'INATIVA'}</div>
-          <div style="color: #666;">Sessão em memória</div>
-        </div>
-        <div style="background: #fff3e0; padding: 15px; border-radius: 8px; text-align: center;">
-          <div style="font-size: 14px; font-weight: bold; color: #e65100;">${escapeHtml(apiBase)}</div>
-          <div style="color: #666;">API base</div>
-        </div>
-      </div>
-    `;
+    const apiBase =
+      window.__API_BASE_URL__ ||
+      window.CONFIG?.api?.baseUrl ||
+      (['localhost', '127.0.0.1'].includes(window.location.hostname) ? 'http://localhost:3000' : window.location.origin);
+    renderInto(
+      container,
+      metricGridMarkup([
+        metricCardMarkup({ tone: 'success', value: 'SERVER', label: 'Modo de armazenamento' }),
+        metricCardMarkup({
+          tone: authAtivo ? 'info' : 'warning',
+          value: authAtivo ? 'ATIVA' : 'INATIVA',
+          label: 'Sessão em memória'
+        }),
+        metricCardMarkup({
+          tone: 'warning',
+          value: escapeHtml(apiBase),
+          label: 'API base'
+        })
+      ])
+    );
     return;
   }
 
   try {
     const usage = await detectStorageUsage();
 
-    let html = `
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
-        <div style="background: #e8f5e9; padding: 15px; border-radius: 8px; text-align: center;">
-          <div style="font-size: 24px; font-weight: bold; color: #2e7d32;">
-            ${usage.indexedDB.databases.length}
-          </div>
-          <div style="color: #666;">Base(s) local legada</div>
-        </div>
-
-        <div style="background: #e3f2fd; padding: 15px; border-radius: 8px; text-align: center;">
-          <div style="font-size: 24px; font-weight: bold; color: #1565c0;">
-            ${usage.localStorage.itemCount}
-          </div>
-          <div style="color: #666;">Chaves de storage web</div>
-        </div>
-
-        <div style="background: #fff3e0; padding: 15px; border-radius: 8px; text-align: center;">
-          <div style="font-size: 24px; font-weight: bold; color: #e65100;">
-            ${formatBytes(usage.localStorage.totalSize)}
-          </div>
-          <div style="color: #666;">Tamanho de storage web</div>
-        </div>
-
-        <div style="background: #f3e5f5; padding: 15px; border-radius: 8px; text-align: center;">
-          <div style="font-size: 24px; font-weight: bold; color: #7b1fa2;">
-            ${usage.sessionStorage.itemCount}
-          </div>
-          <div style="color: #666;">Chaves de sessão web</div>
-        </div>
-      </div>
-    `;
+    let html = metricGridMarkup([
+      metricCardMarkup({
+        tone: 'success',
+        value: usage.indexedDB.databases.length,
+        label: 'Base(s) local legada'
+      }),
+      metricCardMarkup({
+        tone: 'info',
+        value: usage.localStorage.itemCount,
+        label: 'Chaves de storage web'
+      }),
+      metricCardMarkup({
+        tone: 'warning',
+        value: formatBytes(usage.localStorage.totalSize),
+        label: 'Tamanho de storage web'
+      }),
+      metricCardMarkup({
+        tone: 'info',
+        value: usage.sessionStorage.itemCount,
+        label: 'Chaves de sessão web'
+      })
+    ]);
 
     // Estimativa de quota (se disponível)
     if (usage.quota) {
       const usedPercent = ((usage.quota.usage / usage.quota.quota) * 100).toFixed(1);
-      html += `
-        <div style="margin-top: 20px; padding: 15px; background: #f5f5f5; border-radius: 8px;">
-          <div style="font-weight: bold; margin-bottom: 10px;">📊 Uso de Quota</div>
-          <div style="background: #e0e0e0; border-radius: 4px; overflow: hidden; height: 20px;">
-            <div style="background: linear-gradient(90deg, #4caf50, #8bc34a); height: 100%; width: ${Math.min(usedPercent, 100)}%;"></div>
-          </div>
-          <div style="display: flex; justify-content: space-between; margin-top: 5px; font-size: 12px; color: #666;">
-            <span>Usado: ${formatBytes(usage.quota.usage)}</span>
-            <span>${usedPercent}%</span>
-            <span>Total: ${formatBytes(usage.quota.quota)}</span>
-          </div>
-        </div>
-      `;
+      html += progressMarkup({
+        title: '📊 Uso de Quota',
+        value: usedPercent,
+        leftLabel: `Usado: ${formatBytes(usage.quota.usage)}`,
+        centerLabel: `${usedPercent}%`,
+        rightLabel: `Total: ${formatBytes(usage.quota.quota)}`
+      });
     }
 
-    container.innerHTML = html;
+    renderInto(container, html);
   } catch (error) {
-    container.innerHTML = `<div class="status-message error">❌ Erro ao carregar estatísticas: ${error.message}</div>`;
+    renderInto(container, feedbackMarkup('error', `❌ Erro ao carregar estatísticas: ${error.message}`));
     console.error('[Diagnostico] Erro ao renderizar stats:', error);
   }
 }
@@ -140,33 +139,34 @@ async function renderIndexedDBDetails(containerId) {
       const notasFiscais = await window.dbManager.buscarNotasFiscais();
       const authAtivo = !!window.__SINGEM_AUTH?.accessToken;
 
-      container.innerHTML = `
-        <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
-          <div style="font-weight: bold; color: #1e7e34; margin-bottom: 10px;">
-            🖥️ API PostgreSQL (VPS)
-          </div>
-
-          <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
-            <tbody>
-              <tr>
-                <td style="padding: 8px; border-bottom: 1px solid #eee;">📋 Empenhos</td>
-                <td style="padding: 8px; text-align: right; border-bottom: 1px solid #eee;"><strong>${empenhos.length}</strong></td>
-              </tr>
-              <tr>
-                <td style="padding: 8px; border-bottom: 1px solid #eee;">📄 Notas Fiscais</td>
-                <td style="padding: 8px; text-align: right; border-bottom: 1px solid #eee;"><strong>${notasFiscais.length}</strong></td>
-              </tr>
-              <tr>
-                <td style="padding: 8px; border-bottom: 1px solid #eee;">🔐 Sessão</td>
-                <td style="padding: 8px; text-align: right; border-bottom: 1px solid #eee;">${authAtivo ? 'Ativa ✅' : 'Inativa ⚠️'}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      `;
+      renderInto(
+        container,
+        reportMarkup({
+          title: '🖥️ API PostgreSQL (VPS)',
+          content: reportTableMarkup({
+            rows: [
+              tableRowMarkup([
+                tableCellMarkup({ html: '📋 Empenhos' }),
+                tableCellMarkup({ html: empenhos.length, className: 'settings-report__count' })
+              ]),
+              tableRowMarkup([
+                tableCellMarkup({ html: '📄 Notas Fiscais' }),
+                tableCellMarkup({ html: notasFiscais.length, className: 'settings-report__count' })
+              ]),
+              tableRowMarkup([
+                tableCellMarkup({ html: '🔐 Sessão' }),
+                tableCellMarkup({
+                  html: authAtivo ? 'Ativa ✅' : 'Inativa ⚠️',
+                  className: `settings-report__count settings-report__count--${authAtivo ? 'success' : 'warning'}`
+                })
+              ])
+            ]
+          })
+        })
+      );
       return;
     } catch (error) {
-      container.innerHTML = `<div class="status-message error">❌ Erro ao consultar API: ${error.message}</div>`;
+      renderInto(container, feedbackMarkup('error', `❌ Erro ao consultar API: ${error.message}`));
       return;
     }
   }
@@ -190,52 +190,37 @@ async function renderIndexedDBDetails(containerId) {
     ];
 
     if (stats.length === 0) {
-      container.innerHTML = '<div style="color: #666;">Nenhum banco de dados encontrado.</div>';
+      renderInto(container, feedbackMarkup('neutral', 'Nenhum banco de dados encontrado.'));
       return;
     }
 
-    let html = '';
-
-    for (const db of stats) {
-      html += `
-        <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
-          <div style="font-weight: bold; color: #1e7e34; margin-bottom: 10px;">
-            🗄️ ${db.name} <span style="font-weight: normal; color: #666;">(v${db.version})</span>
-          </div>
-
-          <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
-            <thead>
-              <tr style="background: #e8f5e9;">
-                <th style="padding: 8px; text-align: left; border-bottom: 1px solid #ddd;">Store</th>
-                <th style="padding: 8px; text-align: right; border-bottom: 1px solid #ddd;">Registros</th>
-              </tr>
-            </thead>
-            <tbody>
-      `;
-
-      for (const store of db.stores) {
-        html += `
-              <tr>
-                <td style="padding: 8px; border-bottom: 1px solid #eee;">📁 ${store.name}</td>
-                <td style="padding: 8px; text-align: right; border-bottom: 1px solid #eee;">
-                  <span style="background: #e3f2fd; padding: 2px 8px; border-radius: 12px; font-weight: bold;">
-                    ${store.count}
-                  </span>
-                </td>
-              </tr>
-        `;
-      }
-
-      html += `
-            </tbody>
-          </table>
-        </div>
-      `;
-    }
-
-    container.innerHTML = html;
+    renderInto(
+      container,
+      stats
+        .map((db) =>
+          reportMarkup({
+            title: `🗄️ ${db.name} <span class="settings-report__meta">(v${db.version})</span>`,
+            content: reportTableMarkup({
+              headers: ['Store', { label: 'Registros', className: 'is-center' }],
+              rows: db.stores.map((store) =>
+                tableRowMarkup([
+                  tableCellMarkup({ html: `📁 ${escapeHtml(String(store.name))}` }),
+                  tableCellMarkup({
+                    html: store.count,
+                    className: 'settings-report__count settings-report__count--info'
+                  })
+                ])
+              )
+            })
+          })
+        )
+        .join('')
+    );
   } catch (error) {
-    container.innerHTML = `<div class="status-message error">❌ Erro ao carregar base local legada: ${error.message}</div>`;
+    renderInto(
+      container,
+      feedbackMarkup('error', `❌ Erro ao carregar base local legada: ${error.message}`)
+    );
     console.error('[Diagnostico] Erro ao renderizar base local legada:', error);
   }
 }
@@ -249,8 +234,13 @@ function renderLocalStorageDetails(containerId) {
     return;
   }
 
-  container.innerHTML =
-    '<div style="color: #666;">Armazenamento local desativado por política. Operação em modo server-only.</div>';
+  renderInto(
+    container,
+    feedbackMarkup(
+      'neutral',
+      'Armazenamento local desativado por política. Operação em modo server-only.'
+    )
+  );
 }
 
 /**
@@ -277,21 +267,20 @@ function renderSystemInfo(containerId) {
     Timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
   };
 
-  let html = `
-    <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
-  `;
-
-  for (const [key, value] of Object.entries(info)) {
-    html += `
-      <tr>
-        <td style="padding: 8px; border-bottom: 1px solid #eee; font-weight: bold; width: 200px;">${key}</td>
-        <td style="padding: 8px; border-bottom: 1px solid #eee; word-break: break-all;">${escapeHtml(String(value))}</td>
-      </tr>
-    `;
-  }
-
-  html += '</table>';
-  container.innerHTML = html;
+  renderInto(
+    container,
+    reportTableMarkup({
+      rows: Object.entries(info).map(([key, value]) =>
+        tableRowMarkup([
+          tableCellMarkup({ html: key, className: 'settings-report__key' }),
+          tableCellMarkup({
+            html: escapeHtml(String(value)),
+            className: 'settings-report__value settings-report__value--break'
+          })
+        ])
+      )
+    })
+  );
 }
 
 // ============================================================================

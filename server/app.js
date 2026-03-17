@@ -25,6 +25,7 @@ const catalogacaoRoutes = require('./routes/catalogacao.routes');
 const comprasRoutes = require('./routes/compras.routes');
 const comprasGovRoutes = require('./routes/comprasgov.routes');
 const priceIntelligenceRoutes = require('./routes/price-intelligence.routes');
+const procurementAnalyticsRoutes = require('./routes/procurement-analytics.routes');
 const dadosGovRoutes = require('./routes/dadosgov.routes');
 const integracoesAdminRoutes = require('./routes/integracoes-admin.routes');
 const aiRoutes = require('./routes/ai.routes');
@@ -94,6 +95,8 @@ function createApp({ nodeEnv, bodyLimit, corsOrigins, trustProxy, nfeService, nf
   app.use('/api/catalogacao-pedidos', catalogacaoRoutes);
   app.use('/api/inteligencia-precos', createIntegracoesLimiter(), priceIntelligenceRoutes);
   app.use('/api/compras/inteligencia-precos', createIntegracoesLimiter(), priceIntelligenceRoutes);
+  app.use('/api/inteligencia-compras', createIntegracoesLimiter(), procurementAnalyticsRoutes);
+  app.use('/api/compras/inteligencia-compras', createIntegracoesLimiter(), procurementAnalyticsRoutes);
   app.use('/api/compras', createIntegracoesLimiter(), comprasRoutes);
   app.use('/api/ai', authenticate, aiRoutes);
   app.use('/api/integracoes/comprasgov', createIntegracoesLimiter(), authenticate, requireAdmin, comprasGovRoutes);
@@ -175,7 +178,6 @@ function createApp({ nodeEnv, bodyLimit, corsOrigins, trustProxy, nfeService, nf
   // ---- Prometheus metrics endpoint --------------------------
   const startTime = Date.now();
   let requestCount = 0;
-  const errorCount = 0;
   app.use((req, _res, next) => {
     requestCount++;
     next();
@@ -245,6 +247,8 @@ function createApp({ nodeEnv, bodyLimit, corsOrigins, trustProxy, nfeService, nf
     '/api/catalogacao-pedidos',
     '/api/inteligencia-precos',
     '/api/compras/inteligencia-precos',
+    '/api/inteligencia-compras',
+    '/api/compras/inteligencia-compras',
     '/api/compras',
     '/api/ai',
     '/api/integracoes',

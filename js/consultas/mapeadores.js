@@ -177,19 +177,50 @@ export function mapearUASG(itens = []) {
   }
 
   return itens.map((item) => ({
-    codigo: item.codigo || item.codigoUasg || '-',
-    descricao: item.nome || item.descricao || '-',
-    unidade: item.uf || '-',
-    orgao: item.orgaoVinculado?.nome || item.nomeOrgao || '-',
-    status: mapearStatus(item.status),
-    dataAtualizacao: formatarData(item.dataAtualizacao),
+    codigo: pickFirstValue(item.codigoUasg, item.codigo, '-'),
+    descricao: pickFirstValue(item.nomeUasg, item.nome, item.descricao, '-'),
+    unidade: pickFirstValue(item.uf, item.siglaUf, '-'),
+    orgao: pickFirstValue(item.orgao, item.nomeOrgao, item.orgaoVinculado?.nome, '-'),
+    status: mapearStatus(pickFirstValue(item.statusUasg, item.status, item.statusOrgao)),
+    dataAtualizacao: formatarData(pickFirstValue(item.dataAtualizacao, item.dataHoraAtualizacao)),
+    usoSisg: item.usoSisg === true || item.usoSisg === 'true' ? 'Sim' : item.usoSisg === false || item.usoSisg === 'false' ? 'Não' : '-',
     valor: '-',
     extras: {
+      usoSisg: item.usoSisg === true || item.usoSisg === 'true' ? 'Sim' : item.usoSisg === false || item.usoSisg === 'false' ? 'Não' : '-',
       municipio: item.municipio?.nome || item.municipio,
       endereco: item.endereco,
       telefone: item.telefone,
       email: item.email,
-      cnpj: item.cnpj
+      cnpj: pickFirstValue(item.cnpjCpfOrgao, item.cnpj),
+      codigoOrgao: pickFirstValue(item.codigoOrgao, '-'),
+      entidade: pickFirstValue(item.entity, 'uasg')
+    }
+  }));
+}
+
+export function mapearFornecedor(itens = []) {
+  if (!Array.isArray(itens)) {
+    return [];
+  }
+
+  return itens.map((item) => ({
+    codigo: pickFirstValue(item.cnpjCpf, item.cnpj, item.cpf, item.cnpjCpf, '-'),
+    descricao: pickFirstValue(item.nomeFornecedor, item.razaoSocial, item.nome, item.nomeEmpresarial, '-'),
+    unidade: pickFirstValue(item.porteEmpresa, item.porteEmpresaDescricao, item.porteEmpresa?.descricao, item.porte, '-'),
+    orgao: pickFirstValue(item.naturezaJuridica, item.naturezaJuridicaDescricao, item.naturezaJuridica?.descricao, '-'),
+    naturezaJuridica: pickFirstValue(item.naturezaJuridica, item.naturezaJuridicaDescricao, item.naturezaJuridica?.descricao, '-'),
+    porte: pickFirstValue(item.porteEmpresa, item.porteEmpresaDescricao, item.porteEmpresa?.descricao, item.porte, '-'),
+    codigoCnae: pickFirstValue(item.codigoCnae, item.cnae, '-'),
+    status: mapearStatus(pickFirstValue(item.ativo, item.status)),
+    dataAtualizacao: formatarData(pickFirstValue(item.dataAtualizacao, item.dataCadastro)),
+    valor: '-',
+    extras: {
+      naturezaJuridica: pickFirstValue(item.naturezaJuridica, item.naturezaJuridicaDescricao, item.naturezaJuridica?.descricao, '-'),
+      porte: pickFirstValue(item.porteEmpresa, item.porteEmpresaDescricao, item.porteEmpresa?.descricao, item.porte, '-'),
+      codigoCnae: pickFirstValue(item.codigoCnae, item.cnae, '-'),
+      ativo: pickFirstValue(item.ativo, item.status),
+      naturezaJuridicaId: pickFirstValue(item.naturezaJuridicaId, item.naturezaJuridica?.id, '-'),
+      porteEmpresaId: pickFirstValue(item.porteEmpresaId, item.porteEmpresa?.id, '-')
     }
   }));
 }
@@ -390,6 +421,8 @@ export function mapear(dataset, itens) {
       return mapearServicos(itens);
     case 'uasg':
       return mapearUASG(itens);
+    case 'fornecedor':
+      return mapearFornecedor(itens);
     case 'arp':
       return mapearARP(itens);
     case 'pncp':
