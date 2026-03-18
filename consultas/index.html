@@ -210,48 +210,6 @@
       </footer>
     </div>
     <script type="module" src="../js/ui/pageEnhancer.js"></script>
-    <!-- Scripts (módulos ES6) -->
-    <script type="module">
-      import * as UI from '../js/consultas/uiConsultas.js';
-
-      // Inicializa interface ao carregar
-      document.addEventListener('DOMContentLoaded', () => {
-        window.abrirConsulta = (dataset) => UI.showConsulta(dataset);
-        window.abrirConsultaPrecosPraticados = (codigoOuParametros, opcoes = {}) => {
-          const parametros =
-            codigoOuParametros && typeof codigoOuParametros === 'object'
-              ? codigoOuParametros
-              : { codigo: codigoOuParametros, ...opcoes };
-
-          if (typeof UI.openPriceIntelligence === 'function') {
-            UI.openPriceIntelligence({
-              ...parametros,
-              autoSearch: parametros.autoSearch !== false
-            });
-            return;
-          }
-
-          UI.showConsulta('precos-praticados');
-        };
-
-        UI.init();
-        console.log('Consulte Compras.gov inicializado');
-      });
-
-      // Sincroniza paginação inferior
-      const observer = new MutationObserver(() => {
-        const container1 = document.getElementById('paginationContainer');
-        const container2 = document.getElementById('paginationContainer2');
-
-        if (container1 && container2) {
-          container2.innerHTML = container1.innerHTML;
-        }
-      });
-
-      observer.observe(document.getElementById('paginationContainer'), {
-        childList: true,
-        subtree: true
-      });
-    </script>
+    <script type="module" src="../js/consultasPageBootstrap.js"></script>
   </body>
 </html>

@@ -10,6 +10,29 @@ class SettingsManager {
     this.init();
   }
 
+  getTabButtons() {
+    return Array.from(document.querySelectorAll('.settings-tab, .tab-button'));
+  }
+
+  getTabContents() {
+    return Array.from(document.querySelectorAll('.settings-section, .tab-content'));
+  }
+
+  getSectionFromTab(tab) {
+    return tab?.dataset.section || tab?.dataset.tab || '';
+  }
+
+  getSectionElement(section) {
+    if (!section) {
+      return null;
+    }
+
+    return (
+      document.getElementById(`section-${section}`) ||
+      document.getElementById(`tab${section.charAt(0).toUpperCase() + section.slice(1)}`)
+    );
+  }
+
   /**
    * Inicializa o módulo de configurações
    */
@@ -115,9 +138,14 @@ class SettingsManager {
    */
   setupEventListeners() {
     // Navegação entre seções
-    document.querySelectorAll('.settings-tab').forEach((tab) => {
+    this.getTabButtons().forEach((tab) => {
+      if (tab.dataset.settingsManagerBound === '1') {
+        return;
+      }
+
+      tab.dataset.settingsManagerBound = '1';
       tab.addEventListener('click', (e) => {
-        const section = e.currentTarget.dataset.section;
+        const section = this.getSectionFromTab(e.currentTarget);
         this.showSection(section);
       });
     });
@@ -135,18 +163,19 @@ class SettingsManager {
     this.currentSection = section;
 
     // Atualiza tabs
-    document.querySelectorAll('.settings-tab').forEach((tab) => {
-      tab.classList.remove('active');
-      if (tab.dataset.section === section) {
-        tab.classList.add('active');
-      }
+    this.getTabButtons().forEach((tab) => {
+      tab.classList.toggle('active', this.getSectionFromTab(tab) === section);
     });
 
     // Atualiza conteúdo
-    document.querySelectorAll('.settings-section').forEach((sec) => {
+    this.getTabContents().forEach((sec) => {
+      sec.classList.remove('active');
       sec.classList.add('hidden');
     });
-    document.getElementById(`section-${section}`)?.classList.remove('hidden');
+
+    const sectionElement = this.getSectionElement(section);
+    sectionElement?.classList.remove('hidden');
+    sectionElement?.classList.add('active');
 
     // Carrega dados da seção
     this.loadSection(section);

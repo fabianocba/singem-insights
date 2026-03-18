@@ -15,6 +15,9 @@
     "tailwind:watch": "npx @tailwindcss/cli -i ./css/tailwind-source.css -o ./css/tailwind.css --watch",
     "lint": "eslint . --ext .js --max-warnings 60",
     "lint:fix": "eslint . --ext .js --fix",
+    "smoke:nfe": "pwsh -NoProfile -ExecutionPolicy Bypass -File ./scripts/smoke-importar-nfe.ps1",
+    "smoke:nfe:real": "pwsh -NoProfile -ExecutionPolicy Bypass -File ./scripts/smoke-importar-nfe.ps1 -UseRealBackend",
+    "smoke:nfe:real:write": "pwsh -NoProfile -ExecutionPolicy Bypass -File ./scripts/smoke-importar-nfe.ps1 -UseRealBackend -AllowWrite",
     "format": "prettier . --write --ignore-unknown",
     "format:check": "prettier . --check --ignore-unknown",
     "quality": "node ./scripts/quality-check.mjs"

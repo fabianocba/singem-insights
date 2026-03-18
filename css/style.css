@@ -2684,6 +2684,246 @@ body {
   margin-bottom: 10px;
 }
 
+/* ========================================
+   LISTAGEM DE EMPENHOS
+   ======================================== */
+
+.listagem-empenhos {
+  padding: 0;
+}
+
+.listagem-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.listagem-header h3 {
+  margin: 0;
+}
+
+.listagem-contador {
+  color: #666;
+  font-size: 14px;
+}
+
+.listagem-busca {
+  margin-bottom: 16px;
+}
+
+.busca-input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 15px;
+  transition: border-color 0.2s;
+}
+
+.busca-input:focus {
+  outline: none;
+  border-color: #007bff;
+}
+
+.listagem-controles {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.filtros-chips {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.listagem-empenhos .chip {
+  padding: 8px 16px;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  background: #fff;
+  cursor: pointer;
+  font-size: 13px;
+  transition: all 0.2s;
+}
+
+.listagem-empenhos .chip:hover {
+  border-color: #007bff;
+  background: #f0f7ff;
+}
+
+.listagem-empenhos .chip-ativo {
+  background: #007bff;
+  color: #fff;
+  border-color: #007bff;
+}
+
+.ordenacao-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ordenacao-container label {
+  font-size: 13px;
+  color: #666;
+  white-space: nowrap;
+}
+
+.ordenacao-select {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.empenhos-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 100px;
+}
+
+.listagem-empenhos .empenhos-loading,
+.listagem-empenhos .empenhos-vazio {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+}
+
+.empenho-card {
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 16px;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+
+.empenho-card:hover {
+  border-color: #007bff;
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.15);
+  transform: translateY(-1px);
+}
+
+.empenho-card.card-destaque {
+  border-color: #28a745;
+  background: #f8fff8;
+  animation: destaque-fade 3s ease-out;
+}
+
+@keyframes destaque-fade {
+  0% {
+    background: #d4edda;
+  }
+
+  100% {
+    background: #f8fff8;
+  }
+}
+
+.empenho-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.empenho-card__titulo {
+  font-weight: bold;
+  font-size: 17px;
+  color: #333;
+}
+
+.empenho-card__titulo:hover {
+  color: #007bff;
+}
+
+.empenho-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.empenho-card__descricao {
+  color: #007bff;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.empenho-card__descricao:hover {
+  text-decoration: underline;
+}
+
+.empenho-card__meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.empenho-card__info {
+  font-size: 13px;
+  color: #666;
+}
+
+.empenho-card__acoes {
+  display: flex;
+  gap: 8px;
+}
+
+.listagem-empenhos .btn-acao {
+  padding: 6px 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: #fff;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.2s;
+}
+
+.listagem-empenhos .btn-acao:hover {
+  background: #f0f7ff;
+  border-color: #007bff;
+}
+
+.listagem-empenhos .btn-acao[title]:hover::after {
+  content: attr(title);
+}
+
+.listagem-empenhos .badge {
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: bold;
+}
+
+.listagem-empenhos .badge-success {
+  background: #d4edda;
+  color: #155724;
+}
+
+.listagem-empenhos .badge-warning {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.listagem-footer {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid #eee;
+  font-size: 13px;
+  color: #666;
+}
+
 /* Responsivo */
 @media (max-width: 768px) {
   .empenho-item {
@@ -2695,6 +2935,20 @@ body {
   .empenho-item-acoes {
     width: 100%;
     justify-content: flex-end;
+  }
+
+  .listagem-controles {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .ordenacao-container {
+    justify-content: flex-end;
+  }
+
+  .empenho-card__meta {
+    flex-direction: column;
+    align-items: flex-start;
   }
 }
 

@@ -61,7 +61,7 @@ function replaceElementChildren(element, children = []) {
   element.replaceChildren(...children.filter(Boolean));
 }
 
-class ControleMaterialApp {
+export class ControleMaterialApp {
   constructor() {
     this.currentScreen = 'loginScreen';
     this.loadingOverlay = null;
@@ -1011,6 +1011,7 @@ class ControleMaterialApp {
    */
   _renderizarEstruturaListagem(container) {
     const total = this.listagemState.empenhos.length;
+    const termoBusca = escapeHTML(String(this.listagemState.termoBusca || ''));
 
     container.innerHTML = `
       <div class="listagem-empenhos">
@@ -1029,7 +1030,7 @@ class ControleMaterialApp {
             id="buscaEmpenho"
             class="busca-input"
             placeholder="🔍 Buscar empenho (ano, número, fornecedor, processo...)"
-            value="${this.listagemState.termoBusca}"
+            value="${termoBusca}"
           />
         </div>
 
@@ -1067,52 +1068,6 @@ class ControleMaterialApp {
           <span id="totalExibido">📊 Total exibido: ${total}</span>
         </div>
       </div>
-
-      <style>
-        .listagem-empenhos { padding: 0; }
-        .listagem-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 8px; }
-        .listagem-header h3 { margin: 0; }
-        .listagem-contador { color: #666; font-size: 14px; }
-        .listagem-busca { margin-bottom: 16px; }
-        .busca-input { width: 100%; padding: 12px 16px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 15px; transition: border-color 0.2s; }
-        .busca-input:focus { outline: none; border-color: #007bff; }
-        .listagem-controles { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px; }
-        .filtros-chips { display: flex; gap: 8px; flex-wrap: wrap; }
-        .chip { padding: 8px 16px; border: 1px solid #ddd; border-radius: 20px; background: #fff; cursor: pointer; font-size: 13px; transition: all 0.2s; }
-        .chip:hover { border-color: #007bff; background: #f0f7ff; }
-        .chip-ativo { background: #007bff; color: #fff; border-color: #007bff; }
-        .ordenacao-container { display: flex; align-items: center; gap: 8px; }
-        .ordenacao-container label { font-size: 13px; color: #666; white-space: nowrap; }
-        .ordenacao-select { padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 13px; cursor: pointer; }
-        .empenhos-lista { display: flex; flex-direction: column; gap: 12px; min-height: 100px; }
-        .empenhos-loading { text-align: center; padding: 40px; color: #666; }
-        .empenhos-vazio { text-align: center; padding: 40px; color: #666; }
-        .empenho-card { background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 16px; transition: all 0.2s; cursor: pointer; }
-        .empenho-card:hover { border-color: #007bff; box-shadow: 0 4px 12px rgba(0,123,255,0.15); transform: translateY(-1px); }
-        .empenho-card.card-destaque { border-color: #28a745; background: #f8fff8; animation: destaque-fade 3s ease-out; }
-        @keyframes destaque-fade { 0% { background: #d4edda; } 100% { background: #f8fff8; } }
-        .empenho-card__header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .empenho-card__titulo { font-weight: bold; font-size: 17px; color: #333; }
-        .empenho-card__titulo:hover { color: #007bff; }
-        .empenho-card__body { display: flex; flex-direction: column; gap: 8px; }
-        .empenho-card__descricao { color: #007bff; font-size: 14px; cursor: pointer; }
-        .empenho-card__descricao:hover { text-decoration: underline; }
-        .empenho-card__meta { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
-        .empenho-card__info { font-size: 13px; color: #666; }
-        .empenho-card__acoes { display: flex; gap: 8px; }
-        .btn-acao { padding: 6px 10px; border: 1px solid #ddd; border-radius: 4px; background: #fff; cursor: pointer; font-size: 12px; transition: all 0.2s; }
-        .btn-acao:hover { background: #f0f7ff; border-color: #007bff; }
-        .btn-acao[title]:hover::after { content: attr(title); }
-        .badge { padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: bold; }
-        .badge-success { background: #d4edda; color: #155724; }
-        .badge-warning { background: #fff3cd; color: #856404; }
-        .listagem-footer { margin-top: 16px; padding-top: 12px; border-top: 1px solid #eee; font-size: 13px; color: #666; }
-        @media (max-width: 768px) {
-          .listagem-controles { flex-direction: column; align-items: stretch; }
-          .ordenacao-container { justify-content: flex-end; }
-          .empenho-card__meta { flex-direction: column; align-items: flex-start; }
-        }
-      </style>
     `;
   }
 
@@ -1285,20 +1240,23 @@ class ControleMaterialApp {
   _renderizarCardEmpenho(emp, somenteVisualizacao = false) {
     const ano = emp.ano || new Date(emp.dataEmpenho || emp.dataCriacao).getFullYear();
     const numero = emp.numero || '000000';
-    const titulo = `${ano} NE ${numero}`;
+    const titulo = escapeHTML(`${ano} NE ${numero}`);
     const status = emp.statusValidacao || 'rascunho';
     const badgeClass = status === 'validado' ? 'badge-success' : 'badge-warning';
     const badgeText = status === 'validado' ? '🟢 VALIDADO' : '🟡 RASCUNHO';
     const qtdItens = emp.itens?.length || 0;
-    const fornecedor = emp.fornecedor || 'Fornecedor não informado';
+    const fornecedor = escapeHTML(String(emp.fornecedor || 'Fornecedor não informado'));
 
     // Processo: usar processoSuap ou fallback para campos antigos
     const processoSuap = emp.processoSuap || emp.codigoReferencia || emp.processoNumero || emp.processo || '';
-    const processoExibicao = processoSuap ? `Proc: ${processoSuap.substring(0, 20)}...` : '';
+    const processoExibicao = processoSuap
+      ? `Proc: ${escapeHTML(String(processoSuap).substring(0, 20))}...`
+      : '';
 
     // Valor: usar novo nome ou antigo (compatibilidade)
     const valorEmpenho = emp.valorTotalEmpenho ?? emp.valorTotal ?? 0;
-    const valor = FormatUtils.formatCurrencyBR(valorEmpenho);
+    const valor = escapeHTML(FormatUtils.formatCurrencyBR(valorEmpenho));
+    const slug = escapeHTML(String(emp.slug || ''));
 
     const isDestaque = this.listagemState.ultimoEditado === emp.id;
 
@@ -1317,7 +1275,7 @@ class ControleMaterialApp {
     }
 
     return `
-      <div class="empenho-card ${isDestaque ? 'card-destaque' : ''}" data-id="${emp.id}" data-slug="${emp.slug || ''}">
+      <div class="empenho-card ${isDestaque ? 'card-destaque' : ''}" data-id="${emp.id}" data-slug="${slug}">
         <div class="empenho-card__header">
           <span class="empenho-card__titulo">${titulo}</span>
           <span class="badge ${badgeClass}">${badgeText}</span>
@@ -8166,7 +8124,7 @@ ${details.stack || 'Não disponível'}</div>
  * Aguarda o repository estar pronto para uso
  * Implementa retry com backoff para maior resiliência
  */
-async function waitForRepository(maxRetries = 3, baseDelay = 300) {
+export async function waitForRepository(maxRetries = 3, baseDelay = 300) {
   console.log('[Bootstrap] � Aguardando repository...');
 
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
@@ -8217,7 +8175,7 @@ async function waitForRepository(maxRetries = 3, baseDelay = 300) {
 /**
  * Gera relatório de inicialização para debug
  */
-function logBootstrapReport() {
+export function logBootstrapReport() {
   console.log('\n╔════════════════════════════════════════╗');
   console.log('║   📊 RELATÓRIO DE INICIALIZAÇÃO       ║');
   console.log('╚════════════════════════════════════════╝');
@@ -8235,8 +8193,58 @@ function logBootstrapReport() {
   console.log('════════════════════════════════════════\n');
 }
 
-// Inicializa a aplicação quando o DOM estiver carregado
-document.addEventListener('DOMContentLoaded', async () => {
+let bootstrapPromise = null;
+
+function renderBootstrapError(error) {
+  console.error('[Bootstrap] ❌ ERRO FATAL na inicialização:', error);
+  console.error('[Bootstrap] Stack:', error.stack);
+
+  const errorDiv = document.createElement('div');
+  errorDiv.style.cssText = `
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #dc3545;
+    color: white;
+    padding: 30px;
+    border-radius: 10px;
+    max-width: 600px;
+    z-index: 99999;
+    font-family: Arial, sans-serif;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+  `;
+  errorDiv.innerHTML = `
+    <h2 style="margin-top: 0;">❌ Erro ao Inicializar</h2>
+    <p><strong>Não foi possível inicializar o sistema.</strong></p>
+    <p style="font-size: 14px; opacity: 0.9;">${error.message}</p>
+    <hr style="border: 1px solid rgba(255,255,255,0.3); margin: 20px 0;">
+    <p style="font-size: 13px;">
+      <strong>Soluções:</strong><br>
+      1. Pressione Ctrl+Shift+R para recarregar<br>
+      2. Limpe o cache do navegador<br>
+      3. Verifique o console (F12) para mais detalhes
+    </p>
+    <button onclick="location.reload(true)" style="
+      background: white;
+      color: #dc3545;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+      margin-top: 10px;
+    ">🔄 Recarregar Página</button>
+  `;
+  document.body.appendChild(errorDiv);
+}
+
+export async function bootstrapApp() {
+  if (bootstrapPromise) {
+    return bootstrapPromise;
+  }
+
+  bootstrapPromise = (async () => {
   try {
     console.log('[Bootstrap] 🚀 Iniciando aplicação SINGEM...');
 
@@ -8272,48 +8280,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     initInfrastructureInfo();
 
     console.log('[Bootstrap] ✅ Aplicação inicializada com sucesso!');
+    return window.app;
   } catch (error) {
-    console.error('[Bootstrap] ❌ ERRO FATAL na inicialização:', error);
-    console.error('[Bootstrap] Stack:', error.stack);
-
-    // Mostra erro amigável ao usuário
-    const errorDiv = document.createElement('div');
-    errorDiv.style.cssText = `
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: #dc3545;
-      color: white;
-      padding: 30px;
-      border-radius: 10px;
-      max-width: 600px;
-      z-index: 99999;
-      font-family: Arial, sans-serif;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-    `;
-    errorDiv.innerHTML = `
-      <h2 style="margin-top: 0;">❌ Erro ao Inicializar</h2>
-      <p><strong>Não foi possível inicializar o sistema.</strong></p>
-      <p style="font-size: 14px; opacity: 0.9;">${error.message}</p>
-      <hr style="border: 1px solid rgba(255,255,255,0.3); margin: 20px 0;">
-      <p style="font-size: 13px;">
-        <strong>Soluções:</strong><br>
-        1. Pressione Ctrl+Shift+R para recarregar<br>
-        2. Limpe o cache do navegador<br>
-        3. Verifique o console (F12) para mais detalhes
-      </p>
-      <button onclick="location.reload(true)" style="
-        background: white;
-        color: #dc3545;
-        border: none;
-        padding: 10px 20px;
-        border-radius: 5px;
-        cursor: pointer;
-        font-weight: bold;
-        margin-top: 10px;
-      ">🔄 Recarregar Página</button>
-    `;
-    document.body.appendChild(errorDiv);
+    renderBootstrapError(error);
+    bootstrapPromise = null;
+    throw error;
   }
-});
+  })();
+
+  return bootstrapPromise;
+}
+
+export default ControleMaterialApp;
