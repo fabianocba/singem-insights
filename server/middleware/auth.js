@@ -10,6 +10,7 @@ const db = require('../config/database');
 const { config } = require('../config');
 
 const rbac = require('../domain/identity/rbac');
+const accessContextService = require('../domain/identity/accessContextService');
 
 const JWT_SECRET = config.jwt.secret;
 const JWT_EXPIRES_IN = config.jwt.expiresIn;
@@ -17,6 +18,38 @@ const JWT_REFRESH_EXPIRES_IN = config.jwt.refreshExpiresIn;
 
 if (!JWT_SECRET) {
   throw new Error('[Auth] JWT_SECRET não configurado. Defina no ambiente antes de iniciar o servidor.');
+}
+
+async function buildAuthenticatedUser(user) {
+  const baseUser = {
+    id: user.id,
+    login: user.login,
+    nome: user.nome,
+    email: user.email,
+    perfil: user.perfil,
+    authProvider: user.auth_provider || 'local'
+  };
+
+  try {
+    return (await accessContextService.hydrateAuthenticatedUser(baseUser)) || baseUser;
+  } catch (error) {
+    console.error('[Auth] Falha ao hidratar contexto de acesso:', error.message);
+    return {
+      ...baseUser,
+      accessContext: null,
+      modulosHabilitados: [],
+      permissoes: {},
+      menusVisiveis: [],
+      unidadesVinculadas: [],
+      setoresVinculados: [],
+      escopoDados: {
+        allUnits: false,
+        allSectors: false,
+        unitIds: [],
+        sectorIds: []
+      }
+    };
+  }
 }
 
 async function authenticate(req, res, next) {
@@ -42,14 +75,7 @@ async function authenticate(req, res, next) {
         return res.status(401).json({ erro: 'Usuário inativo ou não encontrado' });
       }
 
-      req.user = {
-        id: user.id,
-        login: user.login,
-        nome: user.nome,
-        email: user.email,
-        perfil: user.perfil,
-        authProvider: user.auth_provider || 'local'
-      };
+      req.user = await buildAuthenticatedUser(user);
 
       return next();
     } catch (err) {
@@ -76,13 +102,15 @@ function requireAdmin(req, res, next) {
   return next();
 }
 
-function requirePermission(modulo, acao) {
+function requirePermission(modulo, acao, scopeResolver = null) {
   return (req, res, next) => {
     if (!req.user) {
       return res.status(401).json({ erro: 'Não autenticado' });
     }
 
-    if (!rbac.hasPermission(req.user, modulo, acao)) {
+    const scope = typeof scopeResolver === 'function' ? scopeResolver(req) : scopeResolver;
+
+    if (!rbac.hasPermission(req.user, modulo, acao, scope)) {
       rbac
         .logAudit({
           userId: req.user.id,
@@ -90,7 +118,7 @@ function requirePermission(modulo, acao) {
           module: modulo,
           entityType: null,
           entityId: null,
-          changes: { acao },
+          changes: { acao, scope },
           ip: req.ip,
           userAgent: req.headers['user-agent']
         })
@@ -99,7 +127,8 @@ function requirePermission(modulo, acao) {
       return res.status(403).json({
         erro: 'Permissão negada',
         modulo,
-        acao
+        acao,
+        scope: scope || null
       });
     }
 
@@ -145,12 +174,7 @@ async function optionalAuth(req, res, next) {
 
       if (user && user.ativo) {
         req.user = {
-          id: user.id,
-          login: user.login,
-          nome: user.nome,
-          email: user.email,
-          perfil: user.perfil,
-          authProvider: user.auth_provider || 'local'
+          ...(await buildAuthenticatedUser(user))
         };
       }
     }

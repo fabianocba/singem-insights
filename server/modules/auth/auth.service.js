@@ -2,6 +2,7 @@ const bcrypt = require('bcrypt');
 const crypto = require('crypto');
 const auth = require('../../middleware/auth');
 const identityService = require('../../domain/identity/identityService');
+const accessContextService = require('../../domain/identity/accessContextService');
 const { sendMail, buildActivationEmail, buildResetPasswordEmail } = require('../../src/services/emailService');
 const AppError = require('../../utils/appError');
 const authRepository = require('./auth.repository');
@@ -78,15 +79,15 @@ async function login(input) {
   const refreshToken = auth.generateRefreshToken(userForToken);
   await auth.saveRefreshToken(userForToken.id, refreshToken);
 
+  const hydratedUser =
+    (await accessContextService.hydrateAuthenticatedUser({
+      ...userForToken,
+      authProvider: profile.provider || 'local'
+    })) || userForToken;
+
   return {
     sucesso: true,
-    usuario: {
-      id: userForToken.id,
-      login: userForToken.login,
-      nome: userForToken.nome,
-      email: userForToken.email,
-      perfil: userForToken.perfil
-    },
+    usuario: hydratedUser,
     accessToken,
     refreshToken
   };
@@ -124,9 +125,11 @@ async function logout(user) {
 }
 
 async function me(user) {
+  const hydratedUser = user?.accessContext ? user : await accessContextService.hydrateAuthenticatedUser(user);
+
   return {
     sucesso: true,
-    usuario: user
+    usuario: hydratedUser || user
   };
 }
 

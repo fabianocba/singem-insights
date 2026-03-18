@@ -1,128 +1,134 @@
-/**
- * RBAC - Role-Based Access Control - SINGEM
- * Controle de perfis e permissões
- *
- * Autenticação (quem é) vem do provider
- * Autorização (o que pode) é sempre do SINGEM
- */
-
 const db = require('../../config/database');
+const {
+  ModuleKeys,
+  AccessActions,
+  ProfileKeys,
+  ProfileHierarchy,
+  DefaultProfileModuleGrants,
+  normalizeActionKey,
+  normalizeModuleKey
+} = require('./moduleCatalog');
 
-/**
- * Perfis disponíveis no SINGEM
- */
-const Perfis = {
-  ADMIN: 'admin',
-  GESTOR: 'gestor',
-  OPERADOR: 'operador',
-  AUDITOR: 'auditor',
-  VISITANTE: 'visitante'
-};
+const Perfis = Object.freeze({
+  ADMIN: ProfileKeys.ADMIN,
+  ADMIN_SUPERIOR: ProfileKeys.ADMIN_SUPERIOR,
+  ADMIN_SETORIAL: ProfileKeys.ADMIN_SETORIAL,
+  GESTOR: ProfileKeys.GESTOR,
+  ALMOXARIFE: ProfileKeys.ALMOXARIFE,
+  CONFERENTE: ProfileKeys.CONFERENTE,
+  OPERADOR: ProfileKeys.OPERADOR,
+  AUDITOR: ProfileKeys.AUDITOR,
+  SOLICITANTE: ProfileKeys.SOLICITANTE,
+  VISUALIZADOR: ProfileKeys.VISUALIZADOR,
+  VISITANTE: ProfileKeys.VISITANTE
+});
 
-/**
- * Hierarquia de perfis (maior = mais permissões)
- */
-const PerfilHierarquia = {
-  [Perfis.ADMIN]: 100,
-  [Perfis.GESTOR]: 80,
-  [Perfis.OPERADOR]: 50,
-  [Perfis.AUDITOR]: 40,
-  [Perfis.VISITANTE]: 10
-};
+const PerfilHierarquia = { ...ProfileHierarchy };
 
-/**
- * Módulos do sistema
- */
-const Modulos = {
-  EMPENHOS: 'empenhos',
-  NOTAS_FISCAIS: 'notas_fiscais',
-  ESTOQUE: 'estoque',
-  MATERIAIS: 'materiais',
-  RELATORIOS: 'relatorios',
-  CONFIGURACOES: 'configuracoes',
-  USUARIOS: 'usuarios',
-  AUDITORIA: 'auditoria',
-  INTEGRACOES: 'integracoes'
-};
+const Modulos = Object.freeze({
+  SINGEM_ADM: ModuleKeys.SINGEM_ADM,
+  SINGEM_DEVTOOLS: ModuleKeys.SINGEM_DEVTOOLS,
+  GESTAO_ALMOXARIFADO: ModuleKeys.GESTAO_ALMOXARIFADO,
+  GESTAO_PATRIMONIO: ModuleKeys.GESTAO_PATRIMONIO,
+  GESTAO_VEICULOS: ModuleKeys.GESTAO_VEICULOS,
+  GESTAO_SERVICOS_INTERNOS: ModuleKeys.GESTAO_SERVICOS_INTERNOS,
+  GESTAO_CONTRATOS: ModuleKeys.GESTAO_CONTRATOS,
+  SOLICITACAO_ALMOXARIFADO: ModuleKeys.SOLICITACAO_ALMOXARIFADO,
+  SOLICITACAO_VEICULOS: ModuleKeys.SOLICITACAO_VEICULOS,
+  SOLICITACAO_SERVICOS_INTERNOS: ModuleKeys.SOLICITACAO_SERVICOS_INTERNOS,
+  EMPENHOS: ModuleKeys.GESTAO_ALMOXARIFADO,
+  NOTAS_FISCAIS: ModuleKeys.GESTAO_ALMOXARIFADO,
+  ESTOQUE: ModuleKeys.GESTAO_ALMOXARIFADO,
+  MATERIAIS: ModuleKeys.GESTAO_ALMOXARIFADO,
+  ALMOXARIFADO: ModuleKeys.GESTAO_ALMOXARIFADO,
+  RELATORIOS: ModuleKeys.SINGEM_ADM,
+  CONFIGURACOES: ModuleKeys.SINGEM_ADM,
+  USUARIOS: ModuleKeys.SINGEM_ADM,
+  AUDITORIA: ModuleKeys.SINGEM_ADM,
+  INTEGRACOES: ModuleKeys.SINGEM_ADM
+});
 
-/**
- * Ações possíveis
- */
-const Acoes = {
-  LER: 'ler',
-  CRIAR: 'criar',
-  EDITAR: 'editar',
-  EXCLUIR: 'excluir',
-  VALIDAR: 'validar',
-  EXPORTAR: 'exportar',
-  IMPORTAR: 'importar',
-  CONFIGURAR: 'configurar'
-};
+const Acoes = Object.freeze({
+  VISUALIZAR: AccessActions.VISUALIZAR,
+  LER: AccessActions.VISUALIZAR,
+  CADASTRAR: AccessActions.CADASTRAR,
+  CRIAR: AccessActions.CADASTRAR,
+  EDITAR: AccessActions.EDITAR,
+  EXCLUIR: AccessActions.EXCLUIR,
+  APROVAR: AccessActions.APROVAR,
+  VALIDAR: AccessActions.APROVAR,
+  ADMINISTRAR: AccessActions.ADMINISTRAR,
+  CONFIGURAR: AccessActions.ADMINISTRAR,
+  IMPORTAR: AccessActions.IMPORTAR,
+  EXPORTAR: AccessActions.EXPORTAR,
+  PROCESSAR: AccessActions.PROCESSAR,
+  REPROCESSAR: AccessActions.REPROCESSAR
+});
 
-/**
- * Matriz de permissões por perfil
- */
-const PermissoesPorPerfil = {
-  [Perfis.ADMIN]: {
-    [Modulos.EMPENHOS]: [Acoes.LER, Acoes.CRIAR, Acoes.EDITAR, Acoes.EXCLUIR, Acoes.VALIDAR, Acoes.IMPORTAR],
-    [Modulos.NOTAS_FISCAIS]: [Acoes.LER, Acoes.CRIAR, Acoes.EDITAR, Acoes.EXCLUIR, Acoes.IMPORTAR],
-    [Modulos.ESTOQUE]: [Acoes.LER, Acoes.CRIAR, Acoes.EDITAR, Acoes.EXCLUIR],
-    [Modulos.MATERIAIS]: [Acoes.LER, Acoes.CRIAR, Acoes.EDITAR, Acoes.EXCLUIR, Acoes.IMPORTAR],
-    [Modulos.RELATORIOS]: [Acoes.LER, Acoes.EXPORTAR],
-    [Modulos.CONFIGURACOES]: [Acoes.LER, Acoes.EDITAR, Acoes.CONFIGURAR],
-    [Modulos.USUARIOS]: [Acoes.LER, Acoes.CRIAR, Acoes.EDITAR, Acoes.EXCLUIR],
-    [Modulos.AUDITORIA]: [Acoes.LER, Acoes.EXPORTAR],
-    [Modulos.INTEGRACOES]: [Acoes.LER, Acoes.CONFIGURAR, Acoes.IMPORTAR]
-  },
+function getFallbackPermissions(perfil) {
+  return DefaultProfileModuleGrants[String(perfil || '').toLowerCase()] || {};
+}
 
-  [Perfis.GESTOR]: {
-    [Modulos.EMPENHOS]: [Acoes.LER, Acoes.CRIAR, Acoes.EDITAR, Acoes.VALIDAR, Acoes.IMPORTAR],
-    [Modulos.NOTAS_FISCAIS]: [Acoes.LER, Acoes.CRIAR, Acoes.EDITAR, Acoes.IMPORTAR],
-    [Modulos.ESTOQUE]: [Acoes.LER, Acoes.CRIAR, Acoes.EDITAR],
-    [Modulos.MATERIAIS]: [Acoes.LER, Acoes.CRIAR, Acoes.EDITAR, Acoes.IMPORTAR],
-    [Modulos.RELATORIOS]: [Acoes.LER, Acoes.EXPORTAR],
-    [Modulos.CONFIGURACOES]: [Acoes.LER],
-    [Modulos.USUARIOS]: [Acoes.LER],
-    [Modulos.AUDITORIA]: [Acoes.LER],
-    [Modulos.INTEGRACOES]: [Acoes.LER, Acoes.IMPORTAR]
-  },
-
-  [Perfis.OPERADOR]: {
-    [Modulos.EMPENHOS]: [Acoes.LER, Acoes.CRIAR, Acoes.EDITAR],
-    [Modulos.NOTAS_FISCAIS]: [Acoes.LER, Acoes.CRIAR, Acoes.EDITAR],
-    [Modulos.ESTOQUE]: [Acoes.LER, Acoes.CRIAR],
-    [Modulos.MATERIAIS]: [Acoes.LER],
-    [Modulos.RELATORIOS]: [Acoes.LER],
-    [Modulos.CONFIGURACOES]: [],
-    [Modulos.USUARIOS]: [],
-    [Modulos.AUDITORIA]: [],
-    [Modulos.INTEGRACOES]: []
-  },
-
-  [Perfis.AUDITOR]: {
-    [Modulos.EMPENHOS]: [Acoes.LER],
-    [Modulos.NOTAS_FISCAIS]: [Acoes.LER],
-    [Modulos.ESTOQUE]: [Acoes.LER],
-    [Modulos.MATERIAIS]: [Acoes.LER],
-    [Modulos.RELATORIOS]: [Acoes.LER, Acoes.EXPORTAR],
-    [Modulos.CONFIGURACOES]: [Acoes.LER],
-    [Modulos.USUARIOS]: [Acoes.LER],
-    [Modulos.AUDITORIA]: [Acoes.LER, Acoes.EXPORTAR],
-    [Modulos.INTEGRACOES]: [Acoes.LER]
-  },
-
-  [Perfis.VISITANTE]: {
-    [Modulos.EMPENHOS]: [Acoes.LER],
-    [Modulos.NOTAS_FISCAIS]: [],
-    [Modulos.ESTOQUE]: [],
-    [Modulos.MATERIAIS]: [Acoes.LER],
-    [Modulos.RELATORIOS]: [],
-    [Modulos.CONFIGURACOES]: [],
-    [Modulos.USUARIOS]: [],
-    [Modulos.AUDITORIA]: [],
-    [Modulos.INTEGRACOES]: []
+function getResolvedPermissions(user) {
+  if (user?.accessContext?.permissions && typeof user.accessContext.permissions === 'object') {
+    return user.accessContext.permissions;
   }
-};
+
+  return getFallbackPermissions(user?.perfil);
+}
+
+function getResolvedModulePermissions(user, moduleName) {
+  const permissions = getResolvedPermissions(user);
+  const canonicalModule = normalizeModuleKey(moduleName);
+  return Array.isArray(permissions[canonicalModule])
+    ? permissions[canonicalModule].map(normalizeActionKey).filter(Boolean)
+    : [];
+}
+
+function hasScopeAccess(user, moduleName, scope = null) {
+  if (!scope || (!scope.unitId && !scope.sectorId)) {
+    return true;
+  }
+
+  if (user?.accessContext?.overrideMode === 'development-open-access') {
+    return true;
+  }
+
+  const canonicalModule = normalizeModuleKey(moduleName);
+  const moduleAccess = Array.isArray(user?.accessContext?.modules)
+    ? user.accessContext.modules.find((module) => module.key === canonicalModule)
+    : null;
+
+  if (!moduleAccess) {
+    return false;
+  }
+
+  if (moduleAccess.scopeLevel === 'global') {
+    return true;
+  }
+
+  const globalScope = user?.accessContext?.dataScope || {};
+
+  if (scope.sectorId) {
+    if (globalScope.allSectors) {
+      return true;
+    }
+
+    const sectorIds = moduleAccess.sectorIds?.length ? moduleAccess.sectorIds : globalScope.sectorIds || [];
+    return sectorIds.map(Number).includes(Number(scope.sectorId));
+  }
+
+  if (scope.unitId) {
+    if (globalScope.allUnits) {
+      return true;
+    }
+
+    const unitIds = moduleAccess.unitIds?.length ? moduleAccess.unitIds : globalScope.unitIds || [];
+    return unitIds.map(Number).includes(Number(scope.unitId));
+  }
+
+  return true;
+}
 
 /**
  * Serviço RBAC
@@ -135,24 +141,26 @@ const rbac = {
    * @param {string} acao - Ação a verificar
    * @returns {boolean}
    */
-  hasPermission(user, modulo, acao) {
+  hasPermission(user, modulo, acao, scope = null) {
     if (!user || !user.perfil) {
       return false;
     }
 
-    const perfil = user.perfil.toLowerCase();
-    const permissoes = PermissoesPorPerfil[perfil];
+    if (user?.accessContext?.overrideMode === 'development-open-access') {
+      return true;
+    }
 
-    if (!permissoes) {
+    const normalizedAction = normalizeActionKey(acao);
+    if (!normalizedAction) {
       return false;
     }
 
-    const acoesModulo = permissoes[modulo];
-    if (!acoesModulo) {
+    const actions = getResolvedModulePermissions(user, modulo);
+    if (!actions.includes(normalizedAction)) {
       return false;
     }
 
-    return acoesModulo.includes(acao);
+    return hasScopeAccess(user, modulo, scope);
   },
 
   /**
@@ -161,7 +169,9 @@ const rbac = {
    * @returns {boolean}
    */
   isAdmin(user) {
-    return user?.perfil?.toLowerCase() === Perfis.ADMIN;
+    return [Perfis.ADMIN, Perfis.ADMIN_SUPERIOR, Perfis.ADMIN_SETORIAL].includes(
+      String(user?.perfil || '').toLowerCase()
+    );
   },
 
   /**
@@ -182,7 +192,11 @@ const rbac = {
    * @returns {object}
    */
   getPermissions(perfil) {
-    return PermissoesPorPerfil[perfil?.toLowerCase()] || {};
+    if (perfil && typeof perfil === 'object') {
+      return getResolvedPermissions(perfil);
+    }
+
+    return getFallbackPermissions(perfil);
   },
 
   /**
@@ -195,10 +209,10 @@ const rbac = {
       return [];
     }
 
-    const permissoes = PermissoesPorPerfil[user.perfil.toLowerCase()] || {};
+    const permissoes = getResolvedPermissions(user);
     return Object.entries(permissoes)
       .filter(([_modulo, acoes]) => acoes.length > 0)
-      .map(([modulo]) => modulo);
+      .map(([modulo]) => normalizeModuleKey(modulo));
   },
 
   /**
@@ -215,12 +229,21 @@ const rbac = {
    */
   async logAudit({ userId, action, module: moduleName, entityType, entityId, changes, ip, userAgent }) {
     try {
+      const normalizedModule = normalizeModuleKey(moduleName) || 'sistema';
+      const normalizedEntityId = Number.isFinite(Number(entityId)) ? Number(entityId) : null;
+      const payload = {
+        modulo: normalizedModule,
+        entidade_tipo: entityType || null,
+        entidade_id_raw: entityId ?? null,
+        alteracoes: changes || null
+      };
+
       await db.query(
         `INSERT INTO audit_log (
-          user_id, action, module, entity_type, entity_id,
-          changes, ip_address, user_agent, created_at
+          usuario_id, usuario_nome, acao, entidade, entidade_id,
+          dados_depois, ip_address, user_agent, created_at
         ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())`,
-        [userId, action, moduleName, entityType, entityId, changes ? JSON.stringify(changes) : null, ip, userAgent]
+        [userId, null, action, normalizedModule, normalizedEntityId, JSON.stringify(payload), ip, userAgent]
       );
     } catch (err) {
       console.error('[RBAC] Erro ao registrar auditoria:', err);
@@ -237,20 +260,20 @@ const rbac = {
       let query = `
         SELECT al.*, u.nome as user_name, u.login as user_login
         FROM audit_log al
-        LEFT JOIN usuarios u ON u.id = al.user_id
+        LEFT JOIN usuarios u ON u.id = al.usuario_id
         WHERE 1=1
       `;
       const params = [];
       let paramIdx = 1;
 
       if (filters.userId) {
-        query += ` AND al.user_id = $${paramIdx++}`;
+        query += ` AND al.usuario_id = $${paramIdx++}`;
         params.push(filters.userId);
       }
 
       if (filters.module) {
-        query += ` AND al.module = $${paramIdx++}`;
-        params.push(filters.module);
+        query += ` AND (al.entidade = $${paramIdx++} OR al.dados_depois->>'modulo' = $${paramIdx - 1})`;
+        params.push(normalizeModuleKey(filters.module));
       }
 
       if (filters.action) {
@@ -287,7 +310,10 @@ const rbac = {
   Perfis,
   Modulos,
   Acoes,
-  PerfilHierarquia
+  PerfilHierarquia,
+  normalizeModuleKey,
+  normalizeActionKey,
+  hasScopeAccess
 };
 
 module.exports = rbac;

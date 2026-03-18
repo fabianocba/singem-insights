@@ -10,6 +10,8 @@
 const identityService = require('./identityService');
 const authMiddleware = require('./authMiddleware');
 const rbac = require('./rbac');
+const accessContextService = require('./accessContextService');
+const moduleCatalog = require('./moduleCatalog');
 const userLinkService = require('./userLinkService');
 const normalizedProfile = require('./normalizedProfile');
 
@@ -28,6 +30,10 @@ module.exports = {
   Perfis: rbac.Perfis,
   Modulos: rbac.Modulos,
   Acoes: rbac.Acoes,
+
+  // Contexto de acesso modular
+  accessContextService,
+  moduleCatalog,
 
   // Vinculação de contas
   userLinkService,
