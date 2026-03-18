@@ -80,6 +80,10 @@
           <span aria-hidden="true">📄</span>
           <span>Notas fiscais</span>
         </button>
+        <button type="button" class="app-sidebar__link" data-nav-screen="almoxarifadoScreen">
+          <span aria-hidden="true">🏬</span>
+          <span>Almoxarifado</span>
+        </button>
         <button type="button" class="app-sidebar__link" data-nav-screen="entregaScreen">
           <span aria-hidden="true">📦</span>
           <span>Entregas</span>
@@ -359,6 +363,9 @@
                 <button type="button" class="btn btn-outline" data-nav-screen="notaFiscalScreen">
                   📄 Registrar NF
                 </button>
+                <button type="button" class="btn btn-outline" data-nav-screen="almoxarifadoScreen">
+                  🏬 Operar almoxarifado
+                </button>
                 <button type="button" class="btn btn-outline" data-nav-screen="consultasScreen">
                   🔍 Abrir inteligência
                 </button>
@@ -482,6 +489,12 @@
                 <p>Cadastre notas fiscais, valide divergências e vincule ao empenho correto.</p>
               </div>
 
+              <div class="menu-item" data-screen="almoxarifadoScreen">
+                <div class="menu-icon">🏬</div>
+                <h3>Almoxarifado</h3>
+                <p>Controle entrada, estoque, solicitações e auditoria em uma mesma trilha operacional.</p>
+              </div>
+
               <div class="menu-item" data-screen="relatoriosScreen">
                 <div class="menu-icon">📊</div>
                 <h3>Relatórios</h3>
@@ -506,6 +519,17 @@
                 <p>Monitore a saúde operacional dos serviços do SINGEM e acelere o diagnóstico.</p>
               </div>
             </div>
+          </div>
+        </section>
+
+        <section id="almoxarifadoScreen" class="screen sg-screen-shell">
+          <div class="screen-header sg-screen-header">
+            <button class="btn-back">← Voltar</button>
+            <h2>🏬 SINGEM Almoxarifado</h2>
+          </div>
+
+          <div id="almoxarifadoPageRoot" class="almoxarifado-page-root">
+            <p class="sg-inline-loading">Carregando módulo de almoxarifado...</p>
           </div>
         </section>
 

@@ -72,10 +72,11 @@ function setStoredUser(user) {
 async function request(endpoint, options = {}) {
   const url = `${API_CONFIG.baseUrl}${endpoint}`;
   const method = String(options.method || 'GET').toUpperCase();
+  const { headers: customHeaders, body, unwrap = true, ...fetchOptions } = options;
 
   const headers = {
     'Content-Type': 'application/json',
-    ...options.headers
+    ...customHeaders
   };
 
   // Adiciona token se disponível
@@ -87,11 +88,16 @@ async function request(endpoint, options = {}) {
   const config = {
     method,
     headers,
-    ...options
+    ...fetchOptions
   };
 
-  if (options.body && typeof options.body === 'object') {
-    config.body = JSON.stringify(options.body);
+  if (body instanceof FormData) {
+    delete headers['Content-Type'];
+    config.body = body;
+  } else if (body !== undefined && body !== null && typeof body === 'object') {
+    config.body = JSON.stringify(body);
+  } else if (body !== undefined) {
+    config.body = body;
   }
 
   let lastError;
@@ -111,7 +117,7 @@ async function request(endpoint, options = {}) {
 
         // No login, 401 normalmente significa credencial inválida
         if (isLoginRequest) {
-          return handleResponse(response, data);
+          return handleResponse(response, data, unwrap);
         }
 
         if (data.code === 'TOKEN_EXPIRED' && getRefreshToken()) {
@@ -120,7 +126,7 @@ async function request(endpoint, options = {}) {
             // Retry com novo token
             headers['Authorization'] = `Bearer ${getAccessToken()}`;
             const retryResponse = await fetch(url, { ...config, headers });
-            return handleResponse(retryResponse);
+            return handleResponse(retryResponse, undefined, unwrap);
           }
         }
 
@@ -135,7 +141,7 @@ async function request(endpoint, options = {}) {
         continue;
       }
 
-      return handleResponse(response);
+      return handleResponse(response, undefined, unwrap);
     } catch (err) {
       lastError = err;
 
@@ -172,7 +178,7 @@ function unwrapSuccessPayload(data) {
   return data;
 }
 
-async function handleResponse(response, parsedData = undefined) {
+async function handleResponse(response, parsedData = undefined, unwrap = true) {
   const contentType = response.headers.get('content-type');
   const isJson = contentType && contentType.includes('application/json');
 
@@ -187,7 +193,7 @@ async function handleResponse(response, parsedData = undefined) {
     throw error;
   }
 
-  return unwrapSuccessPayload(data);
+  return unwrap ? unwrapSuccessPayload(data) : data;
 }
 
 function isNetworkError(err) {
@@ -247,11 +253,51 @@ const apiClient = {
     });
   },
 
+  async getEnvelope(endpoint, options = {}) {
+    return request(endpoint, {
+      ...options,
+      method: 'GET',
+      unwrap: false
+    });
+  },
+
   async post(endpoint, body, options = {}) {
     return request(endpoint, {
       ...options,
       method: 'POST',
       body
+    });
+  },
+
+  async postEnvelope(endpoint, body, options = {}) {
+    return request(endpoint, {
+      ...options,
+      method: 'POST',
+      body,
+      unwrap: false
+    });
+  },
+
+  async put(endpoint, body, options = {}) {
+    return request(endpoint, {
+      ...options,
+      method: 'PUT',
+      body
+    });
+  },
+
+  async patch(endpoint, body, options = {}) {
+    return request(endpoint, {
+      ...options,
+      method: 'PATCH',
+      body
+    });
+  },
+
+  async delete(endpoint, options = {}) {
+    return request(endpoint, {
+      ...options,
+      method: 'DELETE'
     });
   },
 

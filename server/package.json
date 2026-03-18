@@ -6,6 +6,7 @@
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
+    "test:almoxarifado": "node --test tests/almoxarifado.contract.test.js",
     "test:contracts": "node --test tests/*.contract.test.js",
     "test:contracts:auth": "node scripts/test-contracts-auth.js",
     "test:price-intelligence": "node --test tests/price-intelligence*.test.js",

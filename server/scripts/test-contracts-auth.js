@@ -58,15 +58,23 @@ async function makeRequest(url, options = {}) {
 }
 
 async function checkHealthEndpoint(baseUrl) {
-  try {
-    const response = await makeRequest(`${baseUrl}/api/health`, {
-      timeout: 3000,
-      method: 'GET'
-    });
-    return response.status === 200 || response.status === 401;
-  } catch (error) {
-    return false;
+  const candidates = ['/health', '/api/health'];
+
+  for (const path of candidates) {
+    try {
+      const response = await makeRequest(`${baseUrl}${path}`, {
+        timeout: 3000,
+        method: 'GET'
+      });
+      if (response.status === 200 || response.status === 401) {
+        return true;
+      }
+    } catch {
+      // tenta o próximo caminho
+    }
   }
+
+  return false;
 }
 
 async function resolveBaseUrl() {

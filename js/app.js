@@ -19,6 +19,7 @@ import './relatoriosEmpenhos.js';
 import { initInfrastructureInfo } from './infrastructureInfo.js';
 import './catmatIntegration.js';
 import * as CatalogacaoTela from './catalogacaoTela.js';
+import { createAlmoxarifadoFeature } from './features/almoxarifado/pages.js';
 import { createEmpenhoFeature } from './features/empenho/pages.js';
 import { createNotaFiscalFeature } from './features/notaFiscal/pages.js';
 import { showToast as sharedShowToast } from './shared/ui/toast.js';
@@ -125,6 +126,7 @@ export class ControleMaterialApp {
     };
 
     this.features = {
+      almoxarifado: createAlmoxarifadoFeature(this),
       empenho: createEmpenhoFeature(this),
       notaFiscal: createNotaFiscalFeature(this)
     };
@@ -5176,6 +5178,13 @@ export class ControleMaterialApp {
       // Inicializa tela de pedidos de catalogação CATMAT
       if (screenId === 'catalogacaoScreen') {
         CatalogacaoTela.initTelaCatalogacao('catalogacaoPedidosContainer');
+      }
+
+      if (screenId === 'almoxarifadoScreen') {
+        this.features.almoxarifado?.activate().catch((error) => {
+          console.error('[showScreen] Erro ao abrir almoxarifado:', error);
+          this.showError('Erro ao abrir o módulo de almoxarifado: ' + error.message, error);
+        });
       }
 
       // Carrega empenhos no select quando entra na tela de Nota Fiscal

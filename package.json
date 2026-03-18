@@ -18,6 +18,7 @@
     "smoke:nfe": "pwsh -NoProfile -ExecutionPolicy Bypass -File ./scripts/smoke-importar-nfe.ps1",
     "smoke:nfe:real": "pwsh -NoProfile -ExecutionPolicy Bypass -File ./scripts/smoke-importar-nfe.ps1 -UseRealBackend",
     "smoke:nfe:real:write": "pwsh -NoProfile -ExecutionPolicy Bypass -File ./scripts/smoke-importar-nfe.ps1 -UseRealBackend -AllowWrite",
+    "validate:almox": "pwsh -NoProfile -ExecutionPolicy Bypass -File ./scripts/validate-almoxarifado-local.ps1",
     "format": "prettier . --write --ignore-unknown",
     "format:check": "prettier . --check --ignore-unknown",
     "quality": "node ./scripts/quality-check.mjs"

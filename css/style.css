@@ -3311,6 +3311,560 @@ body {
 }
 
 /* ============================================================================
+   ALMOXARIFADO - SPA operacional
+   ============================================================================ */
+
+.almoxarifado-page-root {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.almox-page-shell {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
+}
+
+.almox-hero {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--spacing-xl);
+  padding: clamp(1.5rem, 3vw, 2.5rem);
+  border-radius: 24px;
+  overflow: hidden;
+  color: var(--white);
+  background:
+    radial-gradient(circle at top right, rgba(255, 183, 77, 0.3), transparent 30%),
+    linear-gradient(135deg, #0d5c63 0%, #1b5e20 48%, #123b43 100%);
+  box-shadow: 0 18px 45px rgba(18, 59, 67, 0.24);
+}
+
+.almox-hero::after {
+  content: '';
+  position: absolute;
+  inset: auto -8% -50% auto;
+  width: 260px;
+  height: 260px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  filter: blur(4px);
+}
+
+.almox-hero > * {
+  position: relative;
+  z-index: 1;
+}
+
+.almox-hero h2 {
+  margin-top: var(--spacing-sm);
+  font-size: clamp(1.75rem, 2.6vw, 2.4rem);
+  line-height: 1.15;
+}
+
+.almox-hero p {
+  max-width: 70ch;
+  margin-top: var(--spacing-base);
+  color: rgba(255, 255, 255, 0.86);
+}
+
+.almox-hero__eyebrow,
+.almox-panel__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 0.76rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.almox-hero__eyebrow {
+  background: rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.almox-panel__eyebrow {
+  background: rgba(46, 125, 50, 0.1);
+  color: var(--primary-dark);
+}
+
+.almox-hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+  align-content: start;
+  justify-content: end;
+}
+
+.almox-alert,
+.almox-loading-bar {
+  padding: 14px 18px;
+  border-radius: 14px;
+  border: 1px solid rgba(13, 92, 99, 0.18);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(234, 244, 242, 0.96));
+  color: #0f3c40;
+  box-shadow: var(--shadow-base);
+}
+
+.almox-loading-bar {
+  border-color: rgba(33, 150, 243, 0.24);
+}
+
+.almox-tab-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.almox-tab {
+  border: 1px solid rgba(18, 59, 67, 0.12);
+  border-radius: 999px;
+  padding: 10px 16px;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: #335b61;
+  background: rgba(255, 255, 255, 0.9);
+  cursor: pointer;
+  transition:
+    transform 0.18s ease,
+    border-color 0.18s ease,
+    background 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.almox-tab:hover {
+  transform: translateY(-1px);
+  border-color: rgba(13, 92, 99, 0.28);
+  box-shadow: 0 10px 20px rgba(13, 92, 99, 0.08);
+}
+
+.almox-tab.is-active {
+  border-color: rgba(27, 94, 32, 0.24);
+  color: var(--white);
+  background: linear-gradient(135deg, #1b5e20, #0d5c63);
+  box-shadow: 0 12px 24px rgba(27, 94, 32, 0.2);
+}
+
+.almox-tab-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
+}
+
+.almox-metrics-grid,
+.almox-analytics-grid,
+.almox-forms-grid,
+.almox-two-column-grid {
+  display: grid;
+  gap: var(--spacing-lg);
+}
+
+.almox-metrics-grid {
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+}
+
+.almox-analytics-grid {
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+.almox-forms-grid {
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+.almox-two-column-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.almox-metric-card,
+.almox-panel {
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid rgba(18, 59, 67, 0.09);
+  border-radius: 20px;
+  box-shadow: 0 12px 28px rgba(15, 60, 64, 0.08);
+}
+
+.almox-metric-card {
+  position: relative;
+  overflow: hidden;
+  padding: 18px;
+}
+
+.almox-metric-card::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 6px;
+  background: #0d5c63;
+}
+
+.almox-metric-card--brand::before {
+  background: #0d5c63;
+}
+
+.almox-metric-card--info::before {
+  background: #1976d2;
+}
+
+.almox-metric-card--warning::before {
+  background: #ef6c00;
+}
+
+.almox-metric-card--danger::before {
+  background: #c62828;
+}
+
+.almox-metric-card--success::before {
+  background: #2e7d32;
+}
+
+.almox-metric-card--neutral::before {
+  background: #455a64;
+}
+
+.almox-metric-card__label {
+  display: block;
+  color: var(--gray-600);
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.almox-metric-card__value {
+  display: block;
+  margin-top: 10px;
+  font-size: clamp(1.45rem, 2.2vw, 2rem);
+  line-height: 1.05;
+  color: #123b43;
+}
+
+.almox-metric-card__detail {
+  margin-top: 10px;
+  color: var(--gray-700);
+  font-size: 0.9rem;
+}
+
+.almox-panel {
+  padding: clamp(1rem, 2vw, 1.4rem);
+}
+
+.almox-panel__header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: var(--spacing-base);
+  margin-bottom: var(--spacing-base);
+}
+
+.almox-panel__header h3 {
+  margin-top: 8px;
+  color: #123b43;
+  font-size: 1.15rem;
+}
+
+.almox-panel__meta {
+  font-size: 0.82rem;
+  color: var(--gray-600);
+}
+
+.almox-stat-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.almox-stat-list__row {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: var(--spacing-base);
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(232, 245, 233, 0.7), rgba(244, 250, 249, 0.92));
+}
+
+.almox-stat-list__row strong {
+  color: #11353b;
+}
+
+.almox-stat-list__row span {
+  display: block;
+  margin-top: 4px;
+  color: var(--gray-700);
+  font-size: 0.86rem;
+}
+
+.almox-empty-note {
+  color: var(--gray-600);
+  font-size: 0.92rem;
+}
+
+.almox-form-grid,
+.almox-filter-row {
+  display: grid;
+  gap: 12px;
+}
+
+.almox-form-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.almox-form-grid__span-2 {
+  grid-column: span 2;
+}
+
+.almox-form-grid label,
+.almox-checkbox-inline {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.almox-form-grid label span,
+.almox-checkbox-inline span {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 700;
+  color: #45636a;
+}
+
+.almox-form-grid input,
+.almox-form-grid select,
+.almox-filter-row input,
+.almox-filter-row select {
+  width: 100%;
+  min-height: 42px;
+  padding: 10px 12px;
+  border: 1px solid rgba(18, 59, 67, 0.14);
+  border-radius: 12px;
+  background: #fff;
+  font-size: 0.95rem;
+  color: #17363c;
+  transition:
+    border-color 0.18s ease,
+    box-shadow 0.18s ease,
+    transform 0.18s ease;
+}
+
+.almox-form-grid input:focus,
+.almox-form-grid select:focus,
+.almox-filter-row input:focus,
+.almox-filter-row select:focus {
+  outline: none;
+  border-color: rgba(13, 92, 99, 0.44);
+  box-shadow: 0 0 0 4px rgba(13, 92, 99, 0.1);
+}
+
+.almox-form-grid input:disabled,
+.almox-form-grid select:disabled {
+  background: rgba(245, 245, 245, 0.92);
+  color: var(--gray-500);
+  cursor: not-allowed;
+}
+
+.almox-filter-row {
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  align-items: center;
+  margin-bottom: var(--spacing-base);
+}
+
+.almox-checkbox-inline {
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  padding-inline: 6px;
+}
+
+.almox-checkbox-inline input {
+  width: auto;
+  min-height: 0;
+}
+
+.almox-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.almox-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 720px;
+}
+
+.almox-table th,
+.almox-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid rgba(18, 59, 67, 0.08);
+  text-align: left;
+  vertical-align: top;
+}
+
+.almox-table th {
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #4a6970;
+}
+
+.almox-table td {
+  color: #17363c;
+  font-size: 0.94rem;
+}
+
+.almox-table tbody tr:hover {
+  background: rgba(232, 245, 233, 0.45);
+}
+
+.almox-table__sub {
+  margin-top: 4px;
+  color: var(--gray-600);
+  font-size: 0.82rem;
+}
+
+.almox-table__empty {
+  text-align: center;
+  color: var(--gray-600);
+  padding: 24px 14px;
+}
+
+.almox-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 92px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  line-height: 1;
+  text-transform: capitalize;
+  background: #eceff1;
+  color: #37474f;
+}
+
+.almox-badge--ativo,
+.almox-badge--aprovada,
+.almox-badge--atendida,
+.almox-badge--success {
+  background: rgba(46, 125, 50, 0.14);
+  color: #1b5e20;
+}
+
+.almox-badge--normal,
+.almox-badge--em-separacao,
+.almox-badge--entrada,
+.almox-badge--devolucao,
+.almox-badge--info {
+  background: rgba(25, 118, 210, 0.14);
+  color: #0d47a1;
+}
+
+.almox-badge--alta,
+.almox-badge--urgente,
+.almox-badge--parcial,
+.almox-badge--parcialmente-atendida,
+.almox-badge--warning,
+.almox-badge--transferencia,
+.almox-badge--ajuste {
+  background: rgba(239, 108, 0, 0.16);
+  color: #e65100;
+}
+
+.almox-badge--bloqueado,
+.almox-badge--recusada,
+.almox-badge--cancelada,
+.almox-badge--estornada,
+.almox-badge--danger {
+  background: rgba(198, 40, 40, 0.14);
+  color: #b71c1c;
+}
+
+.almox-badge--rascunho,
+.almox-badge--enviada,
+.almox-badge--em-analise,
+.almox-badge--inativo,
+.almox-badge--baixa,
+.almox-badge--neutral {
+  background: rgba(69, 90, 100, 0.14);
+  color: #37474f;
+}
+
+.almox-inline-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.almox-inline-action {
+  border: 1px solid rgba(13, 92, 99, 0.14);
+  border-radius: 999px;
+  padding: 8px 10px;
+  background: #fff;
+  color: #0d5c63;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    transform 0.18s ease,
+    background 0.18s ease,
+    border-color 0.18s ease;
+}
+
+.almox-inline-action:hover {
+  transform: translateY(-1px);
+  background: rgba(13, 92, 99, 0.08);
+  border-color: rgba(13, 92, 99, 0.24);
+}
+
+@media (max-width: 1024px) {
+  .almox-hero {
+    grid-template-columns: 1fr;
+  }
+
+  .almox-hero__actions {
+    justify-content: start;
+  }
+
+  .almox-two-column-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .almox-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .almox-form-grid__span-2 {
+    grid-column: span 1;
+  }
+
+  .almox-panel__header {
+    flex-direction: column;
+    align-items: start;
+  }
+
+  .almox-tab {
+    flex: 1 1 calc(50% - 10px);
+    justify-content: center;
+  }
+}
+
+@media (max-width: 560px) {
+  .almox-tab {
+    flex-basis: 100%;
+  }
+
+  .almox-hero__actions .btn {
+    width: 100%;
+  }
+}
+
+/* ============================================================================
    MODAL: ADICIONAR ITENS DO EMPENHO (v1.6.8)
    CSS moderno escopado - não afeta tema global
    ============================================================================ */

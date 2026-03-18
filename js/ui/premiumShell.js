@@ -4,6 +4,7 @@ import { scheduleVisualAuditRefresh } from './aiVisualAudit.js';
 
 const SCREEN_LABELS = {
   homeScreen: 'Painel executivo',
+  almoxarifadoScreen: 'Almoxarifado inteligente',
   empenhoScreen: 'Cadastro de empenho',
   entregaScreen: 'Entrada de entrega',
   notaFiscalScreen: 'Entrada de nota fiscal',

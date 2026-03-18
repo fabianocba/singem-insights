@@ -17,6 +17,7 @@ const authRoutes = require('./modules/auth/auth.routes');
 const govbrRoutes = require('./routes/govbr.routes');
 const serproidRoutes = require('./routes/serproid.routes');
 const empenhosRoutes = require('./modules/empenhos/empenhos.routes');
+const almoxarifadoRoutes = require('./modules/almoxarifado/almoxarifado.routes');
 const notasFiscaisRoutes = require('./modules/notas-fiscais/notas-fiscais.routes');
 const estoqueRoutes = require('./src/routes/estoque.routes');
 const syncRoutes = require('./routes/sync.routes');
@@ -87,6 +88,7 @@ function createApp({ nodeEnv, bodyLimit, corsOrigins, trustProxy, nfeService, nf
   app.use('/api/auth', authRoutes);
   app.use('/api/auth/govbr', govbrRoutes);
   app.use('/api/auth/serproid', serproidRoutes);
+  app.use('/api/almoxarifado', almoxarifadoRoutes);
   app.use('/api/empenhos', empenhosRoutes);
   app.use('/api/notas-fiscais', notasFiscaisRoutes);
   app.use('/api/estoque', estoqueRoutes);
@@ -239,6 +241,7 @@ function createApp({ nodeEnv, bodyLimit, corsOrigins, trustProxy, nfeService, nf
     '/api/auth',
     '/api/auth/govbr',
     '/api/auth/serproid',
+    '/api/almoxarifado',
     '/api/empenhos',
     '/api/notas-fiscais',
     '/api/estoque',
