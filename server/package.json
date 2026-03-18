@@ -1,6 +1,6 @@
 {
   "name": "singem-server",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "SINGEM - Sistema Institucional de Gestão de Material (IF Baiano)",
   "main": "index.js",
   "scripts": {

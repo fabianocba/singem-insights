@@ -396,7 +396,7 @@ class BackupManager {
     // Metadados
     const meta = {
       exportedAt: new Date().toISOString(),
-      appVersion: window.APP_VERSION || '1.2.1',
+      appVersion: window.APP_VERSION || '1.2.2',
       dataVersion: DATA_VERSION,
       source: window.location.hostname
     };

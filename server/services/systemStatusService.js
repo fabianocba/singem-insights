@@ -251,7 +251,7 @@ function buildDownPayload(versionInfo, serviceMessage = 'PostgreSQL unavailable'
   return {
     status: 'DOWN',
     name: versionInfo?.name || 'SINGEM',
-    version: versionInfo?.version || '1.2.1',
+    version: versionInfo?.version || '1.2.2',
     channel: versionInfo?.channel || 'main',
     build: versionInfo?.build || 'local',
     buildTimestamp: isoSeconds(versionInfo?.buildTimestamp),
@@ -281,7 +281,7 @@ async function getSystemStatus({ requestId, nfeService, nfeServiceV2 }) {
   return {
     status: resolveGlobalStatus(services),
     name: info.name || 'SINGEM',
-    version: info.version || '1.2.1',
+    version: info.version || '1.2.2',
     channel: info.channel || 'main',
     build: info.build || 'local',
     buildTimestamp: isoSeconds(info.buildTimestamp),

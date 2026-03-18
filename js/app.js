@@ -30,6 +30,7 @@ import { initFornecedorAIAssist, initItemModalAIAssist } from './aiIntegration.j
 import { initVisualAudits, scheduleVisualAuditRefresh } from './ui/aiVisualAudit.js';
 import { initPremiumShell, refreshPremiumShell } from './ui/premiumShell.js';
 import { escapeHTML } from './utils/sanitize.js';
+import { renderSidebar } from './core/accessScope.js';
 
 console.log('[App] 📦 Versão:', APP_VERSION, 'Build:', APP_BUILD);
 console.log('[App] 🔍 Repository importado:', typeof repository);
@@ -273,11 +274,12 @@ export class ControleMaterialApp {
         const response = await apiClient.get('/api/auth/me');
 
         if (response.sucesso && response.usuario) {
-          this.usuarioLogado = response.usuario;
-          this.authProvider = provider;
+          this.usuarioLogado = { ...response.usuario };
+          this.authProvider = response.usuario.authProvider || provider;
           console.log(`[OAuth] ✅ Login via ${provider}:`, this.usuarioLogado.nome);
 
           // Atualiza UI
+          renderSidebar(this.usuarioLogado);
           this.atualizarUsuarioHeader();
           this.showScreen('homeScreen');
           this.showSuccess(`Bem-vindo(a), ${this.usuarioLogado.nome}!`);
@@ -1819,13 +1821,12 @@ export class ControleMaterialApp {
         throw new Error('Resposta de autenticação inválida.');
       }
 
+      // Preserva contexto completo (accessContext, menusVisiveis, escopoDados, etc.)
       this.usuarioLogado = {
-        id: usuarioApi.id,
-        nome: usuarioApi.nome,
-        perfil: usuarioApi.perfil,
+        ...usuarioApi,
         login: usuarioApi.login || usuario
       };
-      this.authProvider = 'local';
+      this.authProvider = usuarioApi.authProvider || 'local';
 
       await this.salvarDadosLembradosPosLogin(usuario, '');
 
@@ -1842,6 +1843,7 @@ export class ControleMaterialApp {
       }
 
       await this.carregarDadosIniciais();
+      renderSidebar(this.usuarioLogado);
       this.atualizarUsuarioHeader();
       this.showScreen('homeScreen');
 

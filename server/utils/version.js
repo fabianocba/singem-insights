@@ -6,7 +6,7 @@ const VERSION_FILE = path.resolve(__dirname, '..', '..', 'version.json');
 function normalizeVersion(data = {}) {
   return {
     name: String(data.name || process.env.APP_NAME || 'SINGEM'),
-    version: String(data.version || process.env.APP_VERSION || '1.2.1'),
+    version: String(data.version || process.env.APP_VERSION || '1.2.2'),
     channel: String(data.channel || process.env.APP_CHANNEL || 'dev'),
     build: String(data.build || process.env.APP_BUILD || 'local'),
     buildTimestamp: String(data.buildTimestamp || process.env.APP_BUILD_TS || new Date().toISOString())

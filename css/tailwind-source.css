@@ -1384,6 +1384,15 @@ html.dark {
     background: rgba(255, 255, 255, 0.04);
   }
 
+  .app-sidebar__group-label {
+    @apply mt-4 mb-1 px-4 text-[10px] font-bold uppercase tracking-[0.28em];
+    color: rgba(200, 168, 107, 0.64);
+  }
+
+  .app-sidebar__group-label:first-child {
+    @apply mt-0;
+  }
+
   body.app-authenticated .main {
     @apply px-0 pt-6 pb-24;
     margin-left: 17.5rem;
@@ -2615,22 +2624,26 @@ html.dark {
   }
 
   .login-header {
-    @apply mb-8 flex flex-col gap-5 border-b pb-7 text-center lg:flex-row lg:items-center lg:justify-between lg:text-left;
+    @apply mb-8 flex flex-col gap-5 border-b pb-7;
     border-color: rgba(148, 163, 184, 0.18);
   }
 
+  .login-header__brand {
+    @apply flex items-center gap-4;
+  }
+
   .login-logo {
-    @apply inline-flex h-18 w-18 items-center justify-center rounded-[1.75rem] text-3xl text-white shadow-lg;
+    @apply inline-flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-[1.5rem] text-2xl text-white shadow-lg;
     background: linear-gradient(135deg, var(--sg-brand-700), var(--sg-brand-500));
   }
 
   .login-header h1 {
-    @apply text-3xl font-semibold tracking-tight md:text-4xl;
+    @apply text-2xl font-semibold tracking-tight md:text-3xl;
     color: var(--sg-text);
   }
 
   .login-header p {
-    @apply mt-2 text-sm md:text-base;
+    @apply mt-1 text-sm md:text-base;
     color: var(--sg-text-soft);
   }
 
@@ -2663,11 +2676,33 @@ html.dark {
   }
 
   .login-intelligence-panel h2 {
-    @apply mt-5 text-3xl font-semibold tracking-tight;
+    @apply mt-5 text-2xl font-semibold tracking-tight;
   }
 
   .login-intelligence-panel > p {
     @apply mt-4 max-w-2xl text-sm leading-6 text-white/76 md:text-base;
+  }
+
+  .login-modules-grid {
+    @apply mt-6 grid gap-3 sm:grid-cols-2;
+  }
+
+  .login-module-card {
+    @apply flex items-start gap-3 rounded-[1.25rem] border px-4 py-3;
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.08);
+  }
+
+  .login-module-card__icon {
+    @apply mt-0.5 text-lg;
+  }
+
+  .login-module-card strong {
+    @apply block text-sm font-semibold text-white;
+  }
+
+  .login-module-card p {
+    @apply mt-0.5 text-xs leading-5 text-white/60;
   }
 
   .login-intelligence-grid {
@@ -2837,6 +2872,35 @@ html.dark {
 
   .btn-link {
     @apply text-sm font-semibold text-indigo-600 hover:text-indigo-500 dark:text-indigo-300;
+  }
+
+  /* Module placeholder screens (Em desenvolvimento) */
+  .module-placeholder {
+    @apply mx-auto flex max-w-md flex-col items-center gap-5 rounded-[2rem] border px-8 py-14 text-center;
+    background: var(--sg-surface);
+    border-color: var(--sg-border);
+    box-shadow: var(--sg-shadow-card);
+  }
+
+  .module-placeholder__icon {
+    @apply text-5xl;
+  }
+
+  .module-placeholder h3 {
+    @apply text-xl font-semibold tracking-tight;
+    color: var(--sg-text);
+  }
+
+  .module-placeholder p {
+    @apply text-sm leading-6;
+    color: var(--sg-text-soft);
+  }
+
+  .module-placeholder__badge {
+    @apply inline-flex rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em];
+    background: rgba(200, 168, 107, 0.12);
+    border-color: rgba(200, 168, 107, 0.22);
+    color: var(--sg-accent-gold);
   }
 
   .api-mode-control {

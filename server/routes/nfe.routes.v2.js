@@ -15,6 +15,7 @@
 
 const express = require('express');
 const multer = require('multer');
+const { authenticate, requirePermission } = require('../middleware/auth');
 
 const router = express.Router();
 
@@ -74,7 +75,7 @@ const checkService = (req, res, next) => {
  * Query params:
  * - sobrescrever=true (opcional)
  */
-router.post('/importar-xml', checkService, upload.single('file'), async (req, res) => {
+router.post('/importar-xml', authenticate, requirePermission('gestao_almoxarifado', 'IMPORTAR'), checkService, upload.single('file'), async (req, res) => {
   try {
     const sobrescrever = req.query.sobrescrever === 'true';
     let resultado;
@@ -122,7 +123,7 @@ router.post('/importar-xml', checkService, upload.single('file'), async (req, re
  *
  * Aceita mesmo formato do /importar-xml
  */
-router.post('/validar', checkService, upload.single('file'), async (req, res) => {
+router.post('/validar', authenticate, checkService, upload.single('file'), async (req, res) => {
   try {
     let xmlContent;
 
@@ -161,7 +162,7 @@ router.post('/validar', checkService, upload.single('file'), async (req, res) =>
  *
  * Params: chave (44 dígitos)
  */
-router.get('/:chave', checkService, async (req, res) => {
+router.get('/:chave', authenticate, checkService, async (req, res) => {
   try {
     const { chave } = req.params;
     const resultado = await nfeService.obterNfe(chave);
@@ -185,7 +186,7 @@ router.get('/:chave', checkService, async (req, res) => {
  *
  * Params: chave (44 dígitos)
  */
-router.get('/:chave/xml', checkService, async (req, res) => {
+router.get('/:chave/xml', authenticate, checkService, async (req, res) => {
   try {
     const { chave } = req.params;
     const resultado = await nfeService.obterXml(chave);
@@ -222,7 +223,7 @@ router.get('/:chave/xml', checkService, async (req, res) => {
  * - dataInicio (ISO)
  * - dataFim (ISO)
  */
-router.get('/', checkService, async (req, res) => {
+router.get('/', authenticate, checkService, async (req, res) => {
   try {
     const filtros = {
       cnpjEmitente: req.query.cnpjEmitente,
@@ -267,7 +268,7 @@ router.get('/', checkService, async (req, res) => {
  *
  * Params: chave (44 dígitos)
  */
-router.delete('/:chave', checkService, async (req, res) => {
+router.delete('/:chave', authenticate, requirePermission('gestao_almoxarifado', 'EXCLUIR'), checkService, async (req, res) => {
   try {
     const { chave } = req.params;
     const resultado = await nfeService.removerNfe(chave);

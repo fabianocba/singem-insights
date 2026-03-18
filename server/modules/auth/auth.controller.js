@@ -7,7 +7,7 @@ async function login(req, res, next) {
     return ok(req, res, {
       accessToken: result.accessToken,
       refreshToken: result.refreshToken,
-      user: result.usuario
+      usuario: result.usuario
     });
   } catch (error) {
     return next(error);
@@ -38,7 +38,7 @@ async function logout(req, res, next) {
 async function me(req, res, next) {
   try {
     const result = await authService.me(req.user);
-    return ok(req, res, { user: result.usuario || req.user });
+    return ok(req, res, { usuario: result.usuario || req.user });
   } catch (error) {
     return next(error);
   }

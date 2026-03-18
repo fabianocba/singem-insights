@@ -11,7 +11,14 @@ const SCREEN_LABELS = {
   relatoriosScreen: 'Relatórios operacionais',
   configScreen: 'Configurações do sistema',
   catalogacaoScreen: 'Pedidos de catalogação',
-  consultasScreen: 'Inteligência de compras'
+  consultasScreen: 'Inteligência de compras',
+  patrimonioScreen: 'Gestão de patrimônio',
+  veiculosScreen: 'Gestão de veículos',
+  servicosInternosScreen: 'Serviços internos',
+  contratosScreen: 'Gestão de contratos',
+  solicitacaoAlmoxScreen: 'Solicitação de almoxarifado',
+  solicitacaoVeiculosScreen: 'Solicitação de veículos',
+  solicitacaoServicosScreen: 'Solicitação de serviços'
 };
 
 let initialized = false;
@@ -101,13 +108,16 @@ function bindSidebarActions(app) {
     });
   }
 
-  const systemStatusLink = document.querySelector('[data-nav-href="/system-status/"]');
-  if (systemStatusLink && systemStatusLink.dataset.bound !== '1') {
-    systemStatusLink.dataset.bound = '1';
-    systemStatusLink.addEventListener('click', () => {
-      window.location.href = '/system-status/';
+  document.querySelectorAll('[data-nav-href]').forEach((link) => {
+    if (link.dataset.bound === '1') {
+      return;
+    }
+
+    link.dataset.bound = '1';
+    link.addEventListener('click', () => {
+      window.location.href = link.dataset.navHref;
     });
-  }
+  });
 }
 
 function renderMetricsSkeleton(container) {
@@ -254,6 +264,7 @@ export function refreshPremiumShell(app) {
   }
 
   updateHeaderMeta(app);
+  bindSidebarActions(app);
   updateSidebarState(app);
 
   if (isAuthenticated && app?.currentScreen === 'homeScreen') {

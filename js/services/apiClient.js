@@ -225,7 +225,8 @@ async function refreshAccessToken() {
       return false;
     }
 
-    const data = await response.json();
+    const raw = await response.json();
+    const data = raw?.data || raw;
     setTokens(data.accessToken, data.refreshToken);
     return true;
   } catch {
@@ -316,10 +317,11 @@ const apiClient = {
     setTokens(data.accessToken, data.refreshToken);
     setStoredUser(usuario);
 
-    window.dispatchEvent(new CustomEvent('singem:auth:login', { detail: usuario }));
+    window.dispatchEvent(new CustomEvent('singem:auth:login', { detail: { usuario } }));
 
     return {
-      ...data,
+      accessToken: data.accessToken,
+      refreshToken: data.refreshToken,
       usuario
     };
   },

@@ -127,7 +127,7 @@ class StorageAdapter {
 
     const backup = {
       meta: {
-        appVersion: window.APP_VERSION || '1.2.1',
+        appVersion: window.APP_VERSION || '1.2.2',
         dataVersion: DATA_VERSION,
         exportedAt: new Date().toISOString(),
         source: 'SINGEM Storage Adapter'

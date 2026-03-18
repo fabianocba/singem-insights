@@ -1,5 +1,5 @@
 const express = require('express');
-const { authenticate } = require('../../middleware/auth');
+const { authenticate, requirePermission } = require('../../middleware/auth');
 const { catmatObrigatorioMiddleware } = require('../../src/utils/catmatValidation');
 const validate = require('../../middlewares/validate');
 const controller = require('./notas-fiscais.controller');
@@ -20,6 +20,7 @@ router.get('/:id', authenticate, validate(idNotaSchema), controller.getById);
 router.post(
   '/',
   authenticate,
+  requirePermission('gestao_almoxarifado', 'CADASTRAR'),
   catmatObrigatorioMiddleware('nota_fiscal_items'),
   validate(createNotaSchema),
   controller.create
@@ -27,12 +28,13 @@ router.post(
 router.put(
   '/:id',
   authenticate,
+  requirePermission('gestao_almoxarifado', 'EDITAR'),
   catmatObrigatorioMiddleware('nota_fiscal_items'),
   validate(updateNotaSchema),
   controller.update
 );
-router.put('/:id/conferir', authenticate, validate(idNotaSchema), controller.conferir);
-router.put('/:id/receber', authenticate, validate(idNotaSchema), controller.receber);
-router.delete('/:id', authenticate, validate(idNotaSchema), controller.remove);
+router.put('/:id/conferir', authenticate, requirePermission('gestao_almoxarifado', 'APROVAR'), validate(idNotaSchema), controller.conferir);
+router.put('/:id/receber', authenticate, requirePermission('gestao_almoxarifado', 'APROVAR'), validate(idNotaSchema), controller.receber);
+router.delete('/:id', authenticate, requirePermission('gestao_almoxarifado', 'EXCLUIR'), validate(idNotaSchema), controller.remove);
 
 module.exports = router;

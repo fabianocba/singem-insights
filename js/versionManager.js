@@ -62,7 +62,7 @@ export async function registerServiceWorker() {
 
   regOnce = (async () => {
     const versionMeta = window.__SINGEM_VERSION_META || {};
-    const swVersion = String(versionMeta.version || APP_VERSION || '1.2.1');
+    const swVersion = String(versionMeta.version || APP_VERSION || '1.2.2');
     const swBuild = String(versionMeta.build || APP_BUILD || 'local');
 
     console.info('[VM]', `${versionMeta.name || 'SINGEM'} v${swVersion} • build ${swBuild}`);

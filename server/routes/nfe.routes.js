@@ -7,6 +7,7 @@
 
 const express = require('express');
 const multer = require('multer');
+const { authenticate, requirePermission } = require('../middleware/auth');
 
 const router = express.Router();
 
@@ -46,7 +47,7 @@ const checkService = (req, res, next) => {
  *
  * Body: { chaveAcesso: string }
  */
-router.post('/importar', checkService, async (req, res) => {
+router.post('/importar', authenticate, requirePermission('gestao_almoxarifado', 'IMPORTAR'), checkService, async (req, res) => {
   try {
     const { chaveAcesso } = req.body;
 
@@ -80,7 +81,7 @@ router.post('/importar', checkService, async (req, res) => {
  *
  * Form-data: file (XML)
  */
-router.post('/upload', checkService, upload.single('file'), async (req, res) => {
+router.post('/upload', authenticate, requirePermission('gestao_almoxarifado', 'IMPORTAR'), checkService, upload.single('file'), async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({
@@ -113,7 +114,7 @@ router.post('/upload', checkService, upload.single('file'), async (req, res) => 
  *
  * Body: { xml: string }
  */
-router.post('/upload-text', checkService, async (req, res) => {
+router.post('/upload-text', authenticate, requirePermission('gestao_almoxarifado', 'IMPORTAR'), checkService, async (req, res) => {
   try {
     const { xml } = req.body;
 
@@ -147,7 +148,7 @@ router.post('/upload-text', checkService, async (req, res) => {
  *
  * Params: chave (44 dígitos)
  */
-router.get('/danfe/:chave', checkService, async (req, res) => {
+router.get('/danfe/:chave', authenticate, checkService, async (req, res) => {
   try {
     const { chave } = req.params;
 
@@ -173,7 +174,7 @@ router.get('/danfe/:chave', checkService, async (req, res) => {
  *
  * Params: chave (44 dígitos)
  */
-router.get('/xml/:chave', checkService, async (req, res) => {
+router.get('/xml/:chave', authenticate, checkService, async (req, res) => {
   try {
     const { chave } = req.params;
 
@@ -199,7 +200,7 @@ router.get('/xml/:chave', checkService, async (req, res) => {
  * GET /api/nfe/listar
  * Lista todas NF-e importadas
  */
-router.get('/listar', checkService, async (req, res) => {
+router.get('/listar', authenticate, checkService, async (req, res) => {
   try {
     const resultado = await nfeService.listarImportadas();
     return res.json(resultado);
@@ -219,7 +220,7 @@ router.get('/listar', checkService, async (req, res) => {
  *
  * Body: { cnpj: string }
  */
-router.post('/consultar-ultimas', checkService, async (req, res) => {
+router.post('/consultar-ultimas', authenticate, checkService, async (req, res) => {
   try {
     const { cnpj } = req.body;
 

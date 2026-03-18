@@ -123,44 +123,71 @@
           <div class="login-container">
             <!-- Header Institucional -->
             <div class="login-header">
-              <div class="login-logo">🏛️</div>
-              <h1 id="loginUnidadeNome">Bem-vindo(a) ao SINGEM</h1>
-              <p id="loginUnidadeInfo">Sistema Institucional de Gestão de Material — IF Baiano</p>
+              <div class="login-header__brand">
+                <div class="login-logo">🏛️</div>
+                <div>
+                  <h1 id="loginUnidadeNome">SINGEM</h1>
+                  <p id="loginUnidadeInfo">Sistema Institucional de Gestão de Material — IF Baiano</p>
+                </div>
+              </div>
             </div>
 
             <div class="login-experience-grid">
+              <!-- Painel de módulos disponíveis -->
               <aside class="login-intelligence-panel">
-                <span class="login-intelligence-panel__eyebrow">Executive Access Layer</span>
-                <h2>Entrada institucional com rastreabilidade financeira, continuidade local e inteligência pública acoplada.</h2>
-                <p>
-                  O SINGEM opera como um cockpit institucional: autenticação segura, dados
-                  persistidos localmente, trilha operacional auditável e consultas Compras.gov em
-                  um fluxo único.
-                </p>
+                <span class="login-intelligence-panel__eyebrow">Módulos do sistema</span>
+                <h2>Plataforma modular para gestão institucional com rastreabilidade e inteligência pública.</h2>
 
-                <div class="login-intelligence-grid">
-                  <article class="login-intelligence-card">
-                    <span>Persistência</span>
-                    <strong>Offline-first</strong>
-                    <p>Fluxos de material continuam operacionais mesmo sem backend transacional.</p>
+                <div class="login-modules-grid">
+                  <article class="login-module-card">
+                    <span class="login-module-card__icon">🏬</span>
+                    <div>
+                      <strong>Almoxarifado</strong>
+                      <p>Empenhos, notas fiscais, entregas e saldos</p>
+                    </div>
                   </article>
-                  <article class="login-intelligence-card">
-                    <span>Governança</span>
-                    <strong>Trilha auditável</strong>
-                    <p>Empenhos, notas fiscais e preferências ficam sob controle institucional.</p>
+                  <article class="login-module-card">
+                    <span class="login-module-card__icon">🏗️</span>
+                    <div>
+                      <strong>Patrimônio</strong>
+                      <p>Tombamento, transferência e inventário</p>
+                    </div>
                   </article>
-                  <article class="login-intelligence-card">
-                    <span>Decisão</span>
-                    <strong>Radar Compras.gov</strong>
-                    <p>Preço, fornecedor e UASG acessíveis dentro do mesmo ambiente premium.</p>
+                  <article class="login-module-card">
+                    <span class="login-module-card__icon">🚗</span>
+                    <div>
+                      <strong>Veículos</strong>
+                      <p>Frota, reservas e manutenção</p>
+                    </div>
+                  </article>
+                  <article class="login-module-card">
+                    <span class="login-module-card__icon">🔧</span>
+                    <div>
+                      <strong>Serviços Internos</strong>
+                      <p>Ordens de serviço e acompanhamento</p>
+                    </div>
+                  </article>
+                  <article class="login-module-card">
+                    <span class="login-module-card__icon">📑</span>
+                    <div>
+                      <strong>Contratos</strong>
+                      <p>Vigência, fiscal e aditivos</p>
+                    </div>
+                  </article>
+                  <article class="login-module-card">
+                    <span class="login-module-card__icon">🔍</span>
+                    <div>
+                      <strong>Compras.gov</strong>
+                      <p>Inteligência de preços e fornecedores</p>
+                    </div>
                   </article>
                 </div>
 
                 <div class="login-intelligence-ticker" aria-label="Destaques do sistema">
-                  <span>Dark mode completo</span>
-                  <span>IndexedDB local</span>
-                  <span>Backups e diagnósticos</span>
-                  <span>Integração analítica</span>
+                  <span>Offline-first</span>
+                  <span>RBAC modular</span>
+                  <span>Backups locais</span>
+                  <span>Dark mode</span>
                 </div>
               </aside>
 
@@ -298,9 +325,9 @@
             </div>
 
             <div class="login-trust-bar" aria-label="Destaques institucionais">
-              <span class="login-trust-pill">Ambiente institucional seguro</span>
-              <span class="login-trust-pill">Operação financeira orientada por evidência</span>
-              <span class="login-trust-pill">Preferências, backups e suporte em uma mesma trilha</span>
+              <span class="login-trust-pill">🔒 Ambiente institucional seguro</span>
+              <span class="login-trust-pill">📊 Decisão orientada por evidência</span>
+              <span class="login-trust-pill">🏛️ IF Baiano</span>
             </div>
 
             <div
@@ -1604,6 +1631,104 @@
               class="config-iframe"
             >
             </iframe>
+          </div>
+        </section>
+
+        <!-- Tela de Patrimônio -->
+        <section id="patrimonioScreen" class="screen sg-screen-shell">
+          <div class="screen-header sg-screen-header">
+            <button class="btn-back">← Voltar</button>
+            <h2>🏗️ Gestão de Patrimônio</h2>
+          </div>
+          <div class="module-placeholder">
+            <div class="module-placeholder__icon">🏗️</div>
+            <h3>Gestão de Patrimônio</h3>
+            <p>Tombamento, transferência, baixa, localização e inventário patrimonial.</p>
+            <span class="module-placeholder__badge">Em desenvolvimento</span>
+          </div>
+        </section>
+
+        <!-- Tela de Veículos -->
+        <section id="veiculosScreen" class="screen sg-screen-shell">
+          <div class="screen-header sg-screen-header">
+            <button class="btn-back">← Voltar</button>
+            <h2>🚗 Gestão de Veículos</h2>
+          </div>
+          <div class="module-placeholder">
+            <div class="module-placeholder__icon">🚗</div>
+            <h3>Gestão de Veículos</h3>
+            <p>Frota, motoristas, reservas, abastecimentos, manutenção e relatórios.</p>
+            <span class="module-placeholder__badge">Em desenvolvimento</span>
+          </div>
+        </section>
+
+        <!-- Tela de Serviços Internos -->
+        <section id="servicosInternosScreen" class="screen sg-screen-shell">
+          <div class="screen-header sg-screen-header">
+            <button class="btn-back">← Voltar</button>
+            <h2>🔧 Gestão de Serviços Internos</h2>
+          </div>
+          <div class="module-placeholder">
+            <div class="module-placeholder__icon">🔧</div>
+            <h3>Gestão de Serviços Internos</h3>
+            <p>Ordens de serviço, equipes, acompanhamento, encerramento e relatórios.</p>
+            <span class="module-placeholder__badge">Em desenvolvimento</span>
+          </div>
+        </section>
+
+        <!-- Tela de Contratos -->
+        <section id="contratosScreen" class="screen sg-screen-shell">
+          <div class="screen-header sg-screen-header">
+            <button class="btn-back">← Voltar</button>
+            <h2>📑 Gestão de Contratos</h2>
+          </div>
+          <div class="module-placeholder">
+            <div class="module-placeholder__icon">📑</div>
+            <h3>Gestão de Contratos</h3>
+            <p>Vigência, fiscal, aditivos, documentos, alertas e relatórios contratuais.</p>
+            <span class="module-placeholder__badge">Em desenvolvimento</span>
+          </div>
+        </section>
+
+        <!-- Tela de Solicitação de Almoxarifado -->
+        <section id="solicitacaoAlmoxScreen" class="screen sg-screen-shell">
+          <div class="screen-header sg-screen-header">
+            <button class="btn-back">← Voltar</button>
+            <h2>📋 Solicitação de Almoxarifado</h2>
+          </div>
+          <div class="module-placeholder">
+            <div class="module-placeholder__icon">📋</div>
+            <h3>Solicitação de Almoxarifado</h3>
+            <p>Portal de requisição de materiais e acompanhamento de pedidos.</p>
+            <span class="module-placeholder__badge">Em desenvolvimento</span>
+          </div>
+        </section>
+
+        <!-- Tela de Solicitação de Veículos -->
+        <section id="solicitacaoVeiculosScreen" class="screen sg-screen-shell">
+          <div class="screen-header sg-screen-header">
+            <button class="btn-back">← Voltar</button>
+            <h2>🚐 Solicitação de Veículos</h2>
+          </div>
+          <div class="module-placeholder">
+            <div class="module-placeholder__icon">🚐</div>
+            <h3>Solicitação de Veículos</h3>
+            <p>Portal de reservas, deslocamentos e acompanhamento de solicitações.</p>
+            <span class="module-placeholder__badge">Em desenvolvimento</span>
+          </div>
+        </section>
+
+        <!-- Tela de Solicitação de Serviços Internos -->
+        <section id="solicitacaoServicosScreen" class="screen sg-screen-shell">
+          <div class="screen-header sg-screen-header">
+            <button class="btn-back">← Voltar</button>
+            <h2>📝 Solicitação de Serviços</h2>
+          </div>
+          <div class="module-placeholder">
+            <div class="module-placeholder__icon">📝</div>
+            <h3>Solicitação de Serviços Internos</h3>
+            <p>Portal para ordens e demandas de serviços internos.</p>
+            <span class="module-placeholder__badge">Em desenvolvimento</span>
           </div>
         </section>
       </div>

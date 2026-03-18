@@ -28,7 +28,8 @@ jobs:
 
             # 1. Atualiza código-fonte
             git fetch --all --tags
-            git reset --hard origin/${GITHUB_REF_NAME}
+            BRANCH="${{ github.ref_name }}"
+            git reset --hard origin/${BRANCH}
 
             # 2. Deploy via Docker Compose
             cd docker/prod
