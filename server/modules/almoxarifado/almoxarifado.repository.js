@@ -451,21 +451,21 @@ async function updateItem(id, data, executor = db) {
     assign('codigo', data.codigo_interno || null);
     assign('codigo_interno', data.codigo_interno || null);
   }
-  if (data.descricao !== undefined) assign('descricao', data.descricao);
-  if (data.descricao_resumida !== undefined) assign('descricao_resumida', data.descricao_resumida || null);
-  if (data.catmat_codigo !== undefined) assign('catmat_codigo', data.catmat_codigo || null);
-  if (data.catmat_descricao !== undefined) assign('catmat_descricao', data.catmat_descricao || null);
-  if (data.unidade !== undefined) assign('unidade', data.unidade || 'UN');
-  if (data.grupo_id !== undefined) assign('grupo_id', data.grupo_id || null);
-  if (data.grupo !== undefined) assign('grupo', data.grupo || null);
-  if (data.subgrupo_id !== undefined) assign('subgrupo_id', data.subgrupo_id || null);
-  if (data.subgrupo !== undefined) assign('subgrupo', data.subgrupo || null);
-  if (data.conta_contabil_id !== undefined) assign('conta_contabil_id', data.conta_contabil_id || null);
-  if (data.estoque_minimo !== undefined) assign('estoque_minimo', toNumber(data.estoque_minimo));
-  if (data.estoque_maximo !== undefined) assign('estoque_maximo', toNumber(data.estoque_maximo));
-  if (data.ponto_reposicao !== undefined) assign('ponto_reposicao', toNumber(data.ponto_reposicao));
-  if (data.localizacao_id !== undefined) assign('localizacao_id', data.localizacao_id || null);
-  if (data.localizacao !== undefined) assign('localizacao', data.localizacao || null);
+  if (data.descricao !== undefined) {assign('descricao', data.descricao);}
+  if (data.descricao_resumida !== undefined) {assign('descricao_resumida', data.descricao_resumida || null);}
+  if (data.catmat_codigo !== undefined) {assign('catmat_codigo', data.catmat_codigo || null);}
+  if (data.catmat_descricao !== undefined) {assign('catmat_descricao', data.catmat_descricao || null);}
+  if (data.unidade !== undefined) {assign('unidade', data.unidade || 'UN');}
+  if (data.grupo_id !== undefined) {assign('grupo_id', data.grupo_id || null);}
+  if (data.grupo !== undefined) {assign('grupo', data.grupo || null);}
+  if (data.subgrupo_id !== undefined) {assign('subgrupo_id', data.subgrupo_id || null);}
+  if (data.subgrupo !== undefined) {assign('subgrupo', data.subgrupo || null);}
+  if (data.conta_contabil_id !== undefined) {assign('conta_contabil_id', data.conta_contabil_id || null);}
+  if (data.estoque_minimo !== undefined) {assign('estoque_minimo', toNumber(data.estoque_minimo));}
+  if (data.estoque_maximo !== undefined) {assign('estoque_maximo', toNumber(data.estoque_maximo));}
+  if (data.ponto_reposicao !== undefined) {assign('ponto_reposicao', toNumber(data.ponto_reposicao));}
+  if (data.localizacao_id !== undefined) {assign('localizacao_id', data.localizacao_id || null);}
+  if (data.localizacao !== undefined) {assign('localizacao', data.localizacao || null);}
   if (data.status !== undefined) {
     assign('status', data.status || 'ativo');
     assign('ativo', (data.status || 'ativo') !== 'inativo');
@@ -864,11 +864,11 @@ async function listMovimentacoes(filters) {
     clauses.push(sql.replace('?', `$${params.length}`));
   };
 
-  if (filters.itemId) push('sm.material_id = ?', filters.itemId);
-  if (filters.tipo) push('sm.tipo = ?', filters.tipo);
-  if (filters.origem) push('sm.origem = ?', filters.origem);
-  if (filters.dataInicio) push('sm.created_at >= ?', filters.dataInicio);
-  if (filters.dataFim) push('sm.created_at <= ?', `${filters.dataFim} 23:59:59`);
+  if (filters.itemId) {push('sm.material_id = ?', filters.itemId);}
+  if (filters.tipo) {push('sm.tipo = ?', filters.tipo);}
+  if (filters.origem) {push('sm.origem = ?', filters.origem);}
+  if (filters.dataInicio) {push('sm.created_at >= ?', filters.dataInicio);}
+  if (filters.dataFim) {push('sm.created_at <= ?', `${filters.dataFim} 23:59:59`);}
 
   const where = ` WHERE ${clauses.join(' AND ')}`;
   const { column, direction } = resolveSort(
@@ -984,12 +984,12 @@ async function listSolicitacoes(filters) {
     clauses.push(sql.replace('?', `$${params.length}`));
   };
 
-  if (filters.status) push('s.status = ?', filters.status);
-  if (filters.prioridade) push('s.prioridade = ?', filters.prioridade);
-  if (filters.setor) push('s.setor ILIKE ?', `%${filters.setor}%`);
-  if (filters.solicitante) push('s.solicitante ILIKE ?', `%${filters.solicitante}%`);
-  if (filters.dataInicio) push('s.data >= ?', filters.dataInicio);
-  if (filters.dataFim) push('s.data <= ?', `${filters.dataFim} 23:59:59`);
+  if (filters.status) {push('s.status = ?', filters.status);}
+  if (filters.prioridade) {push('s.prioridade = ?', filters.prioridade);}
+  if (filters.setor) {push('s.setor ILIKE ?', `%${filters.setor}%`);}
+  if (filters.solicitante) {push('s.solicitante ILIKE ?', `%${filters.solicitante}%`);}
+  if (filters.dataInicio) {push('s.data >= ?', filters.dataInicio);}
+  if (filters.dataFim) {push('s.data <= ?', `${filters.dataFim} 23:59:59`);}
 
   const where = ` WHERE ${clauses.join(' AND ')}`;
   const { column, direction } = resolveSort(
@@ -1194,8 +1194,8 @@ async function getResumoRelatorio(filters = {}) {
     clauses.push(sql.replace('?', `$${params.length}`));
   };
 
-  if (filters.dataInicio) push('sm.created_at >= ?', filters.dataInicio);
-  if (filters.dataFim) push('sm.created_at <= ?', `${filters.dataFim} 23:59:59`);
+  if (filters.dataInicio) {push('sm.created_at >= ?', filters.dataInicio);}
+  if (filters.dataFim) {push('sm.created_at <= ?', `${filters.dataFim} 23:59:59`);}
 
   const movementWhere = ` WHERE ${clauses.join(' AND ')}`;
   const setorClause = filters.setor ? ' AND s.setor = $1' : '';
@@ -1270,9 +1270,9 @@ async function listAuditLogs(filters) {
     clauses.push(sql.replace('?', `$${params.length}`));
   };
 
-  if (filters.acao) push('l.acao = ?', filters.acao);
-  if (filters.entidadeTipo) push('l.entidade_tipo = ?', filters.entidadeTipo);
-  if (filters.usuarioId) push('l.usuario_id = ?', filters.usuarioId);
+  if (filters.acao) {push('l.acao = ?', filters.acao);}
+  if (filters.entidadeTipo) {push('l.entidade_tipo = ?', filters.entidadeTipo);}
+  if (filters.usuarioId) {push('l.usuario_id = ?', filters.usuarioId);}
 
   const where = ` WHERE ${clauses.join(' AND ')}`;
   const { column, direction } = resolveSort(filters.sortField, filters.sortDir, AUDIT_SORT_FIELDS, 'l.created_at');
