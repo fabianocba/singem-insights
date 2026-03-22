@@ -135,7 +135,7 @@ if ($Install) {
         $arguments += " -WebhookUrl `"$WebhookUrl`""
     }
 
-    $action  = New-ScheduledTaskAction -Execute "powershell.exe" -Argument $arguments -WorkingDirectory $projectRoot
+    $action  = New-ScheduledTaskAction -Execute "pwsh.exe" -Argument $arguments -WorkingDirectory $projectRoot
     $trigger = New-ScheduledTaskTrigger -Weekly -DaysOfWeek Monday,Thursday -At "03:00"
     $settings = New-ScheduledTaskSettingsSet `
         -AllowStartIfOnBatteries `

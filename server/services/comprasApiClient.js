@@ -65,7 +65,10 @@ function getComprasApiConfig() {
   const timeoutMs = Math.max(
     1000,
     toNumber(
-      process.env.COMPRAS_API_TIMEOUT_MS || process.env.COMPRASGOV_TIMEOUT_MS || comprasApiCfg.timeoutMs || comprasGovCfg.timeoutMs,
+      process.env.COMPRAS_API_TIMEOUT_MS ||
+        process.env.COMPRASGOV_TIMEOUT_MS ||
+        comprasApiCfg.timeoutMs ||
+        comprasGovCfg.timeoutMs,
       15000
     )
   );

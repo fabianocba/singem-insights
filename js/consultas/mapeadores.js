@@ -183,10 +183,20 @@ export function mapearUASG(itens = []) {
     orgao: pickFirstValue(item.orgao, item.nomeOrgao, item.orgaoVinculado?.nome, '-'),
     status: mapearStatus(pickFirstValue(item.statusUasg, item.status, item.statusOrgao)),
     dataAtualizacao: formatarData(pickFirstValue(item.dataAtualizacao, item.dataHoraAtualizacao)),
-    usoSisg: item.usoSisg === true || item.usoSisg === 'true' ? 'Sim' : item.usoSisg === false || item.usoSisg === 'false' ? 'Não' : '-',
+    usoSisg:
+      item.usoSisg === true || item.usoSisg === 'true'
+        ? 'Sim'
+        : item.usoSisg === false || item.usoSisg === 'false'
+          ? 'Não'
+          : '-',
     valor: '-',
     extras: {
-      usoSisg: item.usoSisg === true || item.usoSisg === 'true' ? 'Sim' : item.usoSisg === false || item.usoSisg === 'false' ? 'Não' : '-',
+      usoSisg:
+        item.usoSisg === true || item.usoSisg === 'true'
+          ? 'Sim'
+          : item.usoSisg === false || item.usoSisg === 'false'
+            ? 'Não'
+            : '-',
       municipio: item.municipio?.nome || item.municipio,
       endereco: item.endereco,
       telefone: item.telefone,
@@ -206,17 +216,39 @@ export function mapearFornecedor(itens = []) {
   return itens.map((item) => ({
     codigo: pickFirstValue(item.cnpjCpf, item.cnpj, item.cpf, item.cnpjCpf, '-'),
     descricao: pickFirstValue(item.nomeFornecedor, item.razaoSocial, item.nome, item.nomeEmpresarial, '-'),
-    unidade: pickFirstValue(item.porteEmpresa, item.porteEmpresaDescricao, item.porteEmpresa?.descricao, item.porte, '-'),
+    unidade: pickFirstValue(
+      item.porteEmpresa,
+      item.porteEmpresaDescricao,
+      item.porteEmpresa?.descricao,
+      item.porte,
+      '-'
+    ),
     orgao: pickFirstValue(item.naturezaJuridica, item.naturezaJuridicaDescricao, item.naturezaJuridica?.descricao, '-'),
-    naturezaJuridica: pickFirstValue(item.naturezaJuridica, item.naturezaJuridicaDescricao, item.naturezaJuridica?.descricao, '-'),
+    naturezaJuridica: pickFirstValue(
+      item.naturezaJuridica,
+      item.naturezaJuridicaDescricao,
+      item.naturezaJuridica?.descricao,
+      '-'
+    ),
     porte: pickFirstValue(item.porteEmpresa, item.porteEmpresaDescricao, item.porteEmpresa?.descricao, item.porte, '-'),
     codigoCnae: pickFirstValue(item.codigoCnae, item.cnae, '-'),
     status: mapearStatus(pickFirstValue(item.ativo, item.status)),
     dataAtualizacao: formatarData(pickFirstValue(item.dataAtualizacao, item.dataCadastro)),
     valor: '-',
     extras: {
-      naturezaJuridica: pickFirstValue(item.naturezaJuridica, item.naturezaJuridicaDescricao, item.naturezaJuridica?.descricao, '-'),
-      porte: pickFirstValue(item.porteEmpresa, item.porteEmpresaDescricao, item.porteEmpresa?.descricao, item.porte, '-'),
+      naturezaJuridica: pickFirstValue(
+        item.naturezaJuridica,
+        item.naturezaJuridicaDescricao,
+        item.naturezaJuridica?.descricao,
+        '-'
+      ),
+      porte: pickFirstValue(
+        item.porteEmpresa,
+        item.porteEmpresaDescricao,
+        item.porteEmpresa?.descricao,
+        item.porte,
+        '-'
+      ),
       codigoCnae: pickFirstValue(item.codigoCnae, item.cnae, '-'),
       ativo: pickFirstValue(item.ativo, item.status),
       naturezaJuridicaId: pickFirstValue(item.naturezaJuridicaId, item.naturezaJuridica?.id, '-'),

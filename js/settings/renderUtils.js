@@ -78,13 +78,7 @@ export function metricGridMarkup(cards, { className = 'settings-metric-grid' } =
   return `<div class="${className}">${cards.join('')}</div>`;
 }
 
-export function tableCellMarkup({
-  html,
-  tag = 'td',
-  className = '',
-  colspan,
-  title
-}) {
+export function tableCellMarkup({ html, tag = 'td', className = '', colspan, title }) {
   const attrs = [
     className ? ` class="${className}"` : '',
     Number.isFinite(colspan) ? ` colspan="${colspan}"` : '',
@@ -95,9 +89,7 @@ export function tableCellMarkup({
 }
 
 export function tableRowMarkup(cells, { rowClass = '' } = {}) {
-  const content = cells
-    .map((cell) => (typeof cell === 'string' ? cell : tableCellMarkup(cell)))
-    .join('');
+  const content = cells.map((cell) => (typeof cell === 'string' ? cell : tableCellMarkup(cell))).join('');
 
   return `<tr${rowClass ? ` class="${rowClass}"` : ''}>${content}</tr>`;
 }
@@ -153,13 +145,7 @@ export function reportMarkup({ title = '', content = '' } = {}) {
   `;
 }
 
-export function progressMarkup({
-  title,
-  value,
-  leftLabel,
-  centerLabel,
-  rightLabel
-}) {
+export function progressMarkup({ title, value, leftLabel, centerLabel, rightLabel }) {
   const normalizedValue = Math.max(0, Math.min(Number(value) || 0, 100));
 
   return `

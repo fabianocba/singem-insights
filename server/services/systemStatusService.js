@@ -4,6 +4,7 @@ const os = require('os');
 const db = require('../db');
 const aiCoreClient = require('./aiCoreClient');
 const { readVersion } = require('../utils/version');
+const config = require('../config');
 
 const TIMEOUTS = {
   databaseMs: Number(process.env.SYSTEM_STATUS_DATABASE_TIMEOUT_MS || 120),
@@ -182,6 +183,76 @@ async function checkNFEService({ nfeService, nfeServiceV2 }) {
   }));
 }
 
+async function checkGovBr() {
+  const govbr = config?.govbr || {};
+
+  if (!govbr.enabled) {
+    return {
+      name: 'govbr',
+      status: 'DISABLED',
+      ok: false,
+      message: 'Login Gov.br desabilitado (GOVBR_ENABLED=false)'
+    };
+  }
+
+  const issuer = String(govbr.issuer || 'https://sso.acesso.gov.br');
+  const wellKnown = `${issuer}/.well-known/openid-configuration`;
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 3000);
+
+  try {
+    const response = await fetch(wellKnown, {
+      method: 'GET',
+      headers: { Accept: 'application/json' },
+      signal: controller.signal
+    });
+
+    if (response.ok) {
+      return {
+        name: 'govbr',
+        status: 'OK',
+        ok: true,
+        message: `Login Gov.br operacional (${issuer})`
+      };
+    }
+
+    return {
+      name: 'govbr',
+      status: 'DEGRADED',
+      ok: false,
+      message: `Login Gov.br: OIDC discovery retornou HTTP ${response.status}`
+    };
+  } catch {
+    return {
+      name: 'govbr',
+      status: 'OFFLINE',
+      ok: false,
+      message: 'Login Gov.br: provedor OIDC inacessível'
+    };
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+async function checkAlmoxarifado() {
+  try {
+    await db.query('SELECT 1 FROM grupos_materiais LIMIT 1');
+    return {
+      name: 'almoxarifado',
+      status: 'OK',
+      ok: true,
+      message: 'Módulo almoxarifado operacional'
+    };
+  } catch {
+    return {
+      name: 'almoxarifado',
+      status: 'DEGRADED',
+      ok: true,
+      message: 'Módulo almoxarifado ativo (migração pendente)'
+    };
+  }
+}
+
 async function checkInternet() {
   const timeoutMs = toPositiveTimeout(TIMEOUTS.internetMs, 120);
   const controller = new AbortController();
@@ -227,7 +298,7 @@ function resolveGlobalStatus(services) {
     return 'DOWN';
   }
 
-  const hasNonOk = services.some((service) => service.status !== 'OK');
+  const hasNonOk = services.some((service) => service.status !== 'OK' && service.status !== 'DISABLED');
   return hasNonOk ? 'DEGRADED' : 'OK';
 }
 
@@ -275,6 +346,8 @@ async function getSystemStatus({ requestId, nfeService, nfeServiceV2 }) {
     checkDatabase(),
     checkAICore({ requestId }),
     checkNFEService({ nfeService, nfeServiceV2 }),
+    checkGovBr(),
+    checkAlmoxarifado(),
     checkInternet()
   ]);
 
@@ -295,6 +368,8 @@ module.exports = {
   checkDatabase,
   checkAICore,
   checkNFEService,
+  checkGovBr,
+  checkAlmoxarifado,
   checkInternet,
   getSystemStatus,
   buildDownPayload

@@ -451,11 +451,7 @@ class SettingsUnidade {
         return `
       <tr>
         <td>
-          ${
-            unidade.logomarca
-              ? `<img src="${unidade.logomarca}" alt="Logo" class="settings-logo-thumb">`
-              : '🏛️'
-          }
+          ${unidade.logomarca ? `<img src="${unidade.logomarca}" alt="Logo" class="settings-logo-thumb">` : '🏛️'}
         </td>
         <td><strong>${unidade.razaoSocial}</strong></td>
         <td>${unidade.cnpj}</td>

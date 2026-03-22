@@ -16,7 +16,10 @@ const DEFAULT_MAX_PAGES = 5;
 const DEFAULT_TOP_LIMIT = 10;
 
 function sha1(value) {
-  return crypto.createHash('sha1').update(String(value || '')).digest('hex');
+  return crypto
+    .createHash('sha1')
+    .update(String(value || ''))
+    .digest('hex');
 }
 
 function clamp(value, min, max, fallback) {
@@ -124,7 +127,9 @@ function parseCodes(value, maxItems = 10) {
 }
 
 function normalizeCatalogType(value) {
-  const normalized = String(value || 'material').trim().toLowerCase();
+  const normalized = String(value || 'material')
+    .trim()
+    .toLowerCase();
   return normalized === 'servico' || normalized === 'catser' ? 'servico' : 'material';
 }
 
@@ -203,7 +208,11 @@ function filterAndSortProfiles(profiles = [], queryText) {
       score: scoreProfileName(queryText, profile)
     }))
     .filter((entry) => entry.score > 0.15)
-    .sort((left, right) => right.score - left.score || String(left.profile.nomeFornecedor || '').localeCompare(String(right.profile.nomeFornecedor || ''), 'pt-BR'))
+    .sort(
+      (left, right) =>
+        right.score - left.score ||
+        String(left.profile.nomeFornecedor || '').localeCompare(String(right.profile.nomeFornecedor || ''), 'pt-BR')
+    )
     .map((entry) => entry.profile);
 }
 
@@ -314,24 +323,24 @@ function resolveSupplierCodesInput(input = {}) {
 function hasSupplierSeedFilters(query = {}) {
   return Boolean(
     query.cnpj ||
-      query.cpf ||
-      query.codigos?.length ||
-      query.nomeFornecedor ||
-      query.naturezaJuridicaId ||
-      query.porteEmpresaId ||
-      query.codigoCnae
+    query.cpf ||
+    query.codigos?.length ||
+    query.nomeFornecedor ||
+    query.naturezaJuridicaId ||
+    query.porteEmpresaId ||
+    query.codigoCnae
   );
 }
 
 function requiresOfficialSupplierFilter(query = {}) {
   return Boolean(
     query.nomeFornecedor &&
-      !query.codigos?.length &&
-      !query.cnpj &&
-      !query.cpf &&
-      !query.naturezaJuridicaId &&
-      !query.porteEmpresaId &&
-      !query.codigoCnae
+    !query.codigos?.length &&
+    !query.cnpj &&
+    !query.cpf &&
+    !query.naturezaJuridicaId &&
+    !query.porteEmpresaId &&
+    !query.codigoCnae
   );
 }
 
@@ -468,7 +477,9 @@ class SupplierIntelligenceService {
     };
 
     let profiles = [];
-    const hasOfficialFilters = Object.values(gatewayParams).some((value) => value !== undefined && value !== null && value !== '');
+    const hasOfficialFilters = Object.values(gatewayParams).some(
+      (value) => value !== undefined && value !== null && value !== ''
+    );
     if (hasOfficialFilters) {
       const result = await this.gateway.consultarFornecedor(
         gatewayParams,
@@ -485,9 +496,7 @@ class SupplierIntelligenceService {
 
     const priceContext = await this.buildPriceContext(query, context);
     if (query.codigos.length && priceContext?.page?.items?.length) {
-      const candidateDocs = priceContext.page.items
-        .map((item) => item?.niFornecedor)
-        .filter(Boolean);
+      const candidateDocs = priceContext.page.items.map((item) => item?.niFornecedor).filter(Boolean);
       const candidateProfiles = await this.lookupProfiles(candidateDocs, context);
       profiles = mergeProfiles(profiles, candidateProfiles);
     }
@@ -602,7 +611,9 @@ class SupplierIntelligenceService {
   }
 
   async exportQuery(input = {}, format = 'csv', context = {}) {
-    const normalizedFormat = String(format || 'csv').trim().toLowerCase();
+    const normalizedFormat = String(format || 'csv')
+      .trim()
+      .toLowerCase();
     if (!['csv', 'xlsx', 'json'].includes(normalizedFormat)) {
       throw new AppError(400, 'VALIDATION_ERROR', 'Formato de exportacao invalido. Use csv, xlsx ou json.');
     }

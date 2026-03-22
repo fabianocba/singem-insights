@@ -10,13 +10,32 @@
         "-ExecutionPolicy",
         "Bypass",
         "-File",
-        "${workspaceFolder}\\scripts\\dev-up.ps1",
-        "-Action",
-        "up",
+        "${workspaceFolder}\\scripts\\dev-start.ps1",
         "-ProjectRoot",
-        "${workspaceFolder}",
-        "-Branch",
-        "dev"
+        "${workspaceFolder}"
+      ],
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "dedicated",
+        "showReuseMessage": false,
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "SINGEM: SETUP",
+      "type": "shell",
+      "command": "pwsh",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "${workspaceFolder}\\scripts\\dev-setup.ps1",
+        "-ProjectRoot",
+        "${workspaceFolder}"
       ],
       "presentation": {
         "echo": true,
@@ -37,13 +56,9 @@
         "-ExecutionPolicy",
         "Bypass",
         "-File",
-        "${workspaceFolder}\\scripts\\dev-up.ps1",
-        "-Action",
-        "tunnel",
+        "${workspaceFolder}\\scripts\\dev-doctor.ps1",
         "-ProjectRoot",
-        "${workspaceFolder}",
-        "-Branch",
-        "dev"
+        "${workspaceFolder}"
       ],
       "isBackground": true,
       "presentation": {
@@ -63,13 +78,9 @@
         "-ExecutionPolicy",
         "Bypass",
         "-File",
-        "${workspaceFolder}\\scripts\\dev-up.ps1",
-        "-Action",
-        "backend",
+        "${workspaceFolder}\\scripts\\dev-start.ps1",
         "-ProjectRoot",
-        "${workspaceFolder}",
-        "-Branch",
-        "dev"
+        "${workspaceFolder}"
       ],
       "isBackground": true,
       "presentation": {
@@ -89,13 +100,9 @@
         "-ExecutionPolicy",
         "Bypass",
         "-File",
-        "${workspaceFolder}\\scripts\\dev-up.ps1",
-        "-Action",
-        "frontend",
+        "${workspaceFolder}\\scripts\\dev-start.ps1",
         "-ProjectRoot",
-        "${workspaceFolder}",
-        "-Branch",
-        "dev"
+        "${workspaceFolder}"
       ],
       "isBackground": true,
       "presentation": {
@@ -115,13 +122,11 @@
         "-ExecutionPolicy",
         "Bypass",
         "-File",
-        "${workspaceFolder}\\scripts\\dev-up.ps1",
-        "-Action",
+        "${workspaceFolder}\\scripts\\dev-start.ps1",
+        "-Profile",
         "ai",
         "-ProjectRoot",
-        "${workspaceFolder}",
-        "-Branch",
-        "dev"
+        "${workspaceFolder}"
       ],
       "isBackground": true,
       "presentation": {
@@ -141,13 +146,9 @@
         "-ExecutionPolicy",
         "Bypass",
         "-File",
-        "${workspaceFolder}\\scripts\\dev-up.ps1",
-        "-Action",
-        "health",
+        "${workspaceFolder}\\scripts\\dev-doctor.ps1",
         "-ProjectRoot",
-        "${workspaceFolder}",
-        "-Branch",
-        "dev"
+        "${workspaceFolder}"
       ],
       "presentation": {
         "reveal": "always",
@@ -166,11 +167,9 @@
         "-ExecutionPolicy",
         "Bypass",
         "-File",
-        "${workspaceFolder}\\scripts\\stop.ps1",
+        "${workspaceFolder}\\scripts\\dev-stop.ps1",
         "-ProjectRoot",
-        "${workspaceFolder}",
-        "-Branch",
-        "dev"
+        "${workspaceFolder}"
       ],
       "presentation": {
         "reveal": "always",
@@ -181,7 +180,7 @@
       "problemMatcher": []
     },
     {
-      "label": "SINGEM: STOP+PUBLISH",
+      "label": "SINGEM: UPDATE",
       "type": "shell",
       "command": "pwsh",
       "args": [
@@ -189,18 +188,57 @@
         "-ExecutionPolicy",
         "Bypass",
         "-File",
-        "${workspaceFolder}\\scripts\\stop.ps1",
-        "-Publish",
+        "${workspaceFolder}\\scripts\\dev-update.ps1",
         "-ProjectRoot",
-        "${workspaceFolder}",
-        "-Branch",
-        "dev"
+        "${workspaceFolder}"
       ],
       "presentation": {
         "reveal": "always",
         "focus": false,
         "panel": "dedicated",
-        "group": "singem-stop"
+        "group": "singem-update"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "SINGEM: REBUILD",
+      "type": "shell",
+      "command": "pwsh",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "${workspaceFolder}\\scripts\\dev-rebuild.ps1",
+        "-ProjectRoot",
+        "${workspaceFolder}"
+      ],
+      "presentation": {
+        "reveal": "always",
+        "focus": false,
+        "panel": "dedicated",
+        "group": "singem-rebuild"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "SINGEM: RESET",
+      "type": "shell",
+      "command": "pwsh",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "${workspaceFolder}\\scripts\\dev-reset.ps1",
+        "-ProjectRoot",
+        "${workspaceFolder}"
+      ],
+      "presentation": {
+        "reveal": "always",
+        "focus": false,
+        "panel": "dedicated",
+        "group": "singem-reset"
       },
       "problemMatcher": []
     },

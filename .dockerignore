@@ -40,12 +40,14 @@ server/.env.bak
 logs/
 server/logs/
 .cache/
+.turbo/
 *.tmp
 *.temp
 
 # ------ Build outputs -------------------------------------
 dist/
 build/
+.next/
 
 # ------ IDEs e OS -----------------------------------------
 .vscode/
@@ -78,5 +80,4 @@ scripts/
 .dev-session.json
 
 # ------ package-lock.json raiz (apenas frontend tools) ----
-# O server tem seu próprio package-lock.json
-package-lock.json
+# O lockfile raiz faz parte do estado oficial e deve entrar no build

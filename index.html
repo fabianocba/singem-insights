@@ -19,8 +19,14 @@
     <link rel="stylesheet" href="css/protecao.css" />
     <link rel="stylesheet" href="css/reports.css" />
     <link rel="stylesheet" href="css/tailwind.css" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-    <script src="https://unpkg.com/@zxing/library@latest/umd/index.min.js"></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"
+      integrity="sha512-q+4liFwdPC/bNdhUpZx6aXDx/h77yEQtn7BxNIIOAAmCp9TVZZ12TrIbdeibu3HxBoJzDXbgW7RX4LNBHkH3g=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
+    <!-- @zxing/library fixado em 0.21.3 — não usar @latest (supply chain risk) -->
+    <script src="https://unpkg.com/@zxing/library@0.21.3/umd/index.min.js"></script>
   </head>
   <body data-page="main">
     <!-- Header -->
@@ -28,7 +34,12 @@
       <div class="container">
         <div class="premium-topbar">
           <div class="premium-topbar__left">
-            <button id="sidebarToggle" class="icon-btn" type="button" aria-label="Alternar navegação">
+            <button
+              id="sidebarToggle"
+              class="icon-btn"
+              type="button"
+              aria-label="Alternar navegação"
+            >
               ☰
             </button>
             <div class="logo">
@@ -111,7 +122,8 @@
       </nav>
 
       <div class="app-sidebar__footer">
-        Fluxo offline-first, dados versionados localmente e camada analítica integrada para compras públicas.
+        Fluxo offline-first, dados versionados localmente e camada analítica integrada para compras
+        públicas.
       </div>
     </aside>
 
@@ -127,7 +139,9 @@
                 <div class="login-logo">🏛️</div>
                 <div>
                   <h1 id="loginUnidadeNome">SINGEM</h1>
-                  <p id="loginUnidadeInfo">Sistema Institucional de Gestão de Material — IF Baiano</p>
+                  <p id="loginUnidadeInfo">
+                    Sistema Institucional de Gestão de Material — IF Baiano
+                  </p>
                 </div>
               </div>
             </div>
@@ -136,7 +150,10 @@
               <!-- Painel de módulos disponíveis -->
               <aside class="login-intelligence-panel">
                 <span class="login-intelligence-panel__eyebrow">Módulos do sistema</span>
-                <h2>Plataforma modular para gestão institucional com rastreabilidade e inteligência pública.</h2>
+                <h2>
+                  Plataforma modular para gestão institucional com rastreabilidade e inteligência
+                  pública.
+                </h2>
 
                 <div class="login-modules-grid">
                   <article class="login-module-card">
@@ -193,181 +210,182 @@
 
               <!-- Grid de 2 Cards -->
               <div class="login-cards-grid">
-              <!-- Card 1: Login Gov.br -->
-              <div id="loginCardGovBr" class="login-card login-card-govbr">
-                <div class="login-card-badge">Recomendado</div>
+                <!-- Card 1: Login Gov.br -->
+                <div id="loginCardGovBr" class="login-card login-card-govbr">
+                  <div class="login-card-badge">Recomendado</div>
 
-                <div class="login-card-header">
-                  <img
-                    src="img/govbr-logo.svg"
-                    alt="Gov.br"
-                    class="govbr-logo-img"
-                    data-image-fallback=".govbr-logo-fallback"
-                  />
-                  <div class="govbr-logo-fallback">gov.br</div>
-                  <h2>Login Único Gov.br</h2>
-                  <p>Autenticação institucional do Governo Federal</p>
-                </div>
-
-                <a id="btnGovBr" href="#" class="btn-govbr" data-prevent-default="true">
-                  <svg
-                    width="20"
-                    height="20"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                  >
-                    <path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4M10 17l5-5-5-5M15 12H3" />
-                  </svg>
-                  Entrar com Gov.br
-                </a>
-
-                <div id="govbrUnavailable" class="govbr-unavailable">
-                  ⚠️ Login Gov.br não está disponível no momento. Use o acesso administrativo.
-                </div>
-
-                <div class="govbr-security-note">
-                  <span class="govbr-security-icon">🔒</span>
-                  <div>
-                    <strong class="govbr-security-label">Segurança máxima</strong> — Suas
-                    credenciais são verificadas diretamente pelo portal gov.br. O SINGEM nunca
-                    armazena sua senha.
-                  </div>
-                </div>
-
-                <div class="govbr-selos">
-                  <span title="Nível básico de confiabilidade">🥉 Bronze</span>
-                  <span title="Validação facial biométrica">🥈 Prata</span>
-                  <span title="Certificado digital ICP-Brasil">🥇 Ouro</span>
-                </div>
-              </div>
-
-              <!-- Card 2: Login Institucional (Admin) -->
-              <div id="loginCardAdmin" class="login-card login-card-admin">
-                <div class="login-card-header">
-                  <div class="login-card-icon">🔐</div>
-                  <h2>Acesso Administrativo</h2>
-                  <p>Login com credenciais institucionais SINGEM</p>
-                </div>
-
-                <form id="loginForm" method="GET" autocomplete="on">
-                  <div class="form-group">
-                    <label for="loginUsuario">Usuário</label>
-                    <input
-                      type="text"
-                      id="loginUsuario"
-                      name="username"
-                      placeholder="Digite seu login"
-                      autocomplete="username"
+                  <div class="login-card-header">
+                    <img
+                      src="img/govbr-logo.svg"
+                      alt="Gov.br"
+                      class="govbr-logo-img"
+                      data-image-fallback=".govbr-logo-fallback"
                     />
+                    <div class="govbr-logo-fallback">gov.br</div>
+                    <h2>Login Único Gov.br</h2>
+                    <p>Autenticação institucional do Governo Federal</p>
                   </div>
 
-                  <div class="form-group">
-                    <label for="loginSenha">Senha</label>
-                    <input
-                      type="password"
-                      id="loginSenha"
-                      name="password"
-                      placeholder="Digite sua senha"
-                      autocomplete="current-password"
-                    />
-                  </div>
-
-                  <div class="remember-block">
-                    <label class="remember-option">
-                      <input type="checkbox" id="rememberUser" />
-                      <span>Lembrar meu usuário</span>
-                    </label>
-                    <label class="remember-option">
-                      <input type="checkbox" id="rememberPass" />
-                      <span>Salvar senha neste dispositivo</span>
-                    </label>
-                    <div class="remember-warning">Use apenas em computador pessoal.</div>
-                    <button type="button" id="btnClearRemember" class="btn-link">
-                      Esquecer neste dispositivo
-                    </button>
-                  </div>
-
-                  <div class="recover-link">
-                    <button type="button" id="btnRecuperarSenha" class="btn-link">
-                      Esqueci minha senha / Recuperar acesso
-                    </button>
-                  </div>
-
-                  <button id="btnLogin" type="submit" class="btn btn-primary btn-block">
-                    🔐 Entrar
-                  </button>
-                </form>
-
-                <!-- Separador SerproID -->
-                <div id="serproidSeparator" class="login-separator">
-                  <hr />
-                  <span>ou</span>
-                  <hr />
-                </div>
-
-                <!-- Botão SerproID (smart - verifica disponibilidade) -->
-                <a
-                  id="btnSerproID"
-                  href="#"
-                  class="btn btn-outline btn-block"
-                  data-prevent-default="true"
-                >
-                  <img src="img/icone-serproid-1024px.png" alt="SerproID" class="serproid-icon" />
-                  Certificado Digital (SerproID)
-                </a>
-
-                <div id="serproidUnavailable" class="serproid-unavailable">
-                  ⚠️ Certificado Digital (SerproID) não está disponível no momento.
-                </div>
-              </div>
-            </div>
-
-            <div class="login-trust-bar" aria-label="Destaques institucionais">
-              <span class="login-trust-pill">🔒 Ambiente institucional seguro</span>
-              <span class="login-trust-pill">📊 Decisão orientada por evidência</span>
-              <span class="login-trust-pill">🏛️ IF Baiano</span>
-            </div>
-
-            <div
-              id="loginVisualAudit"
-              class="sg-ai-audit-panel hidden"
-              data-ai-visual-audit="loginScreen"
-              data-ai-audit-root="#loginScreen"
-              data-ai-audit-report-key="frontend_visual_login"
-              data-ai-audit-title="Radar IA da Entrada"
-              data-ai-audit-label="Camada de acesso"
-            ></div>
-
-            <!-- Mensagem de erro global -->
-            <div id="loginError" class="login-error hidden"></div>
-
-            <!-- Footer -->
-            <div class="login-footer">
-              <details class="login-help">
-                <summary>💡 Primeiro acesso? Dúvidas sobre login?</summary>
-                <div class="login-help-content">
-                  <p><strong>Sistema SINGEM</strong></p>
-                  <p>
-                    <strong>Gov.br (recomendado):</strong> Use sua conta gov.br para acesso rápido e
-                    seguro. Se ainda não tem, crie em
-                    <a href="https://acesso.gov.br" target="_blank" rel="noopener noreferrer"
-                      >acesso.gov.br</a
-                    >.
-                  </p>
-                  <p>
-                    <strong>Acesso administrativo:</strong> Credenciais fornecidas pelo
-                    administrador do sistema.
-                  </p>
-                  <p>
-                    <small
-                      >⚠️ Se é o primeiro acesso administrativo, contate o administrador para
-                      cadastro.</small
+                  <a id="btnGovBr" href="#" class="btn-govbr" data-prevent-default="true">
+                    <svg
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
                     >
-                  </p>
+                      <path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4M10 17l5-5-5-5M15 12H3" />
+                    </svg>
+                    Entrar com Gov.br
+                  </a>
+
+                  <div id="govbrUnavailable" class="govbr-unavailable">
+                    ⚠️ Login Gov.br não está disponível no momento. Use o acesso administrativo.
+                  </div>
+
+                  <div class="govbr-security-note">
+                    <span class="govbr-security-icon">🔒</span>
+                    <div>
+                      <strong class="govbr-security-label">Segurança máxima</strong> — Suas
+                      credenciais são verificadas diretamente pelo portal gov.br. O SINGEM nunca
+                      armazena sua senha.
+                    </div>
+                  </div>
+
+                  <div class="govbr-selos">
+                    <span title="Nível básico de confiabilidade">🥉 Bronze</span>
+                    <span title="Validação facial biométrica">🥈 Prata</span>
+                    <span title="Certificado digital ICP-Brasil">🥇 Ouro</span>
+                  </div>
                 </div>
-              </details>
+
+                <!-- Card 2: Login Institucional (Admin) -->
+                <div id="loginCardAdmin" class="login-card login-card-admin">
+                  <div class="login-card-header">
+                    <div class="login-card-icon">🔐</div>
+                    <h2>Acesso Administrativo</h2>
+                    <p>Login com credenciais institucionais SINGEM</p>
+                  </div>
+
+                  <form id="loginForm" method="GET" autocomplete="on">
+                    <div class="form-group">
+                      <label for="loginUsuario">Usuário</label>
+                      <input
+                        type="text"
+                        id="loginUsuario"
+                        name="username"
+                        placeholder="Digite seu login"
+                        autocomplete="username"
+                      />
+                    </div>
+
+                    <div class="form-group">
+                      <label for="loginSenha">Senha</label>
+                      <input
+                        type="password"
+                        id="loginSenha"
+                        name="password"
+                        placeholder="Digite sua senha"
+                        autocomplete="current-password"
+                      />
+                    </div>
+
+                    <div class="remember-block">
+                      <label class="remember-option">
+                        <input type="checkbox" id="rememberUser" />
+                        <span>Lembrar meu usuário</span>
+                      </label>
+                      <label class="remember-option">
+                        <input type="checkbox" id="rememberPass" />
+                        <span>Salvar senha neste dispositivo</span>
+                      </label>
+                      <div class="remember-warning">Use apenas em computador pessoal.</div>
+                      <button type="button" id="btnClearRemember" class="btn-link">
+                        Esquecer neste dispositivo
+                      </button>
+                    </div>
+
+                    <div class="recover-link">
+                      <button type="button" id="btnRecuperarSenha" class="btn-link">
+                        Esqueci minha senha / Recuperar acesso
+                      </button>
+                    </div>
+
+                    <button id="btnLogin" type="submit" class="btn btn-primary btn-block">
+                      🔐 Entrar
+                    </button>
+                  </form>
+
+                  <!-- Separador SerproID -->
+                  <div id="serproidSeparator" class="login-separator">
+                    <hr />
+                    <span>ou</span>
+                    <hr />
+                  </div>
+
+                  <!-- Botão SerproID (smart - verifica disponibilidade) -->
+                  <a
+                    id="btnSerproID"
+                    href="#"
+                    class="btn btn-outline btn-block"
+                    data-prevent-default="true"
+                  >
+                    <img src="img/icone-serproid-1024px.png" alt="SerproID" class="serproid-icon" />
+                    Certificado Digital (SerproID)
+                  </a>
+
+                  <div id="serproidUnavailable" class="serproid-unavailable">
+                    ⚠️ Certificado Digital (SerproID) não está disponível no momento.
+                  </div>
+                </div>
+              </div>
+
+              <div class="login-trust-bar" aria-label="Destaques institucionais">
+                <span class="login-trust-pill">🔒 Ambiente institucional seguro</span>
+                <span class="login-trust-pill">📊 Decisão orientada por evidência</span>
+                <span class="login-trust-pill">🏛️ IF Baiano</span>
+              </div>
+
+              <div
+                id="loginVisualAudit"
+                class="sg-ai-audit-panel hidden"
+                data-ai-visual-audit="loginScreen"
+                data-ai-audit-root="#loginScreen"
+                data-ai-audit-report-key="frontend_visual_login"
+                data-ai-audit-title="Radar IA da Entrada"
+                data-ai-audit-label="Camada de acesso"
+              ></div>
+
+              <!-- Mensagem de erro global -->
+              <div id="loginError" class="login-error hidden"></div>
+
+              <!-- Footer -->
+              <div class="login-footer">
+                <details class="login-help">
+                  <summary>💡 Primeiro acesso? Dúvidas sobre login?</summary>
+                  <div class="login-help-content">
+                    <p><strong>Sistema SINGEM</strong></p>
+                    <p>
+                      <strong>Gov.br (recomendado):</strong> Use sua conta gov.br para acesso rápido
+                      e seguro. Se ainda não tem, crie em
+                      <a href="https://acesso.gov.br" target="_blank" rel="noopener noreferrer"
+                        >acesso.gov.br</a
+                      >.
+                    </p>
+                    <p>
+                      <strong>Acesso administrativo:</strong> Credenciais fornecidas pelo
+                      administrador do sistema.
+                    </p>
+                    <p>
+                      <small
+                        >⚠️ Se é o primeiro acesso administrativo, contate o administrador para
+                        cadastro.</small
+                      >
+                    </p>
+                  </div>
+                </details>
+              </div>
             </div>
           </div>
         </section>
@@ -378,9 +396,12 @@
             <section class="dashboard-hero">
               <div>
                 <span class="dashboard-kicker">SINGEM Control Tower</span>
-                <h2>Operação de materiais com visão executiva, rastreabilidade e resposta rápida.</h2>
+                <h2>
+                  Operação de materiais com visão executiva, rastreabilidade e resposta rápida.
+                </h2>
                 <p id="dashboardSubtitle">
-                  Base operacional do IF Baiano com monitoramento contínuo dos fluxos críticos e acesso imediato às rotinas mais usadas.
+                  Base operacional do IF Baiano com monitoramento contínuo dos fluxos críticos e
+                  acesso imediato às rotinas mais usadas.
                 </p>
               </div>
               <div class="dashboard-hero__actions">
@@ -427,7 +448,8 @@
                 <span class="dashboard-panel-kicker">Postura operacional</span>
                 <h3 id="dashboardUnitHeading">Carregando base institucional...</h3>
                 <p id="dashboardOperationalPulse">
-                  Consolidando empenhos, notas fiscais e inteligência de compras para a unidade ativa.
+                  Consolidando empenhos, notas fiscais e inteligência de compras para a unidade
+                  ativa.
                 </p>
 
                 <div class="dashboard-signal-row">
@@ -494,20 +516,28 @@
 
             <div class="welcome">
               <h2>Áreas operacionais</h2>
-              <p>Atalhos priorizados para cadastro, recebimento, inteligência de compras e acompanhamento diário.</p>
+              <p>
+                Atalhos priorizados para cadastro, recebimento, inteligência de compras e
+                acompanhamento diário.
+              </p>
             </div>
 
             <div class="menu-grid">
               <div class="menu-item" data-screen="empenhoScreen">
                 <div class="menu-icon">📝</div>
                 <h3>Cadastro de Empenho</h3>
-                <p>Cadastre novas notas de empenho, valide o fluxo e anexe a documentação crítica.</p>
+                <p>
+                  Cadastre novas notas de empenho, valide o fluxo e anexe a documentação crítica.
+                </p>
               </div>
 
               <div class="menu-item" data-screen="entregaScreen">
                 <div class="menu-icon">📦</div>
                 <h3>Entrada de Entrega</h3>
-                <p>Registre recebimentos semanais e mantenha o histórico físico alinhado ao financeiro.</p>
+                <p>
+                  Registre recebimentos semanais e mantenha o histórico físico alinhado ao
+                  financeiro.
+                </p>
               </div>
 
               <div class="menu-item" data-screen="notaFiscalScreen">
@@ -519,25 +549,35 @@
               <div class="menu-item" data-screen="almoxarifadoScreen">
                 <div class="menu-icon">🏬</div>
                 <h3>Almoxarifado</h3>
-                <p>Controle entrada, estoque, solicitações e auditoria em uma mesma trilha operacional.</p>
+                <p>
+                  Controle entrada, estoque, solicitações e auditoria em uma mesma trilha
+                  operacional.
+                </p>
               </div>
 
               <div class="menu-item" data-screen="relatoriosScreen">
                 <div class="menu-icon">📊</div>
                 <h3>Relatórios</h3>
-                <p>Gere painéis de conferência e recortes analíticos sem sair do fluxo principal.</p>
+                <p>
+                  Gere painéis de conferência e recortes analíticos sem sair do fluxo principal.
+                </p>
               </div>
 
               <div class="menu-item" id="consultasMenuItem">
                 <div class="menu-icon">🔍</div>
                 <h3>Consulte Compras.gov</h3>
-                <p>Acesse inteligência de preços, fornecedores, UASG e dados públicos do ecossistema.</p>
+                <p>
+                  Acesse inteligência de preços, fornecedores, UASG e dados públicos do ecossistema.
+                </p>
               </div>
 
               <div class="menu-item" data-screen="catalogacaoScreen">
                 <div class="menu-icon">📋</div>
                 <h3>Pedidos de Catalogação</h3>
-                <p>Gerencie solicitações CATMAT/CATSER com visibilidade do backlog e do ciclo de ajuste.</p>
+                <p>
+                  Gerencie solicitações CATMAT/CATSER com visibilidade do backlog e do ciclo de
+                  ajuste.
+                </p>
               </div>
 
               <div class="menu-item" id="systemStatusMenuItem">
@@ -623,12 +663,7 @@
                   <p>Consulte itens do CATMAT por descrição ou código CATMAT</p>
                 </div>
 
-                <div
-                  class="menu-item-consulta"
-                  data-consulta="servicos"
-                  role="button"
-                  tabindex="0"
-                >
+                <div class="menu-item-consulta" data-consulta="servicos" role="button" tabindex="0">
                   <div class="menu-icon-consulta">🛠️</div>
                   <h4>Catálogo de Serviço</h4>
                   <p>Consulte serviços do CATSER por grupo e classe</p>
@@ -645,12 +680,7 @@
                   <p>Pesquisa de preços praticados por código CATMAT/CATSER em compras públicas</p>
                 </div>
 
-                <div
-                  class="menu-item-consulta"
-                  data-consulta="uasg"
-                  role="button"
-                  tabindex="0"
-                >
+                <div class="menu-item-consulta" data-consulta="uasg" role="button" tabindex="0">
                   <div class="menu-icon-consulta">🏛️</div>
                   <h4>Consultar UASG</h4>
                   <p>Busque unidades administrativas por código ou UF</p>
@@ -667,23 +697,13 @@
                   <p>Consulte fornecedores por CNPJ, CPF, natureza jurídica, porte e CNAE</p>
                 </div>
 
-                <div
-                  class="menu-item-consulta"
-                  data-consulta="arp"
-                  role="button"
-                  tabindex="0"
-                >
+                <div class="menu-item-consulta" data-consulta="arp" role="button" tabindex="0">
                   <div class="menu-icon-consulta">📋</div>
                   <h4>ARP - Atas de Preços</h4>
                   <p>Consulte itens de Atas de Registro de Preços</p>
                 </div>
 
-                <div
-                  class="menu-item-consulta"
-                  data-consulta="pncp"
-                  role="button"
-                  tabindex="0"
-                >
+                <div class="menu-item-consulta" data-consulta="pncp" role="button" tabindex="0">
                   <div class="menu-icon-consulta">📑</div>
                   <h4>Contratações PNCP</h4>
                   <p>Lei 14.133/2021 - Portal Nacional de Contratações</p>
@@ -790,7 +810,11 @@
                     placeholder="🔍 Buscar empenho..."
                     class="sg-inline-input"
                   />
-                  <select id="filtroAnoCadastro" class="sg-inline-select" aria-label="Filtrar empenhos cadastrados por ano">
+                  <select
+                    id="filtroAnoCadastro"
+                    class="sg-inline-select"
+                    aria-label="Filtrar empenhos cadastrados por ano"
+                  >
                     <option value="">Todos os anos</option>
                   </select>
                   <button type="button" id="btnNovoEmpenho" class="btn btn-success">
@@ -841,7 +865,11 @@
                       <label for="processoSuapEmpenho">Processo (SUAP)</label>
                       <div class="sg-inline-row">
                         <div class="sg-inline-grow">
-                          <input type="text" id="processoSuapEmpenho" placeholder="23000.000000/2024-00" />
+                          <input
+                            type="text"
+                            id="processoSuapEmpenho"
+                            placeholder="23000.000000/2024-00"
+                          />
                           <small>Informe o processo do SUAP</small>
                         </div>
                         <button
@@ -974,7 +1002,11 @@
               >
                 📋 Todos os Empenhos
               </button>
-              <button class="btn-tipo-relatorio sg-report-type-button" data-tipo="ano" title="Empenhos filtrados por ano">
+              <button
+                class="btn-tipo-relatorio sg-report-type-button"
+                data-tipo="ano"
+                title="Empenhos filtrados por ano"
+              >
                 📅 Por Ano
               </button>
               <button
@@ -1017,10 +1049,18 @@
                   placeholder="🔍 Buscar..."
                   class="sg-inline-input min-w-45"
                 />
-                <select id="filtroAnoRelatorio" class="sg-inline-select" aria-label="Filtrar relatório de empenhos por ano">
+                <select
+                  id="filtroAnoRelatorio"
+                  class="sg-inline-select"
+                  aria-label="Filtrar relatório de empenhos por ano"
+                >
                   <option value="">Todos os anos</option>
                 </select>
-                <select id="ordenacaoRelatorio" class="sg-inline-select" aria-label="Ordenar relatório de empenhos">
+                <select
+                  id="ordenacaoRelatorio"
+                  class="sg-inline-select"
+                  aria-label="Ordenar relatório de empenhos"
+                >
                   <option value="recente">📅 Mais recentes</option>
                   <option value="antigo">📅 Mais antigos</option>
                   <option value="numero">🔢 Por número</option>
@@ -1029,7 +1069,11 @@
                   <option value="saldo-desc">📊 Maior saldo</option>
                   <option value="saldo-asc">📊 Menor saldo</option>
                 </select>
-                <button id="btnExportarRelatorio" class="btn btn-secondary inline-flex items-center gap-1 px-3 py-2" title="Exportar relatório">
+                <button
+                  id="btnExportarRelatorio"
+                  class="btn btn-secondary inline-flex items-center gap-1 px-3 py-2"
+                  title="Exportar relatório"
+                >
                   📥 Exportar
                 </button>
               </div>
@@ -1118,11 +1162,7 @@
                 <span>📋</span> 1. Selecione o Empenho (Obrigatório)
               </h3>
               <div class="empenho-select-container sg-highlight-row">
-                <select
-                  id="empenhoAssociado"
-                  class="sg-highlight-select"
-                  required
-                >
+                <select id="empenhoAssociado" class="sg-highlight-select" required>
                   <option value="">Selecione um empenho validado...</option>
                 </select>
                 <button
@@ -1150,27 +1190,15 @@
               </summary>
               <div class="sg-details-body">
                 <div class="opcoes-grid sg-option-grid">
-                  <div
-                    class="opcao-card sg-option-card"
-                    data-opcao="upload"
-                    id="opcaoUpload"
-                  >
+                  <div class="opcao-card sg-option-card" data-opcao="upload" id="opcaoUpload">
                     <div class="opcao-icon">📎</div>
                     <h4>Upload do PDF</h4>
-                    <p>
-                      Extrair dados do PDF da NF
-                    </p>
+                    <p>Extrair dados do PDF da NF</p>
                   </div>
-                  <div
-                    class="opcao-card sg-option-card"
-                    data-opcao="chave"
-                    id="opcaoChave"
-                  >
+                  <div class="opcao-card sg-option-card" data-opcao="chave" id="opcaoChave">
                     <div class="opcao-icon">🔑</div>
                     <h4>Chave de Acesso</h4>
-                    <p>
-                      Buscar via chave de 44 dígitos
-                    </p>
+                    <p>Buscar via chave de 44 dígitos</p>
                   </div>
                 </div>
               </div>
@@ -1460,7 +1488,9 @@
             <div id="modalValidacaoNF" class="modal hidden" aria-hidden="true">
               <div class="modal-content sg-modal-wide sg-validation-modal">
                 <div class="modal-header">
-                  <h3 id="modalValidacaoTitulo" class="sg-modal-heading sg-modal-heading--primary">🔍 Resultado da Validação</h3>
+                  <h3 id="modalValidacaoTitulo" class="sg-modal-heading sg-modal-heading--primary">
+                    🔍 Resultado da Validação
+                  </h3>
                   <button type="button" class="modal-close" id="btnFecharValidacaoNF">
                     &times;
                   </button>
@@ -1568,7 +1598,9 @@
             <hr class="my-8 border-slate-200" />
 
             <!-- Relatórios Legados -->
-            <h3 class="mb-4 text-xl font-semibold tracking-tight text-(--sg-text)">📋 Relatórios Básicos</h3>
+            <h3 class="mb-4 text-xl font-semibold tracking-tight text-(--sg-text)">
+              📋 Relatórios Básicos
+            </h3>
             <div class="report-types">
               <div class="report-card" data-report="conferencia">
                 <h3>📋 Relatório de Conferência</h3>

@@ -394,11 +394,12 @@ function createFeatureContext(app) {
               <span class="almox-panel__meta">${formatNumber(state.resumo.saldos_por_conta.length)} conta(s)</span>
             </div>
             <div class="almox-stat-list">
-              ${state.resumo.saldos_por_conta.length
-                ? state.resumo.saldos_por_conta
-                    .slice(0, 6)
-                    .map(
-                      (conta) => `
+              ${
+                state.resumo.saldos_por_conta.length
+                  ? state.resumo.saldos_por_conta
+                      .slice(0, 6)
+                      .map(
+                        (conta) => `
                         <div class="almox-stat-list__row">
                           <div>
                             <strong>${safeText(conta.codigo)}</strong>
@@ -407,9 +408,10 @@ function createFeatureContext(app) {
                           <strong>${formatCurrency(conta.valor_total)}</strong>
                         </div>
                       `
-                    )
-                    .join('')
-                : '<p class="almox-empty-note">Nenhuma conta valorizada para exibir.</p>'}
+                      )
+                      .join('')
+                  : '<p class="almox-empty-note">Nenhuma conta valorizada para exibir.</p>'
+              }
             </div>
           </article>
 
@@ -422,11 +424,12 @@ function createFeatureContext(app) {
               <span class="almox-panel__meta">${formatNumber(state.resumo.consumo_por_setor.length)} setor(es)</span>
             </div>
             <div class="almox-stat-list">
-              ${state.resumo.consumo_por_setor.length
-                ? state.resumo.consumo_por_setor
-                    .slice(0, 6)
-                    .map(
-                      (row) => `
+              ${
+                state.resumo.consumo_por_setor.length
+                  ? state.resumo.consumo_por_setor
+                      .slice(0, 6)
+                      .map(
+                        (row) => `
                         <div class="almox-stat-list__row">
                           <div>
                             <strong>${safeText(row.setor)}</strong>
@@ -435,9 +438,10 @@ function createFeatureContext(app) {
                           <strong>${formatNumber(row.quantidade_atendida)}</strong>
                         </div>
                       `
-                    )
-                    .join('')
-                : '<p class="almox-empty-note">Nenhum consumo atendido para o periodo atual.</p>'}
+                      )
+                      .join('')
+                  : '<p class="almox-empty-note">Nenhum consumo atendido para o periodo atual.</p>'
+              }
             </div>
           </article>
 
@@ -450,11 +454,12 @@ function createFeatureContext(app) {
               <span class="almox-panel__meta">${formatNumber(state.resumo.itens_criticos.length)} item(ns)</span>
             </div>
             <div class="almox-stat-list">
-              ${state.resumo.itens_criticos.length
-                ? state.resumo.itens_criticos
-                    .slice(0, 6)
-                    .map(
-                      (row) => `
+              ${
+                state.resumo.itens_criticos.length
+                  ? state.resumo.itens_criticos
+                      .slice(0, 6)
+                      .map(
+                        (row) => `
                         <div class="almox-stat-list__row">
                           <div>
                             <strong>${safeText(row.codigo_interno || row.id)}</strong>
@@ -463,9 +468,10 @@ function createFeatureContext(app) {
                           <strong>${formatNumber(row.saldo)}</strong>
                         </div>
                       `
-                    )
-                    .join('')
-                : '<p class="almox-empty-note">Nenhum item em criticidade no momento.</p>'}
+                      )
+                      .join('')
+                  : '<p class="almox-empty-note">Nenhum item em criticidade no momento.</p>'
+              }
             </div>
           </article>
         </div>
@@ -933,8 +939,9 @@ function createFeatureContext(app) {
               <span class="almox-panel__meta">${state.isAdmin ? renderListSummary(state.auditoria, 'Eventos') : 'Restrito a administradores'}</span>
             </div>
 
-            ${state.isAdmin
-              ? `
+            ${
+              state.isAdmin
+                ? `
                 <form data-almox-form="filtro-auditoria" class="almox-filter-row">
                   <input name="acao" type="search" value="${safeAttr(state.filters.auditoria.acao)}" placeholder="Filtrar por acao" />
                   <input name="entidade_tipo" type="search" value="${safeAttr(state.filters.auditoria.entidade_tipo)}" placeholder="Filtrar por entidade" />
@@ -956,7 +963,8 @@ function createFeatureContext(app) {
                   </table>
                 </div>
               `
-              : '<p class="almox-empty-note">Seu perfil atual pode usar o modulo, mas a trilha dedicada de auditoria fica disponivel apenas para administradores.</p>'}
+                : '<p class="almox-empty-note">Seu perfil atual pode usar o modulo, mas a trilha dedicada de auditoria fica disponivel apenas para administradores.</p>'
+            }
           </article>
         </section>
       </div>
@@ -982,7 +990,9 @@ function createFeatureContext(app) {
       notas: listarNotasEntradaAlmoxarifado(state.filters.notas),
       movimentacoes: listarMovimentacoesAlmoxarifado(state.filters.movimentacoes),
       solicitacoes: listarSolicitacoesAlmoxarifado(state.filters.solicitacoes),
-      auditoria: state.isAdmin ? listarAuditoriaAlmoxarifado(state.filters.auditoria) : Promise.resolve(createEmptyList())
+      auditoria: state.isAdmin
+        ? listarAuditoriaAlmoxarifado(state.filters.auditoria)
+        : Promise.resolve(createEmptyList())
     };
 
     const entries = Object.entries(tasks);
@@ -1162,9 +1172,7 @@ function createFeatureContext(app) {
         acao: String(formData.get('acao') || '').trim(),
         entidade_tipo: String(formData.get('entidade_tipo') || '').trim()
       };
-      state.auditoria = state.isAdmin
-        ? await listarAuditoriaAlmoxarifado(state.filters.auditoria)
-        : createEmptyList();
+      state.auditoria = state.isAdmin ? await listarAuditoriaAlmoxarifado(state.filters.auditoria) : createEmptyList();
       state.activeTab = 'auditoria';
     }
 
@@ -1241,9 +1249,7 @@ function createFeatureContext(app) {
           return;
         }
 
-        const confirmed = window.confirm(
-          `Atualizar solicitacao #${solicitacaoId} para o status "${nextStatus}"?`
-        );
+        const confirmed = window.confirm(`Atualizar solicitacao #${solicitacaoId} para o status "${nextStatus}"?`);
 
         if (!confirmed) {
           return;

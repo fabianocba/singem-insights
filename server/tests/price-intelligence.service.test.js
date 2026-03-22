@@ -402,7 +402,10 @@ test('[PATH 2] shapeResponse retorna array vazio em rawItems quando includeRaw=f
 
   assert.equal(response.rawItems.length, 0, 'rawItems deve estar vazio quando includeRaw=false');
   assert.ok(response.metrics.totalRegistros > 0, 'Metricas ainda devem ser retornadas');
-  assert.ok(response.suppliers && typeof response.suppliers === 'object', 'Analytics (suppliers) devem estar disponiveis');
+  assert.ok(
+    response.suppliers && typeof response.suppliers === 'object',
+    'Analytics (suppliers) devem estar disponiveis'
+  );
   assert.ok(response.metrics, 'Métricas devem estar disponiveis');
 });
 
@@ -425,4 +428,3 @@ test('[PATH 2] shapeResponse retorna rawItems quando includeRaw=true explicitame
   assert.ok(response.rawItems.length > 0, 'rawItems deve estar preenchido quando includeRaw=true');
   assert.equal(response.query.includeRaw, true);
 });
-

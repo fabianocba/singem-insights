@@ -7,6 +7,13 @@
   "scripts": {
     "build": "npm run tailwind:build",
     "dev": "concurrently -k \"npm:tailwind:watch\" \"npm:serve:dev\"",
+    "dev:setup": "pwsh -NoProfile -ExecutionPolicy Bypass -File ./scripts/dev-setup.ps1 -ProjectRoot .",
+    "dev:start": "pwsh -NoProfile -ExecutionPolicy Bypass -File ./scripts/dev-start.ps1 -ProjectRoot .",
+    "dev:stop": "pwsh -NoProfile -ExecutionPolicy Bypass -File ./scripts/dev-stop.ps1 -ProjectRoot .",
+    "dev:update": "pwsh -NoProfile -ExecutionPolicy Bypass -File ./scripts/dev-update.ps1 -ProjectRoot .",
+    "dev:reset": "pwsh -NoProfile -ExecutionPolicy Bypass -File ./scripts/dev-reset.ps1 -ProjectRoot .",
+    "dev:doctor": "pwsh -NoProfile -ExecutionPolicy Bypass -File ./scripts/dev-doctor.ps1 -ProjectRoot .",
+    "dev:rebuild": "pwsh -NoProfile -ExecutionPolicy Bypass -File ./scripts/dev-rebuild.ps1 -ProjectRoot .",
     "version:bump": "node ./scripts/bump-version.js",
     "scan:orphans": "node ./scripts/scan-refs.cjs",
     "serve": "node ./scripts/serve-dev.cjs --host 0.0.0.0 --port 8000 --directory .",

@@ -227,7 +227,9 @@ function buildScopeSummary(user, scopeRows) {
 
   const units = Array.from(unitsMap.values());
   const sectors = Array.from(sectorsMap.values());
-  const isGlobalProfile = [ProfileKeys.ADMIN, ProfileKeys.ADMIN_SUPERIOR].includes(String(user.perfil || '').toLowerCase());
+  const isGlobalProfile = [ProfileKeys.ADMIN, ProfileKeys.ADMIN_SUPERIOR].includes(
+    String(user.perfil || '').toLowerCase()
+  );
 
   return {
     units,
@@ -242,13 +244,16 @@ function buildScopeSummary(user, scopeRows) {
 }
 
 function buildMenuEntries(moduleContexts) {
-  return listMenuGroups(moduleContexts.map((module) => ({
-    ...module,
-    order: module.order,
-    devOnly: module.devOnly
-  })), {
-    isProduction: !isDevelopmentMode()
-  });
+  return listMenuGroups(
+    moduleContexts.map((module) => ({
+      ...module,
+      order: module.order,
+      devOnly: module.devOnly
+    })),
+    {
+      isProduction: !isDevelopmentMode()
+    }
+  );
 }
 
 function buildContextPayload(user, catalog, scopeRows, profileGrants, userGrants, overrideMode = null) {

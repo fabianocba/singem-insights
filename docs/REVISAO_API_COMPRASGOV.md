@@ -9,16 +9,17 @@
 
 ### ✅ **IMPLEMENTADO - Módulo Pesquisa de Preço (Preços Práticados)**
 
-| Aspecto | Status | Detalhe |
-|---------|--------|---------|
-| **Endpoint** | ✅ | Mapeado: `/modulo-pesquisa-preco/1_consultarMaterial` e `/3_consultarServico` |
-| **Serviço Especializado** | ✅ | `price-intelligence.service.js` com full analytics |
-| **Rota** | ✅ | `GET /api/inteligencia/precos/material` e `/servico` |
-| **Taxa de Limite** | ✅ | Serialização promise-queue (PATH 1) implementada |
-| **Testes** | ✅ | 17/17 testes passam |
-| **Documentação** | ✅ | Cobertura completa |
+| Aspecto                   | Status | Detalhe                                                                       |
+| ------------------------- | ------ | ----------------------------------------------------------------------------- |
+| **Endpoint**              | ✅     | Mapeado: `/modulo-pesquisa-preco/1_consultarMaterial` e `/3_consultarServico` |
+| **Serviço Especializado** | ✅     | `price-intelligence.service.js` com full analytics                            |
+| **Rota**                  | ✅     | `GET /api/inteligencia/precos/material` e `/servico`                          |
+| **Taxa de Limite**        | ✅     | Serialização promise-queue (PATH 1) implementada                              |
+| **Testes**                | ✅     | 17/17 testes passam                                                           |
+| **Documentação**          | ✅     | Cobertura completa                                                            |
 
 **Endpoint Confirmado**:
+
 ```
 GET /modulo-pesquisa-preco/1_consultarMaterial
 GET /modulo-pesquisa-preco/3_consultarServico
@@ -28,14 +29,15 @@ GET /modulo-pesquisa-preco/3_consultarServico
 
 ### ✅ **IMPLEMENTADO - Módulo Catálogo Material & Serviço**
 
-| Aspecto | Status | Detalhe |
-|---------|--------|---------|
-| **Endpoint** | ✅ | Mapeado corretamente |
-| **Serviço** | ✅ | `ComprasGovClient.requestDomain()` genérico |
-| **Rota** | ✅ | `GET /api/integracao/comprasgov/catmat/itens` |
-| **Operações** | ✅ | itens, grupos, classes |
+| Aspecto       | Status | Detalhe                                       |
+| ------------- | ------ | --------------------------------------------- |
+| **Endpoint**  | ✅     | Mapeado corretamente                          |
+| **Serviço**   | ✅     | `ComprasGovClient.requestDomain()` genérico   |
+| **Rota**      | ✅     | `GET /api/integracao/comprasgov/catmat/itens` |
+| **Operações** | ✅     | itens, grupos, classes                        |
 
 **Endpoints Confirmados**:
+
 ```
 GET /modulo-material/1_consultarGrupoMaterial
 GET /modulo-material/2_consultarClasseMaterial
@@ -49,15 +51,16 @@ GET /modulo-servico/6_consultarItemServico
 
 ### ✅ **IMPLEMENTADO - Módulo Fornecedor**
 
-| Aspecto | Status | Detalhe |
-|---------|--------|---------|
-| **Endpoint** | ✅ | Mapeado para `/modulo-fornecedor/1_consultarFornecedor` |
-| **Implementação** | ✅ | `getFornecedor()` em `index.js` |
-| **Rota** | ✅ | `GET /api/integracao/comprasgov/fornecedor` |
-| **Parâmetros** | ⚠️ | VER ABAIXO |
-| **Testes** | ❌ | Nenhum teste específico |
+| Aspecto           | Status | Detalhe                                                 |
+| ----------------- | ------ | ------------------------------------------------------- |
+| **Endpoint**      | ✅     | Mapeado para `/modulo-fornecedor/1_consultarFornecedor` |
+| **Implementação** | ✅     | `getFornecedor()` em `index.js`                         |
+| **Rota**          | ✅     | `GET /api/integracao/comprasgov/fornecedor`             |
+| **Parâmetros**    | ⚠️     | VER ABAIXO                                              |
+| **Testes**        | ❌     | Nenhum teste específico                                 |
 
 **Endpoint Confirmado**:
+
 ```
 GET /modulo-fornecedor/1_consultarFornecedor
   PARAMS:
@@ -77,23 +80,25 @@ GET /modulo-fornecedor/1_consultarFornecedor
 
 ### ✅ **IMPLEMENTADO - Módulo ARP (Atas de Registro de Preços)**
 
-| Aspecto | Status | Detalhe |
-|---------|--------|---------|
-| **Endpoint** | ⚠️ | **ERRO: Usando endpoint de ITEM em vez do de CONSULTA GERAL** |
-| **Implementação** | ✅ | `getArp()` em `index.js` |
-| **Rota** | ✅ | `GET /api/integracao/comprasgov/arp` |
-| **Testes** | ❌ | Nenhum teste específico |
+| Aspecto           | Status | Detalhe                                                       |
+| ----------------- | ------ | ------------------------------------------------------------- |
+| **Endpoint**      | ⚠️     | **ERRO: Usando endpoint de ITEM em vez do de CONSULTA GERAL** |
+| **Implementação** | ✅     | `getArp()` em `index.js`                                      |
+| **Rota**          | ✅     | `GET /api/integracao/comprasgov/arp`                          |
+| **Testes**        | ❌     | Nenhum teste específico                                       |
 
 **❌ PROBLEMA IDENTIFICADO**:
 
 No arquivo `client.js` linha 37:
+
 ```javascript
 arp: {
-  consulta: '/modulo-arp/2_consultarARPItem'  // ❌ ERRADO: é endpoint de ITEM
+  consulta: '/modulo-arp/2_consultarARPItem'; // ❌ ERRADO: é endpoint de ITEM
 }
 ```
 
 **Deve ser**:
+
 ```javascript
 arp: {
   consulta: '/modulo-arp/1_consultarARP',      // ✅ CORRETO: endpoint de CONSULTA da ARP
@@ -104,6 +109,7 @@ arp: {
 ```
 
 **Parametros da API (conforme documentação)**:
+
 - Endpoint 1 (Consultar ARP):
   - `pagina` (default: 1)
   - `tamanhoPagina` (default: 10)
@@ -136,23 +142,25 @@ arp: {
 
 ### ✅ **IMPLEMENTADO - Módulo Contratos**
 
-| Aspecto | Status | Detalhe |
-|---------|--------|---------|
-| **Endpoint** | ⚠️ | **PARCIALMENTE CORRETO: Endpoint genérico, mas faltam variantes** |
-| **Implementação** | ✅ | `getContratos()` em `index.js` |
-| **Rota** | ✅ | `GET /api/integracao/comprasgov/contratos` |
-| **Testes** | ❌ | Nenhum teste específico |
+| Aspecto           | Status | Detalhe                                                           |
+| ----------------- | ------ | ----------------------------------------------------------------- |
+| **Endpoint**      | ⚠️     | **PARCIALMENTE CORRETO: Endpoint genérico, mas faltam variantes** |
+| **Implementação** | ✅     | `getContratos()` em `index.js`                                    |
+| **Rota**          | ✅     | `GET /api/integracao/comprasgov/contratos`                        |
+| **Testes**        | ❌     | Nenhum teste específico                                           |
 
 **⚠️ PROBLEMA IDENTIFICADO**:
 
 No arquivo `client.js` linha 40:
+
 ```javascript
 contratos: {
-  consulta: '/modulo-contratos/1_consultarContratos'  // ✅ CORRETO, mas INCOMPLETO
+  consulta: '/modulo-contratos/1_consultarContratos'; // ✅ CORRETO, mas INCOMPLETO
 }
 ```
 
 **Deve ser expandido para**:
+
 ```javascript
 contratos: {
   consulta: '/modulo-contratos/1_consultarContratos',      // ✅ Consulta geral
@@ -198,11 +206,11 @@ contratos: {
 
 ### ✅ **IMPLEMENTADO - Módulo UASG**
 
-| Aspecto | Status | Detalhe |
-|---------|--------|---------|
-| **Endpoint** | ✅ | Mapeado para `/modulo-uasg/1_consultarUasg` |
-| **Implementação** | ✅ | `getUasg()` em `index.js` |
-| **Rota** | ✅ | `GET /api/integracao/comprasgov/uasg` |
+| Aspecto           | Status | Detalhe                                     |
+| ----------------- | ------ | ------------------------------------------- |
+| **Endpoint**      | ✅     | Mapeado para `/modulo-uasg/1_consultarUasg` |
+| **Implementação** | ✅     | `getUasg()` em `index.js`                   |
+| **Rota**          | ✅     | `GET /api/integracao/comprasgov/uasg`       |
 
 ---
 
@@ -211,12 +219,15 @@ contratos: {
 ### URL de Fornecedor está Incorreta na Documentação Fornecida
 
 **Na documentação fornecida** (seu PDF):
+
 ```
 https://dadosabertos.compras.gov.br/modulo-contratos/1_consultarContratos?...
 ```
+
 ⚠️ **Este URL está ERRADO para Fornecedor**
 
 **Correto deve ser**:
+
 ```
 https://dadosabertos.compras.gov.br/modulo-fornecedor/1_consultarFornecedor?...
 ```
@@ -315,9 +326,7 @@ async getContratosItem(req) {
 E adicionar rota em `server/routes/comprasgov.routes.js`:
 
 ```javascript
-router.get('/contratos/itens', (req, res) => 
-  execute(res, req, (request) => comprasGov.getContratosItem(request))
-);
+router.get('/contratos/itens', (req, res) => execute(res, req, (request) => comprasGov.getContratosItem(request)));
 ```
 
 ### 3. **✨ NOVO** - Adicionar Testes para ARP e Contratos
@@ -343,10 +352,12 @@ Adicionar seção explicando variantes de endpoint e parâmetros obrigatórios:
 ## Módulo ARP
 
 ### Endpoints
+
 - `GET /api/integracao/comprasgov/arp?variant=consulta` - Listar ARPs
 - `GET /api/integracao/comprasgov/arp?variant=consultaId&numeroControlePncpAta=...` - ARP por ID
 
 ### Parâmetros Obrigatórios
+
 - `dataVigenciaInicial` e `dataVigenciaFinal` para variant=consulta
 - `numeroControlePncpAta` para variant=consultaId
 ```
@@ -355,17 +366,17 @@ Adicionar seção explicando variantes de endpoint e parâmetros obrigatórios:
 
 ## 📊 Resumo Matríz de Completude
 
-| Módulo | Endpoint | Implementação | Rotas | Serviço | Testes | Crítico |
-|--------|----------|---------------|-------|---------|--------|---------|
-| **Pesquisa de Preço** | ✅ | ✅ | ✅ | ✅ | ✅ | Não |
-| **Catálogo Material** | ✅ | ✅ | ✅ | ✅ | ✅ | Não |
-| **Catálogo Serviço** | ✅ | ✅ | ✅ | ✅ | ✅ | Não |
-| **UASG** | ✅ | ✅ | ✅ | ✅ | ❌ | Médio |
-| **Fornecedor** | ✅ | ✅ | ✅ | ✅ | ❌ | Baixo |
-| **ARP** | ⚠️ | ✅ | ✅ | ✅ | ❌ | **ALTO** |
-| **Contratos** | ⚠️ | ✅ | ✅ | ✅ | ❌ | Médio |
-| **Legado** | ✅ | ✅ | ✅ | ✅ | ❌ | Baixo |
-| **OCDS** | ✅ | ✅ | ✅ | ✅ | ❌ | Baixo |
+| Módulo                | Endpoint | Implementação | Rotas | Serviço | Testes | Crítico  |
+| --------------------- | -------- | ------------- | ----- | ------- | ------ | -------- |
+| **Pesquisa de Preço** | ✅       | ✅            | ✅    | ✅      | ✅     | Não      |
+| **Catálogo Material** | ✅       | ✅            | ✅    | ✅      | ✅     | Não      |
+| **Catálogo Serviço**  | ✅       | ✅            | ✅    | ✅      | ✅     | Não      |
+| **UASG**              | ✅       | ✅            | ✅    | ✅      | ❌     | Médio    |
+| **Fornecedor**        | ✅       | ✅            | ✅    | ✅      | ❌     | Baixo    |
+| **ARP**               | ⚠️       | ✅            | ✅    | ✅      | ❌     | **ALTO** |
+| **Contratos**         | ⚠️       | ✅            | ✅    | ✅      | ❌     | Médio    |
+| **Legado**            | ✅       | ✅            | ✅    | ✅      | ❌     | Baixo    |
+| **OCDS**              | ✅       | ✅            | ✅    | ✅      | ❌     | Baixo    |
 
 ---
 
@@ -390,6 +401,7 @@ Adicionar seção explicando variantes de endpoint e parâmetros obrigatórios:
 **Endpoints Confirmados**:
 
 #### 1. Consultar Licitações
+
 ```
 GET /modulo-legado/1_consultarLicitacao
 PARÂMETROS:
@@ -414,6 +426,7 @@ RESPOSTA REAL:
 ```
 
 #### 2. Consultar Itens de Licitação
+
 ```
 GET /modulo-legado/2_consultarItemLicitacao
 PARÂMETROS:
@@ -440,6 +453,7 @@ RESPOSTA REAL (Volume MASSIVO):
 ```
 
 #### 3. Consultar Licitação por ID
+
 ```
 GET /modulo-legado/1_consultarLicitacao_Id?id_compra={id}
 PARÂMETROS:
@@ -450,27 +464,30 @@ RESPOSTA: Contrato único com todos os campos da licitação
 
 ### 🔍 Descobertas & Impacto
 
-| Descoberta | Impacto | Ação Necessária |
-|-----------|--------|-----------------|
+| Descoberta                 | Impacto                                                           | Ação Necessária                                                   |
+| -------------------------- | ----------------------------------------------------------------- | ----------------------------------------------------------------- |
 | **Modalidade OBRIGATÓRIA** | `/2_consultarItemLicitacao` não pode ser chamado sem `modalidade` | Atualizar handlers legado em `index.js` para validar `modalidade` |
-| **Volume Massivo (3.5M)** | Sem filtros, retorna > 300K páginas | Implementar cache com TTL + rate limiting agressivo |
-| **Paginação com 500 max** | API permite até 500 itens/página (diferente de 10 default) | Adicionar `tamanhoPagina=500` para queries em legado |
-| **Pertence14133 flag** | Legado tem flag indicando se contrato é Lei 14.133 | Usar para separar estatísticas de licitações antigas vs novas |
+| **Volume Massivo (3.5M)**  | Sem filtros, retorna > 300K páginas                               | Implementar cache com TTL + rate limiting agressivo               |
+| **Paginação com 500 max**  | API permite até 500 itens/página (diferente de 10 default)        | Adicionar `tamanhoPagina=500` para queries em legado              |
+| **Pertence14133 flag**     | Legado tem flag indicando se contrato é Lei 14.133                | Usar para separar estatísticas de licitações antigas vs novas     |
 
 ### 📊 Status Pós-Validação Real
 
 #### ARP - ✅ CORRIGIDO
+
 - Endpoint corrigido: `1_consultarARP` (não é mais `2_consultarARPItem`)
 - Variantes suportadas: consulta, item, consultaId, itemId
-- Validação implementada: dataVigencia* obrigatórios
+- Validação implementada: dataVigencia\* obrigatórios
 - **Total de Registros** (estimado): ~50K ARPs ativas (volume controlado)
 
 #### Contratos - ✅ EXPANDIDO
+
 - Endpoints: consulta + item (variantes)
-- Validação implementada: dataVigenciaInicial*Min/Max obrigatórios
+- Validação implementada: dataVigenciaInicial\*Min/Max obrigatórios
 - **Total de Registros** (estimado): ~500K contratos vigentes (volume significativo)
 
 #### Legado - ⚠️ REQUER VALIDAÇÃO ADICIONAL
+
 - Endpoints confirmados: 3 variantes (consulta, item, id)
 - **CRÍTICO**: `modalidade` é obrigatório para items, mas não documentado em alguns pontos
 - **Volume**: 3.5M item records (maior dataset de todas as integrações)

@@ -159,15 +159,12 @@ test('comprasApiClient respeita timeout configurado via namespace COMPRASGOV', a
   try {
     const comprasApiClient = require('../services/comprasApiClient');
 
-    await assert.rejects(
-      comprasApiClient.get('/modulo-arp/1_consultarARP'),
-      (error) => {
-        assert.equal(error.code, 'COMPRAS_TIMEOUT');
-        assert.match(error.message, /32000 ms/);
-        assert.equal(attempts, 1);
-        return true;
-      }
-    );
+    await assert.rejects(comprasApiClient.get('/modulo-arp/1_consultarARP'), (error) => {
+      assert.equal(error.code, 'COMPRAS_TIMEOUT');
+      assert.match(error.message, /32000 ms/);
+      assert.equal(attempts, 1);
+      return true;
+    });
   } finally {
     global.fetch = originalFetch;
 

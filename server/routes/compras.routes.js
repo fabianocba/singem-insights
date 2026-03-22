@@ -31,7 +31,7 @@ const ENDPOINT_MAP = {
   '/modulo-arp/consulta': '/modulo-arp/1_consultarARP',
   '/modulo-arp/itens': '/modulo-arp/2_consultarARPItem',
   '/modulo-contratos/consulta': '/modulo-contratos/1_consultarContratos',
-    '/modulo-contratos/itens': '/modulo-contratos/2_consultarContratosItem',
+  '/modulo-contratos/itens': '/modulo-contratos/2_consultarContratosItem',
   '/modulo-legado/licitacoes': '/modulo-legado/1_consultarLicitacao',
   '/modulo-legado/itens': '/modulo-legado/2_consultarItemLicitacao',
   '/modulo-ocds/consulta': '/modulo-ocds/1_releases'

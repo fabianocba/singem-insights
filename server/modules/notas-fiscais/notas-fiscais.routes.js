@@ -33,8 +33,26 @@ router.put(
   validate(updateNotaSchema),
   controller.update
 );
-router.put('/:id/conferir', authenticate, requirePermission('gestao_almoxarifado', 'APROVAR'), validate(idNotaSchema), controller.conferir);
-router.put('/:id/receber', authenticate, requirePermission('gestao_almoxarifado', 'APROVAR'), validate(idNotaSchema), controller.receber);
-router.delete('/:id', authenticate, requirePermission('gestao_almoxarifado', 'EXCLUIR'), validate(idNotaSchema), controller.remove);
+router.put(
+  '/:id/conferir',
+  authenticate,
+  requirePermission('gestao_almoxarifado', 'APROVAR'),
+  validate(idNotaSchema),
+  controller.conferir
+);
+router.put(
+  '/:id/receber',
+  authenticate,
+  requirePermission('gestao_almoxarifado', 'APROVAR'),
+  validate(idNotaSchema),
+  controller.receber
+);
+router.delete(
+  '/:id',
+  authenticate,
+  requirePermission('gestao_almoxarifado', 'EXCLUIR'),
+  validate(idNotaSchema),
+  controller.remove
+);
 
 module.exports = router;

@@ -317,7 +317,8 @@ async function refreshAuditContainer(container, { forceRefresh = false } = {}) {
       title,
       subtitle,
       summary: String(response?.summary || buildLocalSummary(metrics)),
-      insights: Array.isArray(response?.insights) && response.insights.length ? response.insights : buildLocalInsights(metrics),
+      insights:
+        Array.isArray(response?.insights) && response.insights.length ? response.insights : buildLocalInsights(metrics),
       alerts: Array.isArray(response?.alerts) ? response.alerts : buildLocalAlerts(metrics),
       anomalies: Array.isArray(response?.anomalies) ? response.anomalies : buildLocalAnomalies(metrics),
       sourceLabel: 'IA Core',

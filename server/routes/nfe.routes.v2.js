@@ -75,47 +75,54 @@ const checkService = (req, res, next) => {
  * Query params:
  * - sobrescrever=true (opcional)
  */
-router.post('/importar-xml', authenticate, requirePermission('gestao_almoxarifado', 'IMPORTAR'), checkService, upload.single('file'), async (req, res) => {
-  try {
-    const sobrescrever = req.query.sobrescrever === 'true';
-    let resultado;
+router.post(
+  '/importar-xml',
+  authenticate,
+  requirePermission('gestao_almoxarifado', 'IMPORTAR'),
+  checkService,
+  upload.single('file'),
+  async (req, res) => {
+    try {
+      const sobrescrever = req.query.sobrescrever === 'true';
+      let resultado;
 
-    // Upload via multipart
-    if (req.file) {
-      const xmlContent = req.file.buffer.toString('utf8');
-      resultado = await nfeService.importarXml(xmlContent, { sobrescrever });
-    }
-    // JSON com base64
-    else if (req.body.xmlBase64) {
-      resultado = await nfeService.importarXmlBase64(req.body.xmlBase64, { sobrescrever });
-    }
-    // JSON com XML direto
-    else if (req.body.xml) {
-      resultado = await nfeService.importarXml(req.body.xml, { sobrescrever });
-    }
-    // Nenhum input válido
-    else {
-      return res.status(400).json({
+      // Upload via multipart
+      if (req.file) {
+        const xmlContent = req.file.buffer.toString('utf8');
+        resultado = await nfeService.importarXml(xmlContent, { sobrescrever });
+      }
+      // JSON com base64
+      else if (req.body.xmlBase64) {
+        resultado = await nfeService.importarXmlBase64(req.body.xmlBase64, { sobrescrever });
+      }
+      // JSON com XML direto
+      else if (req.body.xml) {
+        resultado = await nfeService.importarXml(req.body.xml, { sobrescrever });
+      }
+      // Nenhum input válido
+      else {
+        return res.status(400).json({
+          status: 'ERRO',
+          errors: ['Nenhum XML fornecido. Envie arquivo via form-data (campo file) ou JSON (xmlBase64/xml)'],
+          alerts: [],
+          data: null
+        });
+      }
+
+      // Define status HTTP baseado no resultado
+      const httpStatus = resultado.status === 'ERRO' ? 400 : 200;
+      return res.status(httpStatus).json(resultado);
+    } catch (error) {
+      console.error('[NFE Routes V2] Erro em /importar-xml:', error);
+      return res.status(500).json({
         status: 'ERRO',
-        errors: ['Nenhum XML fornecido. Envie arquivo via form-data (campo file) ou JSON (xmlBase64/xml)'],
+        errors: [`Erro interno: ${error.message}`],
         alerts: [],
         data: null
       });
     }
-
-    // Define status HTTP baseado no resultado
-    const httpStatus = resultado.status === 'ERRO' ? 400 : 200;
-    return res.status(httpStatus).json(resultado);
-  } catch (error) {
-    console.error('[NFE Routes V2] Erro em /importar-xml:', error);
-    return res.status(500).json({
-      status: 'ERRO',
-      errors: [`Erro interno: ${error.message}`],
-      alerts: [],
-      data: null
-    });
   }
-});
+);
 
 /**
  * POST /api/nfe/v2/validar
@@ -268,35 +275,41 @@ router.get('/', authenticate, checkService, async (req, res) => {
  *
  * Params: chave (44 dígitos)
  */
-router.delete('/:chave', authenticate, requirePermission('gestao_almoxarifado', 'EXCLUIR'), checkService, async (req, res) => {
-  try {
-    const { chave } = req.params;
-    const resultado = await nfeService.removerNfe(chave);
+router.delete(
+  '/:chave',
+  authenticate,
+  requirePermission('gestao_almoxarifado', 'EXCLUIR'),
+  checkService,
+  async (req, res) => {
+    try {
+      const { chave } = req.params;
+      const resultado = await nfeService.removerNfe(chave);
 
-    if (resultado.sucesso) {
-      return res.json({
-        status: 'OK',
-        errors: [],
+      if (resultado.sucesso) {
+        return res.json({
+          status: 'OK',
+          errors: [],
+          alerts: [],
+          data: { removido: true, chave }
+        });
+      }
+      return res.status(400).json({
+        status: 'ERRO',
+        errors: [resultado.erro],
         alerts: [],
-        data: { removido: true, chave }
+        data: null
+      });
+    } catch (error) {
+      console.error('[NFE Routes V2] Erro em DELETE /:chave:', error);
+      return res.status(500).json({
+        status: 'ERRO',
+        errors: [`Erro interno: ${error.message}`],
+        alerts: [],
+        data: null
       });
     }
-    return res.status(400).json({
-      status: 'ERRO',
-      errors: [resultado.erro],
-      alerts: [],
-      data: null
-    });
-  } catch (error) {
-    console.error('[NFE Routes V2] Erro em DELETE /:chave:', error);
-    return res.status(500).json({
-      status: 'ERRO',
-      errors: [`Erro interno: ${error.message}`],
-      alerts: [],
-      data: null
-    });
   }
-});
+);
 
 /**
  * GET /api/nfe/v2/status

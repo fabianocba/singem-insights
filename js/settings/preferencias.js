@@ -95,22 +95,14 @@ class SettingsPreferencias {
           : await window.dbManager.getAll('notasFiscais');
         if (!nfs || nfs.length === 0) {
           if (statusEl) {
-            this._showStatus(
-              statusEl,
-              'warning',
-              '⚠️ Nenhuma Nota Fiscal encontrada para exportar.'
-            );
+            this._showStatus(statusEl, 'warning', '⚠️ Nenhuma Nota Fiscal encontrada para exportar.');
           }
           return;
         }
         if (window.CSVExporter) {
           await window.CSVExporter.exportarNotasFiscais(nfs);
           if (statusEl) {
-            this._showStatus(
-              statusEl,
-              'success',
-              `✅ ${nfs.length} Nota(s) Fiscal(is) exportada(s) com sucesso!`
-            );
+            this._showStatus(statusEl, 'success', `✅ ${nfs.length} Nota(s) Fiscal(is) exportada(s) com sucesso!`);
           }
         } else {
           throw new Error('Módulo CSVExporter não disponível');
@@ -128,11 +120,7 @@ class SettingsPreferencias {
         if (window.CSVExporter) {
           await window.CSVExporter.exportarEmpenhos(empenhos);
           if (statusEl) {
-            this._showStatus(
-              statusEl,
-              'success',
-              `✅ ${empenhos.length} Empenho(s) exportado(s) com sucesso!`
-            );
+            this._showStatus(statusEl, 'success', `✅ ${empenhos.length} Empenho(s) exportado(s) com sucesso!`);
           }
         } else {
           throw new Error('Módulo CSVExporter não disponível');
@@ -198,9 +186,7 @@ class SettingsPreferencias {
       resultEl,
       feedbackMarkup(
         'info',
-        this.serverMode
-          ? '⏳ Verificando dados na API PostgreSQL...'
-          : '⏳ Verificando dados na base local legada...'
+        this.serverMode ? '⏳ Verificando dados na API PostgreSQL...' : '⏳ Verificando dados na base local legada...'
       ),
       { reveal: true }
     );

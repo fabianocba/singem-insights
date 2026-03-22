@@ -5,14 +5,14 @@ let mediaQuery = null;
 let systemListenerBound = false;
 
 function normalizeTheme(value) {
-  const theme = String(value || '').trim().toLowerCase();
+  const theme = String(value || '')
+    .trim()
+    .toLowerCase();
   return VALID_THEMES.has(theme) ? theme : 'system';
 }
 
 function getSystemTheme() {
-  return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
-    ? 'dark'
-    : 'light';
+  return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
 }
 
 function getRoot() {
@@ -122,11 +122,7 @@ export function subscribeToTheme(callback) {
 
 function getThemeButtonMarkup(preference, resolvedTheme, showLabel) {
   const icon = resolvedTheme === 'dark' ? '☀️' : '🌙';
-  const label = showLabel
-    ? resolvedTheme === 'dark'
-      ? 'Modo escuro'
-      : 'Modo claro'
-    : '';
+  const label = showLabel ? (resolvedTheme === 'dark' ? 'Modo escuro' : 'Modo claro') : '';
   const hint = preference === 'system' ? 'Seguindo sistema' : 'Preferência salva';
 
   return `

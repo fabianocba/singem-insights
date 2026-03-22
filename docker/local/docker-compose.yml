@@ -12,7 +12,7 @@
 # Build context: ../../ (raiz do repositório)
 # ============================================================
 
-name: singem-local
+name: singem
 
 networks:
   singem-network:

@@ -11,10 +11,19 @@ function onDomReady(callback) {
   callback();
 }
 
-function waitForDB(intervalMs = 100) {
+function waitForDB(intervalMs = 100, timeoutMs = 12000) {
   return new Promise((resolve) => {
+    const deadline = Date.now() + timeoutMs;
     const check = () => {
       if (window.dbManager?.loja) {
+        resolve();
+        return;
+      }
+
+      if (Date.now() >= deadline) {
+        console.warn(
+          '[bootstrap.js] waitForDB: timeout após ' + timeoutMs + 'ms — prosseguindo sem IndexedDB inicializado.'
+        );
         resolve();
         return;
       }
@@ -63,10 +72,7 @@ function registerConsultasModule() {
   console.log('✅ Setup completo!');
   console.log('   - window.initConsultas:', typeof window.initConsultas);
   console.log('   - window.abrirConsulta:', typeof window.abrirConsulta);
-  console.log(
-    '   - window.abrirConsultaPrecosPraticados:',
-    typeof window.abrirConsultaPrecosPraticados
-  );
+  console.log('   - window.abrirConsultaPrecosPraticados:', typeof window.abrirConsultaPrecosPraticados);
   console.log('   - window.ConsultasModule.initialized:', consultasModule.initialized);
 }
 

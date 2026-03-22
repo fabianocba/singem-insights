@@ -59,7 +59,9 @@ async function renderStorageStats(containerId) {
     const apiBase =
       window.__API_BASE_URL__ ||
       window.CONFIG?.api?.baseUrl ||
-      (['localhost', '127.0.0.1'].includes(window.location.hostname) ? 'http://localhost:3000' : window.location.origin);
+      (['localhost', '127.0.0.1'].includes(window.location.hostname)
+        ? 'http://localhost:3000'
+        : window.location.origin);
     renderInto(
       container,
       metricGridMarkup([
@@ -217,10 +219,7 @@ async function renderIndexedDBDetails(containerId) {
         .join('')
     );
   } catch (error) {
-    renderInto(
-      container,
-      feedbackMarkup('error', `❌ Erro ao carregar base local legada: ${error.message}`)
-    );
+    renderInto(container, feedbackMarkup('error', `❌ Erro ao carregar base local legada: ${error.message}`));
     console.error('[Diagnostico] Erro ao renderizar base local legada:', error);
   }
 }
@@ -236,10 +235,7 @@ function renderLocalStorageDetails(containerId) {
 
   renderInto(
     container,
-    feedbackMarkup(
-      'neutral',
-      'Armazenamento local desativado por política. Operação em modo server-only.'
-    )
+    feedbackMarkup('neutral', 'Armazenamento local desativado por política. Operação em modo server-only.')
   );
 }
 

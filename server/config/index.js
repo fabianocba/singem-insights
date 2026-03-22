@@ -128,10 +128,12 @@ const config = {
         material:
           process.env.COMPRASGOV_ENDPOINT_PESQUISA_PRECO_MATERIAL || '/modulo-pesquisa-preco/1_consultarMaterial',
         materialDetalhe:
-          process.env.COMPRASGOV_ENDPOINT_PESQUISA_PRECO_MATERIAL_DETALHE || '/modulo-pesquisa-preco/2_consultarMaterialDetalhe',
+          process.env.COMPRASGOV_ENDPOINT_PESQUISA_PRECO_MATERIAL_DETALHE ||
+          '/modulo-pesquisa-preco/2_consultarMaterialDetalhe',
         servico: process.env.COMPRASGOV_ENDPOINT_PESQUISA_PRECO_SERVICO || '/modulo-pesquisa-preco/3_consultarServico',
         servicoDetalhe:
-          process.env.COMPRASGOV_ENDPOINT_PESQUISA_PRECO_SERVICO_DETALHE || '/modulo-pesquisa-preco/4_consultarServicoDetalhe'
+          process.env.COMPRASGOV_ENDPOINT_PESQUISA_PRECO_SERVICO_DETALHE ||
+          '/modulo-pesquisa-preco/4_consultarServicoDetalhe'
       },
       uasgOrgao: {
         consulta: process.env.COMPRASGOV_ENDPOINT_UASG || '/modulo-uasg/1_consultarUasg',

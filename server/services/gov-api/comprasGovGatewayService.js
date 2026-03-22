@@ -121,7 +121,15 @@ async function call({
  * GET /modulo-material/1_consultarGrupoMaterial
  */
 async function consultarGrupoMaterial(params = {}, context = {}) {
-  return call({ tag: '[CATMAT][QUERY]', domain: 'catalogoMaterial', operation: 'grupos', params, pagina: 1, tamanhoPagina: 100, context });
+  return call({
+    tag: '[CATMAT][QUERY]',
+    domain: 'catalogoMaterial',
+    operation: 'grupos',
+    params,
+    pagina: 1,
+    tamanhoPagina: 100,
+    context
+  });
 }
 
 /**
@@ -129,11 +137,27 @@ async function consultarGrupoMaterial(params = {}, context = {}) {
  * GET /modulo-material/2_consultarClasseMaterial
  */
 async function consultarClasseMaterial(params = {}, context = {}) {
-  return call({ tag: '[CATMAT][QUERY]', domain: 'catalogoMaterial', operation: 'classes', params, pagina: 1, tamanhoPagina: 100, context });
+  return call({
+    tag: '[CATMAT][QUERY]',
+    domain: 'catalogoMaterial',
+    operation: 'classes',
+    params,
+    pagina: 1,
+    tamanhoPagina: 100,
+    context
+  });
 }
 
 async function consultarPdmMaterial(params = {}, context = {}) {
-  return call({ tag: '[CATMAT][QUERY]', domain: 'catalogoMaterial', operation: 'pdm', params, pagina: 1, tamanhoPagina: 100, context });
+  return call({
+    tag: '[CATMAT][QUERY]',
+    domain: 'catalogoMaterial',
+    operation: 'pdm',
+    params,
+    pagina: 1,
+    tamanhoPagina: 100,
+    context
+  });
 }
 
 async function consultarMaterialNaturezaDespesa(params = {}, context = {}) {
@@ -211,11 +235,27 @@ async function consultarItemMaterial(params = {}, paginacao = {}, context = {}) 
 // ─────────────────────────────────────────────────────────────────────────────
 
 async function consultarGrupoServico(params = {}, context = {}) {
-  return call({ tag: '[CATMAT][QUERY]', domain: 'catalogoServico', operation: 'grupos', params, pagina: 1, tamanhoPagina: 100, context });
+  return call({
+    tag: '[CATMAT][QUERY]',
+    domain: 'catalogoServico',
+    operation: 'grupos',
+    params,
+    pagina: 1,
+    tamanhoPagina: 100,
+    context
+  });
 }
 
 async function consultarClasseServico(params = {}, context = {}) {
-  return call({ tag: '[CATMAT][QUERY]', domain: 'catalogoServico', operation: 'classes', params, pagina: 1, tamanhoPagina: 100, context });
+  return call({
+    tag: '[CATMAT][QUERY]',
+    domain: 'catalogoServico',
+    operation: 'classes',
+    params,
+    pagina: 1,
+    tamanhoPagina: 100,
+    context
+  });
 }
 
 /**
@@ -621,7 +661,9 @@ async function consultarContratos(params = {}, paginacao = {}, context = {}) {
 async function consultarItensContratos(params = {}, paginacao = {}, context = {}) {
   const { pagina = 1, tamanhoPagina = 20, buscarTodasPaginas = false, maxPaginas } = paginacao;
   if (!params.dataVigenciaInicialMin || !params.dataVigenciaInicialMax) {
-    const err = new Error('Parâmetros obrigatórios para itens de Contratos: dataVigenciaInicialMin e dataVigenciaInicialMax');
+    const err = new Error(
+      'Parâmetros obrigatórios para itens de Contratos: dataVigenciaInicialMin e dataVigenciaInicialMax'
+    );
     err.statusCode = 400;
     throw err;
   }
@@ -681,7 +723,9 @@ async function consultarLicitacoesLegado(params = {}, paginacao = {}, context = 
 async function consultarItensLicitacaoLegado(params = {}, paginacao = {}, context = {}) {
   const { pagina = 1, tamanhoPagina = 500, buscarTodasPaginas = false, maxPaginas } = paginacao;
   if (!params.modalidade) {
-    const err = new Error('Parâmetro obrigatório: modalidade (necessário para /modulo-legado/2_consultarItemLicitacao)');
+    const err = new Error(
+      'Parâmetro obrigatório: modalidade (necessário para /modulo-legado/2_consultarItemLicitacao)'
+    );
     err.statusCode = 400;
     throw err;
   }

@@ -97,11 +97,7 @@ const reviewActions = Object.freeze([
   AccessActions.PROCESSAR,
   AccessActions.REPROCESSAR
 ]);
-const requestActions = Object.freeze([
-  AccessActions.VISUALIZAR,
-  AccessActions.CADASTRAR,
-  AccessActions.EDITAR
-]);
+const requestActions = Object.freeze([AccessActions.VISUALIZAR, AccessActions.CADASTRAR, AccessActions.EDITAR]);
 const readOnlyActions = Object.freeze([AccessActions.VISUALIZAR, AccessActions.EXPORTAR]);
 const visualizerActions = Object.freeze([AccessActions.VISUALIZAR]);
 
@@ -283,7 +279,11 @@ const DefaultProfileModuleGrants = Object.freeze({
     [ModuleKeys.GESTAO_CONTRATOS]: [...operationalActions],
     [ModuleKeys.SOLICITACAO_ALMOXARIFADO]: [AccessActions.VISUALIZAR, AccessActions.APROVAR, AccessActions.EXPORTAR],
     [ModuleKeys.SOLICITACAO_VEICULOS]: [AccessActions.VISUALIZAR, AccessActions.APROVAR, AccessActions.EXPORTAR],
-    [ModuleKeys.SOLICITACAO_SERVICOS_INTERNOS]: [AccessActions.VISUALIZAR, AccessActions.APROVAR, AccessActions.EXPORTAR]
+    [ModuleKeys.SOLICITACAO_SERVICOS_INTERNOS]: [
+      AccessActions.VISUALIZAR,
+      AccessActions.APROVAR,
+      AccessActions.EXPORTAR
+    ]
   },
   [ProfileKeys.ALMOXARIFE]: {
     [ModuleKeys.GESTAO_ALMOXARIFADO]: [...operationalActions],

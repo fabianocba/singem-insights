@@ -1,199 +1,107 @@
 # Automação de Desenvolvimento — PowerShell 7
 
-> Padronização SINGEM para PowerShell 7.5+ (`pwsh`) no Windows.
+> Padronização SINGEM para PowerShell 7+ (`pwsh`) no Windows, com fluxo oficial baseado em scripts `dev-*`.
 
 ## Pré-requisitos
 
-| Ferramenta    | Verificação        | Obrigatório             |
-| ------------- | ------------------ | ----------------------- |
-| PowerShell 7+ | `pwsh --version`   | Sim                     |
-| Node.js LTS   | `node --version`   | Sim                     |
-| npm           | `npm --version`    | Sim                     |
-| Git           | `git --version`    | Sim                     |
-| OpenSSH       | `ssh -V`           | Para túnel DB           |
-| Python 3      | `python --version` | Para AI Core / frontend |
+| Ferramenta    | Verificação        | Obrigatório |
+| ------------- | ------------------ | ----------- |
+| PowerShell 7+ | `pwsh --version`   | Sim         |
+| Node.js LTS   | `node --version`   | Sim         |
+| npm           | `npm --version`    | Sim         |
+| Git           | `git --version`    | Sim         |
+| Docker        | `docker --version` | Sim         |
+| Python 3.11+  | `python --version` | Sim         |
 
-O executável esperado do PowerShell é:
-
-```
-C:\Program Files\PowerShell\7\pwsh.exe
-```
-
-O terminal padrão do VS Code já deve estar configurado para `pwsh`.
-
----
-
-## Arquitetura dos Scripts
+## Scripts oficiais
 
 ```
 scripts/
-├── dev-up.ps1          ← script principal (up, setup, restart, health, tunnel, backend, frontend, ai, stop)
-├── stop.ps1            ← encerra serviços + git publish opcional (-Publish)
-├── util/
-│   └── reset-ifdesk.js ← script de console para limpar storage no browser
-├── docker-*.ps1        ← automação Docker (produção/staging, escopo separado)
-├── bump-version.js     ← versionamento
-├── quality-check.mjs   ← qualidade de código
-└── scan-refs.cjs       ← scanner de referências
+├── dev-common.ps1   ← funções compartilhadas e políticas de execução
+├── dev-setup.ps1    ← valida pré-requisitos e instala dependências
+├── dev-start.ps1    ← sobe ambiente Docker oficial
+├── dev-stop.ps1     ← para ambiente Docker oficial
+├── dev-update.ps1   ← atualiza deps + rebuild/pull controlado
+├── dev-rebuild.ps1  ← rebuild sem cache
+├── dev-reset.ps1    ← limpeza local agressiva (containers, cache, venv)
+└── dev-doctor.ps1   ← diagnóstico de saúde do ambiente
 ```
 
-### Scripts removidos (obsoletos)
+## Comandos de uso
 
-| Script removido                       | Motivo                                                       |
-| ------------------------------------- | ------------------------------------------------------------ |
-| `util/abrir.ps1`                      | Redirecionava para `server/iniciar-proxy.ps1` que não existe |
-| `util/ABRIR_APLICACAO.ps1`            | Substituído por `Open-DevPages` interno do dev-up.ps1        |
-| `util/ABRIR_APLICACAO.bat`            | Versão batch do anterior — desnecessário                     |
-| `util/iniciar-servidor-sem-cache.ps1` | Substituído por `dev-up.ps1 -Action frontend`                |
-| `util/REINICIAR_SEM_CACHE.ps1`        | Substituído por `dev-up.ps1 -Action restart`                 |
-| `util/iniciar-proxy-siasg.ps1`        | Proxy SIASG sem uso ativo no projeto                         |
-
----
-
-## Comandos de Uso
-
-### Subir ambiente completo
+### Setup inicial
 
 ```powershell
-pwsh -File .\scripts\dev-up.ps1 -Action up
+pwsh -File .\scripts\dev-setup.ps1
 ```
 
-Executa: setup → git sync → npm install → túnel SSH → backend → frontend → AI Core → health check → abre browser.
-
-### Ações individuais
+### Subir ambiente
 
 ```powershell
-pwsh -File .\scripts\dev-up.ps1 -Action tunnel     # só o túnel SSH
-pwsh -File .\scripts\dev-up.ps1 -Action backend     # só o backend Node.js
-pwsh -File .\scripts\dev-up.ps1 -Action frontend    # só o servidor HTTP
-pwsh -File .\scripts\dev-up.ps1 -Action ai          # só o AI Core Python
-pwsh -File .\scripts\dev-up.ps1 -Action health      # health check completo
-pwsh -File .\scripts\dev-up.ps1 -Action setup       # instala deps sem subir
-pwsh -File .\scripts\dev-up.ps1 -Action restart     # stop + up
+pwsh -File .\scripts\dev-start.ps1
 ```
 
-### Parar serviços
+Perfis opcionais no start:
 
 ```powershell
-pwsh -File .\scripts\stop.ps1                # apenas para os serviços
-pwsh -File .\scripts\stop.ps1 -Publish       # para + commit automático + push origin/dev
+pwsh -File .\scripts\dev-start.ps1 -Profile ai
+pwsh -File .\scripts\dev-start.ps1 -Profile full
+pwsh -File .\scripts\dev-start.ps1 -NoCache -Pull
 ```
 
-### Opções avançadas do dev-up.ps1
-
-| Parâmetro             | Padrão | Descrição                                       |
-| --------------------- | ------ | ----------------------------------------------- |
-| `-Action`             | `up`   | Ação a executar                                 |
-| `-Branch`             | `dev`  | Branch Git                                      |
-| `-ProjectRoot`        | `$PWD` | Raiz do projeto                                 |
-| `-NoTunnel`           | —      | Não abre túnel SSH                              |
-| `-NoOpenBrowser`      | —      | Não abre browser ao final                       |
-| `-SkipGitSync`        | —      | Pula fetch/checkout/pull                        |
-| `-SkipInstall`        | —      | Pula npm install                                |
-| `-ForceInstall`       | —      | Força npm ci mesmo com node_modules existente   |
-| `-NoAutoRepairTunnel` | —      | Não tenta recuperar túnel caído automaticamente |
-
-Variáveis de ambiente opcionais para testes de SSH sem editar o script:
-
-- `SINGEM_SSH_HOST`
-- `SINGEM_SSH_PORT`
-- `SINGEM_SSH_USER`
-
-Exemplo:
+### Parar ambiente
 
 ```powershell
-$env:SINGEM_SSH_HOST = 'seu-host'
-$env:SINGEM_SSH_PORT = '2222'
-$env:SINGEM_SSH_USER = 'root'
-pwsh -File .\scripts\dev-up.ps1 -Action up
+pwsh -File .\scripts\dev-stop.ps1
 ```
 
----
+### Atualizar / reconstruir / resetar
+
+```powershell
+pwsh -File .\scripts\dev-update.ps1
+pwsh -File .\scripts\dev-rebuild.ps1
+pwsh -File .\scripts\dev-reset.ps1
+```
+
+### Diagnóstico
+
+```powershell
+pwsh -File .\scripts\dev-doctor.ps1
+```
 
 ## VS Code Tasks
 
-Todas as tasks usam `pwsh` e estão em `.vscode/tasks.json`:
+As tasks oficiais ficam em `.vscode/tasks.json` e usam apenas scripts `dev-*`:
 
-| Task                   | Ação                          |
-| ---------------------- | ----------------------------- |
-| `SINGEM: UP`           | `dev-up.ps1 -Action up`       |
-| `SINGEM: TUNNEL`       | `dev-up.ps1 -Action tunnel`   |
-| `SINGEM: BACKEND`      | `dev-up.ps1 -Action backend`  |
-| `SINGEM: FRONTEND`     | `dev-up.ps1 -Action frontend` |
-| `SINGEM: AI`           | `dev-up.ps1 -Action ai`       |
-| `SINGEM: HEALTHCHECK`  | `dev-up.ps1 -Action health`   |
-| `SINGEM: STOP`         | `stop.ps1`                    |
-| `SINGEM: STOP+PUBLISH` | `stop.ps1 -Publish`           |
-
-Acesse via: `Ctrl+Shift+P` → "Tasks: Run Task" → selecione a task.
-
----
+- `SINGEM: SETUP`
+- `SINGEM: UP`
+- `SINGEM: STOP`
+- `SINGEM: UPDATE`
+- `SINGEM: REBUILD`
+- `SINGEM: RESET`
+- `SINGEM: HEALTHCHECK`
 
 ## Portas padrão
 
-| Serviço                | Porta           | Health                             |
-| ---------------------- | --------------- | ---------------------------------- |
-| Backend                | 3000            | `http://localhost:3000/health`     |
-| Frontend               | 8000            | `http://localhost:8000/index.html` |
-| AI Core                | 8010            | `http://127.0.0.1:8010/ai/health`  |
-| Túnel SSH (PostgreSQL) | 5433 → VPS 5432 | Conexão TCP                        |
+| Serviço  | Porta | Health                         |
+| -------- | ----- | ------------------------------ |
+| Backend  | 3000  | `http://localhost:3000/health` |
+| Frontend | 8000  | `http://localhost:8000`        |
+| AI Core  | 8010  | `http://127.0.0.1:8010/health` |
 
----
+## Padrões obrigatórios
 
-## Correções aplicadas para PowerShell 7
+1. Todos os scripts exigem PowerShell 7 (`#Requires -Version 7.0`).
+2. O compose oficial é resolvido por `Get-OfficialComposeFile` em `dev-common.ps1`.
+3. Fluxo de execução é exclusivamente via scripts `dev-*` (sem wrappers legados).
+4. Operações de runtime e operações de Git/versionamento são separadas.
 
-### 1. Executável do terminal
+## Fluxo recomendado
 
-**Antes:** `powershell.exe` (Windows PowerShell 5.1)
-**Depois:** `pwsh.exe` (PowerShell 7+)
-
-Alterado em:
-
-- `.vscode/tasks.json` — todas as tasks
-- `dev-up.ps1` → `Start-ComponentWindow` — terminais filhos usam o mesmo executável do processo pai
-
-### 2. Test-NetConnection substituído
-
-`Test-NetConnection` é lento (~2s por chamada) e depende de módulo NetTCPIP opcional no PS7. Substituído pela função `Test-LocalPort` que já existia no script com TcpClient direto (~50ms).
-
-### 3. #Requires -Version 7.0
-
-Adicionado no topo de `dev-up.ps1` e `stop.ps1`. Se alguém executar com PowerShell 5.1 por engano, receberá erro claro em vez de falhas obscuras.
-
-### 4. Encoding UTF-8
-
-Já configurado no dev-up.ps1:
-
-```powershell
-[Console]::InputEncoding  = [System.Text.UTF8Encoding]::new($false)
-[Console]::OutputEncoding = [System.Text.UTF8Encoding]::new($false)
-$OutputEncoding = [System.Text.UTF8Encoding]::new($false)
-```
-
-### 5. stop.ps1 simplificado
-
-**Antes:** 160+ linhas com param block duplicado, 20+ parâmetros redundantes, git push obrigatório.
-**Depois:** ~100 linhas, 3 parâmetros, delega stop para dev-up.ps1, git publish somente com `-Publish`.
-
----
-
-## Fluxo de desenvolvimento típico
-
-```
-1. Abre VS Code no projeto C:\SINGEM
-2. Ctrl+Shift+P → "Tasks: Run Task" → "SINGEM: UP"
-   → setup, sync, túnel, backend, frontend, AI, health, browser
-3. Desenvolve...
-4. Ctrl+Shift+P → "Tasks: Run Task" → "SINGEM: STOP"
-   → encerra todos os processos
-5. (Opcional) "SINGEM: STOP+PUBLISH"
-   → encerra + commit + push para origin/dev
-```
-
-Ou direto no terminal:
-
-```powershell
-PS C:\SINGEM> .\scripts\dev-up.ps1            # equivale a -Action up
-PS C:\SINGEM> .\scripts\dev-up.ps1 -Action health
-PS C:\SINGEM> .\scripts\stop.ps1
+```text
+1. Executar dev-setup
+2. Executar dev-start
+3. Desenvolver e validar
+4. Executar dev-doctor
+5. Executar dev-stop
 ```

@@ -65,7 +65,13 @@ function normalizeMaterial(raw) {
 
   const codigoRaw = raw.codigoItem || raw.id || raw.codigo || raw.catmat_id || raw.cod_item || raw.cod;
   const descricao =
-    raw.descricaoItem || raw.descricao || raw.descricao_item || raw.nome || raw.descricao_padrao || raw.catmat_padrao_desc || null;
+    raw.descricaoItem ||
+    raw.descricao ||
+    raw.descricao_item ||
+    raw.nome ||
+    raw.descricao_padrao ||
+    raw.catmat_padrao_desc ||
+    null;
 
   if (!codigoRaw || !descricao) {
     return null;
@@ -123,7 +129,9 @@ function mapCatalogItemToSearchData(item = {}, extras = {}) {
   const idClasse = pickMaterialValue(item.codigoClasse, item.id_classe, item.classeMaterial?.codigo);
   const idPdm = pickMaterialValue(item.codigoPdm, item.id_pdm, item.pdm?.codigo);
   const descricaoGrupo = normalizeMaterialText(pickMaterialValue(item.descricaoGrupo, item.grupoMaterial?.descricao));
-  const descricaoClasse = normalizeMaterialText(pickMaterialValue(item.descricaoClasse, item.classeMaterial?.descricao));
+  const descricaoClasse = normalizeMaterialText(
+    pickMaterialValue(item.descricaoClasse, item.classeMaterial?.descricao)
+  );
   const descricaoPdm = normalizeMaterialText(pickMaterialValue(item.descricaoPdm, item.pdm?.descricao));
   const status = normalizeMaterialText(pickMaterialValue(item.statusItem, item.status)) || 'ATIVO';
   const fonte = normalizeMaterialText(pickMaterialValue(extras.fonte, item.fonte)) || 'api_oficial_compras';
@@ -464,10 +472,18 @@ class CatmatService {
       id_grupo: row.id_grupo,
       id_classe: row.id_classe,
       id_pdm: row.id_pdm,
-      descricaoGrupo: row.payload_raw?.descricaoGrupo || row.payload_raw?.nomeGrupo || row.payload_raw?.grupoMaterial?.descricao || null,
+      descricaoGrupo:
+        row.payload_raw?.descricaoGrupo ||
+        row.payload_raw?.nomeGrupo ||
+        row.payload_raw?.grupoMaterial?.descricao ||
+        null,
       descricaoClasse:
-        row.payload_raw?.descricaoClasse || row.payload_raw?.nomeClasse || row.payload_raw?.classeMaterial?.descricao || null,
-      descricaoPdm: row.payload_raw?.descricaoPdm || row.payload_raw?.nomePdm || row.payload_raw?.pdm?.descricao || null,
+        row.payload_raw?.descricaoClasse ||
+        row.payload_raw?.nomeClasse ||
+        row.payload_raw?.classeMaterial?.descricao ||
+        null,
+      descricaoPdm:
+        row.payload_raw?.descricaoPdm || row.payload_raw?.nomePdm || row.payload_raw?.pdm?.descricao || null,
       status: row.status,
       catmat_sustentavel: row.sustentavel,
       fonte: row.fonte,

@@ -109,7 +109,7 @@ if ($Install) {
 
     # Create scheduled task
     $action = New-ScheduledTaskAction `
-        -Execute "powershell.exe" `
+        -Execute "pwsh.exe" `
         -Argument $backupArgs `
         -WorkingDirectory $projectRoot
 

@@ -34,7 +34,15 @@ function cleanQuery(query = {}, blocked = []) {
 }
 
 function normalizeArpFilters(query = {}) {
-  const filters = cleanQuery(query, ['pagina', 'tamanhoPagina', 'limite', 'limit', 'buscarTodasPaginas', 'maxPaginas', 'variant']);
+  const filters = cleanQuery(query, [
+    'pagina',
+    'tamanhoPagina',
+    'limite',
+    'limit',
+    'buscarTodasPaginas',
+    'maxPaginas',
+    'variant'
+  ]);
 
   if (filters.dataVigenciaInicial && !filters.dataVigenciaInicialMin) {
     filters.dataVigenciaInicialMin = filters.dataVigenciaInicial;
@@ -295,7 +303,9 @@ module.exports = {
 
     // Validar parâmetros obrigatórios
     if (!req.query.dataVigenciaInicialMin || !req.query.dataVigenciaInicialMax) {
-      const error = new Error('Parâmetros obrigatórios para Contratos: dataVigenciaInicialMin e dataVigenciaInicialMax');
+      const error = new Error(
+        'Parâmetros obrigatórios para Contratos: dataVigenciaInicialMin e dataVigenciaInicialMax'
+      );
       error.code = 'VALIDATION_ERROR';
       error.statusCode = 400;
       throw error;
@@ -314,7 +324,9 @@ module.exports = {
 
     // Validar parâmetros obrigatórios
     if (!req.query.dataVigenciaInicialMin || !req.query.dataVigenciaInicialMax) {
-      const error = new Error('Parâmetros obrigatórios para itens de Contratos: dataVigenciaInicialMin e dataVigenciaInicialMax');
+      const error = new Error(
+        'Parâmetros obrigatórios para itens de Contratos: dataVigenciaInicialMin e dataVigenciaInicialMax'
+      );
       error.code = 'VALIDATION_ERROR';
       error.statusCode = 400;
       throw error;
@@ -351,7 +363,9 @@ module.exports = {
     // VALIDAÇÃO CRÍTICA: modalidade é obrigatória na API real
     // Confirmado em https://documenter.getpostman.com/view/13166820/2sA3XJjPpR
     if (!req.query.modalidade) {
-      throw new Error('Parâmetro obrigatório ausente: modalidade (requerido para /modulo-legado/2_consultarItemLicitacao)');
+      throw new Error(
+        'Parâmetro obrigatório ausente: modalidade (requerido para /modulo-legado/2_consultarItemLicitacao)'
+      );
     }
 
     return gateway.consultarItensLicitacaoLegado(
@@ -389,7 +403,14 @@ module.exports = {
   async getPesquisaPrecoMaterialDetalhe(req) {
     const pagination = readPagination(req.query);
     const fetchAll = readFetchAll(req.query);
-    const filtros = cleanQuery(req.query, ['pagina', 'tamanhoPagina', 'limite', 'limit', 'buscarTodasPaginas', 'maxPaginas']);
+    const filtros = cleanQuery(req.query, [
+      'pagina',
+      'tamanhoPagina',
+      'limite',
+      'limit',
+      'buscarTodasPaginas',
+      'maxPaginas'
+    ]);
     assertRequired(filtros.codigoItemCatalogo, 'codigoItemCatalogo');
 
     return gateway.consultarPrecoMaterialDetalhe(filtros, { ...pagination, ...fetchAll }, buildContext(req));
@@ -398,7 +419,14 @@ module.exports = {
   async getPesquisaPrecoServicoDetalhe(req) {
     const pagination = readPagination(req.query);
     const fetchAll = readFetchAll(req.query);
-    const filtros = cleanQuery(req.query, ['pagina', 'tamanhoPagina', 'limite', 'limit', 'buscarTodasPaginas', 'maxPaginas']);
+    const filtros = cleanQuery(req.query, [
+      'pagina',
+      'tamanhoPagina',
+      'limite',
+      'limit',
+      'buscarTodasPaginas',
+      'maxPaginas'
+    ]);
     assertRequired(filtros.codigoItemCatalogo, 'codigoItemCatalogo');
 
     return gateway.consultarPrecoServicoDetalhe(filtros, { ...pagination, ...fetchAll }, buildContext(req));

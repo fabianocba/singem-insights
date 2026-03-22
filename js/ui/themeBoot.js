@@ -3,14 +3,14 @@
   const VALID_THEMES = new Set(['light', 'dark', 'system']);
 
   function normalizeTheme(value) {
-    const theme = String(value || '').trim().toLowerCase();
+    const theme = String(value || '')
+      .trim()
+      .toLowerCase();
     return VALID_THEMES.has(theme) ? theme : 'system';
   }
 
   function getSystemTheme() {
-    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
-      ? 'dark'
-      : 'light';
+    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
   }
 
   function readStoredTheme() {

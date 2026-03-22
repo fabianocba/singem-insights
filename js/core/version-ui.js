@@ -1,4 +1,5 @@
 import { resolveApiUrl } from '../shared/lib/http.js';
+import { VERSION } from './version.js';
 
 function formatVersionText(payload) {
   return `${payload.name} v${payload.version} • ${payload.channel} • build ${payload.build} • ${payload.buildTimestamp}`;
@@ -31,6 +32,20 @@ async function loadVersionFromApi() {
   return fetchVersion(resolveApiUrl('/api/version'));
 }
 
+async function loadVersionFromLocal() {
+  return fetchVersion('/version.json');
+}
+
+function loadVersionFromBundle() {
+  return normalizePayload({
+    name: VERSION.name,
+    version: VERSION.version,
+    channel: 'local',
+    build: VERSION.build,
+    buildTimestamp: VERSION.buildTimestamp
+  });
+}
+
 export async function initVersionUI(targetId = 'app-version') {
   if (typeof document === 'undefined') {
     return null;
@@ -41,15 +56,20 @@ export async function initVersionUI(targetId = 'app-version') {
     return null;
   }
 
+  let payload = null;
+
   try {
-    const payload = await loadVersionFromApi();
-    window.__SINGEM_VERSION_META = payload;
-    target.textContent = formatVersionText(payload);
-    target.title = payload.buildTimestamp;
-    return payload;
+    payload = await loadVersionFromApi();
   } catch {
-    target.textContent = 'Versão: indisponível';
-    target.title = '';
-    return null;
+    try {
+      payload = await loadVersionFromLocal();
+    } catch {
+      payload = loadVersionFromBundle();
+    }
   }
+
+  window.__SINGEM_VERSION_META = payload;
+  target.textContent = formatVersionText(payload);
+  target.title = payload.buildTimestamp;
+  return payload;
 }

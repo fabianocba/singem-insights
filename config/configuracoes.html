@@ -10,7 +10,7 @@
     <meta http-equiv="Expires" content="0" />
 
     <title>Configurações - SINGEM</title>
-  <script src="../js/ui/themeBoot.js"></script>
+    <script src="../js/ui/themeBoot.js"></script>
     <link rel="stylesheet" href="../css/style.css" />
     <link rel="stylesheet" href="../css/tailwind.css" />
   </head>
@@ -386,7 +386,11 @@
                 Detecta arquivos que foram deletados externamente e atualiza os registros do banco
                 de dados.
               </p>
-              <button type="button" onclick="parent.app?.sincronizarArquivos()" class="btn btn-info">
+              <button
+                type="button"
+                onclick="parent.app?.sincronizarArquivos()"
+                class="btn btn-info"
+              >
                 🔄 Sincronizar Agora
               </button>
             </div>
@@ -397,7 +401,11 @@
               <p>
                 Verifica se todas as pastas configuradas existem e se foram deletadas externamente.
               </p>
-              <button type="button" onclick="parent.app?.verificarIntegridadePastas()" class="btn btn-primary">
+              <button
+                type="button"
+                onclick="parent.app?.verificarIntegridadePastas()"
+                class="btn btn-primary"
+              >
                 🔍 Verificar Estrutura
               </button>
             </div>
@@ -408,7 +416,11 @@
               <p>
                 Recria pastas que foram deletadas externamente, restaurando a estrutura completa.
               </p>
-              <button type="button" onclick="parent.app?.repararEstrutura()" class="btn btn-warning">
+              <button
+                type="button"
+                onclick="parent.app?.repararEstrutura()"
+                class="btn btn-warning"
+              >
                 🔧 Reparar Agora
               </button>
             </div>
@@ -436,7 +448,11 @@
                 Exclui permanentemente registros de empenhos/NFs que NÃO possuem arquivo PDF
                 vinculado. Use para limpar dados inconsistentes ou cadastrados incorretamente.
               </p>
-              <button type="button" onclick="parent.app?.limparRegistrosOrfaos()" class="btn btn-warning">
+              <button
+                type="button"
+                onclick="parent.app?.limparRegistrosOrfaos()"
+                class="btn btn-warning"
+              >
                 🧹 Limpar Órfãos
               </button>
             </div>
@@ -722,16 +738,12 @@
             </button>
           </div>
 
-          <small class="sg-empty-copy">
-            ⚠️ Ação manual - nunca executada automaticamente.
-          </small>
+          <small class="sg-empty-copy"> ⚠️ Ação manual - nunca executada automaticamente. </small>
         </div>
 
         <!-- Seção: Resetar Dados (DEV) -->
         <div class="panel sg-panel-danger hidden" id="panelResetarDados">
-          <div class="panel-header panel-header-danger">
-            🗑️ Resetar Dados (DEV)
-          </div>
+          <div class="panel-header panel-header-danger">🗑️ Resetar Dados (DEV)</div>
           <p class="sg-section-copy">
             <strong>⚠️ PERIGO:</strong> Remove TODOS os dados do sistema. Esta ação é irreversível!
           </p>
@@ -762,7 +774,9 @@
           <div class="panel-header">🔗 Painel Administrativo de Integrações</div>
 
           <div class="sg-panel-actions sg-status-slot">
-            <button type="button" id="btnIntegracoesRefresh" class="btn btn-primary">🔄 Atualizar Painel</button>
+            <button type="button" id="btnIntegracoesRefresh" class="btn btn-primary">
+              🔄 Atualizar Painel
+            </button>
             <label id="integracoesTipoSyncLabel" for="integracoesTipoSync" class="sr-only"
               >Tipo de sincronização das integrações</label
             >
@@ -779,8 +793,12 @@
               <option value="uasg">Sync: UASG</option>
               <option value="fornecedor">Sync: Fornecedor</option>
             </select>
-            <button type="button" id="btnIntegracoesSync" class="btn btn-secondary">▶️ Rodar Sync agora</button>
-            <button type="button" id="btnIntegracoesClearCache" class="btn btn-danger">🧹 Limpar Cache</button>
+            <button type="button" id="btnIntegracoesSync" class="btn btn-secondary">
+              ▶️ Rodar Sync agora
+            </button>
+            <button type="button" id="btnIntegracoesClearCache" class="btn btn-danger">
+              🧹 Limpar Cache
+            </button>
           </div>
 
           <div id="integracoesStatus" class="loading">Carregando status das integrações...</div>
@@ -801,7 +819,11 @@
           <div class="grid-2 sg-grid-end">
             <div class="form-group">
               <label for="integracoesSnapshotId">Snapshot ID</label>
-              <input type="number" id="integracoesSnapshotId" placeholder="Informe o ID do snapshot" />
+              <input
+                type="number"
+                id="integracoesSnapshotId"
+                placeholder="Informe o ID do snapshot"
+              />
             </div>
 
             <div class="form-group">
@@ -841,14 +863,46 @@
                 </tr>
               </thead>
               <tbody id="aiFeaturesBody">
-                <tr><td>Sugestão de Fornecedor</td><td>Empenhos</td><td class="is-center" id="aiFeatureFornecedor">-</td></tr>
-                <tr><td>Sugestão de Item/CATMAT</td><td>Empenhos</td><td class="is-center" id="aiFeatureItem">-</td></tr>
-                <tr><td>Busca Inteligente CATMAT</td><td>CATMAT</td><td class="is-center" id="aiFeatureCatmat">-</td></tr>
-                <tr><td>Matching NF-e</td><td>Notas Fiscais</td><td class="is-center" id="aiFeatureNfe">-</td></tr>
-                <tr><td>Sugestões em Consultas</td><td>Consultas</td><td class="is-center" id="aiFeatureConsultas">-</td></tr>
-                <tr><td>Resumo de Relatórios</td><td>Relatórios</td><td class="is-center" id="aiFeatureRelatorios">-</td></tr>
-                <tr><td>Busca Semântica</td><td>Global</td><td class="is-center" id="aiFeatureSearch">-</td></tr>
-                <tr><td>Entity Matching</td><td>Global</td><td class="is-center" id="aiFeatureMatch">-</td></tr>
+                <tr>
+                  <td>Sugestão de Fornecedor</td>
+                  <td>Empenhos</td>
+                  <td class="is-center" id="aiFeatureFornecedor">-</td>
+                </tr>
+                <tr>
+                  <td>Sugestão de Item/CATMAT</td>
+                  <td>Empenhos</td>
+                  <td class="is-center" id="aiFeatureItem">-</td>
+                </tr>
+                <tr>
+                  <td>Busca Inteligente CATMAT</td>
+                  <td>CATMAT</td>
+                  <td class="is-center" id="aiFeatureCatmat">-</td>
+                </tr>
+                <tr>
+                  <td>Matching NF-e</td>
+                  <td>Notas Fiscais</td>
+                  <td class="is-center" id="aiFeatureNfe">-</td>
+                </tr>
+                <tr>
+                  <td>Sugestões em Consultas</td>
+                  <td>Consultas</td>
+                  <td class="is-center" id="aiFeatureConsultas">-</td>
+                </tr>
+                <tr>
+                  <td>Resumo de Relatórios</td>
+                  <td>Relatórios</td>
+                  <td class="is-center" id="aiFeatureRelatorios">-</td>
+                </tr>
+                <tr>
+                  <td>Busca Semântica</td>
+                  <td>Global</td>
+                  <td class="is-center" id="aiFeatureSearch">-</td>
+                </tr>
+                <tr>
+                  <td>Entity Matching</td>
+                  <td>Global</td>
+                  <td class="is-center" id="aiFeatureMatch">-</td>
+                </tr>
               </tbody>
             </table>
           </div>
@@ -875,7 +929,6 @@
           <div id="storageStats" class="loading">Carregando estatísticas...</div>
         </div>
 
-        <div class="panel">
         <div class="panel">
           <div class="panel-header">🔍 Detalhes do IndexedDB</div>
           <div id="indexedDBDetails" class="loading">Carregando detalhes do banco...</div>

@@ -277,9 +277,9 @@ docker compose exec backend node scripts/seed-admin.js
 
 ---
 
-## Dev local sem Docker (dev-up.ps1)
+## Dev local sem Docker (scripts oficiais dev-\*)
 
-| Aspecto   | Docker (`docker/local/`)        | Dev local (dev-up.ps1)         |
+| Aspecto   | Docker (`docker/local/`)        | Dev local (scripts dev-\*)     |
 | --------- | ------------------------------- | ------------------------------ |
 | Banco     | Container postgres (porta 5432) | VPS via túnel SSH (porta 5433) |
 | `DB_HOST` | `postgres` (service name)       | `127.0.0.1`                    |
@@ -300,7 +300,7 @@ docker compose ps  # verificar se postgres está "healthy"
 
 ```bash
 docker compose down
-# No Windows: verifique se dev-up.ps1 está rodando nas mesmas portas
+# No Windows: verifique se scripts dev-* locais estão rodando nas mesmas portas
 ```
 
 ### Reset completo do banco

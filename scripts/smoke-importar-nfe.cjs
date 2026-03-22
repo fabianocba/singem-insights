@@ -151,9 +151,7 @@ function requestJson(requestUrl, { method = 'GET', headers = {}, body } = {}) {
             return;
           }
 
-          const error = new Error(
-            data?.erro || data?.message || data?.error || `HTTP ${statusCode || 'UNKNOWN'}`
-          );
+          const error = new Error(data?.erro || data?.message || data?.error || `HTTP ${statusCode || 'UNKNOWN'}`);
           error.status = statusCode;
           error.data = data;
           reject(error);
@@ -228,12 +226,10 @@ function resolveBrowserPath(explicitPath = '') {
   const candidates = [
     process.env['ProgramFiles(x86)'] &&
       path.join(process.env['ProgramFiles(x86)'], 'Microsoft', 'Edge', 'Application', 'msedge.exe'),
-    process.env.ProgramFiles &&
-      path.join(process.env.ProgramFiles, 'Microsoft', 'Edge', 'Application', 'msedge.exe'),
+    process.env.ProgramFiles && path.join(process.env.ProgramFiles, 'Microsoft', 'Edge', 'Application', 'msedge.exe'),
     process.env['ProgramFiles(x86)'] &&
       path.join(process.env['ProgramFiles(x86)'], 'Google', 'Chrome', 'Application', 'chrome.exe'),
-    process.env.ProgramFiles &&
-      path.join(process.env.ProgramFiles, 'Google', 'Chrome', 'Application', 'chrome.exe')
+    process.env.ProgramFiles && path.join(process.env.ProgramFiles, 'Google', 'Chrome', 'Application', 'chrome.exe')
   ].filter(Boolean);
 
   const browserPath = candidates.find((candidate) => fs.existsSync(candidate));
@@ -388,10 +384,13 @@ async function addFirstEmpenhoItem(page) {
 
 async function validateForm(page) {
   await page.click('#btnValidar');
-  await page.waitForFunction(() => {
-    const modal = document.getElementById('modalDivergencias');
-    return modal && modal.style.display === 'flex';
-  }, { timeout: 10000 });
+  await page.waitForFunction(
+    () => {
+      const modal = document.getElementById('modalDivergencias');
+      return modal && modal.style.display === 'flex';
+    },
+    { timeout: 10000 }
+  );
 
   return page.evaluate(() => ({
     modalText: document.getElementById('modalBody')?.innerText || '',
@@ -410,10 +409,13 @@ async function saveForm(page, options) {
   await page.click('#btnSalvar');
 
   if (options.useRealBackend) {
-    await page.waitForFunction(() => {
-      const alert = document.getElementById('alertBox');
-      return alert && alert.innerText.trim().length > 0;
-    }, { timeout: 15000 });
+    await page.waitForFunction(
+      () => {
+        const alert = document.getElementById('alertBox');
+        return alert && alert.innerText.trim().length > 0;
+      },
+      { timeout: 15000 }
+    );
 
     const diagnostics = await capturePageDiagnostics(page);
     return {
@@ -422,10 +424,9 @@ async function saveForm(page, options) {
     };
   }
 
-  await page.waitForFunction(
-    () => Array.isArray(window.__mockSavedNotas) && window.__mockSavedNotas.length === 1,
-    { timeout: 10000 }
-  );
+  await page.waitForFunction(() => Array.isArray(window.__mockSavedNotas) && window.__mockSavedNotas.length === 1, {
+    timeout: 10000
+  });
 
   return page.evaluate(() => {
     const saved = window.__mockSavedNotas[0] || {};
@@ -505,7 +506,9 @@ async function runSmoke(options) {
   try {
     try {
       if (options.useRealBackend && authBootstrap.source === 'none') {
-        logs.push('[warning] Nenhum token, login ou storage state informado para o modo real; a API pode responder 401.');
+        logs.push(
+          '[warning] Nenhum token, login ou storage state informado para o modo real; a API pode responder 401.'
+        );
       }
 
       if (options.storageState && authBootstrap.source === 'storage-state') {

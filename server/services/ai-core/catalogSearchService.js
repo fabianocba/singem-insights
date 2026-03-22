@@ -156,7 +156,9 @@ async function buscarMateriaisComRanking(query, options = {}, context = {}) {
     context
   );
 
-  const items = Array.isArray(upstream?.resultado) ? upstream.resultado.map(normalizeCatalogItem).filter((item) => item.codigoItem && item.descricaoItem) : [];
+  const items = Array.isArray(upstream?.resultado)
+    ? upstream.resultado.map(normalizeCatalogItem).filter((item) => item.codigoItem && item.descricaoItem)
+    : [];
   const rankedItems = semanticRankingService.rankItems(query, items);
   const groupedByPdm = groupByPdm(rankedItems);
   const shouldReturnSuggestions = !isCodeQuery && !options.codigoPdm && !detalhar;

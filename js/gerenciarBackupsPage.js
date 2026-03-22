@@ -179,9 +179,7 @@ async function carregarChangelog() {
 }
 
 async function criarBackupManual(sourceButton) {
-  const btn =
-    sourceButton ||
-    (window.event?.target instanceof HTMLButtonElement ? window.event.target : null);
+  const btn = sourceButton || (window.event?.target instanceof HTMLButtonElement ? window.event.target : null);
   const originalText = btn?.textContent || '💾 Criar Backup Agora';
 
   try {

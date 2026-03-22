@@ -363,7 +363,9 @@ export class ControleMaterialApp {
           replaceElementChildren(loginLogo, [createBrandImage(unidade.logomarca, 'Logo da Unidade')]);
         } else if (loginLogo) {
           // Mantém logo padrão do IF Baiano (já está no HTML)
-          replaceElementChildren(loginLogo, [createBrandImage('img/marca-if-baiano-campus-guanambi-horizontal.jpg', 'IF Baiano')]);
+          replaceElementChildren(loginLogo, [
+            createBrandImage('img/marca-if-baiano-campus-guanambi-horizontal.jpg', 'IF Baiano')
+          ]);
         }
 
         // Atualiza header também
@@ -385,7 +387,9 @@ export class ControleMaterialApp {
       } else {
         // Se não houver unidade cadastrada, mostra logo padrão do IF Baiano
         if (loginLogo) {
-          replaceElementChildren(loginLogo, [createBrandImage('img/marca-if-baiano-campus-guanambi-horizontal.jpg', 'IF Baiano')]);
+          replaceElementChildren(loginLogo, [
+            createBrandImage('img/marca-if-baiano-campus-guanambi-horizontal.jpg', 'IF Baiano')
+          ]);
         }
 
         const loginNome = document.getElementById('loginUnidadeNome');
@@ -871,9 +875,7 @@ export class ControleMaterialApp {
         .map((emp) => {
           const numero = escapeHTML(String(emp.numero || 'Sem número'));
           const fornecedor = escapeHTML(String(emp.fornecedor || 'Fornecedor não informado'));
-          const valorFormatado = escapeHTML(
-            FormatUtils.formatCurrencyBR(emp.valorTotalEmpenho ?? emp.valorTotal ?? 0)
-          );
+          const valorFormatado = escapeHTML(FormatUtils.formatCurrencyBR(emp.valorTotalEmpenho ?? emp.valorTotal ?? 0));
 
           return `
             <option value="${emp.id}">
@@ -1253,9 +1255,7 @@ export class ControleMaterialApp {
 
     // Processo: usar processoSuap ou fallback para campos antigos
     const processoSuap = emp.processoSuap || emp.codigoReferencia || emp.processoNumero || emp.processo || '';
-    const processoExibicao = processoSuap
-      ? `Proc: ${escapeHTML(String(processoSuap).substring(0, 20))}...`
-      : '';
+    const processoExibicao = processoSuap ? `Proc: ${escapeHTML(String(processoSuap).substring(0, 20))}...` : '';
 
     // Valor: usar novo nome ou antigo (compatibilidade)
     const valorEmpenho = emp.valorTotalEmpenho ?? emp.valorTotal ?? 0;
@@ -1946,9 +1946,12 @@ export class ControleMaterialApp {
       const base =
         window.__API_BASE_URL__ ||
         (window.CONFIG && window.CONFIG.api && window.CONFIG.api.baseUrl) ||
-        (['localhost', '127.0.0.1'].includes(window.location.hostname) ? 'http://localhost:3000' : window.location.origin);
+        (['localhost', '127.0.0.1'].includes(window.location.hostname)
+          ? 'http://localhost:3000'
+          : window.location.origin);
       const normalizedBase = String(base).replace(/\/+$/, '');
-      window.location.href = normalizedBase + '/api/auth/govbr/logout?redirect=' + encodeURIComponent(window.location.origin);
+      window.location.href =
+        normalizedBase + '/api/auth/govbr/logout?redirect=' + encodeURIComponent(window.location.origin);
     }
   }
 
@@ -3149,7 +3152,11 @@ export class ControleMaterialApp {
         divergencias.forEach((div) => {
           const divItem = document.createElement('div');
           divItem.className = 'divergencia-item';
-          const tipo = escapeHTML(String(div.tipo || '').replace('_', ' ').toUpperCase());
+          const tipo = escapeHTML(
+            String(div.tipo || '')
+              .replace('_', ' ')
+              .toUpperCase()
+          );
           const mensagem = escapeHTML(String(div.mensagem || ''));
           const valorNF = escapeHTML(String(div.valorNF || ''));
           const valorEmpenho = escapeHTML(String(div.valorEmpenho || ''));
@@ -3231,7 +3238,11 @@ export class ControleMaterialApp {
       const tituloModal = document.getElementById('modalValidacaoTitulo');
       if (tituloModal) {
         tituloModal.textContent = resultado.ok ? '✅ Validação OK' : '❌ Divergências Encontradas';
-        tituloModal.classList.remove('sg-modal-heading--success', 'sg-modal-heading--danger', 'sg-modal-heading--primary');
+        tituloModal.classList.remove(
+          'sg-modal-heading--success',
+          'sg-modal-heading--danger',
+          'sg-modal-heading--primary'
+        );
         tituloModal.classList.add(resultado.ok ? 'sg-modal-heading--success' : 'sg-modal-heading--danger');
       }
 
@@ -8256,47 +8267,47 @@ export async function bootstrapApp() {
   }
 
   bootstrapPromise = (async () => {
-  try {
-    console.log('[Bootstrap] 🚀 Iniciando aplicação SINGEM...');
+    try {
+      console.log('[Bootstrap] 🚀 Iniciando aplicação SINGEM...');
 
-    // Aguarda repository estar pronto (com retry)
-    await waitForRepository();
+      // Aguarda repository estar pronto (com retry)
+      await waitForRepository();
 
-    console.log('[Bootstrap] ℹ️ Fluxo de diretório externo removido (modo banco/API).');
+      console.log('[Bootstrap] ℹ️ Fluxo de diretório externo removido (modo banco/API).');
 
-    // Expor globalmente APÓS validação
-    console.log('[Bootstrap] 🔧 Expondo módulos globalmente...');
-    window.repository = repository;
+      // Expor globalmente APÓS validação
+      console.log('[Bootstrap] 🔧 Expondo módulos globalmente...');
+      window.repository = repository;
 
-    // Inicializa aplicação
-    window.app = new ControleMaterialApp();
+      // Inicializa aplicação
+      window.app = new ControleMaterialApp();
 
-    // Gera relatório de inicialização
-    logBootstrapReport();
+      // Gera relatório de inicialização
+      logBootstrapReport();
 
-    // =========================================================================
-    // BOOTSTRAP COMPLETO - Sinaliza para outros módulos
-    // =========================================================================
-    window.__SINGEM_BOOTSTRAP_DONE__ = true;
-    window.dispatchEvent(
-      new CustomEvent('SINGEM:bootstrap:done', {
-        detail: { ts: Date.now(), version: APP_VERSION, build: APP_BUILD }
-      })
-    );
+      // =========================================================================
+      // BOOTSTRAP COMPLETO - Sinaliza para outros módulos
+      // =========================================================================
+      window.__SINGEM_BOOTSTRAP_DONE__ = true;
+      window.dispatchEvent(
+        new CustomEvent('SINGEM:bootstrap:done', {
+          detail: { ts: Date.now(), version: APP_VERSION, build: APP_BUILD }
+        })
+      );
 
-    // Exibe versão formatada no console
-    logVersion();
+      // Exibe versão formatada no console
+      logVersion();
 
-    // Exibe info da infraestrutura (controlado, apenas em debug/localhost)
-    initInfrastructureInfo();
+      // Exibe info da infraestrutura (controlado, apenas em debug/localhost)
+      initInfrastructureInfo();
 
-    console.log('[Bootstrap] ✅ Aplicação inicializada com sucesso!');
-    return window.app;
-  } catch (error) {
-    renderBootstrapError(error);
-    bootstrapPromise = null;
-    throw error;
-  }
+      console.log('[Bootstrap] ✅ Aplicação inicializada com sucesso!');
+      return window.app;
+    } catch (error) {
+      renderBootstrapError(error);
+      bootstrapPromise = null;
+      throw error;
+    }
   })();
 
   return bootstrapPromise;

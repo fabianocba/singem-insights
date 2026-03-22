@@ -1963,7 +1963,10 @@ function applyServerDatabaseAdapter() {
   const isRetriableMethod = (method) => ['GET', 'HEAD', 'OPTIONS'].includes(String(method || 'GET').toUpperCase());
   const shouldRetryApiError = ({ status = 0, message = '' } = {}) => {
     const normalizedMessage = String(message || '');
-    return RETRYABLE_STATUS.has(Number(status || 0)) || /timeout|temporari|upstream|failed to fetch|network|conex/i.test(normalizedMessage);
+    return (
+      RETRYABLE_STATUS.has(Number(status || 0)) ||
+      /timeout|temporari|upstream|failed to fetch|network|conex/i.test(normalizedMessage)
+    );
   };
 
   const normalizeEmpenho = (item = {}) => ({

@@ -2,12 +2,7 @@ const AppError = require('../../utils/appError');
 const { parsePagination, buildMeta } = require('../../utils/pagination');
 const repository = require('./almoxarifado.repository');
 const dto = require('./almoxarifado.dto');
-const {
-  movementTypes,
-  itemStatuses,
-  solicitationStatuses,
-  priorityLevels
-} = require('./almoxarifado.schemas');
+const { movementTypes, itemStatuses, solicitationStatuses, priorityLevels } = require('./almoxarifado.schemas');
 
 function buildValidationError(message, path = 'body') {
   return new AppError(400, 'VALIDATION_ERROR', message, [{ path, message, code: 'custom' }]);
@@ -121,7 +116,12 @@ async function checkDuplicateCandidates(descricao, ignoreDuplicate = false, excl
   const normalizedDuplicates = duplicates.map(dto.normalizeDuplicateCandidate);
 
   if (normalizedDuplicates.length > 0 && !ignoreDuplicate) {
-    throw new AppError(409, 'DUPLICATE_CANDIDATES', 'Foram encontrados itens possivelmente duplicados', normalizedDuplicates);
+    throw new AppError(
+      409,
+      'DUPLICATE_CANDIDATES',
+      'Foram encontrados itens possivelmente duplicados',
+      normalizedDuplicates
+    );
   }
 
   return normalizedDuplicates;
@@ -254,11 +254,14 @@ async function createContaContabil(data, user, requestId) {
 }
 
 async function listItems(query) {
-  const pagination = parsePagination(
-    query,
-    { sortField: 'createdAt', sortDir: 'desc', sort: 'createdAt:desc' },
-    ['createdAt', 'descricao', 'grupo', 'status', 'saldo', 'catmat']
-  );
+  const pagination = parsePagination(query, { sortField: 'createdAt', sortDir: 'desc', sort: 'createdAt:desc' }, [
+    'createdAt',
+    'descricao',
+    'grupo',
+    'status',
+    'saldo',
+    'catmat'
+  ]);
 
   const result = await repository.findItemsPaginated({
     ...pagination,
@@ -324,8 +327,7 @@ async function updateItem(id, data, user, requestId) {
   const merged = {
     ...current,
     ...resolvedData,
-    conta_contabil_id:
-      resolvedData.conta_contabil_id || current.conta_contabil?.id || current.conta_contabil_id
+    conta_contabil_id: resolvedData.conta_contabil_id || current.conta_contabil?.id || current.conta_contabil_id
   };
 
   requireCatmat(merged);
@@ -360,11 +362,14 @@ async function updateItem(id, data, user, requestId) {
 }
 
 async function listNotasEntrada(query) {
-  const pagination = parsePagination(
-    query,
-    { sortField: 'createdAt', sortDir: 'desc', sort: 'createdAt:desc' },
-    ['createdAt', 'numero', 'fornecedor', 'dataEmissao', 'dataEntrada', 'valorTotal']
-  );
+  const pagination = parsePagination(query, { sortField: 'createdAt', sortDir: 'desc', sort: 'createdAt:desc' }, [
+    'createdAt',
+    'numero',
+    'fornecedor',
+    'dataEmissao',
+    'dataEntrada',
+    'valorTotal'
+  ]);
 
   const result = await repository.listNotasEntrada({
     ...pagination,
@@ -396,10 +401,13 @@ async function createNotaEntrada(data, user, requestId) {
     itens.push(await ensureResolvedItemForNota(item));
   }
 
-  const nota = await repository.createNotaEntrada({
-    ...data,
-    itens
-  }, user?.id);
+  const nota = await repository.createNotaEntrada(
+    {
+      ...data,
+      itens
+    },
+    user?.id
+  );
 
   const normalized = dto.normalizeNotaEntrada(nota);
 
@@ -416,11 +424,11 @@ async function createNotaEntrada(data, user, requestId) {
 }
 
 async function listMovimentacoes(query) {
-  const pagination = parsePagination(
-    query,
-    { sortField: 'createdAt', sortDir: 'desc', sort: 'createdAt:desc' },
-    ['createdAt', 'tipo', 'quantidade']
-  );
+  const pagination = parsePagination(query, { sortField: 'createdAt', sortDir: 'desc', sort: 'createdAt:desc' }, [
+    'createdAt',
+    'tipo',
+    'quantidade'
+  ]);
 
   const result = await repository.listMovimentacoes({
     ...pagination,
@@ -486,11 +494,13 @@ async function createMovimentacaoWithAudit(data, user, requestId) {
 }
 
 async function listSolicitacoes(query) {
-  const pagination = parsePagination(
-    query,
-    { sortField: 'data', sortDir: 'desc', sort: 'data:desc' },
-    ['createdAt', 'data', 'prioridade', 'status', 'setor']
-  );
+  const pagination = parsePagination(query, { sortField: 'data', sortDir: 'desc', sort: 'data:desc' }, [
+    'createdAt',
+    'data',
+    'prioridade',
+    'status',
+    'setor'
+  ]);
 
   const result = await repository.listSolicitacoes({
     ...pagination,
@@ -558,11 +568,11 @@ async function getResumoRelatorio(query) {
 }
 
 async function listAuditoria(query) {
-  const pagination = parsePagination(
-    query,
-    { sortField: 'createdAt', sortDir: 'desc', sort: 'createdAt:desc' },
-    ['createdAt', 'acao', 'entidade']
-  );
+  const pagination = parsePagination(query, { sortField: 'createdAt', sortDir: 'desc', sort: 'createdAt:desc' }, [
+    'createdAt',
+    'acao',
+    'entidade'
+  ]);
 
   const result = await repository.listAuditLogs({
     ...pagination,

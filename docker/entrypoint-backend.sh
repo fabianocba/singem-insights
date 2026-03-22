@@ -7,14 +7,14 @@
 set -e
 
 HOST="${DB_HOST:-postgres}"
-PORT="${DB_PORT:-5432}"
+DB_READY_PORT="${DB_PORT:-5432}"
 MAX_TRIES=30
 TRIES=0
 
-echo "[DOCKER][BOOT] Aguardando PostgreSQL em ${HOST}:${PORT}..."
+echo "[DOCKER][BOOT] Aguardando PostgreSQL em ${HOST}:${DB_READY_PORT}..."
 
 until node -e "
-  const s = require('net').createConnection({ host: '$HOST', port: $PORT });
+    const s = require('net').createConnection({ host: '$HOST', port: $DB_READY_PORT });
   s.on('connect', () => { s.destroy(); process.exit(0); });
   s.on('error', () => process.exit(1));
   setTimeout(() => process.exit(1), 2000);

@@ -361,9 +361,13 @@ function normalizeAnalyticsResult(response) {
 
 export async function getPrecosPraticados(filters = {}, options = {}) {
   const payload = normalizePriceIntelligencePayload(filters, options);
-  const response = await requestBackendPost('/inteligencia-compras/query', { ...payload, focus: 'price' }, {
-    requestScope: 'procurement-analytics-price'
-  });
+  const response = await requestBackendPost(
+    '/inteligencia-compras/query',
+    { ...payload, focus: 'price' },
+    {
+      requestScope: 'procurement-analytics-price'
+    }
+  );
 
   return {
     ...normalizeAnalyticsResult(response),
@@ -578,7 +582,9 @@ export async function getARP(filters = {}) {
       codigoModalidadeCompra,
       numeroAtaRegistroPreco: numeroAtaRegistroPreco || numeroAta || undefined,
       codigoItem,
-      niFornecedor: niFornecedor || (fornecedor && /^\d{14}$/.test(fornecedor.replace(/\D/g, '')) ? fornecedor.replace(/\D/g, '') : undefined),
+      niFornecedor:
+        niFornecedor ||
+        (fornecedor && /^\d{14}$/.test(fornecedor.replace(/\D/g, '')) ? fornecedor.replace(/\D/g, '') : undefined),
       codigoPdm,
       numeroCompra
     }
@@ -629,7 +635,7 @@ export async function getLegadoItens(filters = {}) {
     backendParams: {
       pagina,
       tamanhoPagina: 30,
-      modalidade,  // OBRIGATÓRIO
+      modalidade, // OBRIGATÓRIO
       uasg,
       numeroLicitacao,
       descricao

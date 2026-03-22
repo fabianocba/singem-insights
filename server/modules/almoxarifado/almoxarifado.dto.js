@@ -117,12 +117,13 @@ function normalizeMovimentacao(row) {
     justificativa: row.justificativa || null,
     localizacao_destino: row.localizacao_destino || null,
     solicitacao_id: row.solicitacao_id || null,
-    usuario: row.usuario_id || row.created_by
-      ? {
-          id: row.usuario_id || row.created_by,
-          nome: row.usuario_nome || null
-        }
-      : null,
+    usuario:
+      row.usuario_id || row.created_by
+        ? {
+            id: row.usuario_id || row.created_by,
+            nome: row.usuario_nome || null
+          }
+        : null,
     item: {
       codigo_interno: row.codigo_interno || row.codigo || null,
       descricao: row.material_descricao || row.descricao || null,

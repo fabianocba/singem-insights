@@ -12,9 +12,7 @@ const API_CONFIG = {
   // URL base do servidor
   baseUrl:
     window.CONFIG?.api?.baseUrl ||
-    (['localhost', '127.0.0.1'].includes(window.location.hostname)
-      ? 'http://localhost:3000'
-      : window.location.origin),
+    (['localhost', '127.0.0.1'].includes(window.location.hostname) ? 'http://localhost:3000' : window.location.origin),
   timeout: 30000,
   retries: 3,
   retryBaseDelayMs: 500

@@ -74,7 +74,9 @@ router.get('/uasg', (req, res) => execute(res, req, (request) => comprasGov.getU
 router.get('/uasg/orgao', (req, res) => execute(res, req, (request) => comprasGov.getOrgao(request)));
 router.get('/fornecedor', (req, res) => execute(res, req, (request) => comprasGov.getFornecedor(request)));
 router.get('/contratacoes', (req, res) => execute(res, req, (request) => comprasGov.getContratacoes(request)));
-router.get('/contratacoes/itens', (req, res) => execute(res, req, (request) => comprasGov.getContratacoesItens(request)));
+router.get('/contratacoes/itens', (req, res) =>
+  execute(res, req, (request) => comprasGov.getContratacoesItens(request))
+);
 router.get('/contratacoes/resultados-itens', (req, res) =>
   execute(res, req, (request) => comprasGov.getContratacoesResultadosItens(request))
 );

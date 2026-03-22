@@ -169,7 +169,14 @@ function handleExportError(title, error) {
   alert(`Falha na exportação\n\n${mensagem}`);
 }
 
-function canExportCurrentFilters({ state, collectFilters, canSearchWithFilters, setSearchHint, getRequiredHint, datasets }) {
+function canExportCurrentFilters({
+  state,
+  collectFilters,
+  canSearchWithFilters,
+  setSearchHint,
+  getRequiredHint,
+  datasets
+}) {
   collectFilters();
 
   if (canSearchWithFilters(state.filters)) {
@@ -187,7 +194,9 @@ export async function exportPriceIntelligenceData(deps, explicitFormat = null) {
     return;
   }
 
-  if (!canExportCurrentFilters({ state, collectFilters, canSearchWithFilters, setSearchHint, getRequiredHint, datasets })) {
+  if (
+    !canExportCurrentFilters({ state, collectFilters, canSearchWithFilters, setSearchHint, getRequiredHint, datasets })
+  ) {
     return;
   }
 
@@ -214,7 +223,9 @@ export async function exportGovAnalyticsData(deps, explicitFormat = null) {
     return;
   }
 
-  if (!canExportCurrentFilters({ state, collectFilters, canSearchWithFilters, setSearchHint, getRequiredHint, datasets })) {
+  if (
+    !canExportCurrentFilters({ state, collectFilters, canSearchWithFilters, setSearchHint, getRequiredHint, datasets })
+  ) {
     return;
   }
 

@@ -38,6 +38,9 @@ WORKDIR /app
 # Root package.json (resolvido por "singem": "file:.." no server)
 COPY package.json ./
 
+# Metadados de versão (lidos por server/utils/version.js em runtime)
+COPY version.json ./
+
 # Código do servidor
 COPY server/ ./server/
 

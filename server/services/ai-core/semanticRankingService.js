@@ -88,8 +88,11 @@ function buildPenaltySignals(queryTokens, tokens, texts) {
   return {
     descriptionLengthPenalty: Math.max(0, tokens.descriptionTokens.length - queryTokens.length - 5) * 0.008,
     genericPdmPenalty:
-      texts.pdmText && tokens.pdmCoverage === 0 && tokens.descriptionCoverage < 0.5 && tokens.contextCoverage < 0.5 ? 0.05 : 0,
-    outOfContextPenalty: tokens.descriptionCoverage === 0 && tokens.pdmCoverage === 0 && tokens.contextCoverage > 0 ? 0.03 : 0
+      texts.pdmText && tokens.pdmCoverage === 0 && tokens.descriptionCoverage < 0.5 && tokens.contextCoverage < 0.5
+        ? 0.05
+        : 0,
+    outOfContextPenalty:
+      tokens.descriptionCoverage === 0 && tokens.pdmCoverage === 0 && tokens.contextCoverage > 0 ? 0.03 : 0
   };
 }
 

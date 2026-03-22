@@ -7,7 +7,9 @@ const reportInsightService = require('./ai-core/reportInsightService');
 const AppError = require('../utils/appError');
 
 function normalizeFocus(value) {
-  const normalized = String(value || 'price').trim().toLowerCase();
+  const normalized = String(value || 'price')
+    .trim()
+    .toLowerCase();
   if (normalized === 'supplier' || normalized === 'fornecedor') {
     return 'supplier';
   }
@@ -33,7 +35,9 @@ function logAnalytics(scope, payload = {}) {
 
 function extractTopSupplierDocuments(response = {}) {
   const docsFromPage = (response?.page?.items || []).map((item) => item?.niFornecedor).filter(Boolean);
-  const docsFromAnalytics = (response?.suppliers?.topByFrequency || []).map((item) => item?.niFornecedor).filter(Boolean);
+  const docsFromAnalytics = (response?.suppliers?.topByFrequency || [])
+    .map((item) => item?.niFornecedor)
+    .filter(Boolean);
   return unique([...docsFromPage, ...docsFromAnalytics]).slice(0, 8);
 }
 
@@ -93,8 +97,14 @@ function buildAiPayload(focus, response) {
     return null;
   }
 
-  const reportKey = focus === 'price' ? 'compras_publicas_preco' : focus === 'supplier' ? 'compras_publicas_fornecedor' : 'compras_publicas_buyer';
-  const contextModule = focus === 'price' ? 'price-intelligence' : focus === 'supplier' ? 'supplier-intelligence' : 'buyer-intelligence';
+  const reportKey =
+    focus === 'price'
+      ? 'compras_publicas_preco'
+      : focus === 'supplier'
+        ? 'compras_publicas_fornecedor'
+        : 'compras_publicas_buyer';
+  const contextModule =
+    focus === 'price' ? 'price-intelligence' : focus === 'supplier' ? 'supplier-intelligence' : 'buyer-intelligence';
 
   return {
     report_key: reportKey,

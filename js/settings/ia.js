@@ -6,13 +6,7 @@ import { escapeHTML as escapeHtml } from '../utils/sanitize.js';
 
 import { httpRequest } from '../shared/lib/http.js';
 import { notifyError, notifySuccess } from '../ui/feedback.js';
-import {
-  feedbackMarkup,
-  metricCardMarkup,
-  metricGridMarkup,
-  renderInto,
-  setFeedback
-} from './renderUtils.js';
+import { feedbackMarkup, metricCardMarkup, metricGridMarkup, renderInto, setFeedback } from './renderUtils.js';
 
 class SettingsIA {
   constructor() {
@@ -186,12 +180,7 @@ class SettingsIA {
       btn.disabled = true;
     }
 
-    setFeedback(
-      resultEl,
-      'info',
-      '⏳ Reconstruindo índice... Isso pode levar alguns minutos.',
-      { reveal: true }
-    );
+    setFeedback(resultEl, 'info', '⏳ Reconstruindo índice... Isso pode levar alguns minutos.', { reveal: true });
 
     try {
       const response = await httpRequest('/api/ai/index/rebuild', {
@@ -212,12 +201,9 @@ class SettingsIA {
       const data = response.data;
       const total = data?.indexed_count ?? data?.total ?? '?';
       notifySuccess(`Índice reconstruído com sucesso! (${total} documentos)`);
-      setFeedback(
-        resultEl,
-        'success',
-        `✅ Índice reconstruído — ${escapeHtml(String(total))} documentos indexados.`,
-        { reveal: true }
-      );
+      setFeedback(resultEl, 'success', `✅ Índice reconstruído — ${escapeHtml(String(total))} documentos indexados.`, {
+        reveal: true
+      });
     } catch {
       notifyError('Erro ao reconstruir índice.');
       setFeedback(resultEl, 'error', '❌ Erro de conexão ao reconstruir índice.', {

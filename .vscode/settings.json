@@ -1,0 +1,58 @@
+{
+  "python.defaultInterpreterPath": "${workspaceFolder}\\singem-ai\\.venv\\Scripts\\python.exe",
+  "python.terminal.activateEnvironment": true,
+  "terminal.integrated.profiles.windows": {
+    "PowerShell 7 (pwsh)": {
+      "path": "C:\\Program Files\\PowerShell\\7\\pwsh.exe",
+      "args": [
+        "-NoLogo",
+        "-NoExit",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-Command",
+        ". '${workspaceFolder}\\scripts\\util\\workspace-profile.ps1'"
+      ]
+    }
+  },
+  "terminal.integrated.env.windows": {
+    "PYTHONUTF8": "1",
+    "SINGEM_ROOT": "${workspaceFolder}"
+  },
+  "files.encoding": "utf8",
+  "terminal.integrated.defaultProfile.windows": "PowerShell 7 (pwsh)",
+  "terminal.integrated.automationProfile.windows": {
+    "path": "C:\\Program Files\\PowerShell\\7\\pwsh.exe",
+    "args": ["-NoLogo", "-NoProfile", "-ExecutionPolicy", "Bypass"]
+  },
+  "chat.tools.terminal.autoApprove": {
+    "/^pwsh -NoProfile -ExecutionPolicy Bypass -File \\.\\scripts\\dev-setup\\.ps1 -ProjectRoot \\.$/": {
+      "approve": true,
+      "matchCommandLine": true
+    },
+    "/^pwsh -NoProfile -ExecutionPolicy Bypass -File \\.\\scripts\\dev-doctor\\.ps1 -ProjectRoot \\.$/": {
+      "approve": true,
+      "matchCommandLine": true
+    },
+    "ForEach-Object": true,
+    "Test-Path": true,
+    "New-Item": true,
+    "Out-Null": true,
+    "Set-Content": true,
+    ".": true,
+    "Get-Command": true,
+    "Get-Alias": true,
+    "/^pwsh -NoProfile -ExecutionPolicy Bypass -File \\.\\scripts\\dev-start\\.ps1 -ProjectRoot \\.$/": {
+      "approve": true,
+      "matchCommandLine": true
+    },
+    "/^docker compose up -d --build$/": {
+      "approve": true,
+      "matchCommandLine": true
+    },
+    "/^docker compose up -d backend frontend$/": {
+      "approve": true,
+      "matchCommandLine": true
+    },
+    "docker compose": true
+  }
+}

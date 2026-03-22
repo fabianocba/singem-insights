@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @source "../index.html";
 @source "../consultas/**/*.html";
@@ -9,8 +9,8 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-  --font-sans: "Aptos", "Segoe UI Variable", "Segoe UI", "Noto Sans", sans-serif;
-  --font-display: "Aptos Display", "Aptos", "Segoe UI Variable", sans-serif;
+  --font-sans: 'Aptos', 'Segoe UI Variable', 'Segoe UI', 'Noto Sans', sans-serif;
+  --font-display: 'Aptos Display', 'Aptos', 'Segoe UI Variable', sans-serif;
 }
 
 :root {
@@ -1324,7 +1324,9 @@ html.dark {
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
-    transition: transform 0.25s ease, opacity 0.25s ease;
+    transition:
+      transform 0.25s ease,
+      opacity 0.25s ease;
   }
 
   html.dark .app-sidebar {
@@ -2084,7 +2086,9 @@ html.dark {
 
   body[data-page='configuracoes'] .settings-panel--first-user {
     border-color: rgba(245, 158, 11, 0.72);
-    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.22), var(--sg-shadow-card);
+    box-shadow:
+      0 0 0 3px rgba(245, 158, 11, 0.22),
+      var(--sg-shadow-card);
     animation: settings-panel-pulse 2s ease-in-out infinite;
   }
 

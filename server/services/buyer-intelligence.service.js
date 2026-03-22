@@ -15,7 +15,10 @@ const DEFAULT_PAGE_SIZE = 20;
 const DEFAULT_MAX_PAGES = 5;
 
 function sha1(value) {
-  return crypto.createHash('sha1').update(String(value || '')).digest('hex');
+  return crypto
+    .createHash('sha1')
+    .update(String(value || ''))
+    .digest('hex');
 }
 
 function clamp(value, min, max, fallback) {
@@ -49,7 +52,9 @@ function parseBoolean(value, fallback = false) {
 }
 
 function normalizeCatalogType(value) {
-  const normalized = String(value || 'material').trim().toLowerCase();
+  const normalized = String(value || 'material')
+    .trim()
+    .toLowerCase();
   return normalized === 'servico' || normalized === 'catser' ? 'servico' : 'material';
 }
 
@@ -153,7 +158,9 @@ function buildSummary(query, metrics, priceContext) {
 
   return {
     title: `Analise de ${scopeLabel}`,
-    text: `${metrics.totalProfiles} ${scopeLabel} retornado(s), ${metrics.activeProfiles} ativo(s) e ${metrics.usingSisg} com uso SISG ativo.` + recortePreco
+    text:
+      `${metrics.totalProfiles} ${scopeLabel} retornado(s), ${metrics.activeProfiles} ativo(s) e ${metrics.usingSisg} com uso SISG ativo.` +
+      recortePreco
   };
 }
 
@@ -191,7 +198,12 @@ function logBuyer(scope, payload = {}) {
 }
 
 function normalizeQueryInput(input = {}) {
-  const entity = String(input.entity || input.scope || 'uasg').trim().toLowerCase() === 'orgao' ? 'orgao' : 'uasg';
+  const entity =
+    String(input.entity || input.scope || 'uasg')
+      .trim()
+      .toLowerCase() === 'orgao'
+      ? 'orgao'
+      : 'uasg';
   const codigos = parseCodes(input.codigos || input.codigo || input.codigoItemCatalogo, 10);
   const codigoUasg = safeText(input.codigoUasg, 20);
   const codigoOrgao = safeText(input.codigoOrgao, 20);
@@ -354,10 +366,17 @@ class BuyerIntelligenceService {
         requested: priceContext.buyers.topUasgs.length,
         matched: enriched.length
       });
-      profiles = mergeByKey(profiles.concat(enriched), (item) => item.codigoUasg || `${normalizeText(item.orgao)}:${item.codigoOrgao || ''}`);
+      profiles = mergeByKey(
+        profiles.concat(enriched),
+        (item) => item.codigoUasg || `${normalizeText(item.orgao)}:${item.codigoOrgao || ''}`
+      );
     }
 
-    const activeProfiles = profiles.filter((profile) => String(profile.statusUasg || profile.statusOrgao || '').toUpperCase() !== 'INATIVA' && String(profile.statusUasg || profile.statusOrgao || '').toUpperCase() !== 'INATIVO').length;
+    const activeProfiles = profiles.filter(
+      (profile) =>
+        String(profile.statusUasg || profile.statusOrgao || '').toUpperCase() !== 'INATIVA' &&
+        String(profile.statusUasg || profile.statusOrgao || '').toUpperCase() !== 'INATIVO'
+    ).length;
     const usingSisg = profiles.filter((profile) => profile.usoSisg === true).length;
     const metrics = {
       totalProfiles: profiles.length,
@@ -443,7 +462,9 @@ class BuyerIntelligenceService {
   }
 
   async exportQuery(input = {}, format = 'csv', context = {}) {
-    const normalizedFormat = String(format || 'csv').trim().toLowerCase();
+    const normalizedFormat = String(format || 'csv')
+      .trim()
+      .toLowerCase();
     if (!['csv', 'xlsx', 'json'].includes(normalizedFormat)) {
       throw new AppError(400, 'VALIDATION_ERROR', 'Formato de exportacao invalido. Use csv, xlsx ou json.');
     }

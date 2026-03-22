@@ -47,33 +47,39 @@ const checkService = (req, res, next) => {
  *
  * Body: { chaveAcesso: string }
  */
-router.post('/importar', authenticate, requirePermission('gestao_almoxarifado', 'IMPORTAR'), checkService, async (req, res) => {
-  try {
-    const { chaveAcesso } = req.body;
+router.post(
+  '/importar',
+  authenticate,
+  requirePermission('gestao_almoxarifado', 'IMPORTAR'),
+  checkService,
+  async (req, res) => {
+    try {
+      const { chaveAcesso } = req.body;
 
-    if (!chaveAcesso) {
-      return res.status(400).json({
+      if (!chaveAcesso) {
+        return res.status(400).json({
+          sucesso: false,
+          erro: 'Chave de acesso é obrigatória',
+          codigo: 'CHAVE_OBRIGATORIA'
+        });
+      }
+
+      const resultado = await nfeService.importarPorChave(chaveAcesso);
+
+      if (resultado.sucesso) {
+        return res.json(resultado);
+      }
+      return res.status(400).json(resultado);
+    } catch (error) {
+      console.error('[NFE Routes] Erro em /importar:', error);
+      return res.status(500).json({
         sucesso: false,
-        erro: 'Chave de acesso é obrigatória',
-        codigo: 'CHAVE_OBRIGATORIA'
+        erro: 'Erro interno ao importar NF-e',
+        codigo: 'ERRO_INTERNO'
       });
     }
-
-    const resultado = await nfeService.importarPorChave(chaveAcesso);
-
-    if (resultado.sucesso) {
-      return res.json(resultado);
-    }
-    return res.status(400).json(resultado);
-  } catch (error) {
-    console.error('[NFE Routes] Erro em /importar:', error);
-    return res.status(500).json({
-      sucesso: false,
-      erro: 'Erro interno ao importar NF-e',
-      codigo: 'ERRO_INTERNO'
-    });
   }
-});
+);
 
 /**
  * POST /api/nfe/upload
@@ -81,32 +87,39 @@ router.post('/importar', authenticate, requirePermission('gestao_almoxarifado', 
  *
  * Form-data: file (XML)
  */
-router.post('/upload', authenticate, requirePermission('gestao_almoxarifado', 'IMPORTAR'), checkService, upload.single('file'), async (req, res) => {
-  try {
-    if (!req.file) {
-      return res.status(400).json({
+router.post(
+  '/upload',
+  authenticate,
+  requirePermission('gestao_almoxarifado', 'IMPORTAR'),
+  checkService,
+  upload.single('file'),
+  async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({
+          sucesso: false,
+          erro: 'Arquivo XML é obrigatório',
+          codigo: 'ARQUIVO_OBRIGATORIO'
+        });
+      }
+
+      const xmlContent = req.file.buffer.toString('utf8');
+      const resultado = await nfeService.importarXml(xmlContent);
+
+      if (resultado.sucesso) {
+        return res.json(resultado);
+      }
+      return res.status(400).json(resultado);
+    } catch (error) {
+      console.error('[NFE Routes] Erro em /upload:', error);
+      return res.status(500).json({
         sucesso: false,
-        erro: 'Arquivo XML é obrigatório',
-        codigo: 'ARQUIVO_OBRIGATORIO'
+        erro: error.message || 'Erro interno ao processar upload',
+        codigo: 'ERRO_INTERNO'
       });
     }
-
-    const xmlContent = req.file.buffer.toString('utf8');
-    const resultado = await nfeService.importarXml(xmlContent);
-
-    if (resultado.sucesso) {
-      return res.json(resultado);
-    }
-    return res.status(400).json(resultado);
-  } catch (error) {
-    console.error('[NFE Routes] Erro em /upload:', error);
-    return res.status(500).json({
-      sucesso: false,
-      erro: error.message || 'Erro interno ao processar upload',
-      codigo: 'ERRO_INTERNO'
-    });
   }
-});
+);
 
 /**
  * POST /api/nfe/upload-text
@@ -114,33 +127,39 @@ router.post('/upload', authenticate, requirePermission('gestao_almoxarifado', 'I
  *
  * Body: { xml: string }
  */
-router.post('/upload-text', authenticate, requirePermission('gestao_almoxarifado', 'IMPORTAR'), checkService, async (req, res) => {
-  try {
-    const { xml } = req.body;
+router.post(
+  '/upload-text',
+  authenticate,
+  requirePermission('gestao_almoxarifado', 'IMPORTAR'),
+  checkService,
+  async (req, res) => {
+    try {
+      const { xml } = req.body;
 
-    if (!xml) {
-      return res.status(400).json({
+      if (!xml) {
+        return res.status(400).json({
+          sucesso: false,
+          erro: 'XML é obrigatório',
+          codigo: 'XML_OBRIGATORIO'
+        });
+      }
+
+      const resultado = await nfeService.importarXml(xml);
+
+      if (resultado.sucesso) {
+        return res.json(resultado);
+      }
+      return res.status(400).json(resultado);
+    } catch (error) {
+      console.error('[NFE Routes] Erro em /upload-text:', error);
+      return res.status(500).json({
         sucesso: false,
-        erro: 'XML é obrigatório',
-        codigo: 'XML_OBRIGATORIO'
+        erro: 'Erro interno ao processar XML',
+        codigo: 'ERRO_INTERNO'
       });
     }
-
-    const resultado = await nfeService.importarXml(xml);
-
-    if (resultado.sucesso) {
-      return res.json(resultado);
-    }
-    return res.status(400).json(resultado);
-  } catch (error) {
-    console.error('[NFE Routes] Erro em /upload-text:', error);
-    return res.status(500).json({
-      sucesso: false,
-      erro: 'Erro interno ao processar XML',
-      codigo: 'ERRO_INTERNO'
-    });
   }
-});
+);
 
 /**
  * GET /api/nfe/danfe/:chave

@@ -174,7 +174,10 @@ function writeCodigoCache(codigo, value) {
   });
 }
 
-function normalizeSearchOptions(query, { offset = 0, limite = config.maxResults, contextKey = 'global', codigoPdm = null, detalhar = false } = {}) {
+function normalizeSearchOptions(
+  query,
+  { offset = 0, limite = config.maxResults, contextKey = 'global', codigoPdm = null, detalhar = false } = {}
+) {
   return {
     safeQuery: String(query || '').trim(),
     safeOffset: Math.max(0, toNumberSafe(offset, 0)),
