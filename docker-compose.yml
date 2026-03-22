@@ -12,20 +12,16 @@
 # existentes e CI/CD.
 # ============================================================
 
-name: singem
+name: singem-legacy
 
 networks:
   singem-network:
-    name: singem-network
     driver: bridge
 
 volumes:
   postgres_data:
-    name: singem_postgres_data
   backend_logs:
-    name: singem_backend_logs
   redis_data:
-    name: singem_redis_data
 
 services:
   # ----------------------------------------------------------
@@ -33,7 +29,6 @@ services:
   # ----------------------------------------------------------
   postgres:
     image: pgvector/pgvector:pg15
-    container_name: singem-postgres
     restart: unless-stopped
     environment:
       POSTGRES_DB: ${DB_NAME:-singem}
@@ -58,7 +53,6 @@ services:
   # ----------------------------------------------------------
   redis:
     image: redis:7-alpine
-    container_name: singem-redis
     restart: unless-stopped
     command: redis-server --save 60 1 --loglevel warning
     volumes:
@@ -81,7 +75,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.backend
-    container_name: singem-backend
     restart: unless-stopped
     environment:
       NODE_ENV: ${NODE_ENV:-development}
@@ -184,7 +177,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.frontend
-    container_name: singem-frontend
     restart: unless-stopped
     ports:
       - '${FRONTEND_PORT_EXTERNAL:-8000}:80'
@@ -204,7 +196,6 @@ services:
       dockerfile: Dockerfile.ai
       args:
         GPU_ENABLED: ${GPU_ENABLED:-false}
-    container_name: singem-ai-core
     restart: unless-stopped
     environment:
       APP_ENV: ${APP_ENV:-development}

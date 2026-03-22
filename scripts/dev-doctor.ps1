@@ -18,8 +18,12 @@ function Add-Check {
   $script:checks += [pscustomobject]@{ Nome = $Name; Status = $(if ($Ok) { 'OK' } else { 'RISCO' }); Detalhes = $Details }
 }
 
-foreach ($cmd in @('pwsh', 'git', 'docker', 'node', 'npm', 'python')) {
+foreach ($cmd in @('pwsh', 'git', 'docker')) {
   Add-Check -Name ("Comando: {0}" -f $cmd) -Ok (Test-DevCommand -Name $cmd) -Details $(if (Test-DevCommand -Name $cmd) { 'disponível' } else { 'ausente' })
+}
+
+foreach ($cmd in @('node', 'npm', 'python')) {
+  Add-Check -Name ("Comando opcional (modo híbrido): {0}" -f $cmd) -Ok $true -Details $(if (Test-DevCommand -Name $cmd) { 'disponível' } else { 'não instalado (ok em Docker-first)' })
 }
 
 $sync = Get-GitSyncSummary -ProjectRoot $root
@@ -36,12 +40,7 @@ foreach ($item in $envMatrix) {
   Add-Check -Name ("Arquivo {0}" -f $item.Name) -Ok (Test-Path -LiteralPath $item.Path) -Details $item.Path
 }
 
-$nodeModulesRoot = Join-Path $root 'node_modules'
-$nodeModulesServer = Join-Path $root 'server\node_modules'
-$venv = Join-Path $root 'singem-ai\.venv'
-Add-Check -Name 'Dependências raiz instaladas' -Ok (Test-Path -LiteralPath $nodeModulesRoot) -Details $nodeModulesRoot
-Add-Check -Name 'Dependências server instaladas' -Ok (Test-Path -LiteralPath $nodeModulesServer) -Details $nodeModulesServer
-Add-Check -Name 'Virtualenv AI Core local' -Ok (Test-Path -LiteralPath $venv) -Details $venv
+Add-Check -Name 'Script deploy-vps oficial' -Ok (Test-Path -LiteralPath (Join-Path $root 'scripts\deploy-vps.ps1')) -Details (Join-Path $root 'scripts\deploy-vps.ps1')
 
 try {
   Invoke-DevCommand -FilePath 'docker' -ArgumentList @('compose', '-f', $compose, 'config', '--quiet')

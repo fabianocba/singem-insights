@@ -15,10 +15,6 @@ Write-DevTitle 'SINGEM DEV REBUILD (limpo e controlado)'
 Stop-ComposeConflicts -ProjectRoot $root -CurrentCompose $compose
 Remove-SingemContainerConflicts
 
-Write-DevStep 'Compilando CSS Tailwind a partir do source atual...'
-Invoke-DevCommand -FilePath 'npm' -ArgumentList @('run', 'tailwind:build') -WorkingDirectory $root
-Write-DevOk 'css/tailwind.css atualizado.'
-
 $downArgs = @('compose', '-f', $compose)
 if ($Profile -ne 'none') {
   $downArgs += @('--profile', $Profile)

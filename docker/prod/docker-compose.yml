@@ -20,16 +20,12 @@ name: singem-prod
 
 networks:
   singem-network:
-    name: singem-network
     driver: bridge
 
 volumes:
   postgres_data:
-    name: singem_prod_postgres_data
   backend_logs:
-    name: singem_prod_backend_logs
   redis_data:
-    name: singem_prod_redis_data
 
 services:
   # ----------------------------------------------------------
@@ -37,7 +33,6 @@ services:
   # ----------------------------------------------------------
   postgres:
     image: pgvector/pgvector:pg15
-    container_name: singem-prod-postgres
     restart: always
     environment:
       POSTGRES_DB: ${DB_NAME:?DB_NAME obrigatória}
@@ -86,7 +81,6 @@ services:
   # ----------------------------------------------------------
   redis:
     image: redis:7-alpine
-    container_name: singem-prod-redis
     restart: always
     command: >-
       redis-server
@@ -115,7 +109,6 @@ services:
     build:
       context: ../..
       dockerfile: Dockerfile.backend
-    container_name: singem-prod-backend
     restart: always
     environment:
       NODE_ENV: production
@@ -220,7 +213,6 @@ services:
     build:
       context: ../..
       dockerfile: Dockerfile.frontend
-    container_name: singem-prod-frontend
     restart: always
     ports:
       - '${FRONTEND_PORT_HTTP:-80}:80'
@@ -253,7 +245,6 @@ services:
       dockerfile: Dockerfile.ai
       args:
         GPU_ENABLED: ${GPU_ENABLED:-false}
-    container_name: singem-prod-ai-core
     restart: always
     environment:
       APP_ENV: production

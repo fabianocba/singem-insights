@@ -25,12 +25,6 @@ if ($sync.dirty) {
 Invoke-DevCommand -FilePath 'docker' -ArgumentList @('compose', '-f', $compose, 'down', '--remove-orphans') -AllowFailure
 
 Ensure-ProjectEnvFiles -ProjectRoot $root
-Ensure-NodeDependencies -ProjectRoot $root
-Ensure-PythonVenv -ProjectRoot $root
-
-Write-DevStep 'Compilando CSS Tailwind a partir do source atual...'
-Invoke-DevCommand -FilePath 'npm' -ArgumentList @('run', 'tailwind:build') -WorkingDirectory $root
-Write-DevOk 'css/tailwind.css atualizado.'
 
 $buildArgs = @('compose', '-f', $compose)
 if ($Profile -ne 'none') {

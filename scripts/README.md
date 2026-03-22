@@ -15,6 +15,7 @@ Máquina local é descartável. A fonte da verdade é o repositório atual (arqu
 5. `pwsh -File .\scripts\dev-rebuild.ps1 -ProjectRoot .` (rebuild limpo)
 6. `pwsh -File .\scripts\dev-reset.ps1 -ProjectRoot .` (reset total)
 7. `pwsh -File .\scripts\dev-doctor.ps1 -ProjectRoot .` (diagnóstico)
+8. `pwsh -File .\scripts\deploy-vps.ps1 -ProjectRoot .` (deploy produção VPS)
 
 ## Scripts oficiais
 
@@ -28,6 +29,7 @@ Máquina local é descartável. A fonte da verdade é o repositório atual (arqu
 | `dev-doctor.ps1`  | Detecta riscos de divergência, legado e inconsistências                  |
 | `dev-rebuild.ps1` | Reconstrução sem cache (`--no-cache --pull`)                             |
 | `dev-common.ps1`  | Biblioteca compartilhada dos scripts oficiais                            |
+| `deploy-vps.ps1`  | Deploy padronizado de produção (`docker/prod/docker-compose.yml`)        |
 
 ## Política de execução
 
@@ -45,6 +47,7 @@ npm run dev:doctor
 npm run dev:rebuild
 npm run dev:reset
 npm run dev:stop
+npm run dev:deploy:vps
 ```
 
 ## Referência operacional

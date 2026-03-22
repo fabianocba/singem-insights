@@ -6,15 +6,7 @@ const APP_CACHE_PREFIX = 'singem-cache';
 const CACHE_NAME = `${APP_CACHE_PREFIX}-${APP_VERSION}-${APP_BUILD}`;
 const IMAGE_LIMIT = 80;
 
-const APP_SHELL = [
-  '/',
-  '/index.html',
-  '/css/style.css',
-  '/js/app.js',
-  '/js/versionManager.js',
-  '/js/core/version.js',
-  '/js/core/version-ui.js'
-];
+const APP_SHELL = ['/'];
 
 const isApiReq = (url) => url.port === '3000' || url.pathname.startsWith('/api/');
 const isNeverCachedEndpoint = (url) => url.pathname === '/api/version' || url.pathname === '/health';
@@ -105,6 +97,10 @@ async function staleWhileRevalidate(request, event) {
   return (await networkPromise) || Response.error();
 }
 
+async function networkOnlyNoStore(request) {
+  return fetch(request, { cache: 'no-store' });
+}
+
 async function cacheFirst(request) {
   const cache = await caches.open(CACHE_NAME);
   const cached = await cache.match(request);
@@ -160,7 +156,7 @@ self.addEventListener('fetch', (event) => {
     url.pathname.endsWith('.css');
 
   if (isJsCss) {
-    event.respondWith(staleWhileRevalidate(request, event));
+    event.respondWith(networkOnlyNoStore(request));
     return;
   }
 
