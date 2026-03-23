@@ -2,6 +2,7 @@
  * consultas.css
  * Estilos para módulo de Consultas Diversas (Compras.gov.br)
  */
+@layer legacy {
 
 /* Container principal */
 .consultas-container {
@@ -1785,3 +1786,5 @@
     flex-direction: column;
   }
 }
+
+} /* fim @layer legacy */

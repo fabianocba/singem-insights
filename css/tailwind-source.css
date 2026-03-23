@@ -242,7 +242,6 @@ html.dark {
   .camera-container,
   .entrada-manual,
   .modal-card,
-  .login-card,
   .report-card,
   .menu-item,
   .menu-item-consulta,
@@ -255,21 +254,18 @@ html.dark {
 
   .btn,
   .btn-back,
-  .nav-btn,
-  .btn-govbr {
+  .nav-btn {
     @apply inline-flex items-center justify-center gap-2 rounded-2xl border border-transparent px-4 py-2.5 text-sm font-semibold shadow-sm transition duration-200 ease-out;
   }
 
   .btn:hover,
   .btn-back:hover,
-  .nav-btn:hover,
-  .btn-govbr:hover {
+  .nav-btn:hover {
     @apply -translate-y-px;
   }
 
   .btn-primary,
-  .sg-btn-primary,
-  .btn-govbr {
+  .sg-btn-primary {
     background: linear-gradient(135deg, var(--sg-accent-ink), var(--sg-brand-600));
     color: white;
     box-shadow: 0 18px 36px -22px rgba(7, 17, 31, 0.72);
@@ -2588,214 +2584,280 @@ html.dark {
     color: white;
   }
 
+  /* ==========================================================
+     Login Screen — Professional single-card centered layout
+     ========================================================== */
+  .login-screen {
+    @apply fixed inset-0 z-50 flex items-center justify-center;
+    background: #f1f5f9;
+  }
+
+  html.dark .login-screen {
+    background: #0f172a;
+  }
+
+  .login-backdrop {
+    @apply pointer-events-none absolute inset-0;
+    background:
+      radial-gradient(ellipse at 20% 0%, rgba(17, 103, 76, 0.06) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 100%, rgba(17, 103, 76, 0.04) 0%, transparent 60%);
+  }
+
+  html.dark .login-backdrop {
+    background:
+      radial-gradient(ellipse at 20% 0%, rgba(17, 103, 76, 0.12) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 100%, rgba(17, 103, 76, 0.08) 0%, transparent 60%);
+  }
+
   .login-container {
-    @apply relative mx-auto max-w-6xl overflow-hidden rounded-[2rem] border px-6 py-8 md:px-8 lg:px-10 lg:py-10;
-    background: rgba(255, 255, 255, 0.76);
-    border-color: rgba(255, 255, 255, 0.58);
-    box-shadow: 0 42px 110px -56px rgba(7, 17, 31, 0.52);
-    -webkit-backdrop-filter: blur(22px);
-    backdrop-filter: blur(22px);
-    animation: sg-rise-in 560ms cubic-bezier(0.22, 1, 0.36, 1) both;
-  }
-
-  html.dark .login-container {
-    background: rgba(2, 6, 23, 0.78);
-    border-color: rgba(51, 65, 85, 0.5);
-  }
-
-  .login-container::before {
-    content: '';
-    position: absolute;
-    right: -10rem;
-    top: -10rem;
-    height: 22rem;
-    width: 22rem;
-    border-radius: 9999px;
-    background: radial-gradient(circle, rgba(17, 103, 76, 0.22), transparent 70%);
-    pointer-events: none;
-  }
-
-  .login-container::after {
-    content: '';
-    position: absolute;
-    left: -8rem;
-    bottom: -10rem;
-    width: 20rem;
-    height: 20rem;
-    border-radius: 9999px;
-    background: radial-gradient(circle, rgba(200, 168, 107, 0.18), transparent 72%);
-    pointer-events: none;
-  }
-
-  .login-header {
-    @apply mb-8 flex flex-col gap-5 border-b pb-7;
-    border-color: rgba(148, 163, 184, 0.18);
-  }
-
-  .login-header__brand {
-    @apply flex items-center gap-4;
-  }
-
-  .login-logo {
-    @apply inline-flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-[1.5rem] text-2xl text-white shadow-lg;
-    background: linear-gradient(135deg, var(--sg-brand-700), var(--sg-brand-500));
-  }
-
-  .login-header h1 {
-    @apply text-2xl font-semibold tracking-tight md:text-3xl;
-    color: var(--sg-text);
-  }
-
-  .login-header p {
-    @apply mt-1 text-sm md:text-base;
-    color: var(--sg-text-soft);
-  }
-
-  .login-experience-grid {
-    @apply grid gap-6 xl:grid-cols-[1.05fr_0.95fr];
-  }
-
-  .login-intelligence-panel {
-    @apply relative overflow-hidden rounded-[1.85rem] border px-6 py-6 text-white lg:px-7 lg:py-7;
-    background: linear-gradient(145deg, rgba(7, 17, 31, 0.98), rgba(12, 82, 62, 0.92));
-    border-color: rgba(200, 168, 107, 0.18);
-    box-shadow: 0 34px 74px -44px rgba(7, 17, 31, 0.8);
-  }
-
-  .login-intelligence-panel::before {
-    content: '';
-    position: absolute;
-    inset: auto -18% -30% auto;
-    width: 16rem;
-    height: 16rem;
-    border-radius: 9999px;
-    background: radial-gradient(circle, rgba(200, 168, 107, 0.24), transparent 70%);
-    pointer-events: none;
-  }
-
-  .login-intelligence-panel__eyebrow {
-    @apply inline-flex rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.32em] text-white/80;
-    background: rgba(255, 255, 255, 0.08);
-    border-color: rgba(255, 255, 255, 0.14);
-  }
-
-  .login-intelligence-panel h2 {
-    @apply mt-5 text-2xl font-semibold tracking-tight;
-  }
-
-  .login-intelligence-panel > p {
-    @apply mt-4 max-w-2xl text-sm leading-6 text-white/76 md:text-base;
-  }
-
-  .login-modules-grid {
-    @apply mt-6 grid gap-3 sm:grid-cols-2;
-  }
-
-  .login-module-card {
-    @apply flex items-start gap-3 rounded-[1.25rem] border px-4 py-3;
-    background: rgba(255, 255, 255, 0.06);
-    border-color: rgba(255, 255, 255, 0.08);
-  }
-
-  .login-module-card__icon {
-    @apply mt-0.5 text-lg;
-  }
-
-  .login-module-card strong {
-    @apply block text-sm font-semibold text-white;
-  }
-
-  .login-module-card p {
-    @apply mt-0.5 text-xs leading-5 text-white/60;
-  }
-
-  .login-intelligence-grid {
-    @apply mt-6 grid gap-4 md:grid-cols-3 xl:grid-cols-1 2xl:grid-cols-3;
-  }
-
-  .login-intelligence-card {
-    @apply rounded-[1.35rem] border px-4 py-4;
-    background: rgba(255, 255, 255, 0.08);
-    border-color: rgba(255, 255, 255, 0.1);
-  }
-
-  .login-intelligence-card span {
-    @apply block text-[11px] font-semibold uppercase tracking-[0.26em] text-white/64;
-  }
-
-  .login-intelligence-card strong {
-    @apply mt-2 block text-lg font-semibold text-white;
-  }
-
-  .login-intelligence-card p {
-    @apply mt-2 text-sm leading-6 text-white/70;
-  }
-
-  .login-intelligence-ticker {
-    @apply mt-6 flex flex-wrap gap-2;
-  }
-
-  .login-intelligence-ticker span,
-  .login-trust-pill {
-    @apply inline-flex rounded-full border px-3 py-2 text-xs font-semibold tracking-[0.2em] uppercase;
-  }
-
-  .login-intelligence-ticker span {
-    background: rgba(255, 255, 255, 0.08);
-    border-color: rgba(255, 255, 255, 0.12);
-    color: rgba(255, 255, 255, 0.78);
-  }
-
-  .login-cards-grid {
-    @apply grid gap-6;
+    @apply relative z-10 flex w-full max-w-md flex-col items-center px-4;
+    animation: sg-rise-in 480ms cubic-bezier(0.22, 1, 0.36, 1) both;
   }
 
   .login-card {
-    @apply relative rounded-[1.75rem] border p-6 lg:p-7;
+    @apply w-full rounded-2xl border bg-white p-7 sm:p-9;
+    border-color: #e2e8f0;
+    box-shadow:
+      0 1px 3px rgba(0, 0, 0, 0.04),
+      0 8px 24px rgba(0, 0, 0, 0.06);
   }
 
-  .login-card-govbr {
-    background: linear-gradient(180deg, rgba(224, 244, 238, 0.92), rgba(240, 248, 246, 0.92));
-    border-color: rgba(17, 103, 76, 0.18);
+  html.dark .login-card {
+    @apply border-slate-700/80 bg-slate-900;
+    box-shadow:
+      0 1px 3px rgba(0, 0, 0, 0.2),
+      0 8px 24px rgba(0, 0, 0, 0.3);
   }
 
-  .login-card-admin {
-    background: rgba(255, 255, 255, 0.86);
-    border-color: rgba(148, 163, 184, 0.18);
+  /* -- Branding -- */
+  .login-brand {
+    @apply mb-7 flex flex-col items-center text-center;
   }
 
-  html.dark .login-card-govbr,
-  html.dark .login-card-admin {
-    background: rgba(15, 23, 42, 0.82);
+  .login-brand__icon {
+    @apply mb-3 flex h-14 w-14 items-center justify-center rounded-2xl text-white shadow-md;
+    background: linear-gradient(135deg, #11674c, #1a9e6f);
   }
 
-  .login-card-badge {
-    @apply absolute right-6 top-6 rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-white;
-    background: linear-gradient(135deg, var(--sg-accent-gold), #e0c48e);
+  .login-brand__icon svg {
+    @apply h-7 w-7;
   }
 
-  .login-card-header {
-    @apply mb-6 flex flex-col gap-4;
+  .login-brand h1 {
+    @apply text-2xl font-extrabold tracking-tight text-slate-900;
+    letter-spacing: -0.025em;
   }
 
-  .login-card-header h2 {
-    @apply text-2xl font-semibold tracking-tight;
-    color: var(--sg-text);
+  html.dark .login-brand h1 {
+    @apply text-slate-100;
   }
 
-  .login-card-header p {
-    @apply text-sm leading-6;
-    color: var(--sg-text-soft);
+  .login-brand p {
+    @apply mt-1 text-[13px] font-medium text-slate-400;
+  }
+
+  html.dark .login-brand p {
+    @apply text-slate-500;
+  }
+
+  /* -- Gov.br section -- */
+  .login-govbr-section {
+    @apply mb-0;
+  }
+
+  .btn-govbr {
+    @apply flex w-full items-center justify-center gap-2.5 rounded-lg px-5 py-3 text-[14px] font-semibold text-white transition-all;
+    background: #1351b4;
+  }
+
+  .btn-govbr:hover {
+    background: #0c326f;
+    box-shadow: 0 4px 14px rgba(19, 81, 180, 0.25);
+    transform: translateY(-1px);
+  }
+
+  .btn-govbr:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 4px rgba(19, 81, 180, 0.2);
+  }
+
+  .btn-govbr .govbr-logo-img {
+    @apply h-5 w-auto;
   }
 
   .govbr-logo-fallback {
-    @apply hidden rounded-full bg-slate-900 px-3 py-1 text-sm font-semibold text-white;
+    @apply hidden text-sm font-bold text-white;
   }
 
   .govbr-logo-fallback.is-visible {
-    @apply inline-flex;
+    @apply inline;
   }
 
+  /* -- Divider -- */
+  .login-divider {
+    @apply my-5 flex items-center gap-3;
+  }
+
+  .login-divider::before,
+  .login-divider::after {
+    @apply h-px flex-1 bg-slate-200;
+    content: '';
+  }
+
+  html.dark .login-divider::before,
+  html.dark .login-divider::after {
+    @apply bg-slate-700;
+  }
+
+  .login-divider span {
+    @apply whitespace-nowrap text-xs text-slate-400;
+  }
+
+  /* -- Form -- */
+  .login-form {
+    @apply flex flex-col gap-4;
+  }
+
+  .login-field label {
+    @apply mb-1 block text-sm font-medium text-slate-700;
+  }
+
+  html.dark .login-field label {
+    @apply text-slate-300;
+  }
+
+  .login-field input {
+    @apply w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 transition-colors placeholder:text-slate-400;
+  }
+
+  .login-field input:focus {
+    @apply border-emerald-500 outline-none ring-2 ring-emerald-500/20;
+  }
+
+  html.dark .login-field input {
+    @apply border-slate-600 bg-slate-800 text-slate-100 placeholder:text-slate-500;
+  }
+
+  html.dark .login-field input:focus {
+    @apply border-emerald-400 ring-emerald-400/20;
+  }
+
+  .login-options {
+    @apply flex flex-wrap items-center gap-x-5 gap-y-1.5;
+  }
+
+  .login-checkbox {
+    @apply flex cursor-pointer items-center gap-2 text-sm text-slate-600;
+  }
+
+  html.dark .login-checkbox {
+    @apply text-slate-400;
+  }
+
+  .login-checkbox input {
+    @apply h-4 w-4 rounded border-slate-300 accent-emerald-600;
+  }
+
+  .login-submit {
+    @apply mt-1 w-full rounded-lg px-5 py-2.5 text-[14px] font-semibold text-white transition-all;
+    background: linear-gradient(135deg, #11674c, #1a9e6f);
+  }
+
+  .login-submit:hover {
+    box-shadow: 0 4px 14px rgba(17, 103, 76, 0.3);
+    transform: translateY(-1px);
+  }
+
+  .login-submit:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 4px rgba(17, 103, 76, 0.2);
+  }
+
+  .login-submit:disabled {
+    @apply cursor-not-allowed opacity-60;
+    transform: none;
+    box-shadow: none;
+  }
+
+  /* -- SerproID -- */
+  .login-serproid {
+    @apply mt-4 border-t border-slate-200 pt-4;
+  }
+
+  html.dark .login-serproid {
+    @apply border-slate-700;
+  }
+
+  .login-serproid__btn {
+    @apply flex w-full items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-600 transition-all;
+  }
+
+  .login-serproid__btn:hover {
+    @apply border-slate-400 bg-slate-50 text-slate-800;
+  }
+
+  html.dark .login-serproid__btn {
+    @apply border-slate-600 bg-slate-800 text-slate-300;
+  }
+
+  .serproid-icon {
+    @apply h-5 w-auto;
+  }
+
+  /* -- Alerts -- */
+  .login-alert {
+    @apply mt-2 rounded-lg p-2.5 text-center text-xs;
+    display: none;
+  }
+
+  .login-alert.show {
+    display: block;
+  }
+
+  .login-alert--warn {
+    @apply border border-amber-200 bg-amber-50 text-amber-700;
+  }
+
+  html.dark .login-alert--warn {
+    @apply border-amber-800/40 bg-amber-900/20 text-amber-400;
+  }
+
+  /* -- Error -- */
+  .login-error {
+    @apply mt-4 rounded-lg bg-red-50 p-3 text-center text-sm text-red-600;
+  }
+
+  .login-error.hidden {
+    display: none;
+  }
+
+  html.dark .login-error {
+    @apply bg-red-900/20 text-red-400;
+  }
+
+  /* -- Auxiliary links -- */
+  .login-aux {
+    @apply mt-4 text-center;
+  }
+
+  .login-aux__link {
+    @apply cursor-pointer border-none bg-transparent text-sm text-slate-500 underline decoration-slate-300 underline-offset-2 transition-colors hover:text-emerald-600;
+  }
+
+  html.dark .login-aux__link {
+    @apply text-slate-400 decoration-slate-600 hover:text-emerald-400;
+  }
+
+  /* -- Copyright -- */
+  .login-copyright {
+    @apply mt-8 text-center text-xs text-slate-400;
+  }
+
+  html.dark .login-copyright {
+    @apply text-slate-600;
+  }
+
+  /* -- Brand images (kept for dynamic logo support) -- */
   .sg-brand-image {
     display: block;
     max-width: 100%;
@@ -2813,69 +2875,6 @@ html.dark {
     max-height: 40px;
     margin-right: 10px;
     vertical-align: middle;
-  }
-
-  .govbr-security-note,
-  .login-help-content,
-  .remember-block,
-  .recover-link {
-    @apply rounded-[1.25rem] border p-4;
-    background: rgba(255, 255, 255, 0.52);
-    border-color: rgba(148, 163, 184, 0.16);
-  }
-
-  html.dark .govbr-security-note,
-  html.dark .login-help-content,
-  html.dark .remember-block,
-  html.dark .recover-link {
-    background: rgba(2, 6, 23, 0.4);
-  }
-
-  .remember-option {
-    @apply flex items-center gap-2 text-sm;
-  }
-
-  .remember-option input {
-    @apply h-4 w-4 rounded border-slate-300;
-  }
-
-  .govbr-selos {
-    @apply mt-6 flex flex-wrap gap-3;
-  }
-
-  .govbr-selos span {
-    @apply inline-flex rounded-full border px-3 py-2 text-xs font-semibold tracking-[0.18em] uppercase;
-    background: rgba(255, 255, 255, 0.56);
-    border-color: rgba(17, 103, 76, 0.14);
-    color: var(--sg-text-soft);
-  }
-
-  .login-separator {
-    @apply my-6 flex items-center gap-3;
-    color: var(--sg-text-muted);
-  }
-
-  .login-separator hr {
-    @apply flex-1 border-0 border-t;
-    border-color: rgba(148, 163, 184, 0.18);
-  }
-
-  .login-footer {
-    @apply mt-6;
-  }
-
-  .login-trust-bar {
-    @apply mt-6 flex flex-wrap gap-2;
-  }
-
-  .login-trust-pill {
-    background: rgba(255, 255, 255, 0.72);
-    border-color: rgba(148, 163, 184, 0.18);
-    color: var(--sg-text-soft);
-  }
-
-  .btn-link {
-    @apply text-sm font-semibold text-indigo-600 hover:text-indigo-500 dark:text-indigo-300;
   }
 
   /* Module placeholder screens (Em desenvolvimento) */
@@ -3217,8 +3216,6 @@ html.dark {
   }
 
   .dashboard-detail-grid,
-  .login-experience-grid,
-  .login-intelligence-grid,
   .dashboard-signal-row,
   .dashboard-mini-metrics {
     @apply grid-cols-1;

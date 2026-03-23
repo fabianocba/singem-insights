@@ -1,6 +1,7 @@
 /**
  * Estilos para Sistema de Proteção de Pastas
  */
+@layer legacy {
 
 /* Container Principal */
 .protecao-container {
@@ -302,3 +303,5 @@
     margin-bottom: 5px;
   }
 }
+
+} /* fim @layer legacy */

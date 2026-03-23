@@ -2,6 +2,7 @@
  * SINGEM - Estilos para Relatórios Dinâmicos
  * @version 1.0.0
  */
+@layer legacy {
 
 /* ============================================================================
    FILTROS
@@ -459,3 +460,5 @@
   background: var(--cor-fundo-claro, #f8f9fa);
   border-color: var(--cor-texto-secundario, #666);
 }
+
+} /* fim @layer legacy */

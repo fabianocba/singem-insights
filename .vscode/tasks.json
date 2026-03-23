@@ -10,7 +10,9 @@
         "-ExecutionPolicy",
         "Bypass",
         "-File",
-        "${workspaceFolder}\\scripts\\dev-start.ps1",
+        "${workspaceFolder}\\scripts\\dev-up.ps1",
+        "-Action",
+        "up",
         "-ProjectRoot",
         "${workspaceFolder}"
       ],
