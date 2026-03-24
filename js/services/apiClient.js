@@ -11,8 +11,9 @@
 const API_CONFIG = {
   // URL base do servidor
   baseUrl:
+    window.__API_BASE_URL__ ||
     window.CONFIG?.api?.baseUrl ||
-    (['localhost', '127.0.0.1'].includes(window.location.hostname) ? 'http://localhost:3000' : window.location.origin),
+    window.location.origin,
   timeout: 30000,
   retries: 3,
   retryBaseDelayMs: 500
@@ -514,19 +515,29 @@ const apiClient = {
 
   async healthCheck() {
     try {
-      const data = await request('/health');
+      const data = await request('/api/health');
       return { online: true, ...data };
     } catch {
-      return { online: false, status: 'OFFLINE' };
+      try {
+        const data = await request('/health');
+        return { online: true, ...data };
+      } catch {
+        return { online: false, status: 'OFFLINE' };
+      }
     }
   },
 
   async isOnline() {
     try {
-      await request('/health');
+      await request('/api/health');
       return true;
     } catch {
-      return false;
+      try {
+        await request('/health');
+        return true;
+      } catch {
+        return false;
+      }
     }
   }
 };

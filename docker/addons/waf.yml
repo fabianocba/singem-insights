@@ -3,8 +3,7 @@
 # Addon plugável — substitui frontend por nginx + ModSecurity
 #
 # Uso:
-#   cd docker/prod
-#   docker compose -f docker-compose.yml -f ../addons/waf.yml up -d --build
+#   docker compose --env-file docker/prod/.env.prod -f docker/prod/docker-compose.prod.yml -f docker/addons/waf.yml up -d --build
 # ============================================================
 
 services:

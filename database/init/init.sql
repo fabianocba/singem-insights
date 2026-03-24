@@ -1,0 +1,2 @@
+-- SINGEM database init placeholder
+-- Mantenha scripts oficiais de schema em database/migrations

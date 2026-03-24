@@ -3,8 +3,7 @@
 # Addon plugável — requer backend healthy
 #
 # Uso:
-#   cd docker/local  (ou docker/prod)
-#   docker compose up -d
+#   docker compose --env-file ../../.env.dev -f ../dev/docker-compose.dev.yml up -d
 #   docker compose -f ../addons/loadtest.yml run --rm k6-smoke
 #   docker compose -f ../addons/loadtest.yml run --rm k6
 # ============================================================

@@ -3,7 +3,7 @@
 /**
  * SINGEM — Integration Test Runner
  * Executa health checks automatizados nos servicos Docker.
- * Usado pelo docker-compose.test.yml via entrypoint.
+ * Usado por stack de teste em Docker via entrypoint.
  */
 const http = require('http');
 

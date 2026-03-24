@@ -2,299 +2,46 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "SINGEM: UP",
+      "label": "SINGEM: START",
       "type": "shell",
-      "command": "pwsh",
-      "args": [
-        "-NoProfile",
-        "-ExecutionPolicy",
-        "Bypass",
-        "-File",
-        "${workspaceFolder}\\scripts\\dev-up.ps1",
-        "-Action",
-        "up",
-        "-ProjectRoot",
-        "${workspaceFolder}"
-      ],
-      "presentation": {
-        "echo": true,
-        "reveal": "always",
-        "focus": false,
-        "panel": "dedicated",
-        "showReuseMessage": false,
-        "clear": true
-      },
-      "problemMatcher": []
-    },
-    {
-      "label": "SINGEM: SETUP",
-      "type": "shell",
-      "command": "pwsh",
-      "args": [
-        "-NoProfile",
-        "-ExecutionPolicy",
-        "Bypass",
-        "-File",
-        "${workspaceFolder}\\scripts\\dev-setup.ps1",
-        "-ProjectRoot",
-        "${workspaceFolder}"
-      ],
-      "presentation": {
-        "echo": true,
-        "reveal": "always",
-        "focus": false,
-        "panel": "dedicated",
-        "showReuseMessage": false,
-        "clear": true
-      },
-      "problemMatcher": []
-    },
-    {
-      "label": "SINGEM: TUNNEL",
-      "type": "shell",
-      "command": "pwsh",
-      "args": [
-        "-NoProfile",
-        "-ExecutionPolicy",
-        "Bypass",
-        "-File",
-        "${workspaceFolder}\\scripts\\dev-doctor.ps1",
-        "-ProjectRoot",
-        "${workspaceFolder}"
-      ],
-      "isBackground": true,
-      "presentation": {
-        "reveal": "always",
-        "focus": false,
-        "panel": "dedicated",
-        "group": "singem-tunnel"
-      },
-      "problemMatcher": []
-    },
-    {
-      "label": "SINGEM: BACKEND",
-      "type": "shell",
-      "command": "pwsh",
-      "args": [
-        "-NoProfile",
-        "-ExecutionPolicy",
-        "Bypass",
-        "-File",
-        "${workspaceFolder}\\scripts\\dev-start.ps1",
-        "-ProjectRoot",
-        "${workspaceFolder}"
-      ],
-      "isBackground": true,
-      "presentation": {
-        "reveal": "always",
-        "focus": false,
-        "panel": "dedicated",
-        "group": "singem-backend"
-      },
-      "problemMatcher": []
-    },
-    {
-      "label": "SINGEM: FRONTEND",
-      "type": "shell",
-      "command": "pwsh",
-      "args": [
-        "-NoProfile",
-        "-ExecutionPolicy",
-        "Bypass",
-        "-File",
-        "${workspaceFolder}\\scripts\\dev-start.ps1",
-        "-ProjectRoot",
-        "${workspaceFolder}"
-      ],
-      "isBackground": true,
-      "presentation": {
-        "reveal": "always",
-        "focus": false,
-        "panel": "dedicated",
-        "group": "singem-frontend"
-      },
-      "problemMatcher": []
-    },
-    {
-      "label": "SINGEM: AI",
-      "type": "shell",
-      "command": "pwsh",
-      "args": [
-        "-NoProfile",
-        "-ExecutionPolicy",
-        "Bypass",
-        "-File",
-        "${workspaceFolder}\\scripts\\dev-start.ps1",
-        "-Profile",
-        "ai",
-        "-ProjectRoot",
-        "${workspaceFolder}"
-      ],
-      "isBackground": true,
-      "presentation": {
-        "reveal": "always",
-        "focus": false,
-        "panel": "dedicated",
-        "group": "singem-ai"
-      },
-      "problemMatcher": []
-    },
-    {
-      "label": "SINGEM: HEALTHCHECK",
-      "type": "shell",
-      "command": "pwsh",
-      "args": [
-        "-NoProfile",
-        "-ExecutionPolicy",
-        "Bypass",
-        "-File",
-        "${workspaceFolder}\\scripts\\dev-doctor.ps1",
-        "-ProjectRoot",
-        "${workspaceFolder}"
-      ],
-      "presentation": {
-        "reveal": "always",
-        "focus": false,
-        "panel": "dedicated",
-        "group": "singem-health"
-      },
+      "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File ${workspaceFolder}\\scripts\\start.ps1 -ProjectRoot ${workspaceFolder}",
       "problemMatcher": []
     },
     {
       "label": "SINGEM: STOP",
       "type": "shell",
-      "command": "pwsh",
-      "args": [
-        "-NoProfile",
-        "-ExecutionPolicy",
-        "Bypass",
-        "-File",
-        "${workspaceFolder}\\scripts\\dev-stop.ps1",
-        "-ProjectRoot",
-        "${workspaceFolder}"
-      ],
-      "presentation": {
-        "reveal": "always",
-        "focus": false,
-        "panel": "dedicated",
-        "group": "singem-stop"
-      },
-      "problemMatcher": []
-    },
-    {
-      "label": "SINGEM: UPDATE",
-      "type": "shell",
-      "command": "pwsh",
-      "args": [
-        "-NoProfile",
-        "-ExecutionPolicy",
-        "Bypass",
-        "-File",
-        "${workspaceFolder}\\scripts\\dev-update.ps1",
-        "-ProjectRoot",
-        "${workspaceFolder}"
-      ],
-      "presentation": {
-        "reveal": "always",
-        "focus": false,
-        "panel": "dedicated",
-        "group": "singem-update"
-      },
+      "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File ${workspaceFolder}\\scripts\\stop.ps1 -ProjectRoot ${workspaceFolder}",
       "problemMatcher": []
     },
     {
       "label": "SINGEM: REBUILD",
       "type": "shell",
-      "command": "pwsh",
-      "args": [
-        "-NoProfile",
-        "-ExecutionPolicy",
-        "Bypass",
-        "-File",
-        "${workspaceFolder}\\scripts\\dev-rebuild.ps1",
-        "-ProjectRoot",
-        "${workspaceFolder}"
-      ],
-      "presentation": {
-        "reveal": "always",
-        "focus": false,
-        "panel": "dedicated",
-        "group": "singem-rebuild"
-      },
+      "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File ${workspaceFolder}\\scripts\\rebuild.ps1 -ProjectRoot ${workspaceFolder}",
       "problemMatcher": []
     },
     {
-      "label": "SINGEM: RESET",
+      "label": "SINGEM: LOGS",
       "type": "shell",
-      "command": "pwsh",
-      "args": [
-        "-NoProfile",
-        "-ExecutionPolicy",
-        "Bypass",
-        "-File",
-        "${workspaceFolder}\\scripts\\dev-reset.ps1",
-        "-ProjectRoot",
-        "${workspaceFolder}"
-      ],
-      "presentation": {
-        "reveal": "always",
-        "focus": false,
-        "panel": "dedicated",
-        "group": "singem-reset"
-      },
+      "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File ${workspaceFolder}\\scripts\\logs.ps1 -ProjectRoot ${workspaceFolder}",
       "problemMatcher": []
     },
     {
-      "label": "lint",
+      "label": "SINGEM: DEPLOY",
       "type": "shell",
-      "command": "npm run lint",
-      "group": "test",
-      "presentation": {
-        "reveal": "always",
-        "panel": "shared"
-      },
-      "problemMatcher": ["$eslint-stylish"]
+      "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File ${workspaceFolder}\\scripts\\deploy.ps1 -ProjectRoot ${workspaceFolder}",
+      "problemMatcher": []
     },
     {
-      "label": "lint:fix",
+      "label": "SINGEM: VERSION",
       "type": "shell",
-      "command": "npm run lint:fix",
-      "group": "test",
-      "presentation": {
-        "reveal": "always",
-        "panel": "shared"
-      }
+      "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File ${workspaceFolder}\\scripts\\version.ps1 -ProjectRoot ${workspaceFolder}",
+      "problemMatcher": []
     },
     {
-      "label": "format",
+      "label": "SINGEM: CLEAN LEGACY",
       "type": "shell",
-      "command": "npm run format",
-      "group": "test",
-      "presentation": {
-        "reveal": "silent",
-        "panel": "shared"
-      }
-    },
-    {
-      "label": "format:check",
-      "type": "shell",
-      "command": "npm run format:check",
-      "group": "test",
-      "presentation": {
-        "reveal": "always",
-        "panel": "shared"
-      }
-    },
-    {
-      "label": "serve",
-      "type": "shell",
-      "command": "npm run serve:dev",
-      "group": "build",
-      "isBackground": true,
-      "presentation": {
-        "reveal": "always",
-        "panel": "dedicated"
-      }
+      "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File ${workspaceFolder}\\scripts\\clean-legacy.ps1 -ProjectRoot ${workspaceFolder}",
+      "problemMatcher": []
     }
   ]
 }

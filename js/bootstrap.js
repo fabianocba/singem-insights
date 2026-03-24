@@ -15,7 +15,7 @@ function waitForDB(intervalMs = 100, timeoutMs = 12000) {
   return new Promise((resolve) => {
     const deadline = Date.now() + timeoutMs;
     const check = () => {
-      if (window.dbManager?.loja) {
+      if (window.dbManager?.loja || window.dbManager?.db || window.repository) {
         resolve();
         return;
       }

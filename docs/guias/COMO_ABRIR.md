@@ -38,7 +38,7 @@ Isso irá:
 ### 1. Iniciar Servidor (se ainda não está rodando)
 
 ```powershell
-pwsh -File .\scripts\dev-start.ps1 -ProjectRoot .
+pwsh -File .\scripts\start.ps1 -ProjectRoot .
 ```
 
 ### 2. Abrir Navegador
@@ -72,7 +72,7 @@ http://localhost:8000/index.html
 ```powershell
 # Inicie o ambiente Docker oficial
 cd C:\SINGEM
-pwsh -File .\scripts\dev-start.ps1 -ProjectRoot .
+pwsh -File .\scripts\start.ps1 -ProjectRoot .
 ```
 
 ### Problema: "Porta 8000 já está em uso"
@@ -81,8 +81,8 @@ pwsh -File .\scripts\dev-start.ps1 -ProjectRoot .
 
 ```powershell
 # Pare e suba novamente a stack oficial
-pwsh -File .\scripts\dev-stop.ps1 -ProjectRoot .
-pwsh -File .\scripts\dev-start.ps1 -ProjectRoot .
+pwsh -File .\scripts\stop.ps1 -ProjectRoot .
+pwsh -File .\scripts\start.ps1 -ProjectRoot .
 ```
 
 ### Problema: Navegador não abre automaticamente
@@ -119,7 +119,7 @@ pwsh -File .\scripts\dev-start.ps1 -ProjectRoot .
    - Duplo-clique em `ABRIR_APLICACAO.bat`
 2. **Se o servidor não estiver rodando:**
    - Abra a pasta no VS Code (inicia automaticamente)
-   - Ou execute: `pwsh -File .\scripts\dev-start.ps1 -ProjectRoot .` em um terminal
+   - Ou execute: `pwsh -File .\scripts\start.ps1 -ProjectRoot .` em um terminal
 
 3. **Crie um atalho na área de trabalho:**
    - Clique-direito em `ABRIR_APLICACAO.bat`

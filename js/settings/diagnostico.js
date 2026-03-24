@@ -59,9 +59,7 @@ async function renderStorageStats(containerId) {
     const apiBase =
       window.__API_BASE_URL__ ||
       window.CONFIG?.api?.baseUrl ||
-      (['localhost', '127.0.0.1'].includes(window.location.hostname)
-        ? 'http://localhost:3000'
-        : window.location.origin);
+      window.location.origin;
     renderInto(
       container,
       metricGridMarkup([

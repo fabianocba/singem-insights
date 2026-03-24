@@ -276,6 +276,12 @@ export class ControleMaterialApp {
         if (response.sucesso && response.usuario) {
           this.usuarioLogado = { ...response.usuario };
           this.authProvider = response.usuario.authProvider || provider;
+
+          // Compatibilidade: mantém módulo legado de configurações sincronizado.
+          if (window.settingsUsuarios) {
+            window.settingsUsuarios.usuarioLogado = { ...this.usuarioLogado };
+          }
+
           console.log(`[OAuth] ✅ Login via ${provider}:`, this.usuarioLogado.nome);
 
           // Atualiza UI
@@ -1828,6 +1834,11 @@ export class ControleMaterialApp {
       };
       this.authProvider = usuarioApi.authProvider || 'local';
 
+      // Compatibilidade: alguns módulos de configurações ainda leem o usuário daqui.
+      if (window.settingsUsuarios) {
+        window.settingsUsuarios.usuarioLogado = { ...this.usuarioLogado };
+      }
+
       await this.salvarDadosLembradosPosLogin(usuario, '');
 
       if (form?.elements?.username) {
@@ -1946,9 +1957,7 @@ export class ControleMaterialApp {
       const base =
         window.__API_BASE_URL__ ||
         (window.CONFIG && window.CONFIG.api && window.CONFIG.api.baseUrl) ||
-        (['localhost', '127.0.0.1'].includes(window.location.hostname)
-          ? 'http://localhost:3000'
-          : window.location.origin);
+        window.location.origin;
       const normalizedBase = String(base).replace(/\/+$/, '');
       window.location.href =
         normalizedBase + '/api/auth/govbr/logout?redirect=' + encodeURIComponent(window.location.origin);

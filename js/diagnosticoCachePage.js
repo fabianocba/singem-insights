@@ -70,7 +70,7 @@ async function runTests() {
       log('✅ Cache desabilitado corretamente!', 'success');
     } else {
       log(
-        '⚠️ Cache NÃO está desabilitado! Reinicie o frontend usando o servidor local sem cache (npm run serve:dev ou scripts/dev-start.ps1).',
+        '⚠️ Cache NÃO está desabilitado! Reinicie o frontend usando o servidor local sem cache (npm run serve:dev ou scripts/start.ps1).',
         'warning'
       );
     }

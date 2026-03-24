@@ -16,7 +16,7 @@ function resolveBaseUrl() {
   const isLocal = host === 'localhost' || host === '127.0.0.1';
 
   if (isLocal) {
-    return String(window.CONFIG?.api?.baseUrl || 'http://localhost:3000').replace(/\/+$/, '');
+    return String(window.CONFIG?.api?.baseUrl || window.location.origin).replace(/\/+$/, '');
   }
 
   return '';

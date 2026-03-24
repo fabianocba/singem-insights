@@ -14,14 +14,9 @@ export async function getNFs(params = {}) {
   const fornecedorTermo = fornecedor ? normalizeText(fornecedor) : '';
   const fornecedorDigits = fornecedor ? onlyDigits(fornecedor) : '';
 
-  if (!window.dbManager?.db) {
-    console.warn('[ReportRepo] dbManager não inicializado');
-    return [];
-  }
-
   try {
-    // Buscar todas as NFs
-    const nfs = await window.dbManager.listarNotasFiscais();
+    // Busca no caminho disponível (API PostgreSQL ou IndexedDB legado).
+    const nfs = await loadNotasFiscais();
 
     // Aplicar filtros em memória (IDB não suporta filtros compostos nativamente)
     return (nfs || []).map(normalizeNF).filter((nf) => {
@@ -71,7 +66,7 @@ export async function getNFItemsByNFIds(nfIds) {
   }
 
   try {
-    const nfs = await window.dbManager.listarNotasFiscais();
+    const nfs = await loadNotasFiscais();
     const nfMap = new Map((nfs || []).map((nf) => [nf.id, nf]));
 
     const items = [];
@@ -111,13 +106,8 @@ export async function getEmpenhos(params = {}) {
   const fornecedorTermo = fornecedor ? normalizeText(fornecedor) : '';
   const fornecedorDigits = fornecedor ? onlyDigits(fornecedor) : '';
 
-  if (!window.dbManager?.db) {
-    console.warn('[ReportRepo] dbManager não inicializado');
-    return [];
-  }
-
   try {
-    const empenhos = await window.dbManager.listarEmpenhos();
+    const empenhos = await loadEmpenhos();
 
     return (empenhos || []).map(normalizeEmpenho).filter((emp) => {
       // Filtro por ano
@@ -162,7 +152,10 @@ export async function getEmpenhos(params = {}) {
  */
 export async function getEmpenhoById(id) {
   try {
-    const emp = await window.dbManager.buscarEmpenhoPorId(parseInt(id));
+    const numericId = parseInt(id);
+    const emp = window.repository?.getEmpenhoById
+      ? await window.repository.getEmpenhoById(numericId)
+      : await window.dbManager?.buscarEmpenhoPorId?.(numericId);
     return emp ? normalizeEmpenho(emp) : null;
   } catch (error) {
     console.error('[ReportRepo] Erro ao buscar empenho:', error);
@@ -179,7 +172,7 @@ export async function getEntregas(params = {}) {
   const { dateFrom, dateTo, empenhoId } = params;
 
   try {
-    const entregas = await window.dbManager.listarEntregas();
+    const entregas = await loadEntregas();
 
     return (entregas || []).filter((ent) => {
       if (dateFrom && ent.dataEntrega < dateFrom) {
@@ -205,7 +198,7 @@ export async function getEntregas(params = {}) {
  */
 export async function getAnosDisponiveis() {
   try {
-    const empenhos = await window.dbManager.listarEmpenhos();
+    const empenhos = await loadEmpenhos();
     const anos = new Set();
     (empenhos || []).forEach((emp) => {
       if (emp.ano) {
@@ -225,7 +218,7 @@ export async function getAnosDisponiveis() {
  */
 export async function getFornecedoresUnicos() {
   try {
-    const empenhos = await window.dbManager.listarEmpenhos();
+    const empenhos = await loadEmpenhos();
     const map = new Map();
 
     (empenhos || []).forEach((emp) => {
@@ -249,7 +242,7 @@ export async function getFornecedoresUnicos() {
  */
 export async function getSubelementosUnicos() {
   try {
-    const empenhos = await window.dbManager.listarEmpenhos();
+    const empenhos = await loadEmpenhos();
     const set = new Set();
 
     (empenhos || []).forEach((emp) => {
@@ -357,6 +350,70 @@ function normalizeText(str) {
 
 function onlyDigits(str) {
   return String(str || '').replace(/\D/g, '');
+}
+
+async function loadEmpenhos() {
+  if (window.repository?.listEmpenhos) {
+    return (await window.repository.listEmpenhos(false)) || [];
+  }
+
+  const manager = window.dbManager;
+  if (!manager) {
+    console.warn('[ReportRepo] dbManager indisponível para carregar empenhos');
+    return [];
+  }
+
+  if (typeof manager.buscarEmpenhos === 'function') {
+    return (await manager.buscarEmpenhos(true)) || [];
+  }
+
+  if (typeof manager.listarEmpenhos === 'function') {
+    return (await manager.listarEmpenhos()) || [];
+  }
+
+  console.warn('[ReportRepo] Nenhum método disponível para listar empenhos');
+  return [];
+}
+
+async function loadNotasFiscais() {
+  if (window.repository?.listNotasFiscais) {
+    return (await window.repository.listNotasFiscais()) || [];
+  }
+
+  const manager = window.dbManager;
+  if (!manager) {
+    console.warn('[ReportRepo] dbManager indisponível para carregar notas fiscais');
+    return [];
+  }
+
+  if (typeof manager.buscarNotasFiscais === 'function') {
+    return (await manager.buscarNotasFiscais()) || [];
+  }
+
+  if (typeof manager.listarNotasFiscais === 'function') {
+    return (await manager.listarNotasFiscais()) || [];
+  }
+
+  console.warn('[ReportRepo] Nenhum método disponível para listar notas fiscais');
+  return [];
+}
+
+async function loadEntregas() {
+  const manager = window.dbManager;
+  if (!manager) {
+    return [];
+  }
+
+  if (typeof manager.buscarEntregas === 'function') {
+    return (await manager.buscarEntregas()) || [];
+  }
+
+  if (typeof manager.listarEntregas === 'function') {
+    return (await manager.listarEntregas()) || [];
+  }
+
+  // Em modo PostgreSQL/API este fluxo ainda não expõe entregas neste módulo.
+  return [];
 }
 
 export { normalizeText, normalizeNF, normalizeEmpenho };

@@ -8,7 +8,7 @@
 //   k6 run docker/k6/singem-load.js --env BASE_URL=http://localhost:3000
 //
 // Via docker compose:
-//   docker compose -f docker-compose.yml -f docker-compose.loadtest.yml up --abort-on-container-exit
+//   docker compose --env-file .env.dev -f docker/dev/docker-compose.dev.yml -f docker/addons/loadtest.yml up --abort-on-container-exit
 // ============================================================
 
 import http from 'k6/http';

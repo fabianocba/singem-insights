@@ -12,7 +12,7 @@ export const API_BASE_URL = (() => {
   }
 
   if (IS_LOCALHOST) {
-    return window.CONFIG?.api?.baseUrl || apiClient.config?.baseUrl || 'http://localhost:3000';
+    return window.CONFIG?.api?.baseUrl || apiClient.config?.baseUrl || window.location.origin;
   }
 
   return window.CONFIG?.api?.baseUrl || apiClient.config?.baseUrl || window.location.origin;

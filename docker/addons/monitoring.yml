@@ -3,13 +3,11 @@
 # Addon plugável — requer que a rede singem-network já exista
 #
 # Uso com ambiente local:
-#   cd docker/local
-#   docker compose up -d
+#   docker compose --env-file ../../.env.dev -f ../dev/docker-compose.dev.yml up -d
 #   docker compose -f ../addons/monitoring.yml up -d
 #
 # Uso com ambiente prod:
-#   cd docker/prod
-#   docker compose up -d
+#   docker compose --env-file ./.env.prod -f ./docker-compose.prod.yml up -d
 #   docker compose -f ../addons/monitoring.yml up -d
 #
 # Acessos:

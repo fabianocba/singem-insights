@@ -11,6 +11,9 @@ class SettingsUsuarios {
   constructor() {
     this.usuarios = [];
     this.usuarioLogado = null;
+    this.authSyncBound = false;
+
+    this.setupAuthSync();
 
     // ============================================================================
     // AGUARDA BOOTSTRAP - Não inicializa até window.repository estar disponível
@@ -22,6 +25,29 @@ class SettingsUsuarios {
       .catch((error) => {
         console.error('❌ Erro ao aguardar bootstrap:', error);
       });
+  }
+
+  setupAuthSync() {
+    if (this.authSyncBound) {
+      return;
+    }
+
+    this.authSyncBound = true;
+
+    // Estado inicial quando a página já foi autenticada antes deste módulo carregar.
+    const usuarioInicial = window.app?.usuarioLogado || window.__SINGEM_AUTH?.user || null;
+    if (usuarioInicial) {
+      this.usuarioLogado = { ...usuarioInicial };
+    }
+
+    window.addEventListener('singem:auth:login', (event) => {
+      const usuario = event?.detail?.usuario || window.app?.usuarioLogado || null;
+      this.usuarioLogado = usuario ? { ...usuario } : null;
+    });
+
+    window.addEventListener('singem:auth:logout', () => {
+      this.usuarioLogado = null;
+    });
   }
 
   /**

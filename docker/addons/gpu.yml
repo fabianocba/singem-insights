@@ -3,8 +3,7 @@
 # Addon plugável — sobrescreve configuração do ai-core
 #
 # Uso com local:
-#   cd docker/local
-#   docker compose -f docker-compose.yml -f ../addons/gpu.yml up --build
+#   docker compose --env-file ../../.env.dev -f ../dev/docker-compose.dev.yml -f ../addons/gpu.yml up --build
 #
 # Requisitos:
 #   - NVIDIA Driver instalado no host

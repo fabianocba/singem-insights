@@ -1,0 +1,43 @@
+name: CI
+
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+    branches: [main, dev]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate dev compose
+        run: docker compose --env-file .env.dev -f docker/dev/docker-compose.dev.yml config --quiet
+
+      - name: Validate prod compose
+        run: docker compose --env-file docker/prod/.env.prod -f docker/prod/docker-compose.prod.yml config --quiet
+
+      - name: Validate prod compose SSL override
+        run: docker compose --env-file docker/prod/.env.prod -f docker/prod/docker-compose.prod.yml -f docker/prod/docker-compose.prod.ssl.yml config --quiet
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Format check
+        run: npm run format:check
+
+      - name: Build frontend assets
+        run: npm run tailwind:build

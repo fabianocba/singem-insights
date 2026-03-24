@@ -48,19 +48,60 @@ function Resolve-DevProjectRoot {
 function Get-OfficialComposeFile {
   param([string]$ProjectRoot)
 
-  $preferred = Join-Path $ProjectRoot 'docker\local\docker-compose.yml'
-  $fallback = Join-Path $ProjectRoot 'docker-compose.yml'
+  $preferred = Join-Path $ProjectRoot 'docker\dev\docker-compose.dev.yml'
 
   if (Test-Path -LiteralPath $preferred) {
     return $preferred
   }
 
-  if (Test-Path -LiteralPath $fallback) {
-    Write-DevWarn 'Usando compose legado na raiz (docker-compose.yml).'
-    return $fallback
+  throw 'Nenhum docker-compose oficial encontrado.'
+}
+
+function Get-ComposeEnvFile {
+  param([string]$ComposeFile)
+
+  $composePath = [System.IO.Path]::GetFullPath($ComposeFile)
+  $projectRoot = Resolve-DevProjectRoot -ProjectRoot '' -ScriptRoot $PSScriptRoot
+
+  if ($composePath -like "*docker\dev\docker-compose.dev.yml") {
+    $envFile = Join-Path $projectRoot '.env.dev'
+    if (Test-Path -LiteralPath $envFile) {
+      return $envFile
+    }
+
+    $exampleFile = Join-Path $projectRoot '.env.example'
+    if (Test-Path -LiteralPath $exampleFile) {
+      Copy-Item -LiteralPath $exampleFile -Destination $envFile -Force
+      Write-DevWarn ("Arquivo .env.dev criado a partir de exemplo: {0}" -f $envFile)
+      return $envFile
+    }
   }
 
-  throw 'Nenhum docker-compose oficial encontrado.'
+  if ($composePath -like "*docker\prod\docker-compose.prod.yml") {
+    $envFile = Join-Path (Split-Path -Path $composePath -Parent) '.env.prod'
+    if (Test-Path -LiteralPath $envFile) {
+      return $envFile
+    }
+
+    $exampleFile = Join-Path (Split-Path -Path $composePath -Parent) '.env.example'
+    if (Test-Path -LiteralPath $exampleFile) {
+      Copy-Item -LiteralPath $exampleFile -Destination $envFile -Force
+      Write-DevWarn ("Arquivo .env.prod criado a partir de exemplo: {0}" -f $envFile)
+      return $envFile
+    }
+  }
+
+  throw ("Arquivo de ambiente não encontrado para o compose: {0}" -f $ComposeFile)
+}
+
+function Get-ComposeArgs {
+  param(
+    [string]$ComposeFile,
+    [string]$EnvFile,
+    [string[]]$TailArgs = @()
+  )
+
+  return @('compose', '--env-file', $EnvFile, '-f', $ComposeFile) + $TailArgs
 }
 
 function Test-DevCommand {
@@ -226,7 +267,8 @@ function Invoke-DevCompose {
   )
 
   $composeFile = Get-OfficialComposeFile -ProjectRoot $ProjectRoot
-  Invoke-DevCommand -FilePath 'docker' -ArgumentList @('compose', '-f', $composeFile) + $ComposeArgs
+  $envFile = Get-ComposeEnvFile -ComposeFile $composeFile
+  Invoke-DevCommand -FilePath 'docker' -ArgumentList (Get-ComposeArgs -ComposeFile $composeFile -EnvFile $envFile -TailArgs $ComposeArgs)
 }
 
 function Stop-ComposeConflicts {
@@ -236,8 +278,7 @@ function Stop-ComposeConflicts {
   )
 
   $knownComposeFiles = @(
-    (Join-Path $ProjectRoot 'docker\local\docker-compose.yml'),
-    (Join-Path $ProjectRoot 'docker-compose.yml')
+    (Join-Path $ProjectRoot 'docker\dev\docker-compose.dev.yml')
   ) | Select-Object -Unique
 
   foreach ($composeFile in $knownComposeFiles) {
@@ -250,7 +291,8 @@ function Stop-ComposeConflicts {
     }
 
     Write-DevStep ("Encerrando stack potencialmente conflitante: {0}" -f $composeFile)
-    Invoke-DevCommand -FilePath 'docker' -ArgumentList @('compose', '-f', $composeFile, 'down', '--remove-orphans') -AllowFailure
+    $envFile = Get-ComposeEnvFile -ComposeFile $composeFile
+    Invoke-DevCommand -FilePath 'docker' -ArgumentList (Get-ComposeArgs -ComposeFile $composeFile -EnvFile $envFile -TailArgs @('down', '--remove-orphans')) -AllowFailure
   }
 }
 
@@ -283,10 +325,11 @@ function Ensure-EnvFile {
 function Ensure-ProjectEnvFiles {
   param([string]$ProjectRoot)
 
-  Ensure-EnvFile -TargetPath (Join-Path $ProjectRoot '.env') -ExamplePath (Join-Path $ProjectRoot '.env.example')
+  Ensure-EnvFile -TargetPath (Join-Path $ProjectRoot '.env.dev') -ExamplePath (Join-Path $ProjectRoot '.env.example')
+  Ensure-EnvFile -TargetPath (Join-Path $ProjectRoot '.env.prod') -ExamplePath (Join-Path $ProjectRoot '.env.example')
+  Ensure-EnvFile -TargetPath (Join-Path $ProjectRoot 'docker\prod\.env.prod') -ExamplePath (Join-Path $ProjectRoot 'docker\prod\.env.example')
   Ensure-EnvFile -TargetPath (Join-Path $ProjectRoot 'server\.env') -ExamplePath (Join-Path $ProjectRoot 'server\.env.example')
   Ensure-EnvFile -TargetPath (Join-Path $ProjectRoot 'singem-ai\.env') -ExamplePath (Join-Path $ProjectRoot 'singem-ai\.env.example')
-  Ensure-EnvFile -TargetPath (Join-Path $ProjectRoot 'docker\local\.env') -ExamplePath (Join-Path $ProjectRoot 'docker\local\.env.example')
 }
 
 function Remove-PathIfExists {

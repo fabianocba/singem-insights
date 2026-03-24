@@ -19,7 +19,7 @@ Este script:
 1. **Certifique-se que o servidor está rodando:**
 
    ```powershell
-   pwsh -File .\scripts\dev-start.ps1 -ProjectRoot .
+   pwsh -File .\scripts\start.ps1 -ProjectRoot .
    ```
 
 2. **Abra no navegador:**

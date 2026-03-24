@@ -1,0 +1,186 @@
+# ============================================================
+# SINGEM — Docker Compose PRODUÇÃO (VPS)
+# Arquivo oficial de produção.
+# ============================================================
+
+name: singem-prod
+
+networks:
+  singem-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  backend_logs:
+  redis_data:
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg15
+    restart: always
+    environment:
+      POSTGRES_DB: ${DB_NAME:?DB_NAME obrigatória}
+      POSTGRES_USER: ${DB_USER:?DB_USER obrigatória}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD obrigatória}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    command:
+      - 'postgres'
+      - '-c'
+      - 'shared_buffers=256MB'
+      - '-c'
+      - 'work_mem=16MB'
+      - '-c'
+      - 'maintenance_work_mem=128MB'
+      - '-c'
+      - 'effective_cache_size=512MB'
+      - '-c'
+      - 'log_min_duration_statement=1000'
+      - '-c'
+      - 'log_connections=on'
+      - '-c'
+      - 'log_disconnections=on'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - singem-network
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${DB_USER} -d ${DB_NAME}']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  redis:
+    image: redis:7-alpine
+    restart: always
+    command: >-
+      redis-server
+      --save 60 1
+      --loglevel warning
+      --requirepass ${REDIS_PASSWORD:?REDIS_PASSWORD obrigatória}
+    volumes:
+      - redis_data:/data
+    networks:
+      - singem-network
+    healthcheck:
+      test: ['CMD', 'redis-cli', '-a', '${REDIS_PASSWORD:?REDIS_PASSWORD obrigatória}', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  backend:
+    build:
+      context: ../..
+      dockerfile: Dockerfile.backend
+    restart: always
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME:?DB_NAME obrigatória}
+      DB_USER: ${DB_USER:?DB_USER obrigatória}
+      DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD obrigatória}
+      DATABASE_URL: ''
+      DB_SSL: 'false'
+      DB_CONNECTION_TIMEOUT_MS: ${DB_CONNECTION_TIMEOUT_MS:-5000}
+      DB_HEALTHCHECK_TIMEOUT_MS: ${DB_HEALTHCHECK_TIMEOUT_MS:-5000}
+      TRUST_PROXY: 'true'
+      API_BODY_LIMIT: ${API_BODY_LIMIT:-10mb}
+      CORS_ORIGINS: '${CORS_ORIGINS:?CORS_ORIGINS obrigatória}'
+      FRONTEND_URL: '${FRONTEND_URL:?FRONTEND_URL obrigatória}'
+      JWT_SECRET: '${JWT_SECRET:?JWT_SECRET obrigatória (min 32 chars)}'
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-15m}
+      JWT_REFRESH_EXPIRES_IN: ${JWT_REFRESH_EXPIRES_IN:-7d}
+      ADMIN_LOGIN: ${ADMIN_LOGIN:-adm}
+      ADMIN_NOME: ${ADMIN_NOME:-Administrador SINGEM}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@ifbaiano.edu.br}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:?ADMIN_PASSWORD obrigatória}
+      GOVBR_ENABLED: ${GOVBR_ENABLED:-false}
+      SERPRO_ENABLED: ${SERPRO_ENABLED:-false}
+      SERPROID_ENABLED: ${SERPROID_ENABLED:-false}
+      CATMAT_ENABLED: ${CATMAT_ENABLED:-false}
+      CATMAT_OBRIGATORIO: ${CATMAT_OBRIGATORIO:-false}
+      AI_CORE_ENABLED: ${AI_CORE_ENABLED:-true}
+      AI_CORE_BASE_URL: ${AI_CORE_BASE_URL:-http://ai-core:8010}
+      AI_CORE_API_PREFIX: ${AI_CORE_API_PREFIX:-/ai}
+      AI_CORE_INTERNAL_TOKEN: ${AI_CORE_INTERNAL_TOKEN:-}
+      AI_CORE_TIMEOUT_MS: ${AI_CORE_TIMEOUT_MS:-15000}
+      AI_CORE_HEALTH_TIMEOUT_MS: ${AI_CORE_HEALTH_TIMEOUT_MS:-2500}
+      REDIS_URL: redis://:${REDIS_PASSWORD:?REDIS_PASSWORD obrigatória}@redis:6379
+    ports:
+      - '127.0.0.1:3000:3000'
+    networks:
+      - singem-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ../../storage:/app/storage
+      - backend_logs:/app/logs
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "require('http').get('http://localhost:3000/health',r=>process.exit(r.statusCode===200?0:1)).on('error',()=>process.exit(1))"
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  frontend:
+    build:
+      context: ../..
+      dockerfile: Dockerfile.frontend
+    restart: always
+    ports:
+      - '${FRONTEND_PORT_HTTP:-80}:80'
+    networks:
+      - singem-network
+    depends_on:
+      backend:
+        condition: service_healthy
+
+  ai-core:
+    container_name: singem-ai-core
+    build:
+      context: ../..
+      dockerfile: Dockerfile.ai
+      args:
+        GPU_ENABLED: ${GPU_ENABLED:-false}
+    restart: always
+    environment:
+      APP_ENV: production
+      APP_DEBUG: 'false'
+      AI_CORE_HOST: 0.0.0.0
+      AI_CORE_PORT: 8010
+      AI_CORE_RELOAD: 'false'
+      AI_INTERNAL_TOKEN: ${AI_CORE_INTERNAL_TOKEN:?AI_CORE_INTERNAL_TOKEN obrigatória}
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME:?DB_NAME obrigatória}
+      DB_USER: ${DB_USER:?DB_USER obrigatória}
+      DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD obrigatória}
+      EMBEDDING_PROVIDER: ${EMBEDDING_PROVIDER:-hash}
+      EMBEDDING_DIMENSION: ${EMBEDDING_DIMENSION:-384}
+      ENABLE_VECTOR_SEARCH: ${ENABLE_VECTOR_SEARCH:-true}
+    networks:
+      - singem-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'python',
+          '-c',
+          "import json,urllib.request,sys; data=json.load(urllib.request.urlopen('http://localhost:8010/ai/health', timeout=5)); sys.exit(0 if data.get('ok') else 1)"
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s

@@ -1,0 +1,70 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main, dev]
+  workflow_dispatch:
+    inputs:
+      target:
+        description: Ambiente de deploy
+        type: choice
+        options:
+          - staging
+          - production
+        default: staging
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy-staging:
+    if: github.ref == 'refs/heads/dev' || (github.event_name == 'workflow_dispatch' && github.event.inputs.target == 'staging')
+    runs-on: ubuntu-latest
+    environment: staging
+    steps:
+      - uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.PORT }}
+          script: |
+            set -e
+            cd /var/www/singem-staging
+            git fetch --all --tags
+            git reset --hard origin/dev
+            if [ ! -f docker/prod/.env.prod ]; then
+              echo "docker/prod/.env.prod não encontrado"
+              exit 1
+            fi
+            docker compose --env-file docker/prod/.env.prod -f docker/prod/docker-compose.prod.yml pull --ignore-buildable || true
+            docker compose --env-file docker/prod/.env.prod -f docker/prod/docker-compose.prod.yml up -d --build --remove-orphans
+            docker compose --env-file docker/prod/.env.prod -f docker/prod/docker-compose.prod.yml ps
+
+  deploy-production:
+    if: github.ref == 'refs/heads/main' || (github.event_name == 'workflow_dispatch' && github.event.inputs.target == 'production')
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.PORT }}
+          script: |
+            set -e
+            cd /var/www/singem
+            git fetch --all --tags
+            git reset --hard origin/main
+            if [ ! -f docker/prod/.env.prod ]; then
+              echo "docker/prod/.env.prod não encontrado"
+              exit 1
+            fi
+            docker compose --env-file docker/prod/.env.prod -f docker/prod/docker-compose.prod.yml pull --ignore-buildable || true
+            docker compose --env-file docker/prod/.env.prod -f docker/prod/docker-compose.prod.yml up -d --build --remove-orphans
+            docker compose --env-file docker/prod/.env.prod -f docker/prod/docker-compose.prod.yml ps

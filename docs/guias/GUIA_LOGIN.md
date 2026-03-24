@@ -151,7 +151,7 @@ Aparece uma mensagem no canto superior direito:
 
 2. **Verifique o servidor:**
    - Deve estar rodando na porta 8000
-   - Execute: `pwsh -File .\scripts\dev-start.ps1 -ProjectRoot .`
+   - Execute: `pwsh -File .\scripts\start.ps1 -ProjectRoot .`
 
 3. **Abra o console (F12)** e veja se há erros
 

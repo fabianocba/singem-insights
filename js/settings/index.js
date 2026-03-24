@@ -46,7 +46,8 @@ class SettingsManager {
    * Verifica permissões do usuário e aplica restrições
    */
   async verificarPermissoes() {
-    this.usuarioLogado = window.settingsUsuarios?.usuarioLogado;
+    this.usuarioLogado =
+      window.settingsUsuarios?.usuarioLogado || window.app?.usuarioLogado || window.__SINGEM_AUTH?.user || null;
 
     if (!this.usuarioLogado) {
       // Sem usuário logado - modo administrador padrão para compatibilidade
