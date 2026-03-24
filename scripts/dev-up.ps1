@@ -94,6 +94,8 @@ if (-not (Test-Path -LiteralPath $targetScript)) {
 $forwardArgs = @{ ProjectRoot = $root }
 
 if ($Action -eq 'up') {
+  Ensure-DockerDesktop -TimeoutSeconds 180 -PollSeconds 3
+  $forwardArgs['SkipDockerEnsure'] = $true
   if ($NoCache)  { $forwardArgs['NoCache'] = $true }
   if ($Pull)     { $forwardArgs['Pull'] = $true }
 }

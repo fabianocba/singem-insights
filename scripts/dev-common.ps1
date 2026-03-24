@@ -80,6 +80,115 @@ function Assert-DevCommand {
   }
 }
 
+function Test-DockerEngineReady {
+  $errorText = ''
+
+  try {
+    $output = & docker ps --format '{{.ID}}' 2>&1
+    if ($LASTEXITCODE -eq 0) {
+      return [ordered]@{ Ready = $true; Error = '' }
+    }
+
+    $errorText = (($output | Out-String).Trim())
+  } catch {
+    $errorText = $_.Exception.Message
+  }
+
+  return [ordered]@{ Ready = $false; Error = $errorText }
+}
+
+function Get-DockerDesktopExecutablePath {
+  $candidates = @(
+    (Join-Path ${env:ProgramFiles} 'Docker\Docker\Docker Desktop.exe'),
+    (Join-Path ${env:ProgramW6432} 'Docker\Docker\Docker Desktop.exe'),
+    (Join-Path ${env:LocalAppData} 'Docker\Docker\Docker Desktop.exe'),
+    'C:\Program Files\Docker\Docker\Docker Desktop.exe'
+  ) | Where-Object { -not [string]::IsNullOrWhiteSpace($_) } | Select-Object -Unique
+
+  foreach ($path in $candidates) {
+    if (Test-Path -LiteralPath $path) {
+      return $path
+    }
+  }
+
+  return ''
+}
+
+function Test-DockerDesktopProcessRunning {
+  try {
+    $proc = Get-Process -Name 'Docker Desktop' -ErrorAction SilentlyContinue
+    return $null -ne $proc
+  } catch {
+    return $false
+  }
+}
+
+function Ensure-DockerDesktop {
+  param(
+    [int]$TimeoutSeconds = 180,
+    [int]$PollSeconds = 3
+  )
+
+  Assert-DevCommand -Name 'docker' -Hint 'Instale o Docker Desktop para Windows.'
+
+  $probe = Test-DockerEngineReady
+  if ($probe.Ready) {
+    Write-DevOk 'Docker Desktop ativo.'
+    return
+  }
+
+  $firstError = ($probe.Error -replace '\s+', ' ').Trim()
+  if (-not [string]::IsNullOrWhiteSpace($firstError)) {
+    Write-DevWarn ("Docker indisponivel: {0}" -f $firstError)
+  }
+
+  if (Test-DockerDesktopProcessRunning) {
+    Write-DevStep 'Docker Desktop ja esta aberto. Aguardando Docker Engine ficar disponivel...'
+  } else {
+    $dockerDesktopExe = Get-DockerDesktopExecutablePath
+    if ([string]::IsNullOrWhiteSpace($dockerDesktopExe)) {
+      throw 'Docker Desktop nao encontrado nos caminhos padrao. Instale o Docker Desktop ou ajuste a instalacao.'
+    }
+
+    Write-DevStep 'Docker nao esta ativo. Iniciando Docker Desktop...'
+    Start-Process -FilePath $dockerDesktopExe | Out-Null
+    Write-DevStep 'Aguardando Docker Engine ficar disponivel...'
+  }
+
+  $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
+  $lastProgressSecond = -1
+  $lastError = $firstError
+
+  while ($stopwatch.Elapsed.TotalSeconds -lt $TimeoutSeconds) {
+    Start-Sleep -Seconds $PollSeconds
+    $probe = Test-DockerEngineReady
+
+    if ($probe.Ready) {
+      Write-DevOk 'Docker Desktop ativo.'
+      return
+    }
+
+    $currentSecond = [int][Math]::Floor($stopwatch.Elapsed.TotalSeconds)
+    if ($currentSecond -ge ($lastProgressSecond + 15)) {
+      $remaining = [Math]::Max(0, $TimeoutSeconds - $currentSecond)
+      Write-DevStep ("Aguardando Docker Engine... ({0}s restantes)" -f $remaining)
+      $lastProgressSecond = $currentSecond
+    }
+
+    if (-not [string]::IsNullOrWhiteSpace($probe.Error)) {
+      $lastError = ($probe.Error -replace '\s+', ' ').Trim()
+    }
+  }
+
+  $hint = if (-not [string]::IsNullOrWhiteSpace($lastError)) {
+    " Ultimo erro: $lastError"
+  } else {
+    ''
+  }
+
+  throw ("Docker Desktop nao ficou pronto em {0}s.{1} Verifique o Docker Desktop e execute novamente." -f $TimeoutSeconds, $hint)
+}
+
 function Invoke-DevCommand {
   param(
     [Parameter(Mandatory = $true)]

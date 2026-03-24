@@ -2,6 +2,7 @@
 [CmdletBinding()]
 param(
   [string]$ProjectRoot = '',
+  [switch]$SkipDockerEnsure,
   [switch]$NoCache,
   [switch]$Pull
 )
@@ -15,6 +16,9 @@ Write-DevTitle 'SINGEM DEV START'
 Write-DevStep ('Compose oficial: {0}' -f $compose)
 
 Ensure-ProjectEnvFiles -ProjectRoot $root
+if (-not $SkipDockerEnsure) {
+  Ensure-DockerDesktop -TimeoutSeconds 180 -PollSeconds 3
+}
 Stop-ComposeConflicts -ProjectRoot $root -CurrentCompose $compose
 Invoke-DevCommand -FilePath 'docker' -ArgumentList @('compose', '-f', $compose, 'down', '--remove-orphans') -AllowFailure
 Remove-SingemContainerConflicts
