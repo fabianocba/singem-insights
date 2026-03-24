@@ -79,6 +79,13 @@ set -e
 cd '$ProjectDir'
 "@
 
+$composePrelude = @"
+COMPOSE_FILES="-f docker/prod/docker-compose.yml"
+if [ -f docker/prod/docker-compose.ssl.yml ]; then
+  COMPOSE_FILES="$COMPOSE_FILES -f docker/prod/docker-compose.ssl.yml"
+fi
+"@
+
 Write-AuditStep 'Verificando pré-requisitos remotos (docker e compose)...'
 Invoke-Remote -Script ($remotePrelude + @"
 docker --version
@@ -90,36 +97,41 @@ Write-AuditStep 'Validando estrutura docker/prod e arquivos obrigatórios...'
 Invoke-Remote -Script ($remotePrelude + @"
 test -f docker/prod/docker-compose.yml
 test -f docker/prod/.env
-docker compose --env-file docker/prod/.env -f docker/prod/docker-compose.yml config --quiet
+$composePrelude
+sh -lc "docker compose --env-file docker/prod/.env $COMPOSE_FILES config --quiet"
 "@)
 Write-AuditOk 'Compose de produção válido com .env presente.'
 
 if ($ApplyDeploy) {
   Write-AuditStep 'Aplicando deploy Docker remoto (pull/build/up)...'
   Invoke-Remote -Script ($remotePrelude + @"
-cd docker/prod
-docker compose pull --ignore-buildable || true
-docker compose up -d --build --remove-orphans
+$composePrelude
+sh -lc "docker compose --env-file docker/prod/.env $COMPOSE_FILES pull --ignore-buildable || true"
+sh -lc "docker compose --env-file docker/prod/.env $COMPOSE_FILES up -d --build --remove-orphans"
 "@)
   Write-AuditOk 'Deploy Docker remoto aplicado.'
 }
 
 Write-AuditStep 'Coletando status da stack Docker na VPS...'
 Invoke-Remote -Script ($remotePrelude + @"
-cd docker/prod
-docker compose ps
+$composePrelude
+sh -lc "docker compose --env-file docker/prod/.env $COMPOSE_FILES ps"
 echo
-docker compose images
+sh -lc "docker compose --env-file docker/prod/.env $COMPOSE_FILES images"
 "@)
 
 if (-not $SkipHealthcheck) {
   Write-AuditStep 'Executando healthchecks dentro dos containers...'
   Invoke-Remote -Script ($remotePrelude + @"
-cd docker/prod
-docker compose exec -T backend wget -qO- http://localhost:3000/health >/dev/null
-docker compose exec -T ai-core python -c "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:8010/ai/health').status == 200 else 1)" >/dev/null
-if docker compose ps --services | grep -q '^frontend$'; then
-  docker compose exec -T frontend wget -qO- http://localhost/backend-health >/dev/null || true
+$composePrelude
+sh -lc "docker compose --env-file docker/prod/.env $COMPOSE_FILES exec -T backend wget -qO- http://localhost:3000/health >/dev/null"
+sh -lc "docker compose --env-file docker/prod/.env $COMPOSE_FILES exec -T ai-core python -c 'import urllib.request,sys; sys.exit(0 if urllib.request.urlopen(\"http://localhost:8010/ai/health\", timeout=5).status == 200 else 1)' >/dev/null"
+if sh -lc "docker compose --env-file docker/prod/.env $COMPOSE_FILES ps --services" | grep -q '^frontend$'; then
+  if [ -f docker/prod/docker-compose.ssl.yml ]; then
+    sh -lc "docker compose --env-file docker/prod/.env $COMPOSE_FILES exec -T frontend wget --no-check-certificate -qO- https://localhost/health >/dev/null"
+  else
+    sh -lc "docker compose --env-file docker/prod/.env $COMPOSE_FILES exec -T frontend wget -qO- http://localhost/health >/dev/null"
+  fi
 fi
 "@) -AllowFailure
   if ($LASTEXITCODE -eq 0) {

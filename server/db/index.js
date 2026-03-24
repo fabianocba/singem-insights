@@ -17,6 +17,72 @@ function isLocalHost(hostname) {
   return ['localhost', '127.0.0.1', '::1'].includes(String(hostname).toLowerCase());
 }
 
+function parseBoolean(value, fallback = false) {
+  if (value === undefined || value === null || value === '') {
+    return fallback;
+  }
+
+  return String(value).trim().toLowerCase() === 'true';
+}
+
+function isPrivateNetworkHost(hostname) {
+  const normalized = String(hostname || '').trim().toLowerCase();
+  if (!normalized) {
+    return true;
+  }
+
+  if (isLocalHost(normalized)) {
+    return true;
+  }
+
+  if (!normalized.includes('.')) {
+    return true;
+  }
+
+  if (normalized.endsWith('.local') || normalized.endsWith('.internal')) {
+    return true;
+  }
+
+  if (/^10\./.test(normalized)) {
+    return true;
+  }
+
+  if (/^192\.168\./.test(normalized)) {
+    return true;
+  }
+
+  const match172 = normalized.match(/^172\.(\d{1,3})\./);
+  if (match172) {
+    const secondOctet = Number(match172[1]);
+    if (Number.isFinite(secondOctet) && secondOctet >= 16 && secondOctet <= 31) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+function shouldEnableSsl({ nodeEnv, hostname }) {
+  const sslMode = String(process.env.PGSSLMODE || '').trim().toLowerCase();
+  if (['require', 'verify-ca', 'verify-full'].includes(sslMode)) {
+    return true;
+  }
+
+  if (['disable', 'allow', 'prefer'].includes(sslMode)) {
+    return false;
+  }
+
+  if (process.env.DB_SSL !== undefined) {
+    return parseBoolean(process.env.DB_SSL, false);
+  }
+
+  if (nodeEnv !== 'production') {
+    return false;
+  }
+
+  return !isPrivateNetworkHost(hostname);
+}
+
 function resolvePoolConfig() {
   const connectionString = process.env.DATABASE_URL || '';
   const nodeEnv = process.env.NODE_ENV || 'development';
@@ -41,12 +107,12 @@ function resolvePoolConfig() {
     poolConfig.connectionString = connectionString;
     try {
       const parsed = new URL(connectionString);
-      const shouldUseSsl = nodeEnv === 'production' && !isLocalHost(parsed.hostname);
+      const shouldUseSsl = shouldEnableSsl({ nodeEnv, hostname: parsed.hostname });
       if (shouldUseSsl) {
         poolConfig.ssl = { rejectUnauthorized: false };
       }
     } catch (_error) {
-      if (nodeEnv === 'production') {
+      if (shouldEnableSsl({ nodeEnv, hostname: '' })) {
         poolConfig.ssl = { rejectUnauthorized: false };
       }
     }

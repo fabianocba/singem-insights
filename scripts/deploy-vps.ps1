@@ -11,7 +11,45 @@ param(
 
 $root = Resolve-DevProjectRoot -ProjectRoot $ProjectRoot -ScriptRoot $PSScriptRoot
 $compose = Join-Path $root 'docker\prod\docker-compose.yml'
+$composeSsl = Join-Path $root 'docker\prod\docker-compose.ssl.yml'
 $envFile = Join-Path $root 'docker\prod\.env'
+
+$composeFiles = @($compose)
+if (Test-Path -LiteralPath $composeSsl) {
+  $composeFiles += $composeSsl
+}
+
+function New-ComposeArgs {
+  param([string[]]$TailArgs)
+
+  $args = @('compose', '--env-file', $envFile)
+  foreach ($composeFile in $composeFiles) {
+    $args += @('-f', $composeFile)
+  }
+
+  return $args + $TailArgs
+}
+
+function Get-FrontendHealthUri {
+  if ($composeFiles.Count -gt 1) {
+    return 'https://127.0.0.1/health'
+  }
+
+  return 'http://127.0.0.1/health'
+}
+
+function Get-FrontendHostHeader {
+  try {
+    $frontUrl = [Uri](Get-Content -LiteralPath $envFile | Where-Object { $_ -match '^FRONTEND_URL=' } | Select-Object -First 1).Split('=', 2)[1]
+    if (-not [string]::IsNullOrWhiteSpace($frontUrl.Host)) {
+      return $frontUrl.Host
+    }
+  } catch {
+    # fallback abaixo
+  }
+
+  return 'singem.cloud'
+}
 
 Write-DevTitle 'SINGEM DEPLOY VPS'
 
@@ -23,17 +61,19 @@ if (-not (Test-Path -LiteralPath $envFile)) {
   throw ("Arquivo obrigatório ausente: {0}. Crie a partir de docker/prod/.env.example." -f $envFile)
 }
 
-Invoke-DevCommand -FilePath 'docker' -ArgumentList @('compose', '--env-file', $envFile, '-f', $compose, 'config', '--quiet')
+if (Test-Path -LiteralPath $composeSsl) {
+  Write-DevStep ('Override SSL detectado: {0}' -f $composeSsl)
+}
+
+Invoke-DevCommand -FilePath 'docker' -ArgumentList (New-ComposeArgs -TailArgs @('config', '--quiet'))
 Write-DevOk 'Compose de produção válido.'
 
 if ($Pull) {
-  $pullArgs = @('compose', '--env-file', $envFile, '-f', $compose)
-  $pullArgs += 'pull'
+  $pullArgs = New-ComposeArgs -TailArgs @('pull')
   Invoke-DevCommand -FilePath 'docker' -ArgumentList $pullArgs
 }
 
-$buildArgs = @('compose', '--env-file', $envFile, '-f', $compose)
-$buildArgs += 'build'
+$buildArgs = New-ComposeArgs -TailArgs @('build')
 if ($NoCache) {
   $buildArgs += '--no-cache'
 }
@@ -42,11 +82,10 @@ if ($Pull) {
 }
 Invoke-DevCommand -FilePath 'docker' -ArgumentList $buildArgs
 
-$upArgs = @('compose', '--env-file', $envFile, '-f', $compose)
-$upArgs += @('up', '-d', '--remove-orphans')
+$upArgs = New-ComposeArgs -TailArgs @('up', '-d', '--remove-orphans')
 Invoke-DevCommand -FilePath 'docker' -ArgumentList $upArgs
 
-Invoke-DevCommand -FilePath 'docker' -ArgumentList @('compose', '--env-file', $envFile, '-f', $compose, 'ps')
+Invoke-DevCommand -FilePath 'docker' -ArgumentList (New-ComposeArgs -TailArgs @('ps'))
 
 if (-not $SkipHealthcheck) {
   Write-DevStep 'Validando saúde dos serviços principais...'
@@ -61,16 +100,17 @@ if (-not $SkipHealthcheck) {
   }
 
   try {
-    $frontendHealth = Invoke-WebRequest -Uri 'http://127.0.0.1/backend-health' -UseBasicParsing -TimeoutSec 10
+    $frontendHeaders = @{ Host = (Get-FrontendHostHeader) }
+    $frontendHealth = Invoke-WebRequest -Uri (Get-FrontendHealthUri) -Headers $frontendHeaders -UseBasicParsing -SkipCertificateCheck -TimeoutSec 15
     if ($frontendHealth.StatusCode -ne 200) {
       throw ('Frontend/proxy health retornou HTTP {0}' -f $frontendHealth.StatusCode)
     }
   } catch {
-    Write-DevWarn ('Não foi possível validar /backend-health via localhost sem host header: {0}' -f $_.Exception.Message)
+    throw ('Falha no healthcheck do frontend/proxy: {0}' -f $_.Exception.Message)
   }
 
   try {
-    $aiArgs = @('compose', '--env-file', $envFile, '-f', $compose, 'exec', '-T', 'ai-core', 'python', '-c', "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:8010/ai/health').status == 200 else 1)")
+    $aiArgs = New-ComposeArgs -TailArgs @('exec', '-T', 'ai-core', 'python', '-c', "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:8010/ai/health', timeout=5).status == 200 else 1)")
     Invoke-DevCommand -FilePath 'docker' -ArgumentList $aiArgs
   } catch {
     throw ('Falha no healthcheck do AI Core: {0}' -f $_.Exception.Message)
