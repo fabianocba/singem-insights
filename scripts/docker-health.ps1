@@ -161,7 +161,7 @@ foreach ($name in $expectedContainers) {
 foreach ($name in $optionalContainers) {
     $c = $containers | Where-Object { $_.Name -eq $name }
     if (-not $c) {
-        Write-Check $name "INFO" "Nao ativo (profile ai/full)"
+        Write-Check $name "INFO" "Nao ativo na stack atual"
     } elseif ($c.State -eq "running") {
         Write-Check $name "OK" $c.Status
     } else {

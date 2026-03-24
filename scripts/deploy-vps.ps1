@@ -2,8 +2,6 @@
 [CmdletBinding()]
 param(
   [string]$ProjectRoot = '',
-  [ValidateSet('none', 'ai', 'full')]
-  [string]$Profile = 'none',
   [switch]$Pull,
   [switch]$NoCache,
   [switch]$SkipHealthcheck
@@ -30,17 +28,11 @@ Write-DevOk 'Compose de produção válido.'
 
 if ($Pull) {
   $pullArgs = @('compose', '--env-file', $envFile, '-f', $compose)
-  if ($Profile -ne 'none') {
-    $pullArgs += @('--profile', $Profile)
-  }
   $pullArgs += 'pull'
   Invoke-DevCommand -FilePath 'docker' -ArgumentList $pullArgs
 }
 
 $buildArgs = @('compose', '--env-file', $envFile, '-f', $compose)
-if ($Profile -ne 'none') {
-  $buildArgs += @('--profile', $Profile)
-}
 $buildArgs += 'build'
 if ($NoCache) {
   $buildArgs += '--no-cache'
@@ -51,9 +43,6 @@ if ($Pull) {
 Invoke-DevCommand -FilePath 'docker' -ArgumentList $buildArgs
 
 $upArgs = @('compose', '--env-file', $envFile, '-f', $compose)
-if ($Profile -ne 'none') {
-  $upArgs += @('--profile', $Profile)
-}
 $upArgs += @('up', '-d', '--remove-orphans')
 Invoke-DevCommand -FilePath 'docker' -ArgumentList $upArgs
 
@@ -78,6 +67,13 @@ if (-not $SkipHealthcheck) {
     }
   } catch {
     Write-DevWarn ('Não foi possível validar /backend-health via localhost sem host header: {0}' -f $_.Exception.Message)
+  }
+
+  try {
+    $aiArgs = @('compose', '--env-file', $envFile, '-f', $compose, 'exec', '-T', 'ai-core', 'python', '-c', "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:8010/ai/health').status == 200 else 1)")
+    Invoke-DevCommand -FilePath 'docker' -ArgumentList $aiArgs
+  } catch {
+    throw ('Falha no healthcheck do AI Core: {0}' -f $_.Exception.Message)
   }
 
   Write-DevOk 'Healthchecks essenciais concluídos.'

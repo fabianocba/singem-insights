@@ -16,9 +16,6 @@
 .PARAMETER Branch
   Branch Git para checkout antes da ação. Se omitido, mantém o branch atual.
 
-.PARAMETER Profile
-  Perfil Docker Compose: none | ai | full.
-
 .PARAMETER NoCache
   Força build sem cache (aplica-se a up e rebuild).
 
@@ -37,9 +34,6 @@ param(
   [string]$ProjectRoot = '',
 
   [string]$Branch = '',
-
-  [ValidateSet('none', 'ai', 'full')]
-  [string]$Profile = 'none',
 
   [switch]$NoCache,
   [switch]$Pull
@@ -98,12 +92,6 @@ if (-not (Test-Path -LiteralPath $targetScript)) {
 
 # Montar argumentos para repasse (hashtable para splatting correto)
 $forwardArgs = @{ ProjectRoot = $root }
-
-switch ($Action) {
-  { $_ -in 'up', 'update', 'rebuild' } {
-    $forwardArgs['Profile'] = $Profile
-  }
-}
 
 if ($Action -eq 'up') {
   if ($NoCache)  { $forwardArgs['NoCache'] = $true }

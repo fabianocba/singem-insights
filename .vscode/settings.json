@@ -1,12 +1,7 @@
 {
-  "python.defaultInterpreterPath": "C:/SINGEM/singem-ai/.venv/Scripts/python.exe",
-  "python.terminal.activateEnvironment": true,
+  "python.terminal.activateEnvironment": false,
   "python.createEnvironment.trigger": "off",
   "python.analysis.extraPaths": [
-    "C:/SINGEM/singem-ai"
-  ],
-  "python-envs.defaultEnvManager": "ms-python.python:venv",
-  "python-envs.workspaceSearchPaths": [
-    "C:/SINGEM/singem-ai/.venv"
+    "${workspaceFolder}/singem-ai"
   ]
 }

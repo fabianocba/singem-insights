@@ -27,7 +27,6 @@ RUN apt-get update \
     && apt-get update \
     && apt-get install -y --no-install-recommends \
         python3.12 \
-        python3.12-venv \
         python3.12-dev \
         python3-pip \
     && ln -sf /usr/bin/python3.12 /usr/bin/python \
@@ -36,6 +35,10 @@ RUN apt-get update \
 
 # ---- Stage: deps -----------------------------------------
 FROM base-${GPU_ENABLED} AS deps
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
@@ -46,14 +49,14 @@ RUN apt-get update \
 WORKDIR /app
 
 COPY singem-ai/requirements.txt ./
-RUN pip install --no-cache-dir -r requirements.txt
+RUN python -m pip install -r requirements.txt
 
 # Extras GPU (PyTorch CUDA + sentence-transformers)
 ARG GPU_ENABLED=false
 RUN if [ "$GPU_ENABLED" = "true" ]; then \
-        pip install --no-cache-dir \
+        python -m pip install \
             torch --index-url https://download.pytorch.org/whl/cu124 && \
-        pip install --no-cache-dir sentence-transformers; \
+        python -m pip install sentence-transformers; \
     fi
 
 # ---- Stage: runtime --------------------------------------
@@ -79,6 +82,6 @@ LABEL org.opencontainers.image.title="SINGEM AI Core" \
       singem.gpu.enabled="${GPU_ENABLED}"
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
-    CMD curl -sf http://localhost:8010/ai/health || exit 1
+    CMD python -c "import json,urllib.request,sys; data=json.load(urllib.request.urlopen('http://localhost:8010/ai/health', timeout=5)); sys.exit(0 if data.get('ok') else 1)"
 
 CMD ["python", "run.py"]

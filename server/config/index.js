@@ -47,7 +47,7 @@ const config = {
   corsOrigins: parseOrigins(process.env.CORS_ORIGINS),
   db: {
     connectionString: process.env.DATABASE_URL || '',
-    host: process.env.DB_HOST || '127.0.0.1',
+    host: process.env.DB_HOST || 'postgres',
     port: Number(process.env.DB_PORT || 5432),
     name: process.env.DB_NAME || 'singem',
     user: process.env.DB_USER || 'singem_user',
@@ -192,7 +192,7 @@ const config = {
   },
   ai: {
     enabled: parseBoolean(process.env.AI_CORE_ENABLED, (process.env.NODE_ENV || 'development') !== 'production'),
-    baseUrl: process.env.AI_CORE_BASE_URL || 'http://127.0.0.1:8010',
+    baseUrl: process.env.AI_CORE_BASE_URL || 'http://ai-core:8010',
     apiPrefix: process.env.AI_CORE_API_PREFIX || '/ai',
     timeoutMs: Number(process.env.AI_CORE_TIMEOUT_MS || 15000),
     healthTimeoutMs: Number(process.env.AI_CORE_HEALTH_TIMEOUT_MS || 2500),

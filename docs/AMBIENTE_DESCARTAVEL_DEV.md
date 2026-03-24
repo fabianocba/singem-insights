@@ -47,8 +47,6 @@ Pré-requisitos mínimos:
 - PowerShell 7 (`pwsh`)
 - Git
 - Docker Desktop com Compose plugin
-- Node.js + npm
-- Python 3.11+
 
 Passos:
 
@@ -62,8 +60,7 @@ pwsh -File .\scripts\dev-start.ps1 -ProjectRoot .
 Resultado esperado:
 
 - `.env` local criado a partir dos exemplos oficiais (se ausente);
-- dependências frontend/backend alinhadas com lockfiles;
-- virtualenv do AI Core criada em `singem-ai/.venv`;
+- imagens e serviços alinhados ao estado atual do repositório via Docker Compose;
 - compose oficial validado.
 
 ## 5) Como sincronizar com branch oficial
@@ -78,7 +75,6 @@ pwsh -File .\scripts\dev-update.ps1 -ProjectRoot .
 O script `dev-update`:
 
 - para containers antigos;
-- reinstala dependências conforme lockfiles/requirements;
 - reconstrói imagens com `--pull`;
 - sobe novamente com `--remove-orphans`.
 
@@ -92,7 +88,7 @@ O reset remove:
 
 - containers, orfãos, volumes do projeto e imagens locais do projeto;
 - `node_modules` (raiz e server);
-- `singem-ai/.venv`;
+- `singem-ai/.venv` (resíduo legado, se existir);
 - caches e build outputs locais (`dist`, `build`, `.next`, `.cache`);
 - logs locais e `__pycache__`.
 
@@ -114,7 +110,7 @@ Verifica automaticamente:
 - sincronismo Git com origin (ahead/behind);
 - working tree suja;
 - existência de `.env` oficiais locais;
-- presença de dependências locais e virtualenv;
+- validade da configuração Docker oficial;
 - validade do compose oficial;
 - serviços em execução;
 - artefatos legados detectáveis.

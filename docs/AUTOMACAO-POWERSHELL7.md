@@ -41,11 +41,9 @@ pwsh -File .\scripts\dev-setup.ps1
 pwsh -File .\scripts\dev-start.ps1
 ```
 
-Perfis opcionais no start:
+Opções úteis no start:
 
 ```powershell
-pwsh -File .\scripts\dev-start.ps1 -Profile ai
-pwsh -File .\scripts\dev-start.ps1 -Profile full
 pwsh -File .\scripts\dev-start.ps1 -NoCache -Pull
 ```
 
@@ -87,7 +85,7 @@ As tasks oficiais ficam em `.vscode/tasks.json` e usam apenas scripts `dev-*`:
 | -------- | ----- | ------------------------------ |
 | Backend  | 3000  | `http://localhost:3000/health` |
 | Frontend | 8000  | `http://localhost:8000`        |
-| AI Core  | 8010  | `http://127.0.0.1:8010/health` |
+| AI Core  | 8010  | `http://127.0.0.1:8010/ai/health` |
 
 ## Padrões obrigatórios
 

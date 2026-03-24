@@ -2,8 +2,6 @@
 [CmdletBinding()]
 param(
   [string]$ProjectRoot = '',
-  [ValidateSet('none', 'ai', 'full')]
-  [string]$Profile = 'none',
   [switch]$NoCache,
   [switch]$Pull
 )
@@ -25,14 +23,10 @@ if ($NoCache) {
   Write-DevStep 'Reconstrução estrita sem cache...'
   $buildArgs = @('compose', '-f', $compose, 'build', '--no-cache')
   if ($Pull) { $buildArgs += '--pull' }
-  if ($Profile -ne 'none') { $buildArgs = @('compose', '-f', $compose, '--profile', $Profile, 'build', '--no-cache') + @($(if ($Pull) { '--pull' })) }
   Invoke-DevCommand -FilePath 'docker' -ArgumentList $buildArgs
 }
 
 $upArgs = @('compose', '-f', $compose)
-if ($Profile -ne 'none') {
-  $upArgs += @('--profile', $Profile)
-}
 $upArgs += @('up', '-d', '--build', '--remove-orphans')
 if ($Pull) {
   $upArgs += '--pull=always'

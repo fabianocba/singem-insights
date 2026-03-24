@@ -114,7 +114,7 @@ services:
       CATMAT_OBRIGATORIO: ${CATMAT_OBRIGATORIO:-false}
 
       # AI Core (comunicação intra-network)
-      AI_CORE_ENABLED: ${AI_CORE_ENABLED:-false}
+      AI_CORE_ENABLED: ${AI_CORE_ENABLED:-true}
       AI_CORE_BASE_URL: ${AI_CORE_BASE_URL:-http://ai-core:8010}
       AI_CORE_API_PREFIX: ${AI_CORE_API_PREFIX:-/ai}
       AI_CORE_INTERNAL_TOKEN: ${AI_CORE_INTERNAL_TOKEN:-change-me}
@@ -187,10 +187,10 @@ services:
         condition: service_healthy
 
   # ----------------------------------------------------------
-  # AI Core Python / FastAPI  (profile: ai | full)
-  # Ativar com: docker compose --profile ai up
+  # AI Core Python / FastAPI (stack padrão)
   # ----------------------------------------------------------
   ai-core:
+    container_name: singem-ai-core
     build:
       context: .
       dockerfile: Dockerfile.ai
@@ -209,8 +209,11 @@ services:
       AI_INTERNAL_TOKEN: ${AI_CORE_INTERNAL_TOKEN:-change-me}
 
       # Mesmo banco do backend (via rede interna)
-      DATABASE_URL: >-
-        postgresql://${DB_USER:-adm}:${DB_PASSWORD:-Singem@12345}@postgres:5432/${DB_NAME:-singem}
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME:-singem}
+      DB_USER: ${DB_USER:-adm}
+      DB_PASSWORD: ${DB_PASSWORD:-Singem@12345}
 
       EMBEDDING_PROVIDER: ${EMBEDDING_PROVIDER:-hash}
       EMBEDDING_DIMENSION: ${EMBEDDING_DIMENSION:-384}
@@ -228,12 +231,9 @@ services:
           'CMD',
           'python',
           '-c',
-          "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:8010/ai/health').status == 200 else 1)"
+          "import json,urllib.request,sys; data=json.load(urllib.request.urlopen('http://localhost:8010/ai/health', timeout=5)); sys.exit(0 if data.get('ok') else 1)"
         ]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 20s
-    profiles:
-      - ai
-      - full

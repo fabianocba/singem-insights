@@ -177,50 +177,7 @@ function Ensure-ProjectEnvFiles {
   Ensure-EnvFile -TargetPath (Join-Path $ProjectRoot '.env') -ExamplePath (Join-Path $ProjectRoot '.env.example')
   Ensure-EnvFile -TargetPath (Join-Path $ProjectRoot 'server\.env') -ExamplePath (Join-Path $ProjectRoot 'server\.env.example')
   Ensure-EnvFile -TargetPath (Join-Path $ProjectRoot 'singem-ai\.env') -ExamplePath (Join-Path $ProjectRoot 'singem-ai\.env.example')
-}
-
-function Install-NpmDeterministic {
-  param([string]$TargetDir)
-
-  $lock = Join-Path $TargetDir 'package-lock.json'
-  if (Test-Path -LiteralPath $lock) {
-    Invoke-DevCommand -FilePath 'npm' -ArgumentList @('ci') -WorkingDirectory $TargetDir
-    return
-  }
-
-  Invoke-DevCommand -FilePath 'npm' -ArgumentList @('install') -WorkingDirectory $TargetDir
-}
-
-function Ensure-NodeDependencies {
-  param([string]$ProjectRoot)
-
-  Write-DevStep 'Instalando dependências NPM (raiz)...'
-  Install-NpmDeterministic -TargetDir $ProjectRoot
-
-  Write-DevStep 'Instalando dependências NPM (server)...'
-  Install-NpmDeterministic -TargetDir (Join-Path $ProjectRoot 'server')
-}
-
-function Ensure-PythonVenv {
-  param([string]$ProjectRoot)
-
-  $aiRoot = Join-Path $ProjectRoot 'singem-ai'
-  $venvDir = Join-Path $aiRoot '.venv'
-  $venvPython = Join-Path $venvDir 'Scripts\python.exe'
-  $requirements = Join-Path $aiRoot 'requirements.txt'
-
-  if (-not (Test-Path -LiteralPath $requirements)) {
-    return
-  }
-
-  if (-not (Test-Path -LiteralPath $venvPython)) {
-    Write-DevStep 'Criando virtualenv local do AI Core...'
-    Invoke-DevCommand -FilePath 'python' -ArgumentList @('-m', 'venv', $venvDir)
-  }
-
-  Write-DevStep 'Atualizando pip e instalando requirements do AI Core...'
-  Invoke-DevCommand -FilePath $venvPython -ArgumentList @('-m', 'pip', 'install', '--upgrade', 'pip')
-  Invoke-DevCommand -FilePath $venvPython -ArgumentList @('-m', 'pip', 'install', '-r', $requirements)
+  Ensure-EnvFile -TargetPath (Join-Path $ProjectRoot 'docker\local\.env') -ExamplePath (Join-Path $ProjectRoot 'docker\local\.env.example')
 }
 
 function Remove-PathIfExists {

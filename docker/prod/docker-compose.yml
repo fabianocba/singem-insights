@@ -5,8 +5,7 @@
 # Uso:
 #   cd docker/prod
 #   cp .env.example .env          # OBRIGATÓRIO: preencher TODOS os valores
-#   docker compose up -d --build
-#   docker compose --profile ai up -d --build  # com AI Core
+#   docker compose up -d --build   # stack oficial (inclui AI Core)
 #
 # Build context: ../../ (raiz do repositório)
 #
@@ -143,7 +142,7 @@ services:
       CATMAT_ENABLED: ${CATMAT_ENABLED:-false}
       CATMAT_OBRIGATORIO: ${CATMAT_OBRIGATORIO:-false}
 
-      AI_CORE_ENABLED: ${AI_CORE_ENABLED:-false}
+      AI_CORE_ENABLED: ${AI_CORE_ENABLED:-true}
       AI_CORE_BASE_URL: ${AI_CORE_BASE_URL:-http://ai-core:8010}
       AI_CORE_API_PREFIX: ${AI_CORE_API_PREFIX:-/ai}
       AI_CORE_INTERNAL_TOKEN: ${AI_CORE_INTERNAL_TOKEN:-}
@@ -236,10 +235,10 @@ services:
         max-file: '3'
 
   # ----------------------------------------------------------
-  # AI Core Python / FastAPI  (profile: ai | full)
-  # Ativar com: docker compose --profile ai up -d --build
+  # AI Core Python / FastAPI (stack padrão)
   # ----------------------------------------------------------
   ai-core:
+    container_name: singem-ai-core
     build:
       context: ../..
       dockerfile: Dockerfile.ai
@@ -256,8 +255,11 @@ services:
 
       AI_INTERNAL_TOKEN: ${AI_CORE_INTERNAL_TOKEN:?AI_CORE_INTERNAL_TOKEN obrigatória}
 
-      DATABASE_URL: >-
-        postgresql://${DB_USER}:${DB_PASSWORD}@postgres:5432/${DB_NAME}
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME:?DB_NAME obrigatória}
+      DB_USER: ${DB_USER:?DB_USER obrigatória}
+      DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD obrigatória}
 
       EMBEDDING_PROVIDER: ${EMBEDDING_PROVIDER:-hash}
       EMBEDDING_DIMENSION: ${EMBEDDING_DIMENSION:-384}
@@ -274,15 +276,12 @@ services:
           'CMD',
           'python',
           '-c',
-          "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:8010/ai/health').status == 200 else 1)"
+          "import json,urllib.request,sys; data=json.load(urllib.request.urlopen('http://localhost:8010/ai/health', timeout=5)); sys.exit(0 if data.get('ok') else 1)"
         ]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 20s
-    profiles:
-      - ai
-      - full
     deploy:
       resources:
         limits:

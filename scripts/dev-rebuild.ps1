@@ -1,9 +1,7 @@
 #Requires -Version 7.0
 [CmdletBinding()]
 param(
-  [string]$ProjectRoot = '',
-  [ValidateSet('none', 'ai', 'full')]
-  [string]$Profile = 'none'
+  [string]$ProjectRoot = ''
 )
 
 . "$PSScriptRoot/dev-common.ps1"
@@ -16,23 +14,14 @@ Stop-ComposeConflicts -ProjectRoot $root -CurrentCompose $compose
 Remove-SingemContainerConflicts
 
 $downArgs = @('compose', '-f', $compose)
-if ($Profile -ne 'none') {
-  $downArgs += @('--profile', $Profile)
-}
 $downArgs += @('down', '--remove-orphans')
 Invoke-DevCommand -FilePath 'docker' -ArgumentList $downArgs
 
 $buildArgs = @('compose', '-f', $compose)
-if ($Profile -ne 'none') {
-  $buildArgs += @('--profile', $Profile)
-}
 $buildArgs += @('build', '--no-cache', '--pull')
 Invoke-DevCommand -FilePath 'docker' -ArgumentList $buildArgs
 
 $upArgs = @('compose', '-f', $compose)
-if ($Profile -ne 'none') {
-  $upArgs += @('--profile', $Profile)
-}
 $upArgs += @('up', '-d', '--remove-orphans')
 Invoke-DevCommand -FilePath 'docker' -ArgumentList $upArgs
 

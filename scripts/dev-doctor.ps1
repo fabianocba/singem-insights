@@ -22,10 +22,6 @@ foreach ($cmd in @('pwsh', 'git', 'docker')) {
   Add-Check -Name ("Comando: {0}" -f $cmd) -Ok (Test-DevCommand -Name $cmd) -Details $(if (Test-DevCommand -Name $cmd) { 'disponível' } else { 'ausente' })
 }
 
-foreach ($cmd in @('node', 'npm', 'python')) {
-  Add-Check -Name ("Comando opcional (modo híbrido): {0}" -f $cmd) -Ok $true -Details $(if (Test-DevCommand -Name $cmd) { 'disponível' } else { 'não instalado (ok em Docker-first)' })
-}
-
 $sync = Get-GitSyncSummary -ProjectRoot $root
 Add-Check -Name 'Git sincronizado com origin' -Ok (($sync.ahead -eq 0) -and ($sync.behind -eq 0)) -Details ("branch={0}, ahead={1}, behind={2}" -f $sync.branch, $sync.ahead, $sync.behind)
 Add-Check -Name 'Git sem alterações locais' -Ok (-not $sync.dirty) -Details $(if ($sync.dirty) { 'working tree suja' } else { 'working tree limpa' })
@@ -52,8 +48,11 @@ try {
 try {
   $running = @((& docker compose -f $compose ps --status running --services) | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
   Add-Check -Name 'Serviços Docker em execução' -Ok ($running.Count -gt 0) -Details ($(if ($running.Count -gt 0) { $running -join ', ' } else { 'nenhum serviço em execução' }))
+  $aiRunning = $running -contains 'ai-core'
+  Add-Check -Name 'AI Core em execução via Docker' -Ok $aiRunning -Details $(if ($aiRunning) { 'ai-core ativo no compose oficial' } else { 'ai-core não ativo (inicie com scripts/dev-start.ps1)' })
 } catch {
   Add-Check -Name 'Serviços Docker em execução' -Ok $false -Details $_.Exception.Message
+  Add-Check -Name 'AI Core em execução via Docker' -Ok $false -Details $_.Exception.Message
 }
 
 $legacyArtifacts = @(

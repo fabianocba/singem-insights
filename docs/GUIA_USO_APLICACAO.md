@@ -19,7 +19,7 @@ Este script:
 1. **Certifique-se que o servidor está rodando:**
 
    ```powershell
-   python -m http.server 8000
+   pwsh -File .\scripts\dev-start.ps1 -ProjectRoot .
    ```
 
 2. **Abra no navegador:**

@@ -38,7 +38,7 @@ Isso irá:
 ### 1. Iniciar Servidor (se ainda não está rodando)
 
 ```powershell
-python -m http.server 8000
+pwsh -File .\scripts\dev-start.ps1 -ProjectRoot .
 ```
 
 ### 2. Abrir Navegador
@@ -70,12 +70,9 @@ http://localhost:8000/index.html
 **Solução:**
 
 ```powershell
-# Verifique se Python está instalado
-python --version
-
-# Inicie o servidor manualmente
-cd D:\SINGEM
-python -m http.server 8000
+# Inicie o ambiente Docker oficial
+cd C:\SINGEM
+pwsh -File .\scripts\dev-start.ps1 -ProjectRoot .
 ```
 
 ### Problema: "Porta 8000 já está em uso"
@@ -83,10 +80,9 @@ python -m http.server 8000
 **Solução:**
 
 ```powershell
-# Use outra porta
-python -m http.server 8080
-
-# Depois acesse: http://localhost:8080/index.html
+# Pare e suba novamente a stack oficial
+pwsh -File .\scripts\dev-stop.ps1 -ProjectRoot .
+pwsh -File .\scripts\dev-start.ps1 -ProjectRoot .
 ```
 
 ### Problema: Navegador não abre automaticamente
@@ -109,7 +105,7 @@ python -m http.server 8080
 ## 📋 Checklist Rápido
 
 - [ ] Servidor está rodando? (execute `ABRIR_APLICACAO.bat` para verificar)
-- [ ] Python está instalado? (execute `python --version`)
+- [ ] Docker está ativo? (execute `docker compose version`)
 - [ ] Porta 8000 está livre? (tente acessar http://localhost:8000)
 - [ ] Navegador padrão configurado? (tente abrir qualquer link)
 
@@ -123,7 +119,7 @@ python -m http.server 8080
    - Duplo-clique em `ABRIR_APLICACAO.bat`
 2. **Se o servidor não estiver rodando:**
    - Abra a pasta no VS Code (inicia automaticamente)
-   - Ou execute: `python -m http.server 8000` em um terminal
+   - Ou execute: `pwsh -File .\scripts\dev-start.ps1 -ProjectRoot .` em um terminal
 
 3. **Crie um atalho na área de trabalho:**
    - Clique-direito em `ABRIR_APLICACAO.bat`

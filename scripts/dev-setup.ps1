@@ -1,8 +1,7 @@
 #Requires -Version 7.0
 [CmdletBinding()]
 param(
-  [string]$ProjectRoot = '',
-  [switch]$InstallLocalToolchains
+  [string]$ProjectRoot = ''
 )
 
 . "$PSScriptRoot/dev-common.ps1"
@@ -21,18 +20,7 @@ Write-DevOk 'Docker Compose disponível'
 
 Ensure-ProjectEnvFiles -ProjectRoot $root
 Write-DevOk 'Arquivos .env locais alinhados com exemplos oficiais'
-
-if ($InstallLocalToolchains) {
-  Assert-DevCommand -Name 'node' -Hint 'Instale Node.js LTS'
-  Assert-DevCommand -Name 'npm' -Hint 'npm deve acompanhar o Node.js instalado'
-  Assert-DevCommand -Name 'python' -Hint 'Instale Python 3.11+'
-
-  Ensure-NodeDependencies -ProjectRoot $root
-  Ensure-PythonVenv -ProjectRoot $root
-  Write-DevOk 'Dependências locais opcionais instaladas (modo híbrido).'
-} else {
-  Write-DevStep 'Modo Docker-first: sem instalação obrigatória de node_modules/venv local.'
-}
+Write-DevStep 'Modo container-only: backend Python (AI Core) executa exclusivamente via Docker Compose.'
 
 $compose = Get-OfficialComposeFile -ProjectRoot $root
 Invoke-DevCommand -FilePath 'docker' -ArgumentList @('compose', '-f', $compose, 'config', '--quiet')

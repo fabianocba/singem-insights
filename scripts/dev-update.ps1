@@ -1,9 +1,7 @@
 #Requires -Version 7.0
 [CmdletBinding()]
 param(
-  [string]$ProjectRoot = '',
-  [ValidateSet('none', 'ai', 'full')]
-  [string]$Profile = 'none'
+  [string]$ProjectRoot = ''
 )
 
 . "$PSScriptRoot/dev-common.ps1"
@@ -27,16 +25,10 @@ Invoke-DevCommand -FilePath 'docker' -ArgumentList @('compose', '-f', $compose, 
 Ensure-ProjectEnvFiles -ProjectRoot $root
 
 $buildArgs = @('compose', '-f', $compose)
-if ($Profile -ne 'none') {
-  $buildArgs += @('--profile', $Profile)
-}
 $buildArgs += @('build', '--pull')
 Invoke-DevCommand -FilePath 'docker' -ArgumentList $buildArgs
 
 $upArgs = @('compose', '-f', $compose)
-if ($Profile -ne 'none') {
-  $upArgs += @('--profile', $Profile)
-}
 $upArgs += @('up', '-d', '--remove-orphans')
 Invoke-DevCommand -FilePath 'docker' -ArgumentList $upArgs
 

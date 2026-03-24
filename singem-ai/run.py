@@ -20,7 +20,7 @@ def env_int(name: str, default: int) -> int:
 if __name__ == "__main__":
     uvicorn.run(
         "app.main:app",
-        host=os.getenv("AI_CORE_HOST", "127.0.0.1"),
+        host=os.getenv("AI_CORE_HOST", "0.0.0.0"),
         port=env_int("AI_CORE_PORT", 8010),
         reload=env_flag("AI_CORE_RELOAD", False),
         log_level=os.getenv("AI_CORE_LOG_LEVEL", "info")

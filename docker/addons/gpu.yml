@@ -4,7 +4,7 @@
 #
 # Uso com local:
 #   cd docker/local
-#   docker compose --profile ai -f docker-compose.yml -f ../addons/gpu.yml up --build
+#   docker compose -f docker-compose.yml -f ../addons/gpu.yml up --build
 #
 # Requisitos:
 #   - NVIDIA Driver instalado no host

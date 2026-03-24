@@ -2,7 +2,7 @@ const { config } = require('../config');
 const AppError = require('../utils/appError');
 
 function normalizeBaseUrl(value) {
-  return String(value || 'http://127.0.0.1:8010').replace(/\/+$/, '');
+  return String(value || 'http://ai-core:8010').replace(/\/+$/, '');
 }
 
 function normalizeApiPrefix(value) {

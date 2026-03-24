@@ -123,8 +123,8 @@ cd docker/local
 # Serviços base (postgres + redis + backend + frontend)
 docker compose up --build
 
-# Com AI Core
-docker compose --profile ai up --build
+# Stack oficial (inclui AI Core)
+docker compose up --build
 
 # Em background
 docker compose up -d --build
@@ -140,11 +140,17 @@ Aguarde os healthchecks passarem (~40 s na primeira vez):
 
 > **Primeiro boot:** o backend roda migrations automaticamente (bootstrap.js).
 
-### Com AI Core
+### Stack oficial com AI Core
 
 ```bash
 cd docker/local
-docker compose --profile ai up --build
+docker compose up --build
+
+# Logs do AI Core
+docker compose logs -f ai-core
+
+# Health do AI Core
+docker compose exec -T ai-core wget -qO- http://localhost:8010/ai/health
 ```
 
 ### Parar
@@ -223,8 +229,8 @@ cd docker/prod
 # Serviços base
 docker compose up -d --build
 
-# Com AI Core
-docker compose --profile ai up -d --build
+# Stack oficial (inclui AI Core)
+docker compose up -d --build
 ```
 
 ### Diferenças dev vs prod
@@ -277,14 +283,13 @@ docker compose exec backend node scripts/seed-admin.js
 
 ---
 
-## Dev local sem Docker (scripts oficiais dev-\*)
+## Fluxo oficial dev e VPS
 
-| Aspecto   | Docker (`docker/local/`)        | Dev local (scripts dev-\*)     |
-| --------- | ------------------------------- | ------------------------------ |
-| Banco     | Container postgres (porta 5432) | VPS via túnel SSH (porta 5433) |
-| `DB_HOST` | `postgres` (service name)       | `127.0.0.1`                    |
-| Frontend  | NGINX:alpine                    | `python -m http.server 8000`   |
-| AI Core   | Container Python (profile `ai`) | Processo local porta 8010      |
+O backend Python (`ai-core`) roda **exclusivamente em container Docker**.
+
+- Desenvolvimento local: `docker/local/docker-compose.yml` (IA já incluída na stack).
+- Produção/VPS: `docker/prod/docker-compose.yml` (IA já incluída na stack).
+- Não há caminho oficial com `.venv` local para runtime do AI Core.
 
 ---
 
