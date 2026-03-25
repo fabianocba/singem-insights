@@ -441,6 +441,7 @@ async function createItem(data, executor = db) {
   return result.rows[0];
 }
 
+// eslint-disable-next-line complexity -- atualizacao parcial com varios campos opcionais do dominio
 async function updateItem(id, data, executor = db) {
   const fields = [];
   const values = [];
@@ -574,6 +575,7 @@ async function upsertBalance(client, materialId, nextState, tipo) {
   );
 }
 
+// eslint-disable-next-line complexity -- consolidacao de regras de negocio por tipo de movimentacao
 async function applyStockMovement(client, payload) {
   const current = await getBalanceState(client, payload.materialId);
 
@@ -685,6 +687,7 @@ async function applyStockMovement(client, payload) {
   return movementResult.rows[0];
 }
 
+// eslint-disable-next-line complexity -- transacao unica de nota fiscal com itens e movimentacoes
 async function createNotaEntrada(data, userId, executor = null) {
   const usesExternalExecutor = Boolean(executor);
   const client = executor || (await db.getClient());

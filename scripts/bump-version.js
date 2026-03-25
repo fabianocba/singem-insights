@@ -31,7 +31,7 @@ function bumpSemver(version, channel) {
     return '0.1.0';
   }
 
-  let major = Number(match[1]);
+  const major = Number(match[1]);
   let minor = Number(match[2]);
   let patch = Number(match[3]);
 

@@ -1,3 +1,4 @@
+/* eslint-disable max-lines -- modulo legado grande; sera quebrado em submodulos no roadmap */
 /**
  * uiConsultas.js
  * Interface de usuário para Consulte Compras.gov (Dados Abertos Compras.gov.br)

@@ -246,6 +246,7 @@ function createFeatureContext(app) {
   const state = createInitialState(app);
   let root = null;
 
+  // eslint-disable-next-line complexity -- renderiza dashboard completo com estados heterogeneos
   function render() {
     if (!root) {
       return;

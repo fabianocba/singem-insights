@@ -35,6 +35,7 @@ function normalizeContaContabil(row) {
   };
 }
 
+// eslint-disable-next-line complexity -- agrega mapeamento de colunas legadas e calculos derivados
 function normalizeItem(row) {
   if (!row) {
     return null;
