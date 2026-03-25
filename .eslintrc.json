@@ -18,7 +18,6 @@
     "testes/pdfs/**",
     "node_modules/**",
     "dist/**",
-    "html/assets/**",
     "scripts/**/*.mjs"
   ],
   "overrides": [

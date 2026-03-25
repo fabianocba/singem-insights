@@ -1,4 +1,4 @@
-import { APP_VERSION, APP_BUILD, VERSION_DISPLAY } from './core/version.js';
+import { APP_VERSION, APP_BUILD, VERSION_DISPLAY, CACHE_BUSTER } from './core/version.js';
 import { initVersionUI } from './core/version-ui.js';
 import { API_BASE_URL } from './shared/lib/http.js';
 
@@ -33,6 +33,35 @@ function renderVersionInUI() {
   if (el) {
     el.textContent = VERSION_DISPLAY;
   }
+}
+
+function withVersionParam(url, suffix) {
+  if (!url || url.startsWith('http') || url.startsWith('//') || url.includes('v=')) {
+    return url;
+  }
+  const [base, hash] = url.split('#');
+  const updated = base + (base.includes('?') ? '&' : '?') + suffix;
+  return hash ? `${updated}#${hash}` : updated;
+}
+
+function applyCacheBuster() {
+  const suffix = `v=${CACHE_BUSTER}`;
+
+  document.querySelectorAll('link[rel="stylesheet"][href]').forEach((link) => {
+    const href = link.getAttribute('href');
+    const updated = withVersionParam(href, suffix);
+    if (updated && updated !== href) {
+      link.setAttribute('href', updated);
+    }
+  });
+
+  document.querySelectorAll('script[src]').forEach((script) => {
+    const src = script.getAttribute('src');
+    const updated = withVersionParam(src, suffix);
+    if (updated && updated !== src) {
+      script.setAttribute('src', updated);
+    }
+  });
 }
 
 async function canRegisterServiceWorker(swUrl) {
@@ -139,6 +168,8 @@ window.SINGEM_CACHE = {
 
 if (typeof window !== 'undefined') {
   window.__API_BASE_URL__ = window.__API_BASE_URL__ || API_BASE_URL;
+
+  applyCacheBuster();
 
   window.addEventListener('DOMContentLoaded', () => {
     renderVersionInUI();

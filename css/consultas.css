@@ -617,7 +617,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 9999;
+  z-index: var(--z-modal);
   padding: 20px;
 }
 
@@ -819,6 +819,63 @@
 
   .modal-body pre {
     font-size: 11px;
+  }
+}
+
+/* Ultra-mobile (< 480px) */
+@media (max-width: 479px) {
+  .menu-grid-consultas {
+    gap: 12px;
+  }
+
+  .menu-item-consulta h3 {
+    font-size: 16px;
+  }
+
+  .menu-item-consulta p {
+    font-size: 13px;
+  }
+
+  .filter-item input,
+  .filter-item select {
+    font-size: 16px; /* Prevent iOS auto-zoom */
+    min-height: 44px;
+  }
+
+  .pagination-controls {
+    gap: 8px;
+  }
+
+  .pagination-controls button {
+    width: 100%;
+    min-height: 44px;
+  }
+
+  .pagination-info {
+    width: 100%;
+    text-align: center;
+    font-size: 13px;
+  }
+
+  .description-cell {
+    max-width: 120px;
+    font-size: 12px;
+  }
+
+  .orgao-cell {
+    max-width: 100px;
+    font-size: 12px;
+  }
+
+  .modal-content {
+    max-width: calc(100vw - 1rem);
+    max-height: 85vh;
+  }
+
+  .modal-body pre {
+    max-width: 100%;
+    font-size: 11px;
+    overflow-x: auto;
   }
 }
 
@@ -1784,6 +1841,37 @@
 
   .pi-action-buttons {
     flex-direction: column;
+  }
+}
+
+@media (max-width: 479px) {
+  .pi-kpi-grid {
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 8px;
+  }
+
+  .pi-table th,
+  .pi-table td {
+    padding: 6px 4px;
+    white-space: normal;
+  }
+
+  .pi-table {
+    font-size: 12px;
+  }
+
+  .pi-header__title {
+    font-size: 18px;
+  }
+
+  .filters-grid--price {
+    grid-template-columns: 1fr;
+  }
+
+  .filter-item--price,
+  .filter-item--price.filter-item--wide,
+  .filter-item--price.filter-item--compact {
+    grid-column: span 1;
   }
 }
 

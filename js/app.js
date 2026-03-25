@@ -5216,19 +5216,19 @@ export class ControleMaterialApp {
       screenId = 'loginScreen';
     }
 
-    // Esconde todas as telas (classe + estilo inline para robustez visual)
+    // Esconde todas as telas via classes utilitárias (evita conflito de inline style)
     document.querySelectorAll('.screen').forEach((screen) => {
       screen.classList.remove('active');
+      screen.classList.add('hidden');
       screen.setAttribute('aria-hidden', 'true');
-      screen.style.display = 'none';
     });
 
     // Mostra a tela solicitada
     const targetScreen = document.getElementById(screenId);
     if (targetScreen) {
+      targetScreen.classList.remove('hidden');
       targetScreen.classList.add('active');
       targetScreen.setAttribute('aria-hidden', 'false');
-      targetScreen.style.display = 'block';
       this.currentScreen = screenId;
 
       // Inicializa módulo de consultas quando a tela for aberta

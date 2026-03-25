@@ -213,7 +213,7 @@ function bindSidebarActions(app) {
     button.dataset.bound = '1';
     button.addEventListener('click', () => {
       app.showScreen(button.dataset.navScreen);
-      if (window.innerWidth < 1024) {
+      if (window.innerWidth < 1280) {
         document.body.classList.add('sidebar-collapsed');
       }
       updateSidebarBackdrop();

@@ -14,6 +14,8 @@
     <!-- Sistema de versionamento e cache busting -->
     <script type="module" src="js/versionManager.js"></script>
     <script src="js/ui/themeBoot.js"></script>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
+    <link rel="preconnect" href="https://unpkg.com" crossorigin />
     <link rel="stylesheet" href="css/style.css" />
     <link rel="stylesheet" href="css/consultas.css" />
     <link rel="stylesheet" href="css/protecao.css" />
@@ -24,11 +26,13 @@
       integrity="sha512-q+4liFwdPC/bNdhUpZx6aXDx/h77yEQtn4I1slHydcbZK34nLaR3cAeYSJshoxIOq3mjEf7xJE8YWIUHMn+oCQ=="
       crossorigin="anonymous"
       referrerpolicy="no-referrer"
+      defer
     ></script>
     <!-- @zxing/library fixado em 0.21.3 — não usar @latest (supply chain risk) -->
-    <script src="https://unpkg.com/@zxing/library@0.21.3/umd/index.min.js"></script>
+    <script src="https://unpkg.com/@zxing/library@0.21.3/umd/index.min.js" defer></script>
   </head>
-  <body data-page="main">
+  <body data-page="main" class="app-shell-body">
+    <div id="appLayoutRoot" class="app-layout-root">
     <!-- Header -->
     <header class="header hidden" id="mainHeader">
       <div class="container">
@@ -79,10 +83,13 @@
       </div>
 
       <nav class="app-sidebar__nav">
+        <span class="app-sidebar__group-label">Painel</span>
         <button type="button" class="app-sidebar__link is-active" data-nav-screen="homeScreen">
           <span aria-hidden="true">🏠</span>
           <span>Painel executivo</span>
         </button>
+
+        <span class="app-sidebar__group-label">Módulos operacionais</span>
         <button type="button" class="app-sidebar__link" data-nav-screen="empenhoScreen">
           <span aria-hidden="true">📝</span>
           <span>Empenhos</span>
@@ -99,6 +106,24 @@
           <span aria-hidden="true">📦</span>
           <span>Entregas</span>
         </button>
+        <button type="button" class="app-sidebar__link" data-nav-screen="patrimonioScreen">
+          <span aria-hidden="true">🏛️</span>
+          <span>Patrimônio</span>
+        </button>
+        <button type="button" class="app-sidebar__link" data-nav-screen="veiculosScreen">
+          <span aria-hidden="true">🚗</span>
+          <span>Veículos</span>
+        </button>
+        <button type="button" class="app-sidebar__link" data-nav-screen="servicosInternosScreen">
+          <span aria-hidden="true">🛠️</span>
+          <span>Serviços internos</span>
+        </button>
+        <button type="button" class="app-sidebar__link" data-nav-screen="contratosScreen">
+          <span aria-hidden="true">📑</span>
+          <span>Contratos</span>
+        </button>
+
+        <span class="app-sidebar__group-label">Inteligência e análise</span>
         <button type="button" class="app-sidebar__link" data-nav-screen="consultasScreen">
           <span aria-hidden="true">🔍</span>
           <span>Inteligência de compras</span>
@@ -111,6 +136,22 @@
           <span aria-hidden="true">📊</span>
           <span>Relatórios</span>
         </button>
+
+        <span class="app-sidebar__group-label">Solicitações</span>
+        <button type="button" class="app-sidebar__link" data-nav-screen="solicitacaoAlmoxScreen">
+          <span aria-hidden="true">📥</span>
+          <span>Solicitação de almox</span>
+        </button>
+        <button type="button" class="app-sidebar__link" data-nav-screen="solicitacaoVeiculosScreen">
+          <span aria-hidden="true">🚘</span>
+          <span>Solicitação de veículos</span>
+        </button>
+        <button type="button" class="app-sidebar__link" data-nav-screen="solicitacaoServicosScreen">
+          <span aria-hidden="true">🧰</span>
+          <span>Solicitação de serviços</span>
+        </button>
+
+        <span class="app-sidebar__group-label">Sistema</span>
         <button type="button" class="app-sidebar__link" data-nav-screen="configScreen">
           <span aria-hidden="true">⚙️</span>
           <span>Configurações</span>
@@ -135,8 +176,9 @@
     ></button>
 
     <!-- Main Content -->
-    <main class="main">
-      <div class="container">
+    <main class="main" id="appMain">
+      <div class="container app-content-container">
+        <div id="appContentArea" class="app-content-area">
         <!-- Tela de Login -->
         <section id="loginScreen" class="screen active login-screen">
           <div class="login-backdrop"></div>
@@ -1613,8 +1655,10 @@
             <span class="module-placeholder__badge">Em desenvolvimento</span>
           </div>
         </section>
+        </div>
       </div>
     </main>
+    </div>
 
     <!-- Loading Overlay -->
     <div id="loadingOverlay" class="loading-overlay hidden">
