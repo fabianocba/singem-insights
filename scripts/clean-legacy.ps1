@@ -19,7 +19,6 @@ $legacyPaths = @(
   'docker/prod/docker-compose.ssl.yml',
   'docker/nginx.conf',
   'docker/nginx-ssl.conf',
-  'scripts/dev-up.ps1',
   'scripts/dev-update.ps1',
   'scripts/dev-doctor.ps1',
   'scripts/dev-setup.ps1',

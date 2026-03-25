@@ -15,6 +15,11 @@ Scripts auxiliares oficiais:
 1. `pwsh -File .\scripts\version.ps1 -ProjectRoot .`
 2. `pwsh -File .\scripts\clean-legacy.ps1 -ProjectRoot .`
 
+Compatibilidade legada (temporaria):
+
+1. `pwsh -File .\scripts\dev-up.ps1 -Action up -ProjectRoot .`
+2. `pwsh -File .\scripts\dev-up.ps1 -Action down -ProjectRoot .`
+
 ## Scripts canônicos
 
 | Script | Função |
@@ -26,6 +31,7 @@ Scripts auxiliares oficiais:
 | `deploy.ps1` | Deploy oficial para VPS (prod) |
 | `version.ps1` | Atualiza `version.json` com política de bump |
 | `clean-legacy.ps1` | Remove arquivos e fluxos legados detectados |
+| `dev-up.ps1` | Wrapper de compatibilidade para comandos legados (`-Action up/down/rebuild/restart`) |
 
 ## Atalhos NPM
 
