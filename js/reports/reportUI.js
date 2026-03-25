@@ -10,6 +10,15 @@ import * as repo from './reportRepository.js';
 // Estado do módulo
 let currentResult = null;
 let isInitialized = false;
+let authLoadListenerBound = false;
+
+function hasAuthToken() {
+  return Boolean(window.__SINGEM_AUTH?.accessToken);
+}
+
+function isServerMode() {
+  return window.CONFIG?.storage?.mode === 'server';
+}
 
 // ============================================================================
 // INICIALIZAÇÃO
@@ -28,8 +37,18 @@ export async function initReportsUI() {
   // Renderizar lista de relatórios
   renderReportList();
 
-  // Carregar dados para filtros
-  await loadFilterData();
+  if (isServerMode() && !hasAuthToken()) {
+    if (!authLoadListenerBound) {
+      window.addEventListener('singem:auth:login', () => {
+        void loadFilterData();
+      });
+      authLoadListenerBound = true;
+    }
+    console.info('[ReportUI] Modo servidor sem token: carga de filtros adiada até login.');
+  } else {
+    // Carregar dados para filtros
+    await loadFilterData();
+  }
 
   // Bind eventos
   bindEvents();
@@ -73,6 +92,11 @@ function renderReportList() {
  * Carrega dados para os filtros
  */
 async function loadFilterData() {
+  if (isServerMode() && !hasAuthToken()) {
+    console.info('[ReportUI] Aguardando autenticação para carregar filtros protegidos.');
+    return;
+  }
+
   try {
     // Anos
     const anos = await repo.getAnosDisponiveis();
@@ -153,6 +177,8 @@ async function gerarRelatorio(reportId) {
   showLoading(`Gerando ${reportDef.title}...`);
 
   try {
+    await loadFilterData();
+
     // Executar relatório
     currentResult = await runReport(reportId, params);
 

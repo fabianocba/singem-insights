@@ -64,8 +64,18 @@ export async function registerServiceWorker() {
     const versionMeta = window.__SINGEM_VERSION_META || {};
     const swVersion = String(versionMeta.version || APP_VERSION || '1.2.2');
     const swBuild = String(versionMeta.build || APP_BUILD || 'local');
+    const isLocalhost = ['localhost', '127.0.0.1'].includes(window.location.hostname);
 
     console.info('[VM]', `${versionMeta.name || 'SINGEM'} v${swVersion} • build ${swBuild}`);
+
+    if (isLocalhost) {
+      // Em dev local, remove SW legado para evitar servir assets desatualizados.
+      const regs = await navigator.serviceWorker.getRegistrations();
+      if (regs.length > 0) {
+        await Promise.all(regs.map((reg) => reg.unregister()));
+        console.info('[VM] Service Workers legados removidos em localhost');
+      }
+    }
 
     const swUrl = `/sw.js?v=${encodeURIComponent(swVersion)}&b=${encodeURIComponent(swBuild)}`;
     const swAvailable = await canRegisterServiceWorker(swUrl);

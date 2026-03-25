@@ -256,12 +256,20 @@ const config = {
 };
 
 function getCorsOrigins() {
-  if (config.corsOrigins.length > 0) {
-    return config.corsOrigins;
+  if (config.env !== 'production') {
+    const devDefaults = [
+      'http://localhost:8000',
+      'http://localhost:3000',
+      'http://127.0.0.1:8000',
+      'http://127.0.0.1:3000'
+    ];
+
+    const merged = [...config.corsOrigins, ...devDefaults];
+    return [...new Set(merged)];
   }
 
-  if (config.env !== 'production') {
-    return ['http://localhost:8000', 'http://localhost:3000'];
+  if (config.corsOrigins.length > 0) {
+    return config.corsOrigins;
   }
 
   return [];

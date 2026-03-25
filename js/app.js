@@ -308,11 +308,8 @@ export class ControleMaterialApp {
    */
   async verificarUsuariosCadastrados() {
     try {
-      console.log('[VERIF_USUARIOS] 🔍 Verificando usuários cadastrados...');
-
       // ✅ USA REPOSITORY DIRETAMENTE (não depende de settingsUsuarios)
       if (!window.repository) {
-        console.warn('[VERIF_USUARIOS] ⚠️ Repository não disponível ainda');
         return;
       }
 
@@ -320,16 +317,12 @@ export class ControleMaterialApp {
       const loginHelp = document.querySelector('.login-help');
 
       if (temUsuarios) {
-        console.log('[VERIF_USUARIOS] ✅ Existem usuários cadastrados');
-
         // Esconde dica de primeiro acesso se houver usuários
         if (loginHelp) {
           loginHelp.hidden = true;
           loginHelp.open = false;
         }
       } else {
-        console.log('[VERIF_USUARIOS] ⚠️ Nenhum usuário cadastrado - mostrando dica de acesso');
-
         // Mostra dica de primeiro acesso
         if (loginHelp) {
           loginHelp.hidden = false;
@@ -337,8 +330,7 @@ export class ControleMaterialApp {
         }
       }
     } catch (error) {
-      console.warn('[VERIF_USUARIOS] ⚠️ Erro ao verificar usuários:', error);
-      console.error('[VERIF_USUARIOS] Stack:', error.stack);
+      console.warn('[VERIF_USUARIOS] Erro ao verificar usuários:', error?.message || error);
     }
   }
 
@@ -488,6 +480,19 @@ export class ControleMaterialApp {
         }
         console.warn('[AUTH] Sessão expirada detectada (token inválido/expirado).');
       }
+    });
+
+    window.addEventListener('singem:auth:login', (event) => {
+      const usuario = event?.detail?.usuario;
+      if (!usuario) {
+        return;
+      }
+
+      this.usuarioLogado = { ...usuario };
+      renderSidebar(this.usuarioLogado);
+      this.atualizarUsuarioHeader();
+      this.showScreen('homeScreen');
+      console.info('[AUTH] Login confirmado via evento global. Navegação para home aplicada.');
     });
 
     // Menu item "Consulte Compras.gov"
@@ -1812,13 +1817,11 @@ export class ControleMaterialApp {
 
     // Desabilita botão e mostra loading
     if (btnLogin) {
-      console.log('[REALIZAR_LOGIN] 🔒 Desabilitando botão...');
       btnLogin.disabled = true;
       btnLogin.textContent = '🔄 Autenticando...';
     }
 
     try {
-      console.log('🔐 Tentando fazer login via API:', usuario);
       const apiClient = (await import('./services/apiClient.js')).default;
       const resultadoAPI = await apiClient.login(usuario, senha);
 
@@ -1857,6 +1860,14 @@ export class ControleMaterialApp {
       renderSidebar(this.usuarioLogado);
       this.atualizarUsuarioHeader();
       this.showScreen('homeScreen');
+
+      // Fallback de robustez: se alguma rotina externa reverter para login,
+      // força a navegação para home ao final do tick de render.
+      window.setTimeout(() => {
+        if (this.usuarioLogado && this.currentScreen === 'loginScreen') {
+          this.showScreen('homeScreen');
+        }
+      }, 0);
 
       if (btnLogin) {
         btnLogin.disabled = false;
@@ -3944,7 +3955,7 @@ export class ControleMaterialApp {
    * Carrega empenhos nos elementos select
    */
   async carregarEmpenhosSelect() {
-    const DEBUG_NF_EMPENHO = true; // Flag para diagnóstico
+    const DEBUG_NF_EMPENHO = false; // Habilitar apenas em diagnóstico local
 
     try {
       // Usa true para incluir TODOS os empenhos (mesmo sem arquivo PDF vinculado)
@@ -3959,7 +3970,9 @@ export class ControleMaterialApp {
         }
       }
 
-      console.log('[carregarEmpenhosSelect] Empenhos encontrados:', empenhos?.length || 0);
+      if (DEBUG_NF_EMPENHO) {
+        console.log('[carregarEmpenhosSelect] Empenhos encontrados:', empenhos?.length || 0);
+      }
 
       // Select de entregas
       const empenhoSelect = document.getElementById('empenhoSelect');
@@ -4017,7 +4030,9 @@ export class ControleMaterialApp {
             empenhoAssociadoSelect.appendChild(option);
           });
         }
-        console.log('[carregarEmpenhosSelect] Select empenhoAssociado populado:', empenhos.length, 'opções');
+        if (DEBUG_NF_EMPENHO) {
+          console.log('[carregarEmpenhosSelect] Select empenhoAssociado populado:', empenhos.length, 'opções');
+        }
       }
     } catch (error) {
       console.error('[carregarEmpenhosSelect] Erro ao carregar empenhos:', error);
@@ -8271,6 +8286,14 @@ function renderBootstrapError(error) {
 }
 
 export async function bootstrapApp() {
+  if (window.__SINGEM_BOOTSTRAP_DONE__ && window.app) {
+    return window.app;
+  }
+
+  if (window.__SINGEM_BOOTSTRAP_PROMISE__) {
+    return window.__SINGEM_BOOTSTRAP_PROMISE__;
+  }
+
   if (bootstrapPromise) {
     return bootstrapPromise;
   }
@@ -8318,6 +8341,8 @@ export async function bootstrapApp() {
       throw error;
     }
   })();
+
+  window.__SINGEM_BOOTSTRAP_PROMISE__ = bootstrapPromise;
 
   return bootstrapPromise;
 }
