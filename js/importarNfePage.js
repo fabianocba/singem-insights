@@ -235,11 +235,16 @@ function renderizarEmpenhos(filtroCNPJ = '') {
     .map(
       (emp) => `
           <div class="empenho-card" data-id="${emp.id}" onclick="selecionarEmpenho('${emp.id}')">
-            <span class="empenho-valor">R$ ${formatarMoeda(emp.valorTotal || 0)}</span>
-            <div class="empenho-numero">NE ${emp.ano || ''}${emp.numero}</div>
-            <div class="empenho-info">
-              ${emp.fornecedor || 'Fornecedor não informado'} •
-              CNPJ: ${formatarCNPJ(emp.cnpjFornecedor || '')}
+            <div class="empenho-card__header">
+              <div class="empenho-card__titulo">NE ${emp.ano || ''}${emp.numero}</div>
+              <span class="badge-status validado">Validado</span>
+            </div>
+            <div class="empenho-card__body">
+              <div class="empenho-card__descricao">${emp.fornecedor || 'Fornecedor não informado'}</div>
+              <div class="empenho-card__meta">
+                <span class="empenho-card__info">CNPJ: ${formatarCNPJ(emp.cnpjFornecedor || '')}</span>
+                <strong class="empenho-valor">R$ ${formatarMoeda(emp.valorTotal || 0)}</strong>
+              </div>
             </div>
           </div>
         `
@@ -320,16 +325,16 @@ function renderChecklistItensEmpenho(empenho) {
       const vUnit = it.valorUnitario ?? 0;
 
       return `
-            <div class="item-check-row ${jaNaLista ? 'ja-adicionado' : ''}">
+            <div class="item-check-row it-check-row ${jaNaLista ? 'ja-adicionado' : ''}">
               <input type="checkbox" class="chkItemEmpenho" data-index="${idx}"
                      id="chkItem_${idx}" ${jaNaLista ? 'disabled' : ''}>
-              <label for="chkItem_${idx}">
-                <span class="item-codigo">${String(it.itemCompra || '---').padStart(3, '0')}</span>
+              <label for="chkItem_${idx}" class="item-info">
+                <span class="item-codigo item-badge">${String(it.itemCompra || '---').padStart(3, '0')}</span>
                 <span class="item-desc"> — ${String(it.descricao || it.material || 'Sem descrição').toUpperCase()}</span>
                 <span class="item-unidade">(${String(it.unidade || 'UN').toUpperCase()})</span>
-                <div class="item-qtd-valor">
+                <div class="item-qtd-valor item-meta">
                   Qtd: ${qtd} | V.Unit: R$ ${formatarMoeda(vUnit)} | Total: R$ ${formatarMoeda(qtd * vUnit)}
-                  ${jaNaLista ? '<strong class="sg-inline-success"> ✓ Já adicionado</strong>' : ''}
+                  ${jaNaLista ? '<strong class="item-badge item-badge-ok">Já adicionado</strong>' : ''}
                 </div>
               </label>
             </div>

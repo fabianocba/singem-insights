@@ -1061,27 +1061,27 @@ body {
   border-color: var(--error);
 }
 
-/* Tables */
-.table {
+/* Tables (legacy fallback) */
+.legacy-table {
   width: 100%;
   border-collapse: collapse;
   margin: var(--spacing-base) 0;
 }
 
-.table th,
-.table td {
+.legacy-table th,
+.legacy-table td {
   padding: var(--spacing-sm) var(--spacing-base);
   text-align: left;
   border-bottom: 1px solid var(--gray-200);
 }
 
-.table th {
+.legacy-table th {
   background: var(--gray-50);
   font-weight: 600;
   color: var(--gray-700);
 }
 
-.table tbody tr:hover {
+.legacy-table tbody tr:hover {
   background: var(--gray-50);
 }
 

@@ -18,8 +18,8 @@ function renderizarItemCadastro(emp) {
         </div>
       </div>
       <div class="empenho-item-acoes">
-        <button class="btn-acao visualizar" data-id="${emp.id}" title="Visualizar empenho">🔍 Visualizar</button>
-        <button class="btn-acao excluir" data-id="${emp.id}" title="Excluir empenho">🗑️</button>
+        <button class="btn-acao btn btn-outline btn-sm visualizar" data-id="${emp.id}" title="Visualizar empenho">Visualizar</button>
+        <button class="btn-acao btn btn-danger btn-sm excluir" data-id="${emp.id}" title="Excluir empenho">Excluir</button>
       </div>
     </div>
   `;
@@ -70,7 +70,7 @@ export function renderizarListaCadastroAgrupada(empenhos, container) {
     return `
       <div class="empenho-ano-grupo">
         <div class="empenho-ano-header" data-ano="${ano}">
-          <span>📅 ${ano} (${lista.length} empenho${lista.length > 1 ? 's' : ''})</span>
+          <span>📅 ${ano} · ${lista.length} empenho${lista.length > 1 ? 's' : ''}</span>
           <span class="ano-toggle">▼</span>
         </div>
         <div class="empenho-ano-lista" id="listaAno${ano}">

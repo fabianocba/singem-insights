@@ -512,25 +512,10 @@ function createDropdown(inputElement) {
 
   const dropdown = document.createElement('div');
   dropdown.className = 'catmat-dropdown';
-  dropdown.style.cssText = `
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    max-height: 300px;
-    overflow-y: auto;
-    background: white;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    z-index: 1000;
-    display: none;
-  `;
+  dropdown.classList.add('catmat-dropdown--panel');
 
   // Wrapper com position relative
-  if (inputElement.parentElement.style.position !== 'relative') {
-    inputElement.parentElement.style.position = 'relative';
-  }
+  inputElement.parentElement.classList.add('catmat-dropdown-host');
 
   inputElement.parentElement.appendChild(dropdown);
   return dropdown;
@@ -580,15 +565,7 @@ function renderResults(dropdown, results, inputElement, onSelect, options = {}) 
 
   if ((contextoSelecionado || detalhandoTodosGrupos) && typeof onBackToSuggestions === 'function') {
     const contextHeader = document.createElement('div');
-    contextHeader.style.cssText = `
-      padding: 10px 12px;
-      background: #eef4ff;
-      border-bottom: 1px solid #d6e4ff;
-      display: flex;
-      justify-content: space-between;
-      gap: 10px;
-      align-items: center;
-    `;
+    contextHeader.className = 'catmat-context-header';
 
     const title = detalhandoTodosGrupos
       ? `Todos os grupos - ${String(inputElement?.value || '').trim()}`
@@ -597,12 +574,12 @@ function renderResults(dropdown, results, inputElement, onSelect, options = {}) 
       ? 'Resultados detalhados em todo o catálogo CATMAT'
       : [contextoSelecionado.descricaoGrupo, contextoSelecionado.descricaoClasse].filter(Boolean).join(' | ');
     contextHeader.innerHTML = `
-      <div style="min-width: 0;">
-        <div style="font-size: 12px; color: #666;">Contexto selecionado</div>
-        <div style="font-size: 13px; color: #1351B4; font-weight: 700;">${escapeHTML(title)}</div>
-        ${subtitle ? `<div style="font-size: 11px; color: #555; margin-top: 2px;">${escapeHTML(subtitle)}</div>` : ''}
+      <div class="catmat-context-copy">
+        <div class="catmat-context-label">Contexto selecionado</div>
+        <div class="catmat-context-title">${escapeHTML(title)}</div>
+        ${subtitle ? `<div class="catmat-context-subtitle">${escapeHTML(subtitle)}</div>` : ''}
       </div>
-      <button type="button" class="btn-voltar-grupos" style="border: none; background: #1351B4; color: white; padding: 6px 10px; border-radius: 4px; cursor: pointer; white-space: nowrap;">
+      <button type="button" class="btn-voltar-grupos btn btn-primary btn-sm">
         Voltar aos grupos
       </button>
     `;
@@ -616,13 +593,7 @@ function renderResults(dropdown, results, inputElement, onSelect, options = {}) 
 
   if (aviso) {
     const avisoEl = document.createElement('div');
-    avisoEl.style.cssText = `
-      padding: 8px 10px;
-      background: #fff3cd;
-      color: #856404;
-      border-bottom: 1px solid #f0d98c;
-      font-size: 12px;
-    `;
+    avisoEl.className = 'catmat-aviso';
     avisoEl.textContent = aviso;
     dropdown.appendChild(avisoEl);
   }
@@ -630,15 +601,7 @@ function renderResults(dropdown, results, inputElement, onSelect, options = {}) 
   if (modo === 'suggestions' && Array.isArray(sugestoes) && sugestoes.length > 0) {
     sugestoes.forEach((suggestion) => {
       const item = document.createElement('div');
-      item.className = 'catmat-item';
-      item.style.cssText = `
-        padding: 10px 12px;
-        cursor: pointer;
-        border-bottom: 1px solid #eee;
-        display: flex;
-        flex-direction: column;
-        gap: 3px;
-      `;
+      item.className = 'catmat-item catmat-item--suggestion';
 
       const secondary = suggestion.tipo === 'todos_grupos' ? '' : buildSuggestionContext(suggestion);
       const preview = suggestion.previewDescricao
@@ -646,22 +609,15 @@ function renderResults(dropdown, results, inputElement, onSelect, options = {}) 
         : '';
 
       item.innerHTML = `
-        <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px;">
-          <strong style="color: #1351B4; font-size: 13px;">${escapeHTML(
+        <div class="catmat-item-head">
+          <strong class="catmat-item-title">${escapeHTML(
             suggestion.label || suggestion.descricaoPdm || 'Sugestão CATMAT'
           )}</strong>
-          <span style="font-size: 11px; color: #666; white-space: nowrap;">${Number(suggestion.totalItens || 0)} item(ns)</span>
+          <span class="catmat-item-count">${Number(suggestion.totalItens || 0)} item(ns)</span>
         </div>
-        ${secondary ? `<div style="font-size: 11px; color: #555;">${escapeHTML(secondary)}</div>` : ''}
-        ${preview ? `<div style="font-size: 11px; color: #777;">${escapeHTML(preview)}</div>` : ''}
+        ${secondary ? `<div class="catmat-item-meta">${escapeHTML(secondary)}</div>` : ''}
+        ${preview ? `<div class="catmat-item-preview">${escapeHTML(preview)}</div>` : ''}
       `;
-
-      item.addEventListener('mouseenter', () => {
-        item.style.background = '#f5f5f5';
-      });
-      item.addEventListener('mouseleave', () => {
-        item.style.background = 'white';
-      });
       item.addEventListener('click', () => {
         onPickSuggestion?.(suggestion);
       });
@@ -675,16 +631,9 @@ function renderResults(dropdown, results, inputElement, onSelect, options = {}) 
 
   if (results.length === 0) {
     dropdown.innerHTML = `
-      <div style="padding: 12px; text-align: center;">
-        <p style="margin: 0 0 10px; color: #666;">Nenhum material encontrado</p>
-        <button type="button" class="btn-criar-pedido" style="
-          background: #1351B4;
-          color: white;
-          border: none;
-          padding: 8px 16px;
-          border-radius: 4px;
-          cursor: pointer;
-        ">
+      <div class="catmat-empty-state">
+        <p class="catmat-empty-copy">Nenhum material encontrado</p>
+        <button type="button" class="btn-criar-pedido btn btn-primary btn-sm">
           📝 Criar Pedido de Catalogação
         </button>
       </div>
@@ -702,38 +651,23 @@ function renderResults(dropdown, results, inputElement, onSelect, options = {}) 
   results.forEach((material) => {
     const item = document.createElement('div');
     item.className = 'catmat-item';
-    item.style.cssText = `
-      padding: 10px 12px;
-      cursor: pointer;
-      border-bottom: 1px solid #eee;
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    `;
 
     const aiBadge = material._aiSource
-      ? '<span style="font-size: 10px; background: #e8f0fe; color: #1a73e8; padding: 1px 6px; border-radius: 8px; margin-left: 6px;">IA</span>'
+      ? '<span class="catmat-item-ai-badge">IA</span>'
       : '';
     const contextLine = buildMaterialContext(material);
 
     item.innerHTML = `
-      <div style="display: flex; justify-content: space-between; align-items: center;">
-        <strong style="color: #1351B4;">${escapeHTML(String(material.catmat_id || material.codigo || '-'))}${aiBadge}</strong>
-        <span style="font-size: 12px; color: #666;">${escapeHTML(String(material.unidade || 'UN'))}</span>
+      <div class="catmat-item-head">
+        <strong class="catmat-item-code">${escapeHTML(String(material.catmat_id || material.codigo || '-'))}${aiBadge}</strong>
+        <span class="catmat-item-unit">${escapeHTML(String(material.unidade || 'UN'))}</span>
       </div>
-      <div style="font-size: 13px; color: #333; line-height: 1.4;">
+      <div class="catmat-item-description">
         ${escapeHTML(String(material.descricao || ''))}
       </div>
-      ${contextLine ? `<div style="font-size: 11px; color: #666;">${escapeHTML(contextLine)}</div>` : ''}
-      ${material.catmat_sustentavel ? '<span style="font-size: 11px; color: green;">🌿 Sustentável</span>' : ''}
+      ${contextLine ? `<div class="catmat-item-meta">${escapeHTML(contextLine)}</div>` : ''}
+      ${material.catmat_sustentavel ? '<span class="catmat-item-sustentavel">🌿 Sustentável</span>' : ''}
     `;
-
-    item.addEventListener('mouseenter', () => {
-      item.style.background = '#f5f5f5';
-    });
-    item.addEventListener('mouseleave', () => {
-      item.style.background = 'white';
-    });
 
     item.addEventListener('click', () => {
       onSelect(material);
@@ -745,22 +679,9 @@ function renderResults(dropdown, results, inputElement, onSelect, options = {}) 
 
   // Botão de "não encontrei" no final
   const footer = document.createElement('div');
-  footer.style.cssText = `
-    padding: 10px;
-    text-align: center;
-    background: #f9f9f9;
-    border-top: 1px solid #ddd;
-  `;
+  footer.className = 'catmat-dropdown-footer';
   footer.innerHTML = `
-    <button type="button" class="btn-criar-pedido-footer" style="
-      background: none;
-      color: #1351B4;
-      border: none;
-      padding: 4px 8px;
-      cursor: pointer;
-      font-size: 13px;
-      text-decoration: underline;
-    ">
+    <button type="button" class="btn-criar-pedido-footer catmat-link-btn">
       Não encontrei o item - Criar pedido de catalogação
     </button>
   `;
@@ -773,18 +694,8 @@ function renderResults(dropdown, results, inputElement, onSelect, options = {}) 
   if (hasMore && typeof onLoadMore === 'function') {
     const loadMore = document.createElement('button');
     loadMore.type = 'button';
+    loadMore.className = 'catmat-load-more';
     loadMore.textContent = 'Carregar mais resultados';
-    loadMore.style.cssText = `
-      width: 100%;
-      padding: 8px 10px;
-      border: none;
-      border-top: 1px solid #ddd;
-      background: #f5f8ff;
-      color: #1351B4;
-      cursor: pointer;
-      font-size: 12px;
-      font-weight: 600;
-    `;
     loadMore.addEventListener('click', (e) => {
       e.preventDefault();
       onLoadMore();
@@ -1027,75 +938,43 @@ export function abrirModalPedidoCatalogacao(termoBusca = '') {
 
   const modal = document.createElement('div');
   modal.id = 'modalCatalogacao';
-  modal.className = 'modal-overlay';
-  modal.style.cssText = `
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0,0,0,0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 9999;
-  `;
+  modal.className = 'modal-overlay catalogacao-modal-overlay';
 
   modal.innerHTML = `
-    <div class="modal-content" style="
-      background: white;
-      border-radius: 8px;
-      width: 90%;
-      max-width: 600px;
-      max-height: 90vh;
-      overflow-y: auto;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-    ">
-      <div class="modal-header" style="
-        padding: 20px;
-        border-bottom: 1px solid #ddd;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-      ">
-        <h2 style="margin: 0; font-size: 18px; color: #1351B4;">
+    <div class="modal-content modal-card catalogacao-modal-card" role="dialog" aria-modal="true">
+      <div class="modal-header">
+        <h2 class="catalogacao-modal-title">
           📝 Pedido de Catalogação CATMAT
         </h2>
-        <button type="button" class="btn-fechar-modal" style="
-          background: none;
-          border: none;
-          font-size: 24px;
-          cursor: pointer;
-          color: #666;
-        ">&times;</button>
+        <button type="button" class="btn-fechar-modal catalogacao-btn-fechar">&times;</button>
       </div>
 
-      <form id="formPedidoCatalogacao" style="padding: 20px;">
-        <div class="form-group" style="margin-bottom: 16px;">
-          <label style="display: block; margin-bottom: 6px; font-weight: 500;">
+      <form id="formPedidoCatalogacao" class="catalogacao-form modal-body">
+        <div class="form-group">
+          <label class="catalogacao-field-label">
             Termo Buscado *
           </label>
           <input type="text" id="pedidoTermoBusca" required
             value="${termoBusca}"
-            style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;"
+            class="sg-input"
             placeholder="Digite o termo que você buscou">
         </div>
 
-        <div class="form-group" style="margin-bottom: 16px;">
-          <label style="display: block; margin-bottom: 6px; font-weight: 500;">
+        <div class="form-group">
+          <label class="catalogacao-field-label">
             Descrição Completa do Material *
           </label>
           <textarea id="pedidoDescricao" required rows="4"
-            style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; resize: vertical;"
+            class="sg-textarea"
             placeholder="Descreva o material com o máximo de detalhes possível (mínimo 10 caracteres)"></textarea>
         </div>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+        <div class="catalogacao-form-grid-2">
           <div class="form-group">
-            <label style="display: block; margin-bottom: 6px; font-weight: 500;">
+            <label class="catalogacao-field-label">
               Unidade de Medida
             </label>
-            <select id="pedidoUnidade" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
+            <select id="pedidoUnidade" class="sg-select">
               <option value="UN">UN - Unidade</option>
               <option value="CX">CX - Caixa</option>
               <option value="PC">PC - Pacote</option>
@@ -1112,58 +991,39 @@ export function abrirModalPedidoCatalogacao(termoBusca = '') {
           </div>
 
           <div class="form-group">
-            <label style="display: block; margin-bottom: 6px; font-weight: 500;">
+            <label class="catalogacao-field-label">
               Tipo
             </label>
-            <select id="pedidoTipo" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
+            <select id="pedidoTipo" class="sg-select">
               <option value="CATMAT">CATMAT - Material</option>
               <option value="CATSER">CATSER - Serviço</option>
             </select>
           </div>
         </div>
 
-        <div class="form-group" style="margin-bottom: 16px;">
-          <label style="display: block; margin-bottom: 6px; font-weight: 500;">
+        <div class="form-group">
+          <label class="catalogacao-field-label">
             Justificativa
           </label>
           <textarea id="pedidoJustificativa" rows="2"
-            style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; resize: vertical;"
+            class="sg-textarea"
             placeholder="Por que este material é necessário para o órgão?"></textarea>
         </div>
 
-        <div style="
-          background: #E8F0FE;
-          border-left: 4px solid #1351B4;
-          padding: 12px 16px;
-          margin-bottom: 20px;
-          border-radius: 0 4px 4px 0;
-        ">
-          <p style="margin: 0 0 8px; font-weight: 500; color: #1351B4;">
+        <div class="catalogacao-info-box">
+          <p class="catalogacao-info-title">
             ℹ️ Próximos Passos
           </p>
-          <ol style="margin: 0; padding-left: 20px; font-size: 13px; color: #333;">
+          <ol class="catalogacao-info-list">
             <li>Este pedido será registrado no sistema SINGEM</li>
-            <li>Acesse o <a href="https://www.gov.br/compras/pt-br/sistemas/sistema-de-catalogacao" target="_blank" style="color: #1351B4;">Portal de Compras</a> para solicitar oficialmente</li>
+            <li>Acesse o <a href="https://www.gov.br/compras/pt-br/sistemas/sistema-de-catalogacao" target="_blank" class="catalogacao-info-link">Portal de Compras</a> para solicitar oficialmente</li>
             <li>Atualize o status aqui quando houver resposta</li>
           </ol>
         </div>
 
-        <div style="display: flex; gap: 12px; justify-content: flex-end;">
-          <button type="button" class="btn-cancelar" style="
-            padding: 10px 20px;
-            border: 1px solid #ccc;
-            background: white;
-            border-radius: 4px;
-            cursor: pointer;
-          ">Cancelar</button>
-          <button type="submit" style="
-            padding: 10px 20px;
-            background: #1351B4;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-          ">Registrar Pedido</button>
+        <div class="catalogacao-form-actions">
+          <button type="button" class="btn-cancelar btn btn-outline">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Registrar Pedido</button>
         </div>
       </form>
     </div>

@@ -106,7 +106,7 @@ function createApp({ nodeEnv, bodyLimit, corsOrigins, trustProxy, nfeService, nf
   app.use('/api/integracoes', createIntegracoesLimiter(), authenticate, requireAdmin, integracoesAdminRoutes);
   app.use('/api/system-status', createSystemStatusRouter({ nfeService, nfeServiceV2 }));
 
-  app.get('/health', async (req, res) => {
+  const handleHealthcheck = async (req, res) => {
     setNoCacheHeaders(res);
 
     const dbStatus = await db.healthCheck().catch((error) => ({
@@ -149,7 +149,10 @@ function createApp({ nodeEnv, bodyLimit, corsOrigins, trustProxy, nfeService, nf
     }
 
     return res.json(response);
-  });
+  };
+
+  app.get('/health', handleHealthcheck);
+  app.get('/api/health', handleHealthcheck);
 
   app.get('/api/info', (_req, res) => {
     const versionInfo = readVersion();

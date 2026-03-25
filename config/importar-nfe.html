@@ -8,424 +8,11 @@
     <script src="../js/ui/themeBoot.js"></script>
     <script src="../js/config.js"></script>
     <script src="../js/db.js"></script>
-    <link rel="stylesheet" href="../css/style.css" />
-    <link rel="icon" href="../html/favicon.svg" type="image/svg+xml" />
-    <!-- Carregar validador de NF -->
     <script src="../js/nfValidator.js"></script>
-    <style>
-      :root {
-        --primary: #0d6efd;
-        --success: #198754;
-        --danger: #dc3545;
-        --warning: #ffc107;
-        --bg: #f8f9fa;
-        --card: #ffffff;
-        --text: #212529;
-        --border: #dee2e6;
-        --muted: #6c757d;
-      }
-
-      * {
-        box-sizing: border-box;
-      }
-
-      body {
-        font-family: 'Segoe UI', Tahoma, sans-serif;
-        background: var(--bg);
-        color: var(--text);
-        margin: 0;
-        padding: 20px;
-      }
-
-      .container {
-        max-width: 800px;
-        margin: 0 auto;
-      }
-
-      header {
-        text-align: center;
-        margin-bottom: 25px;
-      }
-
-      header h1 {
-        color: var(--primary);
-        margin: 0 0 5px;
-        font-size: 1.6em;
-      }
-
-      header p {
-        color: var(--muted);
-        margin: 0;
-      }
-
-      .card {
-        background: var(--card);
-        border-radius: 10px;
-        padding: 25px;
-        margin-bottom: 20px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-      }
-
-      .card h2 {
-        margin: 0 0 20px;
-        font-size: 1.15em;
-        color: var(--primary);
-        display: flex;
-        align-items: center;
-        gap: 8px;
-      }
-
-      .form-row {
-        display: grid;
-        gap: 15px;
-        margin-bottom: 15px;
-      }
-
-      .form-row.cols-2 {
-        grid-template-columns: 1fr 1fr;
-      }
-
-      .form-row.cols-3 {
-        grid-template-columns: 1fr 1fr 1fr;
-      }
-
-      .form-row.cols-4 {
-        grid-template-columns: 2fr 1fr 1fr 1fr;
-      }
-
-      .form-group {
-        margin-bottom: 0;
-      }
-
-      .form-group label {
-        display: block;
-        font-weight: 600;
-        margin-bottom: 6px;
-        color: #495057;
-        font-size: 0.9em;
-      }
-
-      .form-group label .required {
-        color: var(--danger);
-      }
-
-      .form-group input,
-      .form-group select {
-        width: 100%;
-        padding: 10px 12px;
-        border: 1px solid var(--border);
-        border-radius: 6px;
-        font-size: 0.95em;
-        transition: border-color 0.2s;
-      }
-
-      .form-group input:focus,
-      .form-group select:focus {
-        outline: none;
-        border-color: var(--primary);
-        box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.15);
-      }
-
-      .form-group input:disabled {
-        background: #e9ecef;
-        cursor: not-allowed;
-      }
-
-      .form-group .hint {
-        font-size: 0.8em;
-        color: var(--muted);
-        margin-top: 4px;
-      }
-
-      .form-group .error {
-        color: var(--danger);
-        font-size: 0.85em;
-        margin-top: 4px;
-        display: none;
-      }
-
-      .form-group.has-error input {
-        border-color: var(--danger);
-      }
-
-      .form-group.has-error .error {
-        display: block;
-      }
-
-      /* Tabela de itens */
-      .items-section {
-        margin-top: 20px;
-        padding-top: 20px;
-        border-top: 1px solid var(--border);
-      }
-
-      .items-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 15px;
-      }
-
-      .items-header h3 {
-        margin: 0;
-        font-size: 1em;
-        color: #495057;
-      }
-
-      .btn-sm {
-        padding: 6px 12px;
-        font-size: 0.85em;
-        border-radius: 5px;
-        cursor: pointer;
-        border: none;
-        display: inline-flex;
-        align-items: center;
-        gap: 5px;
-      }
-
-      .btn-outline {
-        background: transparent;
-        border: 1px solid var(--primary);
-        color: var(--primary);
-      }
-
-      .btn-outline:hover {
-        background: var(--primary);
-        color: white;
-      }
-
-      .items-table {
-        width: 100%;
-        border-collapse: collapse;
-        font-size: 0.9em;
-      }
-
-      .items-table th {
-        background: #f1f3f5;
-        padding: 10px 8px;
-        text-align: left;
-        font-weight: 600;
-        border-bottom: 2px solid var(--border);
-      }
-
-      .items-table td {
-        padding: 8px;
-        border-bottom: 1px solid var(--border);
-        vertical-align: middle;
-      }
-
-      .items-table input {
-        width: 100%;
-        padding: 6px 8px;
-        border: 1px solid var(--border);
-        border-radius: 4px;
-        font-size: 0.9em;
-      }
-
-      .items-table .col-desc {
-        width: 40%;
-      }
-
-      .items-table .col-qty,
-      .items-table .col-unit,
-      .items-table .col-total {
-        width: 15%;
-      }
-
-      .items-table .col-actions {
-        width: 40px;
-        text-align: center;
-      }
-
-      .btn-remove {
-        background: none;
-        border: none;
-        color: var(--danger);
-        cursor: pointer;
-        font-size: 1.1em;
-        padding: 4px;
-      }
-
-      .btn-remove:hover {
-        opacity: 0.7;
-      }
-
-      .items-footer {
-        display: flex;
-        justify-content: flex-end;
-        padding: 15px 8px;
-        background: #f8f9fa;
-        border-radius: 0 0 8px 8px;
-        font-weight: 600;
-      }
-
-      .items-footer .total-label {
-        margin-right: 20px;
-        color: var(--muted);
-      }
-
-      .items-footer .total-value {
-        color: var(--primary);
-        min-width: 100px;
-        text-align: right;
-      }
-
-      /* Seleção de empenho */
-      .empenho-select {
-        margin-top: 20px;
-        padding-top: 20px;
-        border-top: 1px solid var(--border);
-      }
-
-      .empenho-card {
-        padding: 12px 15px;
-        border: 1px solid var(--border);
-        border-radius: 8px;
-        margin-bottom: 10px;
-        cursor: pointer;
-        transition: all 0.2s;
-      }
-
-      .empenho-card:hover {
-        border-color: var(--primary);
-        background: #f8f9ff;
-      }
-
-      .empenho-card.selected {
-        border-color: var(--primary);
-        background: #e7f1ff;
-      }
-
-      .empenho-card .empenho-numero {
-        font-weight: 600;
-        color: var(--primary);
-      }
-
-      .empenho-card .empenho-info {
-        font-size: 0.85em;
-        color: var(--muted);
-        margin-top: 4px;
-      }
-
-      .empenho-card .empenho-valor {
-        font-weight: 600;
-        color: var(--success);
-        float: right;
-      }
-
-      .empenho-empty {
-        text-align: center;
-        padding: 30px;
-        color: var(--muted);
-      }
-
-      /* Botões de ação */
-      .actions {
-        display: flex;
-        gap: 15px;
-        justify-content: flex-end;
-        margin-top: 25px;
-        padding-top: 20px;
-        border-top: 1px solid var(--border);
-      }
-
-      .btn {
-        padding: 12px 25px;
-        border-radius: 8px;
-        font-size: 1em;
-        font-weight: 600;
-        cursor: pointer;
-        border: none;
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        transition: all 0.2s;
-      }
-
-      .btn-primary {
-        background: var(--primary);
-        color: white;
-      }
-
-      .btn-primary:hover {
-        background: #0b5ed7;
-      }
-
-      .btn-primary:disabled {
-        background: #6c757d;
-        cursor: not-allowed;
-      }
-
-      .btn-secondary {
-        background: #6c757d;
-        color: white;
-      }
-
-      .btn-secondary:hover {
-        background: #5c636a;
-      }
-
-      /* Mensagens */
-      .alert {
-        padding: 15px 20px;
-        border-radius: 8px;
-        margin-bottom: 20px;
-        display: none;
-      }
-
-      .alert.show {
-        display: block;
-      }
-
-      .alert-success {
-        background: #d1e7dd;
-        color: #0f5132;
-        border: 1px solid #badbcc;
-      }
-
-      .alert-danger {
-        background: #f8d7da;
-        color: #842029;
-        border: 1px solid #f5c2c7;
-      }
-
-      /* Navegação */
-      .nav-back {
-        display: inline-flex;
-        align-items: center;
-        gap: 5px;
-        color: var(--muted);
-        text-decoration: none;
-        font-size: 0.9em;
-        margin-bottom: 15px;
-      }
-
-      .nav-back:hover {
-        color: var(--primary);
-      }
-
-      /* Responsivo */
-      @media (max-width: 768px) {
-        .form-row.cols-2,
-        .form-row.cols-3,
-        .form-row.cols-4 {
-          grid-template-columns: 1fr;
-        }
-
-        .actions {
-          flex-direction: column;
-        }
-
-        .btn {
-          width: 100%;
-          justify-content: center;
-        }
-      }
-    </style>
     <link rel="stylesheet" href="../css/tailwind.css" />
   </head>
   <body data-page="importar-nfe">
-    <div class="container">
+    <div class="container nf-screen">
       <div class="sg-page-header-actions">
         <a href="../index.html" class="nav-back">← Voltar ao Sistema</a>
         <button type="button" data-theme-toggle aria-label="Alternar tema"></button>
@@ -438,7 +25,7 @@
 
       <div id="alertBox" class="alert"></div>
 
-      <form id="formNF" autocomplete="off">
+      <form id="formNF" class="sg-form-layout" autocomplete="off">
         <!-- Identificação da NF -->
         <div class="card">
           <h2>🔑 Identificação da NF-e</h2>
@@ -512,7 +99,7 @@
 
           <!-- Itens da NF (obrigatório) -->
           <div class="items-section">
-            <div class="items-header">
+            <div class="items-header sg-toolbar">
               <h3>📦 Itens da Nota Fiscal <span class="required">*</span></h3>
               <button
                 type="button"
@@ -524,23 +111,25 @@
               </button>
             </div>
 
-            <table class="items-table" id="tabelaItens">
-              <thead>
-                <tr>
-                  <th class="col-seq">Seq</th>
-                  <th class="col-item-code">Item</th>
-                  <th class="col-desc">Descrição</th>
-                  <th class="col-unit-short">Unidade</th>
-                  <th class="col-qty">Qtd</th>
-                  <th class="col-unit">Vl. Unit.</th>
-                  <th class="col-total">Total</th>
-                  <th class="col-actions"></th>
-                </tr>
-              </thead>
-              <tbody id="itensBody">
-                <!-- Itens serão adicionados aqui -->
-              </tbody>
-            </table>
+            <div class="nf-items-wrap">
+              <table class="items-table nf-items" id="tabelaItens">
+                <thead>
+                  <tr>
+                    <th class="col-seq">Seq</th>
+                    <th class="col-item-code">Item</th>
+                    <th class="col-desc">Descrição</th>
+                    <th class="col-unit-short">Unidade</th>
+                    <th class="col-qty">Qtd</th>
+                    <th class="col-unit">Vl. Unit.</th>
+                    <th class="col-total">Total</th>
+                    <th class="col-actions"></th>
+                  </tr>
+                </thead>
+                <tbody id="itensBody">
+                  <!-- Itens serão adicionados aqui -->
+                </tbody>
+              </table>
+            </div>
 
             <div class="items-footer items-footer--stack">
               <div class="items-footer__row">
@@ -572,7 +161,7 @@
             />
           </div>
 
-          <div id="listaEmpenhos" class="empenho-list">
+          <div id="listaEmpenhos" class="empenho-list sg-scroll-panel">
             <div class="empenho-empty">
               <p>Carregando empenhos...</p>
             </div>
@@ -602,7 +191,7 @@
 
       <!-- Modal de Divergências -->
       <div id="modalDivergencias" class="modal-overlay hidden">
-        <div class="modal-content">
+        <div class="modal-content modal-card" role="dialog" aria-modal="true">
           <div class="modal-header">
             <h3 id="modalTitulo">📋 Resultado da Validação</h3>
             <button type="button" class="modal-close" onclick="fecharModal()">&times;</button>
@@ -629,9 +218,9 @@
       <!-- Modal de Itens do Empenho -->
       <div id="modalItensEmpenho" class="modal-overlay modal-itens-empenho">
         <div class="overlay" onclick="fecharModalItensEmpenho()"></div>
-        <div class="modal-content">
+        <div class="modal-content modal-card" role="dialog" aria-modal="true">
           <div class="modal-header">
-            <h3>📋 Selecionar Itens do Empenho</h3>
+            <h3 class="modal-title">📋 Selecionar Itens do Empenho</h3>
             <button type="button" class="modal-close" onclick="fecharModalItensEmpenho()">
               &times;
             </button>
@@ -670,321 +259,6 @@
         </div>
       </div>
     </div>
-
-    <!-- Estilos adicionais para o modal -->
-    <style>
-      .modal-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.5);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 1000;
-      }
-      .modal-content {
-        background: white;
-        border-radius: 12px;
-        max-width: 600px;
-        width: 90%;
-        max-height: 80vh;
-        overflow: hidden;
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-      }
-      .modal-header {
-        padding: 20px;
-        border-bottom: 1px solid var(--border);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-      }
-      .modal-header h3 {
-        margin: 0;
-        color: var(--primary);
-      }
-      .modal-close {
-        background: none;
-        border: none;
-        font-size: 1.5em;
-        cursor: pointer;
-        color: var(--muted);
-      }
-      .modal-close:hover {
-        color: var(--danger);
-      }
-      .modal-body {
-        padding: 20px;
-        max-height: 50vh;
-        overflow-y: auto;
-      }
-      .modal-footer {
-        padding: 15px 20px;
-        border-top: 1px solid var(--border);
-        display: flex;
-        justify-content: flex-end;
-        gap: 10px;
-      }
-      .erro-item {
-        background: #f8d7da;
-        border-left: 4px solid var(--danger);
-        padding: 10px 15px;
-        margin-bottom: 10px;
-        border-radius: 0 6px 6px 0;
-      }
-      .erro-item strong {
-        color: var(--danger);
-      }
-      .alerta-item {
-        background: #fff3cd;
-        border-left: 4px solid var(--warning);
-        padding: 10px 15px;
-        margin-bottom: 10px;
-        border-radius: 0 6px 6px 0;
-      }
-      .alerta-item strong {
-        color: #997404;
-      }
-      .totais-box {
-        background: #e7f1ff;
-        padding: 15px;
-        border-radius: 8px;
-        margin-top: 15px;
-      }
-      .totais-box p {
-        margin: 5px 0;
-      }
-      .sucesso-box {
-        background: #d1e7dd;
-        border-left: 4px solid var(--success);
-        padding: 15px;
-        border-radius: 0 6px 6px 0;
-      }
-      .sucesso-box strong {
-        color: var(--success);
-      }
-
-      /* Modal de Itens do Empenho - CENTRALIZADO E MODERNO */
-      .modal-itens-empenho {
-        display: none;
-        position: fixed;
-        inset: 0;
-        z-index: 9999;
-        align-items: center;
-        justify-content: center;
-        padding: 20px;
-        /* Sobrescreve modal-overlay genérico */
-        background: transparent !important;
-      }
-      .modal-itens-empenho.open {
-        display: flex;
-      }
-      .modal-itens-empenho > .overlay {
-        position: absolute;
-        inset: 0;
-        background: rgba(17, 24, 39, 0.55);
-        -webkit-backdrop-filter: blur(4px);
-        backdrop-filter: blur(4px);
-        cursor: pointer;
-        transition: background 0.2s ease;
-      }
-      .modal-itens-empenho > .modal-content {
-        position: relative;
-        z-index: 1;
-        width: min(860px, 94vw);
-        max-height: 85vh;
-        overflow: hidden;
-        display: flex;
-        flex-direction: column;
-        background: #ffffff;
-        border-radius: 16px;
-        box-shadow:
-          0 25px 60px rgba(0, 0, 0, 0.35),
-          0 0 0 1px rgba(0, 0, 0, 0.05);
-        animation: modalSlideIn 0.25s ease-out;
-      }
-      @keyframes modalSlideIn {
-        from {
-          opacity: 0;
-          transform: translateY(-20px) scale(0.97);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0) scale(1);
-        }
-      }
-      .modal-itens-empenho .modal-header {
-        padding: 18px 24px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 16px;
-        border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-      }
-      .modal-itens-empenho .modal-header h3 {
-        margin: 0;
-        font-size: 17px;
-        font-weight: 700;
-        color: #1e293b;
-        letter-spacing: 0.2px;
-      }
-      .modal-itens-empenho .modal-close {
-        background: rgba(0, 0, 0, 0.05);
-        border: none;
-        width: 32px;
-        height: 32px;
-        border-radius: 8px;
-        font-size: 20px;
-        cursor: pointer;
-        color: #64748b;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: all 0.15s ease;
-      }
-      .modal-itens-empenho .modal-close:hover {
-        background: #fee2e2;
-        color: #dc2626;
-      }
-      .modal-itens-empenho .modal-body {
-        flex: 1;
-        overflow-y: auto;
-        max-height: 55vh;
-        padding: 16px 24px;
-      }
-      .modal-itens-empenho .modal-controls {
-        display: flex;
-        gap: 10px;
-        margin-bottom: 16px;
-        padding-bottom: 14px;
-        border-bottom: 1px solid rgba(0, 0, 0, 0.06);
-      }
-      .modal-itens-empenho .btn-sm.btn-outline {
-        padding: 9px 14px;
-        border-radius: 10px;
-        border: 1px solid rgba(0, 0, 0, 0.12);
-        background: #f8fafc;
-        font-size: 13px;
-        cursor: pointer;
-        transition: all 0.15s ease;
-        font-weight: 500;
-      }
-      .modal-itens-empenho .btn-sm.btn-outline:hover {
-        background: #e2e8f0;
-        border-color: rgba(0, 0, 0, 0.18);
-      }
-      .modal-itens-empenho .modal-footer {
-        padding: 16px 24px;
-        display: flex;
-        justify-content: flex-end;
-        gap: 12px;
-        border-top: 1px solid rgba(0, 0, 0, 0.08);
-        background: #fafbfc;
-      }
-      .modal-itens-empenho .modal-footer .btn {
-        padding: 11px 18px;
-        border-radius: 10px;
-        font-size: 14px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.15s ease;
-      }
-      .modal-itens-empenho .modal-footer .btn-secondary {
-        background: #fff;
-        border: 1px solid rgba(0, 0, 0, 0.12);
-        color: #475569;
-      }
-      .modal-itens-empenho .modal-footer .btn-secondary:hover {
-        background: #f1f5f9;
-      }
-      .modal-itens-empenho .modal-footer .btn-primary {
-        background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
-        border: none;
-        color: #fff;
-        box-shadow: 0 2px 8px rgba(30, 64, 175, 0.3);
-      }
-      .modal-itens-empenho .modal-footer .btn-primary:hover {
-        background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
-        box-shadow: 0 4px 12px rgba(30, 64, 175, 0.4);
-      }
-      .modal-controls {
-        display: flex;
-        gap: 10px;
-        margin-bottom: 15px;
-        padding-bottom: 10px;
-        border-bottom: 1px solid var(--border);
-      }
-      .modal-itens-empenho .itens-checklist {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-      }
-      .modal-itens-empenho .item-check-row {
-        display: flex;
-        align-items: flex-start;
-        gap: 12px;
-        padding: 14px 16px;
-        background: #f8fafc;
-        border-radius: 12px;
-        border: 1px solid rgba(0, 0, 0, 0.04);
-        transition: all 0.15s ease;
-      }
-      .modal-itens-empenho .item-check-row:hover {
-        background: #f1f5f9;
-        border-color: rgba(0, 0, 0, 0.08);
-      }
-      .modal-itens-empenho .item-check-row.ja-adicionado {
-        background: #f0fdf4;
-        border-color: rgba(34, 197, 94, 0.15);
-        opacity: 0.7;
-      }
-      .modal-itens-empenho .item-check-row input[type='checkbox'] {
-        margin-top: 2px;
-        width: 20px;
-        height: 20px;
-        cursor: pointer;
-        accent-color: #1e40af;
-        flex-shrink: 0;
-      }
-      .modal-itens-empenho .item-check-row input[type='checkbox']:disabled {
-        cursor: not-allowed;
-        opacity: 0.5;
-      }
-      .modal-itens-empenho .item-check-row label {
-        flex: 1;
-        cursor: pointer;
-        line-height: 1.5;
-      }
-      .modal-itens-empenho .item-check-row .item-codigo {
-        font-weight: 700;
-        color: #1e40af;
-        font-family: 'Consolas', 'Monaco', monospace;
-        background: #dbeafe;
-        padding: 2px 8px;
-        border-radius: 6px;
-        font-size: 13px;
-      }
-      .modal-itens-empenho .item-check-row .item-desc {
-        color: #334155;
-        font-weight: 500;
-      }
-      .modal-itens-empenho .item-check-row .item-unidade {
-        color: #64748b;
-        font-size: 0.9em;
-      }
-      .modal-itens-empenho .item-check-row .item-qtd-valor {
-        font-size: 0.85em;
-        color: #64748b;
-        margin-top: 6px;
-        background: rgba(0, 0, 0, 0.02);
-        padding: 4px 8px;
-        border-radius: 6px;
-      }
-    </style>
-
     <script src="../js/importarNfePage.js"></script>
 
     <footer id="app-version-container" class="app-version-footer">

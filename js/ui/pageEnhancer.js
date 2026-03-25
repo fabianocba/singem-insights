@@ -10,6 +10,21 @@ const PAGE_LABELS = {
   'system-status': 'Monitoramento interno'
 };
 
+const STYLABLE_INPUT_TYPES = new Set([
+  'text',
+  'email',
+  'number',
+  'search',
+  'tel',
+  'url',
+  'password',
+  'date',
+  'datetime-local',
+  'month',
+  'week',
+  'time'
+]);
+
 function getStandaloneRoot() {
   return document.querySelector(
     '.consultas-container, .settings-container, .backup-container, .status-page, body > .container'
@@ -51,6 +66,88 @@ function decorateActionClusters() {
     .forEach((node) => {
       node.classList.add('sg-command-cluster');
     });
+}
+
+function isStylableControl(control) {
+  if (!control) {
+    return false;
+  }
+
+  const tagName = control.tagName;
+  if (tagName === 'SELECT' || tagName === 'TEXTAREA') {
+    return true;
+  }
+
+  if (tagName !== 'INPUT') {
+    return false;
+  }
+
+  const type = String(control.type || 'text').toLowerCase();
+  if (type === 'hidden' || type === 'file' || type === 'checkbox' || type === 'radio' || type === 'range') {
+    return false;
+  }
+
+  if (STYLABLE_INPUT_TYPES.has(type)) {
+    return true;
+  }
+
+  return type === '';
+}
+
+function decorateStandaloneSections() {
+  const root = getStandaloneRoot();
+  if (!root) {
+    return;
+  }
+
+  const sections = root.querySelectorAll(
+    '.form-container, .panel, .card, .filters-section, .results-section, .pagination-section, .table-container'
+  );
+
+  sections.forEach((section, index) => {
+    section.classList.add('sg-section-shell', 'sg-reveal');
+    section.style.setProperty('--sg-reveal-order', String(index + 1));
+
+    if (section.matches('.form-container') || section.querySelector('form')) {
+      section.classList.add('sg-form-shell');
+    }
+  });
+}
+
+function decorateVisualStandards() {
+  decorateStandaloneSections();
+
+  document.querySelectorAll('table').forEach((table) => {
+    table.classList.add('sg-table');
+  });
+
+  document
+    .querySelectorAll('.table-container, .report-table-container, .pi-panel__table-wrapper, .backup-list')
+    .forEach((shell) => {
+      shell.classList.add('sg-table-shell');
+    });
+
+  document.querySelectorAll('form').forEach((form) => {
+    form.classList.add('sg-form-layout');
+  });
+
+  document.querySelectorAll('input, select, textarea').forEach((control) => {
+    if (!isStylableControl(control)) {
+      return;
+    }
+
+    if (control.tagName === 'SELECT') {
+      control.classList.add('sg-select');
+      return;
+    }
+
+    if (control.tagName === 'TEXTAREA') {
+      control.classList.add('sg-textarea');
+      return;
+    }
+
+    control.classList.add('sg-input');
+  });
 }
 
 function decorateVersionFooter() {
@@ -139,6 +236,7 @@ function initStandalonePageEnhancer() {
   mountInlineToggleIfNeeded();
   decorateStandalonePage();
   decorateActionClusters();
+  decorateVisualStandards();
   decorateStandaloneHero();
   decorateVersionFooter();
   scheduleVisualAuditRefresh(document.body?.dataset?.page || 'standalone');

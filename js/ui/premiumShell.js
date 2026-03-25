@@ -23,6 +23,21 @@ const SCREEN_LABELS = {
 
 let initialized = false;
 
+const STYLABLE_INPUT_TYPES = new Set([
+  'text',
+  'email',
+  'number',
+  'search',
+  'tel',
+  'url',
+  'password',
+  'date',
+  'datetime-local',
+  'month',
+  'week',
+  'time'
+]);
+
 function formatCurrency(value) {
   return new Intl.NumberFormat('pt-BR', {
     style: 'currency',
@@ -85,6 +100,110 @@ function updateSidebarState(app) {
   });
 }
 
+function updateSidebarBackdrop() {
+  const backdrop = document.getElementById('sidebarBackdrop');
+  if (!backdrop) {
+    return;
+  }
+
+  const isMobile = window.innerWidth < 1280;
+  const isCollapsed = document.body.classList.contains('sidebar-collapsed');
+  const isAuthenticated = document.body.classList.contains('app-authenticated');
+  const showBackdrop = isMobile && isAuthenticated && !isCollapsed;
+
+  backdrop.classList.toggle('hidden', !showBackdrop);
+  backdrop.setAttribute('aria-hidden', showBackdrop ? 'false' : 'true');
+  document.body.classList.toggle('sidebar-open', showBackdrop);
+}
+
+function isStylableControl(control) {
+  if (!control) {
+    return false;
+  }
+
+  const tagName = control.tagName;
+  if (tagName === 'SELECT' || tagName === 'TEXTAREA') {
+    return true;
+  }
+
+  if (tagName !== 'INPUT') {
+    return false;
+  }
+
+  const type = String(control.type || 'text').toLowerCase();
+  if (type === 'hidden' || type === 'file' || type === 'checkbox' || type === 'radio' || type === 'range') {
+    return false;
+  }
+
+  if (STYLABLE_INPUT_TYPES.has(type)) {
+    return true;
+  }
+
+  return type === '';
+}
+
+function applyScreenStructure(root = document) {
+  root.querySelectorAll('.screen').forEach((screen) => {
+    screen.classList.add('sg-screen-shell');
+
+    const header = screen.querySelector('.screen-header');
+    if (header) {
+      header.classList.add('sg-screen-header');
+    }
+
+    const sections = screen.querySelectorAll(
+      '.form-container, .panel, .card, .filters-section, .results-section, .pagination-section, .table-container'
+    );
+
+    sections.forEach((section, index) => {
+      section.classList.add('sg-section-shell', 'sg-reveal');
+      section.style.setProperty('--sg-reveal-order', String(index + 1));
+
+      if (section.matches('.form-container') || section.querySelector('form')) {
+        section.classList.add('sg-form-shell');
+      }
+    });
+  });
+}
+
+function applyVisualStandards(root = document) {
+  applyScreenStructure(root);
+
+  root.querySelectorAll('table').forEach((table) => {
+    table.classList.add('sg-table');
+  });
+
+  root
+    .querySelectorAll(
+      '.table-container, .almox-table-wrapper, .nf-items-wrap, .report-table-container, .pi-panel__table-wrapper'
+    )
+    .forEach((shell) => {
+      shell.classList.add('sg-table-shell');
+    });
+
+  root.querySelectorAll('form').forEach((form) => {
+    form.classList.add('sg-form-layout');
+  });
+
+  root.querySelectorAll('input, select, textarea').forEach((control) => {
+    if (!isStylableControl(control)) {
+      return;
+    }
+
+    if (control.tagName === 'SELECT') {
+      control.classList.add('sg-select');
+      return;
+    }
+
+    if (control.tagName === 'TEXTAREA') {
+      control.classList.add('sg-textarea');
+      return;
+    }
+
+    control.classList.add('sg-input');
+  });
+}
+
 function bindSidebarActions(app) {
   document.querySelectorAll('[data-nav-screen]').forEach((button) => {
     if (button.dataset.bound === '1') {
@@ -97,6 +216,7 @@ function bindSidebarActions(app) {
       if (window.innerWidth < 1024) {
         document.body.classList.add('sidebar-collapsed');
       }
+      updateSidebarBackdrop();
     });
   });
 
@@ -105,6 +225,39 @@ function bindSidebarActions(app) {
     sidebarToggle.dataset.bound = '1';
     sidebarToggle.addEventListener('click', () => {
       document.body.classList.toggle('sidebar-collapsed');
+      const isCollapsed = document.body.classList.contains('sidebar-collapsed');
+      sidebarToggle.setAttribute('aria-expanded', isCollapsed ? 'false' : 'true');
+      updateSidebarBackdrop();
+    });
+  }
+
+  const sidebarBackdrop = document.getElementById('sidebarBackdrop');
+  if (sidebarBackdrop && sidebarBackdrop.dataset.bound !== '1') {
+    sidebarBackdrop.dataset.bound = '1';
+    sidebarBackdrop.addEventListener('click', () => {
+      document.body.classList.add('sidebar-collapsed');
+      updateSidebarBackdrop();
+    });
+  }
+
+  if (document.body.dataset.sidebarKeyBound !== '1') {
+    document.body.dataset.sidebarKeyBound = '1';
+    window.addEventListener('keydown', (event) => {
+      if (event.key !== 'Escape') {
+        return;
+      }
+
+      if (!document.body.classList.contains('sidebar-collapsed')) {
+        document.body.classList.add('sidebar-collapsed');
+        updateSidebarBackdrop();
+      }
+    });
+  }
+
+  if (document.body.dataset.sidebarResizeBound !== '1') {
+    document.body.dataset.sidebarResizeBound = '1';
+    window.addEventListener('resize', () => {
+      updateSidebarBackdrop();
     });
   }
 
@@ -263,9 +416,12 @@ export function refreshPremiumShell(app) {
     sidebar.classList.toggle('hidden', !isAuthenticated);
   }
 
+  applyVisualStandards(document);
+
   updateHeaderMeta(app);
   bindSidebarActions(app);
   updateSidebarState(app);
+  updateSidebarBackdrop();
 
   if (isAuthenticated && app?.currentScreen === 'homeScreen') {
     updateDashboardMetrics(app);

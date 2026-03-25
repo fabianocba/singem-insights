@@ -87,23 +87,16 @@ export async function atualizarStatusPedido(id, novoStatus, dados = {}) {
  * Renderiza badge de status
  */
 function renderStatusBadge(status) {
-  const cores = {
-    NAO_SOLICITADO: { bg: '#E8E8E8', color: '#333', label: 'Não Solicitado' },
-    SOLICITADO: { bg: '#FFF3CD', color: '#856404', label: 'Solicitado' },
-    APROVADO: { bg: '#D4EDDA', color: '#155724', label: 'Aprovado' },
-    DEVOLVIDO: { bg: '#FFE5E5', color: '#721C24', label: 'Devolvido' },
-    CANCELADO: { bg: '#D6D6D6', color: '#666', label: 'Cancelado' }
+  const configs = {
+    NAO_SOLICITADO: { className: 'nao-solicitado', label: 'Não Solicitado' },
+    SOLICITADO: { className: 'solicitado', label: 'Solicitado' },
+    APROVADO: { className: 'aprovado', label: 'Aprovado' },
+    DEVOLVIDO: { className: 'devolvido', label: 'Devolvido' },
+    CANCELADO: { className: 'cancelado', label: 'Cancelado' }
   };
 
-  const cfg = cores[status] || cores.NAO_SOLICITADO;
-  return `<span class="badge-status" style="
-    background: ${cfg.bg};
-    color: ${cfg.color};
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 12px;
-    font-weight: 500;
-  ">${cfg.label}</span>`;
+  const cfg = configs[status] || configs.NAO_SOLICITADO;
+  return `<span class="badge-status catalogacao-status catalogacao-status--${cfg.className}">${cfg.label}</span>`;
 }
 
 /**
@@ -118,7 +111,7 @@ function renderPedidoRow(pedido) {
       <td>${pedido.tipo || 'CATMAT'}</td>
       <td title="${pedido.descricao_solicitada}">
         <strong>${pedido.termo_busca}</strong><br>
-        <small style="color: #666;">${(pedido.descricao_solicitada || '').substring(0, 60)}${(pedido.descricao_solicitada || '').length > 60 ? '...' : ''}</small>
+        <small class="catalogacao-row-preview">${(pedido.descricao_solicitada || '').substring(0, 60)}${(pedido.descricao_solicitada || '').length > 60 ? '...' : ''}</small>
       </td>
       <td>${renderStatusBadge(pedido.status)}</td>
       <td>${pedido.solicitante_nome || '-'}</td>
@@ -172,8 +165,8 @@ function renderTabela(container) {
 
   if (state.pedidos.length === 0) {
     container.innerHTML = `
-      <div style="text-align: center; padding: 40px; color: #666;">
-        <p style="font-size: 48px; margin: 0;">📋</p>
+      <div class="catalogacao-empty-state">
+        <p class="catalogacao-empty-icon">📋</p>
         <p>Nenhum pedido de catalogação encontrado.</p>
         <button type="button" id="btnNovoPedidoCat" class="btn btn-primary">
           + Novo Pedido
@@ -184,31 +177,33 @@ function renderTabela(container) {
   }
 
   container.innerHTML = `
-    <table class="tabela-pedidos" style="width: 100%; border-collapse: collapse;">
+    <div class="catalogacao-table-shell sg-table-shell">
+    <table class="tabela-pedidos sg-table catalogacao-table">
       <thead>
-        <tr style="background: #f5f5f5;">
-          <th style="padding: 12px; text-align: left; border-bottom: 2px solid #ddd;">ID</th>
-          <th style="padding: 12px; text-align: left; border-bottom: 2px solid #ddd;">Tipo</th>
-          <th style="padding: 12px; text-align: left; border-bottom: 2px solid #ddd;">Termo/Descrição</th>
-          <th style="padding: 12px; text-align: left; border-bottom: 2px solid #ddd;">Status</th>
-          <th style="padding: 12px; text-align: left; border-bottom: 2px solid #ddd;">Solicitante</th>
-          <th style="padding: 12px; text-align: left; border-bottom: 2px solid #ddd;">Data</th>
-          <th style="padding: 12px; text-align: center; border-bottom: 2px solid #ddd;">Ações</th>
+        <tr>
+          <th>ID</th>
+          <th>Tipo</th>
+          <th>Termo/Descrição</th>
+          <th>Status</th>
+          <th>Solicitante</th>
+          <th>Data</th>
+          <th class="catalogacao-col-actions">Ações</th>
         </tr>
       </thead>
       <tbody>
         ${state.pedidos.map(renderPedidoRow).join('')}
       </tbody>
     </table>
+    </div>
 
     ${
       state.paginacao.total > state.paginacao.limite
         ? `
-      <div style="display: flex; justify-content: center; gap: 8px; margin-top: 20px;">
+      <div class="catalogacao-pagination pagination-controls">
         <button type="button" class="btn btn-secondary btn-pag-ant" ${state.paginacao.pagina <= 1 ? 'disabled' : ''}>
           ← Anterior
         </button>
-        <span style="padding: 8px;">
+        <span class="pagination-info">
           Página ${state.paginacao.pagina} de ${Math.ceil(state.paginacao.total / state.paginacao.limite)}
         </span>
         <button type="button" class="btn btn-secondary btn-pag-prox" ${state.paginacao.pagina >= Math.ceil(state.paginacao.total / state.paginacao.limite) ? 'disabled' : ''}>
@@ -219,31 +214,6 @@ function renderTabela(container) {
         : ''
     }
   `;
-
-  // Adiciona CSS para as linhas
-  container.querySelectorAll('tbody tr').forEach((tr) => {
-    tr.style.cssText = 'border-bottom: 1px solid #eee;';
-    tr.addEventListener('mouseenter', () => {
-      tr.style.background = '#f9f9f9';
-    });
-    tr.addEventListener('mouseleave', () => {
-      tr.style.background = '';
-    });
-  });
-
-  container.querySelectorAll('td').forEach((td) => {
-    td.style.padding = '12px';
-  });
-
-  container.querySelectorAll('.btn-acao').forEach((btn) => {
-    btn.style.cssText = `
-      background: none;
-      border: none;
-      cursor: pointer;
-      padding: 4px 8px;
-      font-size: 16px;
-    `;
-  });
 }
 
 /**
@@ -251,67 +221,48 @@ function renderTabela(container) {
  */
 function abrirModalDetalhes(pedido) {
   const modal = document.createElement('div');
-  modal.className = 'modal-overlay';
-  modal.style.cssText = `
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0,0,0,0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 9999;
-  `;
+  modal.className = 'modal-overlay catalogacao-modal-overlay';
 
   modal.innerHTML = `
-    <div class="modal-content" style="
-      background: white;
-      border-radius: 8px;
-      width: 90%;
-      max-width: 600px;
-      max-height: 90vh;
-      overflow-y: auto;
-    ">
-      <div style="padding: 20px; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center;">
-        <h2 style="margin: 0; font-size: 18px;">📋 Pedido #${pedido.id}</h2>
-        <button type="button" class="btn-fechar" style="background: none; border: none; font-size: 24px; cursor: pointer;">&times;</button>
+    <div class="modal-content modal-card catalogacao-modal-card" role="dialog" aria-modal="true">
+      <div class="modal-header">
+        <h2 class="catalogacao-modal-title">📋 Pedido #${pedido.id}</h2>
+        <button type="button" class="btn-fechar catalogacao-btn-fechar">&times;</button>
       </div>
 
-      <div style="padding: 20px;">
-        <div style="display: grid; gap: 16px;">
+      <div class="modal-body">
+        <div class="catalogacao-detail-grid">
           <div>
-            <label style="font-weight: 500; color: #666; font-size: 12px;">TIPO</label>
-            <p style="margin: 4px 0;">${pedido.tipo || 'CATMAT'}</p>
+            <label class="catalogacao-detail-label">TIPO</label>
+            <p class="catalogacao-detail-value">${pedido.tipo || 'CATMAT'}</p>
           </div>
 
           <div>
-            <label style="font-weight: 500; color: #666; font-size: 12px;">TERMO BUSCADO</label>
-            <p style="margin: 4px 0;">${pedido.termo_busca}</p>
+            <label class="catalogacao-detail-label">TERMO BUSCADO</label>
+            <p class="catalogacao-detail-value">${pedido.termo_busca}</p>
           </div>
 
           <div>
-            <label style="font-weight: 500; color: #666; font-size: 12px;">DESCRIÇÃO SOLICITADA</label>
-            <p style="margin: 4px 0;">${pedido.descricao_solicitada || '-'}</p>
+            <label class="catalogacao-detail-label">DESCRIÇÃO SOLICITADA</label>
+            <p class="catalogacao-detail-value">${pedido.descricao_solicitada || '-'}</p>
           </div>
 
           <div>
-            <label style="font-weight: 500; color: #666; font-size: 12px;">UNIDADE SUGERIDA</label>
-            <p style="margin: 4px 0;">${pedido.unidade_sugerida || 'UN'}</p>
+            <label class="catalogacao-detail-label">UNIDADE SUGERIDA</label>
+            <p class="catalogacao-detail-value">${pedido.unidade_sugerida || 'UN'}</p>
           </div>
 
           <div>
-            <label style="font-weight: 500; color: #666; font-size: 12px;">STATUS</label>
-            <p style="margin: 4px 0;">${renderStatusBadge(pedido.status)}</p>
+            <label class="catalogacao-detail-label">STATUS</label>
+            <p class="catalogacao-detail-value">${renderStatusBadge(pedido.status)}</p>
           </div>
 
           ${
             pedido.justificativa
               ? `
             <div>
-              <label style="font-weight: 500; color: #666; font-size: 12px;">JUSTIFICATIVA</label>
-              <p style="margin: 4px 0;">${pedido.justificativa}</p>
+              <label class="catalogacao-detail-label">JUSTIFICATIVA</label>
+              <p class="catalogacao-detail-value">${pedido.justificativa}</p>
             </div>
           `
               : ''
@@ -321,8 +272,8 @@ function abrirModalDetalhes(pedido) {
             pedido.observacoes
               ? `
             <div>
-              <label style="font-weight: 500; color: #666; font-size: 12px;">OBSERVAÇÕES</label>
-              <p style="margin: 4px 0;">${pedido.observacoes}</p>
+              <label class="catalogacao-detail-label">OBSERVAÇÕES</label>
+              <p class="catalogacao-detail-value">${pedido.observacoes}</p>
             </div>
           `
               : ''
@@ -332,8 +283,8 @@ function abrirModalDetalhes(pedido) {
             pedido.link_externo
               ? `
             <div>
-              <label style="font-weight: 500; color: #666; font-size: 12px;">LINK EXTERNO</label>
-              <p style="margin: 4px 0;"><a href="${pedido.link_externo}" target="_blank">${pedido.link_externo}</a></p>
+              <label class="catalogacao-detail-label">LINK EXTERNO</label>
+              <p class="catalogacao-detail-value"><a href="${pedido.link_externo}" target="_blank">${pedido.link_externo}</a></p>
             </div>
           `
               : ''
@@ -343,38 +294,32 @@ function abrirModalDetalhes(pedido) {
             pedido.catmat_codigo_aprovado
               ? `
             <div>
-              <label style="font-weight: 500; color: #666; font-size: 12px;">CÓDIGO CATMAT APROVADO</label>
-              <p style="margin: 4px 0; font-size: 18px; font-weight: bold; color: green;">${pedido.catmat_codigo_aprovado}</p>
+              <label class="catalogacao-detail-label">CÓDIGO CATMAT APROVADO</label>
+              <p class="catalogacao-detail-value catalogacao-detail-value--aprovado">${pedido.catmat_codigo_aprovado}</p>
             </div>
           `
               : ''
           }
 
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+          <div class="catalogacao-detail-grid catalogacao-detail-grid--cols2">
             <div>
-              <label style="font-weight: 500; color: #666; font-size: 12px;">SOLICITANTE</label>
-              <p style="margin: 4px 0;">${pedido.solicitante_nome || '-'}</p>
+              <label class="catalogacao-detail-label">SOLICITANTE</label>
+              <p class="catalogacao-detail-value">${pedido.solicitante_nome || '-'}</p>
             </div>
             <div>
-              <label style="font-weight: 500; color: #666; font-size: 12px;">DATA CRIAÇÃO</label>
-              <p style="margin: 4px 0;">${pedido.created_at ? new Date(pedido.created_at).toLocaleString('pt-BR') : '-'}</p>
+              <label class="catalogacao-detail-label">DATA CRIAÇÃO</label>
+              <p class="catalogacao-detail-value">${pedido.created_at ? new Date(pedido.created_at).toLocaleString('pt-BR') : '-'}</p>
             </div>
           </div>
         </div>
 
-        <div style="
-          background: #E8F0FE;
-          border-left: 4px solid #1351B4;
-          padding: 12px 16px;
-          margin-top: 20px;
-          border-radius: 0 4px 4px 0;
-        ">
-          <p style="margin: 0 0 8px; font-weight: 500; color: #1351B4;">
+        <div class="catalogacao-info-box">
+          <p class="catalogacao-info-title">
             📌 Acompanhar no Compras.gov.br
           </p>
           <a href="https://www.gov.br/compras/pt-br/sistemas/sistema-de-catalogacao"
              target="_blank"
-             style="color: #1351B4;">
+             class="catalogacao-info-link">
             Abrir Portal de Compras →
           </a>
         </div>
@@ -404,20 +349,14 @@ export function initTelaCatalogacao(containerId = 'catalogacaoPedidosContainer')
 
   // Render inicial: filtros + tabela
   container.innerHTML = `
-    <div class="catalogacao-filtros" style="
-      display: flex;
-      gap: 12px;
-      margin-bottom: 20px;
-      flex-wrap: wrap;
-      align-items: center;
-    ">
-      <div class="form-group" style="flex: 1; min-width: 200px;">
+    <div class="catalogacao-filtros sg-toolbar">
+      <div class="form-group catalogacao-filtro-grow">
         <input type="text" id="filtroTermoCat" placeholder="🔍 Buscar por termo ou descrição..."
-          style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;" />
+          class="sg-input" />
       </div>
 
       <div class="form-group">
-        <select id="filtroStatusCat" style="padding: 10px; border: 1px solid #ccc; border-radius: 4px; min-width: 150px;">
+        <select id="filtroStatusCat" class="sg-select catalogacao-filtro-status">
           <option value="">Todos os Status</option>
           <option value="NAO_SOLICITADO">Não Solicitado</option>
           <option value="SOLICITADO">Solicitado</option>
@@ -427,17 +366,17 @@ export function initTelaCatalogacao(containerId = 'catalogacaoPedidosContainer')
         </select>
       </div>
 
-      <button type="button" id="btnBuscarCat" class="btn btn-primary" style="padding: 10px 20px;">
+      <button type="button" id="btnBuscarCat" class="btn btn-primary">
         Filtrar
       </button>
 
-      <button type="button" id="btnNovoPedido" class="btn btn-secondary" style="padding: 10px 20px; margin-left: auto;">
+      <button type="button" id="btnNovoPedido" class="btn btn-secondary catalogacao-btn-novo">
         + Novo Pedido
       </button>
     </div>
 
     <div id="tabelaPedidosCat" class="catalogacao-tabela">
-      <p style="text-align: center; padding: 40px; color: #666;">Carregando...</p>
+      <p class="catalogacao-loading">Carregando...</p>
     </div>
   `;
 
@@ -451,7 +390,7 @@ export function initTelaCatalogacao(containerId = 'catalogacaoPedidosContainer')
     })
     .catch((err) => {
       tabelaContainer.innerHTML = `
-      <div style="text-align: center; padding: 40px; color: #C53030;">
+      <div class="catalogacao-error-state">
         <p>Erro ao carregar pedidos: ${err.message}</p>
         <button type="button" class="btn btn-secondary" onclick="location.reload()">Tentar Novamente</button>
       </div>

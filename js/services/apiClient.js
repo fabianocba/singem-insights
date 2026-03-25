@@ -515,11 +515,11 @@ const apiClient = {
 
   async healthCheck() {
     try {
-      const data = await request('/api/health');
+      const data = await request('/health');
       return { online: true, ...data };
     } catch {
       try {
-        const data = await request('/health');
+        const data = await request('/api/health');
         return { online: true, ...data };
       } catch {
         return { online: false, status: 'OFFLINE' };
@@ -529,11 +529,11 @@ const apiClient = {
 
   async isOnline() {
     try {
-      await request('/api/health');
+      await request('/health');
       return true;
     } catch {
       try {
-        await request('/health');
+        await request('/api/health');
         return true;
       } catch {
         return false;

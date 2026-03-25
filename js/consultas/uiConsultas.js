@@ -1312,13 +1312,19 @@ function renderFilters() {
  * Renderiza controles de paginação
  */
 function renderPagination() {
-  const container = document.getElementById('paginationContainer');
-  if (!container) {
+  const containers = [
+    document.getElementById('paginationContainer'),
+    document.getElementById('paginationContainer2')
+  ].filter(Boolean);
+
+  if (!containers.length) {
     return;
   }
 
   if (!state.dataset || state.totalPages === 0) {
-    container.innerHTML = '';
+    containers.forEach((container) => {
+      container.innerHTML = '';
+    });
     return;
   }
 
@@ -1343,7 +1349,9 @@ function renderPagination() {
     </div>
   `;
 
-  container.innerHTML = html;
+  containers.forEach((container) => {
+    container.innerHTML = html;
+  });
 }
 
 /**
