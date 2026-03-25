@@ -195,8 +195,10 @@ export class ControleMaterialApp {
       // Restaura dados lembrados (login/senha) sem auto-login
       await this.restaurarDadosLembrados();
 
-      // Mostra tela de login
-      this.showScreen('loginScreen');
+      // Mostra tela de login apenas se ainda não houver autenticação concluída.
+      if (!this.usuarioLogado) {
+        this.showScreen('loginScreen');
+      }
       console.log('✅ Aplicação iniciada com sucesso!');
     } catch (error) {
       console.error('❌ Erro ao inicializar aplicação:', error);
@@ -1790,6 +1792,7 @@ export class ControleMaterialApp {
    * Realiza login do usuário
    */
   async realizarLogin(event) {
+    console.log('[AUTH] Tentando login...');
     const form =
       event?.currentTarget instanceof HTMLFormElement
         ? event.currentTarget
@@ -1799,19 +1802,21 @@ export class ControleMaterialApp {
     const errorDiv = document.getElementById('loginError');
     const btnLogin = document.getElementById('btnLogin');
 
+    console.log('[AUTH] Usuário:', usuario ? '✓ preenchido' : '❌ vazio');
+    console.log('[AUTH] Senha:', senha ? '✓ preenchida' : '❌ vazia');
+
     // Limpa erro anterior
     if (errorDiv) {
       errorDiv.classList.add('hidden');
       errorDiv.textContent = '';
+      errorDiv.style.display = 'none';
+      errorDiv.setAttribute('aria-hidden', 'true');
     }
 
     // Validação de credenciais com InputValidator
     const validation = InputValidator.validateCredentials(usuario, senha);
     if (!validation.valid) {
-      if (errorDiv) {
-        errorDiv.textContent = validation.errors.join(', ');
-        errorDiv.classList.remove('hidden');
-      }
+      this.showLoginError(validation.errors.join(', '));
       return;
     }
 
@@ -1879,10 +1884,7 @@ export class ControleMaterialApp {
       const mensagemErroLogin = this.formatarMensagemErroLogin(error);
       console.warn('[AUTH][LOGIN] Falha de autenticação:', mensagemErroLogin);
 
-      if (errorDiv) {
-        errorDiv.textContent = mensagemErroLogin;
-        errorDiv.classList.remove('hidden');
-      }
+      this.showLoginError(mensagemErroLogin);
 
       // Reseta botão
       if (btnLogin) {
@@ -1890,6 +1892,24 @@ export class ControleMaterialApp {
         btnLogin.textContent = '🔐 Entrar';
       }
     }
+  }
+
+  showLoginError(message) {
+    const errorDiv = document.getElementById('loginError');
+    const mensagem = String(message || 'Falha ao autenticar. Tente novamente.');
+
+    if (errorDiv) {
+      errorDiv.textContent = mensagem;
+      errorDiv.classList.remove('hidden');
+      errorDiv.style.display = 'block';
+      errorDiv.setAttribute('role', 'alert');
+      errorDiv.setAttribute('aria-live', 'assertive');
+      errorDiv.setAttribute('aria-hidden', 'false');
+      errorDiv.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+      return;
+    }
+
+    this.showToast(mensagem, 'error');
   }
 
   formatarMensagemErroLogin(error) {
@@ -5196,15 +5216,19 @@ export class ControleMaterialApp {
       screenId = 'loginScreen';
     }
 
-    // Esconde todas as telas
+    // Esconde todas as telas (classe + estilo inline para robustez visual)
     document.querySelectorAll('.screen').forEach((screen) => {
       screen.classList.remove('active');
+      screen.setAttribute('aria-hidden', 'true');
+      screen.style.display = 'none';
     });
 
     // Mostra a tela solicitada
     const targetScreen = document.getElementById(screenId);
     if (targetScreen) {
       targetScreen.classList.add('active');
+      targetScreen.setAttribute('aria-hidden', 'false');
+      targetScreen.style.display = 'block';
       this.currentScreen = screenId;
 
       // Inicializa módulo de consultas quando a tela for aberta

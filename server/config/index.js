@@ -243,10 +243,10 @@ const config = {
     consumerSecret: process.env.SERPRO_CONSUMER_SECRET || ''
   },
   admin: {
-    login: process.env.ADMIN_LOGIN || 'admin',
-    email: process.env.ADMIN_EMAIL || 'admin@ifbaiano.edu.br',
-    nome: process.env.ADMIN_NOME || 'Administrador SINGEM',
-    password: process.env.ADMIN_PASSWORD || ''
+    login: process.env.SINGEM_ADMIN_LOGIN || process.env.ADMIN_LOGIN || 'admin',
+    email: process.env.SINGEM_ADMIN_EMAIL || process.env.ADMIN_EMAIL || 'admin@ifbaiano.edu.br',
+    nome: process.env.SINGEM_ADMIN_NOME || process.env.ADMIN_NOME || 'Administrador SINGEM',
+    password: process.env.SINGEM_ADMIN_PASSWORD || process.env.ADMIN_PASSWORD || ''
   },
   sefaz: {
     ambiente: process.env.SEFAZ_AMBIENTE || 'producao',
