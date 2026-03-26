@@ -142,6 +142,9 @@ async function request(endpoint, options = {}) {
 
       return handleResponse(response, undefined, unwrap);
     } catch (err) {
+      err.endpoint = endpoint;
+      err.requestUrl = url;
+      err.method = method;
       lastError = err;
 
       if (err.name === 'AbortError') {

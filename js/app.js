@@ -1880,7 +1880,13 @@ export class ControleMaterialApp {
       }
       return;
     } catch (error) {
-      console.error('❌ Erro no login:', error);
+      console.error('❌ Erro no login:', {
+        message: error?.message,
+        status: error?.status,
+        endpoint: error?.endpoint,
+        requestUrl: error?.requestUrl,
+        data: error?.data
+      });
       const mensagemErroLogin = this.formatarMensagemErroLogin(error);
       console.warn('[AUTH][LOGIN] Falha de autenticação:', mensagemErroLogin);
 
@@ -1914,13 +1920,22 @@ export class ControleMaterialApp {
 
   formatarMensagemErroLogin(error) {
     const mensagemOriginal = String(error?.message || '').toLowerCase();
+    const status = Number(error?.status || 0);
 
-    if (error?.status === 401) {
+    if (status === 401) {
       if (mensagemOriginal.includes('sessão expirada') || mensagemOriginal.includes('sessao expirada')) {
         return '⏱️ Sessão expirada. Faça login novamente.';
       }
 
       return '❌ Usuário ou senha inválidos. Verifique e tente novamente.';
+    }
+
+    if (status === 405) {
+      return '🚫 Método não permitido no endpoint de login. Atualize o deploy e valide o proxy /api/auth/login.';
+    }
+
+    if (status >= 500) {
+      return '🛠️ Erro interno no servidor ao autenticar. Verifique logs do backend/proxy.';
     }
 
     if (mensagemOriginal.includes('failed to fetch') || mensagemOriginal.includes('timeout')) {
