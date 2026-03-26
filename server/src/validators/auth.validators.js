@@ -3,12 +3,13 @@ const { z } = require('./common');
 const loginBodySchema = z
   .object({
     login: z.string().trim().optional(),
+    username: z.string().trim().optional(),
     senha: z.string().optional(),
     email: z.string().trim().optional(),
     password: z.string().optional()
   })
   .superRefine((data, ctx) => {
-    const hasLegacy = Boolean(data.login || data.senha);
+    const hasLegacy = Boolean(data.login || data.username || data.senha);
     const hasModern = Boolean(data.email || data.password);
 
     if (!hasLegacy && !hasModern) {
@@ -26,7 +27,7 @@ const loginBodySchema = z
     }
 
     if (hasLegacy) {
-      if (!String(data.login || '').trim()) {
+      if (!String(data.login || data.username || '').trim()) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           path: ['login'],
@@ -74,12 +75,15 @@ const loginBodySchema = z
 
 const loginSchema = {
   body: loginBodySchema.transform((data) => {
-    if (data.login || data.senha) {
+    if (data.login || data.username || data.senha) {
+      const normalizedLogin = String(data.login || data.username || '').trim();
+      const normalizedSenha = String(data.senha || data.password || '');
+
       return {
-        login: data.login,
-        senha: data.senha,
-        email: data.login,
-        password: data.senha
+        login: normalizedLogin,
+        senha: normalizedSenha,
+        email: normalizedLogin,
+        password: normalizedSenha
       };
     }
 
