@@ -517,6 +517,7 @@ html.dark {
   table th,
   table td {
     @apply px-4 py-3 align-middle;
+    line-height: 1.45;
     border-bottom: 1px solid rgba(148, 163, 184, 0.16);
   }
 
@@ -541,6 +542,18 @@ html.dark {
   .sg-table tbody tr:hover,
   table tbody tr:hover {
     background: rgba(77, 107, 255, 0.04);
+  }
+
+  .table td,
+  .sg-table td,
+  table td {
+    color: var(--sg-text-soft);
+  }
+
+  .table td strong,
+  .sg-table td strong,
+  table td strong {
+    color: var(--sg-text);
   }
 
   .almox-table,
@@ -2473,11 +2486,35 @@ html.dark {
     @apply flex flex-wrap items-center gap-3;
   }
 
+  .sg-standalone-page {
+    background: var(--sg-body);
+    background-image: var(--sg-backdrop);
+  }
+
+  .sg-standalone-page::before {
+    content: '';
+    pointer-events: none;
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background:
+      radial-gradient(circle at top left, rgba(41, 94, 82, 0.16), transparent 34%),
+      radial-gradient(circle at bottom right, rgba(209, 180, 126, 0.12), transparent 40%);
+  }
+
   .sg-standalone-page .container,
   .sg-standalone-page .backup-list,
   .sg-standalone-page .changelog-section,
   .sg-standalone-page .table-container {
     box-shadow: var(--sg-shadow-card);
+  }
+
+  .sg-standalone-page .container,
+  .sg-standalone-page .consultas-container,
+  .sg-standalone-page .settings-container,
+  .sg-standalone-page .backup-container,
+  .sg-standalone-page .status-page {
+    isolation: isolate;
   }
 
   .settings-tabs {
@@ -3036,6 +3073,10 @@ html.dark {
     box-shadow: var(--sg-shadow-card);
   }
 
+  body[data-page='diagnostico-cache'] #results {
+    @apply mb-5 grid gap-3;
+  }
+
   body[data-page='diagnostico-cache'] .timestamp {
     font-family: ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', monospace;
   }
@@ -3045,6 +3086,7 @@ html.dark {
     background: rgba(7, 17, 31, 0.92);
     border-color: rgba(103, 200, 209, 0.16);
     color: #d8e7ff;
+    overflow-x: auto;
   }
 
   body[data-page='importar-nfe'] header {
@@ -4072,6 +4114,9 @@ html.dark {
 
   .modal-card {
     @apply overflow-hidden rounded-[1.75rem] border;
+    background: var(--sg-surface-strong);
+    border-color: rgba(148, 163, 184, 0.22);
+    box-shadow: var(--sg-shadow-soft);
   }
 
   .modal-card .modal-header,
@@ -4092,6 +4137,8 @@ html.dark {
 
   .modal-card .modal-body {
     @apply px-6 py-5;
+    max-height: min(70vh, 760px);
+    overflow-y: auto;
   }
 
   .catalogacao-table-shell {

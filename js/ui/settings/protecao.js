@@ -24,56 +24,110 @@ class ProtecaoUI {
 
     this.container.innerHTML = `
       <div class="protecao-container">
-        <h2>🔒 Proteção de Pastas</h2>
-
-        <div class="protecao-section">
-          <h3>Senha de Proteção</h3>
-          ${
-            hasPassword
-              ? `
-            <p>✅ Senha configurada</p>
-            <button id="btnChangePassword" class="btn-secondary">Alterar Senha</button>
-          `
-              : `
-            <p>⚠️ Nenhuma senha configurada</p>
-            <button id="btnSetPassword" class="btn-primary">Definir Senha</button>
-          `
-          }
-        </div>
-
-        <div class="protecao-section">
-          <h3>Políticas de Retenção</h3>
-          <label>
-            Dias de retenção na lixeira:
-            <input type="number" id="retencaoDias" min="1" max="90"
-                   value="${config?.policy?.retencaoDias || 7}" />
-          </label>
-          <label>
-            <input type="checkbox" id="confirmarDuplo"
-                   ${config?.policy?.confirmarDuplo ? 'checked' : ''} />
-            Solicitar confirmação dupla para exclusão permanente
-          </label>
-          <label>
-            <input type="checkbox" id="autoPurge"
-                   ${config?.policy?.autoPurge ? 'checked' : ''} />
-            Purge automático de itens antigos
-          </label>
-          <button id="btnSavePolicy" class="btn-primary">Salvar Políticas</button>
-        </div>
-
-        <div class="protecao-section">
-          <h3>Lixeira</h3>
-          <button id="btnViewTrash" class="btn-secondary">📂 Ver Itens na Lixeira</button>
-          <button id="btnEmptyTrash" class="btn-danger">🗑️ Esvaziar Lixeira</button>
-        </div>
-
-        <div class="protecao-section">
-          <h3>Integridade</h3>
-          <button id="btnVerifyIntegrity" class="btn-secondary">🔍 Verificar Integridade</button>
-          <button id="btnExportLogs" class="btn-secondary">📥 Exportar Logs</button>
-        </div>
+        <section class="protecao-hero">
+          <div class="protecao-hero__content">
+            <span class="protecao-kicker">Governança local</span>
+            <h2>🔒 Proteção de Pastas</h2>
+            <p>
+              Gerencie credenciais, retenção e rastreabilidade operacional com o mesmo padrão
+              visual do shell principal.
+            </p>
+          </div>
+          <div class="protecao-hero__status ${hasPassword ? 'is-secure' : 'is-alert'}">
+            <span class="protecao-hero__status-label">Estado atual</span>
+            <strong>${hasPassword ? 'Senha configurada' : 'Proteção pendente'}</strong>
+            <small>${hasPassword ? 'Fluxo protegido para alterações sensíveis.' : 'Defina uma senha antes de operar mudanças críticas.'}</small>
+          </div>
+        </section>
 
         <div id="resultadoProtecao" class="resultado hidden"></div>
+
+        <div class="protecao-grid">
+          <section class="protecao-section protecao-section--password">
+            <div class="protecao-section__header">
+              <div>
+                <h3>Senha de Proteção</h3>
+                <p>Controle de acesso para ações sensíveis no módulo.</p>
+              </div>
+              <span class="protecao-status ${hasPassword ? 'protecao-status--success' : 'protecao-status--warning'}">
+                ${hasPassword ? 'Ativa' : 'Necessária'}
+              </span>
+            </div>
+            <div class="protecao-section__body">
+              <p class="protecao-lead ${hasPassword ? 'is-success' : 'is-warning'}">
+                ${hasPassword ? '✅ Senha de proteção configurada e pronta para uso.' : '⚠️ Nenhuma senha configurada no momento.'}
+              </p>
+            </div>
+            <div class="protecao-section__actions">
+              ${
+                hasPassword
+                  ? `
+                <button id="btnChangePassword" class="btn-secondary">Alterar Senha</button>
+              `
+                  : `
+                <button id="btnSetPassword" class="btn-primary">Definir Senha</button>
+              `
+              }
+            </div>
+          </section>
+
+          <section class="protecao-section protecao-section--policy">
+            <div class="protecao-section__header">
+              <div>
+                <h3>Políticas de Retenção</h3>
+                <p>Parâmetros de descarte, confirmação e limpeza automática.</p>
+              </div>
+            </div>
+            <div class="protecao-section__body protecao-form-grid">
+              <label class="protecao-field protecao-field--number">
+                <span>Dias de retenção na lixeira</span>
+                <input type="number" id="retencaoDias" min="1" max="90"
+                       value="${config?.policy?.retencaoDias || 7}" />
+              </label>
+              <div class="protecao-checkbox-list">
+                <label class="protecao-toggle">
+                  <input type="checkbox" id="confirmarDuplo"
+                         ${config?.policy?.confirmarDuplo ? 'checked' : ''} />
+                  <span>Solicitar confirmação dupla para exclusão permanente</span>
+                </label>
+                <label class="protecao-toggle">
+                  <input type="checkbox" id="autoPurge"
+                         ${config?.policy?.autoPurge ? 'checked' : ''} />
+                  <span>Purge automático de itens antigos</span>
+                </label>
+              </div>
+            </div>
+            <div class="protecao-section__actions">
+              <button id="btnSavePolicy" class="btn-primary">Salvar Políticas</button>
+            </div>
+          </section>
+
+          <section class="protecao-section protecao-section--trash">
+            <div class="protecao-section__header">
+              <div>
+                <h3>Lixeira</h3>
+                <p>Acesso rápido ao descarte lógico e limpeza operacional.</p>
+              </div>
+            </div>
+            <div class="protecao-section__actions protecao-section__actions--split">
+              <button id="btnViewTrash" class="btn-secondary">📂 Ver Itens na Lixeira</button>
+              <button id="btnEmptyTrash" class="btn-danger">🗑️ Esvaziar Lixeira</button>
+            </div>
+          </section>
+
+          <section class="protecao-section protecao-section--integrity">
+            <div class="protecao-section__header">
+              <div>
+                <h3>Integridade</h3>
+                <p>Auditoria e exportação de histórico operacional.</p>
+              </div>
+            </div>
+            <div class="protecao-section__actions protecao-section__actions--split">
+              <button id="btnVerifyIntegrity" class="btn-secondary">🔍 Verificar Integridade</button>
+              <button id="btnExportLogs" class="btn-secondary">📥 Exportar Logs</button>
+            </div>
+          </section>
+        </div>
       </div>
     `;
 

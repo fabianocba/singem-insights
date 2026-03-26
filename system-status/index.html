@@ -13,10 +13,10 @@
     <script type="module" src="../js/versionManager.js"></script>
     <script src="../js/ui/themeBoot.js"></script>
     <link rel="stylesheet" href="../css/style.css" />
-    <link rel="stylesheet" href="../css/system-status.css" />
     <link rel="stylesheet" href="../css/tailwind.css" />
+    <link rel="stylesheet" href="../css/system-status.css" />
   </head>
-  <body data-page="system-status">
+  <body data-page="system-status" class="sg-standalone-page">
     <main class="status-page">
       <section class="status-header-card">
         <div class="sg-page-header-grid">
@@ -26,7 +26,7 @@
           </div>
           <div class="status-actions">
             <button id="btnRefresh" class="btn btn-secondary">Atualizar agora</button>
-            <button type="button" data-theme-toggle aria-label="Alternar tema"></button>
+            <button type="button" class="btn btn-outline sg-theme-toggle" data-theme-toggle aria-label="Alternar tema"></button>
             <a class="btn btn-primary" href="../index.html">Voltar ao SINGEM</a>
           </div>
         </div>
