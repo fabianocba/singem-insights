@@ -298,10 +298,104 @@ function Stop-ComposeConflicts {
 
 function Remove-SingemContainerConflicts {
   foreach ($container in @('singem-postgres', 'singem-redis', 'singem-backend', 'singem-frontend', 'singem-ai-core')) {
-    Invoke-DevCommand -FilePath 'docker' -ArgumentList @('rm', '-f', $container) -AllowFailure
+    if (Test-DockerContainerExists -Name $container) {
+      Invoke-DevCommand -FilePath 'docker' -ArgumentList @('rm', '-f', $container) -AllowFailure
+    }
   }
 
-  Invoke-DevCommand -FilePath 'docker' -ArgumentList @('network', 'rm', 'singem-network') -AllowFailure
+  if (Test-DockerNetworkExists -Name 'singem-network') {
+    Invoke-DevCommand -FilePath 'docker' -ArgumentList @('network', 'rm', 'singem-network') -AllowFailure
+  }
+}
+
+function Test-DockerContainerExists {
+  param([Parameter(Mandatory = $true)][string]$Name)
+
+  try {
+    & docker container inspect $Name *> $null
+    return ($LASTEXITCODE -eq 0)
+  } catch {
+    return $false
+  }
+}
+
+function Test-DockerNetworkExists {
+  param([Parameter(Mandatory = $true)][string]$Name)
+
+  try {
+    & docker network inspect $Name *> $null
+    return ($LASTEXITCODE -eq 0)
+  } catch {
+    return $false
+  }
+}
+
+function Get-DockerContainersPublishingPort {
+  param([Parameter(Mandatory = $true)][int]$Port)
+
+  $containers = @()
+
+  try {
+    $lines = & docker ps --format '{{.Names}}|{{.Ports}}' 2>$null
+    foreach ($line in $lines) {
+      if ([string]::IsNullOrWhiteSpace($line)) {
+        continue
+      }
+
+      $parts = $line -split '\|', 2
+      if ($parts.Count -lt 2) {
+        continue
+      }
+
+      $name = ($parts[0] ?? '').Trim()
+      $ports = ($parts[1] ?? '').Trim()
+
+      if ([string]::IsNullOrWhiteSpace($name) -or [string]::IsNullOrWhiteSpace($ports)) {
+        continue
+      }
+
+      if ($ports -match (":{0}->" -f $Port)) {
+        $containers += [pscustomobject]@{
+          Name  = $name
+          Ports = $ports
+        }
+      }
+    }
+  } catch {
+    return @()
+  }
+
+  return $containers
+}
+
+function Ensure-BackendHostPortAvailable {
+  param([int]$Port = 3000)
+
+  $conflicts = @(Get-DockerContainersPublishingPort -Port $Port | Where-Object {
+      $_.Name -notmatch '^singem-dev-backend'
+    })
+
+  if ($conflicts.Count -eq 0) {
+    return
+  }
+
+  $autoStop = @($conflicts | Where-Object {
+      $_.Name -match '^singem-prod-backend'
+    })
+
+  $blocking = @($conflicts | Where-Object {
+      $_.Name -notmatch '^singem-prod-backend'
+    })
+
+  foreach ($container in $autoStop) {
+    Write-DevWarn ("Porta {0} ocupada por {1}. Parando container automaticamente para subir ambiente dev." -f $Port, $container.Name)
+    Invoke-DevCommand -FilePath 'docker' -ArgumentList @('stop', $container.Name) -AllowFailure
+  }
+
+  if ($blocking.Count -gt 0) {
+    $details = ($blocking | ForEach-Object { "{0} ({1})" -f $_.Name, $_.Ports }) -join '; '
+    throw ("Porta {0} ainda ocupada por container(es) nao elegiveis para parada automatica: {1}. Pare-os manualmente e execute novamente." -f $Port, $details)
+  }
 }
 
 function Ensure-EnvFile {

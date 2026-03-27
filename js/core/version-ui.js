@@ -8,7 +8,7 @@ function formatVersionText(payload) {
 function normalizePayload(raw = {}) {
   return {
     name: String(raw.name || 'SINGEM'),
-    version: String(raw.version || '1.2.2'),
+    version: String(raw.version || '1.3.0'),
     channel: String(raw.channel || 'dev'),
     build: String(raw.build || 'local'),
     buildTimestamp: String(raw.buildTimestamp || 'local')

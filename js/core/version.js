@@ -1,22 +1,22 @@
+// ============================================================================
+// SINGEM — Frontend Version Bundle
+//
+// FONTE ÚNICA DE VERDADE do frontend.
+// Estes valores DEVEM espelhar exatamente o version.json na raiz do projeto.
+//
+// Para fazer bump de versão, use SOMENTE:
+//   node scripts/bump-version.js        (atualiza version.json E este arquivo)
+//   pwsh scripts/version.ps1            (idem)
+//
+// NÃO edite estes valores manualmente sem atualizar o version.json também.
+// ============================================================================
+
 const FALLBACK = Object.freeze({
   name: 'SINGEM',
-  version: '1.2.2',
-  build: '20260314-2350',
-  buildTimestamp: '2026-03-14T23:50:00.000Z'
+  version: '1.3.0',
+  build: '20260324-1930',
+  buildTimestamp: '2026-03-24T19:30:42.236Z'
 });
-
-function loadMetaSync() {
-  try {
-    if (typeof window !== 'undefined' && window.__SINGEM_VERSION_META) {
-      return { ...FALLBACK, ...window.__SINGEM_VERSION_META };
-    }
-  } catch {
-    // sem impacto: segue fallback
-  }
-  return FALLBACK;
-}
-
-const raw = loadMetaSync();
 
 function safeIso(value) {
   const parsed = Date.parse(value || '');
@@ -29,10 +29,10 @@ function buildFromIso(iso) {
   return `${dt.getUTCFullYear()}${pad(dt.getUTCMonth() + 1)}${pad(dt.getUTCDate())}-${pad(dt.getUTCHours())}${pad(dt.getUTCMinutes())}`;
 }
 
-export const APP_NAME = String(raw.name || FALLBACK.name);
-export const APP_VERSION = String(raw.version || FALLBACK.version);
-export const BUILD_TIMESTAMP = safeIso(raw.buildTimestamp);
-export const APP_BUILD = String(raw.build || '').trim() || buildFromIso(BUILD_TIMESTAMP);
+export const APP_NAME = FALLBACK.name;
+export const APP_VERSION = FALLBACK.version;
+export const BUILD_TIMESTAMP = safeIso(FALLBACK.buildTimestamp);
+export const APP_BUILD = FALLBACK.build || buildFromIso(BUILD_TIMESTAMP);
 export const VERSION_DISPLAY = `${APP_NAME} ${APP_VERSION} • build ${APP_BUILD}`;
 export const CACHE_BUSTER = `${APP_VERSION}-${APP_BUILD}`;
 

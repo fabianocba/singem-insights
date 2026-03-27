@@ -41,3 +41,6 @@ jobs:
 
       - name: Build frontend assets
         run: npm run tailwind:build
+
+      - name: Validate version sync
+        run: node scripts/validate-version-sync.js

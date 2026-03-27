@@ -29,10 +29,41 @@ function postSW(worker, payload) {
 }
 
 function renderVersionInUI() {
-  const el = document.getElementById('appVersion');
-  if (el) {
-    el.textContent = VERSION_DISPLAY;
+  for (const id of ['app-version', 'topbarVersion']) {
+    const el = document.getElementById(id);
+    if (el) {
+      el.textContent = id === 'topbarVersion' ? `v${APP_VERSION} • ${APP_BUILD}` : VERSION_DISPLAY;
+    }
   }
+}
+
+async function resetDevServiceWorkerIfNeeded() {
+  const isLocalhost = ['localhost', '127.0.0.1'].includes(window.location.hostname);
+  if (!isLocalhost || !('serviceWorker' in navigator) || !('caches' in window)) {
+    return false;
+  }
+
+  const reloadFlag = 'singem.dev.sw.reset.done';
+  if (sessionStorage.getItem(reloadFlag) === '1') {
+    return false;
+  }
+
+  const hasController = Boolean(navigator.serviceWorker.controller);
+  const regs = await navigator.serviceWorker.getRegistrations();
+
+  if (!hasController && regs.length === 0) {
+    return false;
+  }
+
+  await Promise.all(regs.map((reg) => reg.unregister()));
+
+  const cacheKeys = await caches.keys();
+  await Promise.all(cacheKeys.map((key) => caches.delete(key)));
+
+  sessionStorage.setItem(reloadFlag, '1');
+  console.info('[VM] SW/cache legados limpos em localhost; recarregando para garantir assets atuais');
+  window.location.reload();
+  return true;
 }
 
 function withVersionParam(url, suffix) {
@@ -91,7 +122,7 @@ export async function registerServiceWorker() {
 
   regOnce = (async () => {
     const versionMeta = window.__SINGEM_VERSION_META || {};
-    const swVersion = String(versionMeta.version || APP_VERSION || '1.2.2');
+    const swVersion = String(versionMeta.version || APP_VERSION || 'unknown');
     const swBuild = String(versionMeta.build || APP_BUILD || 'local');
     const isLocalhost = ['localhost', '127.0.0.1'].includes(window.location.hostname);
 
@@ -172,15 +203,47 @@ if (typeof window !== 'undefined') {
   applyCacheBuster();
 
   window.addEventListener('DOMContentLoaded', () => {
-    renderVersionInUI();
-    initVersionUI()
-      .catch((error) => {
-        console.warn('[VM] Falha ao renderizar versão via API:', error);
+    Promise.resolve()
+      .then(() => resetDevServiceWorkerIfNeeded())
+      .then((reloaded) => {
+        if (reloaded) {
+          return Promise.resolve();
+        }
+
+        renderVersionInUI();
+        const versionTarget = document.getElementById('app-version')
+          ? 'app-version'
+          : document.getElementById('topbarVersion')
+            ? 'topbarVersion'
+            : null;
+
+        if (!versionTarget) {
+          return Promise.resolve();
+        }
+
+        return initVersionUI(versionTarget)
+          .then(() => {
+            // Detecta divergência entre o FALLBACK do bundle e o que a API reporta.
+            // Se aparecer esse aviso, rode: node scripts/bump-version.js
+            const meta = window.__SINGEM_VERSION_META || {};
+            if (meta.version && meta.version !== APP_VERSION) {
+              console.warn(
+                `[VM] ⚠️ DIVERGÊNCIA: bundle=${APP_VERSION} (${APP_BUILD}) | API=${meta.version} (${meta.build || '?'}). ` +
+                  'Execute "node scripts/bump-version.js" para sincronizar js/core/version.js com version.json.'
+              );
+            }
+          })
+          .catch((error) => {
+            console.warn('[VM] Falha ao renderizar versão via API:', error);
+          })
+          .finally(() => {
+            registerServiceWorker().catch((error) => {
+              console.warn('[VM] Falha ao registrar Service Worker:', error);
+            });
+          });
       })
-      .finally(() => {
-        registerServiceWorker().catch((error) => {
-          console.warn('[VM] Falha ao registrar Service Worker:', error);
-        });
+      .catch((error) => {
+        console.warn('[VM] Falha ao preparar fluxo de versão:', error);
       });
   });
 }

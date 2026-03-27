@@ -1,5 +1,5 @@
 const u = new URL(self.location.href);
-const APP_VERSION = u.searchParams.get('v') || '1.2.2';
+const APP_VERSION = u.searchParams.get('v') || '1.3.0';
 const APP_BUILD = u.searchParams.get('b') || 'local';
 
 const APP_CACHE_PREFIX = 'singem-cache';

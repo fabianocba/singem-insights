@@ -44,7 +44,7 @@ function updateTechnicalInfo() {
 async function runTests() {
   clearResults();
 
-  const expectedVersion = window.APP_BUILD || window.APP_VERSION || '1.2.2';
+  const expectedVersion = window.APP_BUILD || window.APP_VERSION || 'unknown';
 
   log('🔄 Iniciando testes de diagnóstico...', 'info');
   log('📝 Teste 1: Verificando carregamento de db.js...', 'info');

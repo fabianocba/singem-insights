@@ -82,6 +82,7 @@ function getUserSubtitle(app) {
 function updateHeaderMeta(app) {
   const sectionLabel = document.getElementById('currentSectionLabel');
   const userMeta = document.getElementById('usuarioLogadoPerfil');
+  const versionBadge = document.getElementById('topbarVersion');
 
   if (sectionLabel) {
     sectionLabel.textContent = getCurrentLabel(app);
@@ -89,6 +90,14 @@ function updateHeaderMeta(app) {
 
   if (userMeta) {
     userMeta.textContent = getUserSubtitle(app);
+  }
+
+  if (versionBadge) {
+    const meta = window.__SINGEM_VERSION_META || {};
+    const version = String(meta.version || window.APP_VERSION || 'dev');
+    const build = String(meta.build || window.APP_BUILD || 'local');
+    versionBadge.textContent = `v${version} • ${build}`;
+    versionBadge.title = `Versão ${version} | build ${build}`;
   }
 }
 
@@ -440,6 +449,24 @@ export function initPremiumShell(app) {
 
   if (window.innerWidth < 1280) {
     document.body.classList.add('sidebar-collapsed');
+  }
+
+  // Sync sidebar toggle aria-expanded with initial collapsed state
+  const sidebarToggle = document.getElementById('sidebarToggle');
+  if (sidebarToggle) {
+    const isCollapsed = document.body.classList.contains('sidebar-collapsed');
+    sidebarToggle.setAttribute('aria-expanded', isCollapsed ? 'false' : 'true');
+  }
+
+  // Show dev environment notice on localhost
+  const envNotice = document.getElementById('loginEnvNotice');
+  if (
+    envNotice &&
+    (location.hostname === 'localhost' ||
+      location.hostname === '127.0.0.1' ||
+      location.hostname.endsWith('.local'))
+  ) {
+    envNotice.style.display = '';
   }
 
   initialized = true;

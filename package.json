@@ -35,7 +35,8 @@
     "validate:almox": "pwsh -NoProfile -ExecutionPolicy Bypass -File ./scripts/validate-almoxarifado-local.ps1",
     "format": "prettier . --write --ignore-unknown",
     "format:check": "prettier . --check --ignore-unknown",
-    "quality": "node ./scripts/quality-check.mjs"
+    "quality": "node ./scripts/quality-check.mjs",
+    "validate:version": "node ./scripts/validate-version-sync.js"
   },
   "keywords": [
     "controle-material",

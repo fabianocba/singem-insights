@@ -63,5 +63,5 @@ Para mais detalhes, consulte:
 
 ---
 
-**Última atualização:** 03/11/2025  
-**Versão:** 1.2.2
+**Última atualização:** 26/03/2026  
+**Versão:** 1.3.0

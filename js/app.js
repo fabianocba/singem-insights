@@ -32,7 +32,6 @@ import { initPremiumShell, refreshPremiumShell } from './ui/premiumShell.js';
 import { escapeHTML } from './utils/sanitize.js';
 import { renderSidebar } from './core/accessScope.js';
 
-console.log('[App] 📦 Versão:', APP_VERSION, 'Build:', APP_BUILD);
 console.log('[App] 🔍 Repository importado:', typeof repository);
 console.log('[App] 🔍 Repository.saveUnidade:', typeof repository?.saveUnidade);
 
@@ -61,6 +60,35 @@ function replaceElementChildren(element, children = []) {
   }
 
   element.replaceChildren(...children.filter(Boolean));
+}
+
+function normalizeVersionMeta(raw = {}) {
+  return {
+    name: String(raw.name || 'SINGEM'),
+    version: String(raw.version || APP_VERSION || 'unknown'),
+    build: String(raw.build || APP_BUILD || 'local'),
+    channel: String(raw.channel || 'dev'),
+    buildTimestamp: String(raw.buildTimestamp || new Date().toISOString())
+  };
+}
+
+async function resolveCanonicalVersionMeta() {
+  const fromWindow = window.__SINGEM_VERSION_META;
+  if (fromWindow?.version && fromWindow?.build) {
+    return normalizeVersionMeta(fromWindow);
+  }
+
+  try {
+    const response = await fetch('/version.json', { cache: 'no-store' });
+    if (response.ok) {
+      const payload = await response.json();
+      return normalizeVersionMeta(payload);
+    }
+  } catch {
+    // Fallback para bundle caso version.json não esteja acessível.
+  }
+
+  return normalizeVersionMeta();
 }
 
 export class ControleMaterialApp {
@@ -8260,12 +8288,12 @@ export async function waitForRepository(maxRetries = 3, baseDelay = 300) {
 /**
  * Gera relatório de inicialização para debug
  */
-export function logBootstrapReport() {
+export function logBootstrapReport(meta = normalizeVersionMeta()) {
   console.log('\n╔════════════════════════════════════════╗');
   console.log('║   📊 RELATÓRIO DE INICIALIZAÇÃO       ║');
   console.log('╚════════════════════════════════════════╝');
-  console.log('📦 Versão:', APP_VERSION);
-  console.log('🏗️  Build:', APP_BUILD);
+  console.log('📦 Versão:', meta.version);
+  console.log('🏗️  Build:', meta.build);
   console.log('🗄️  DB:', window.dbManager?.db?.name || 'N/A');
   console.log('📊 DB Versão:', window.dbManager?.db?.version || 'N/A');
   console.log('✅ Repository:', typeof repository);
@@ -8339,6 +8367,12 @@ export async function bootstrapApp() {
 
   bootstrapPromise = (async () => {
     try {
+      const versionMeta = await resolveCanonicalVersionMeta();
+      window.__SINGEM_VERSION_META = versionMeta;
+      window.APP_VERSION = versionMeta.version;
+      window.APP_BUILD = versionMeta.build;
+
+      console.log('[App] 📦 Versão:', versionMeta.version, 'Build:', versionMeta.build);
       console.log('[Bootstrap] 🚀 Iniciando aplicação SINGEM...');
 
       // Aguarda repository estar pronto (com retry)
@@ -8354,7 +8388,7 @@ export async function bootstrapApp() {
       window.app = new ControleMaterialApp();
 
       // Gera relatório de inicialização
-      logBootstrapReport();
+      logBootstrapReport(versionMeta);
 
       // =========================================================================
       // BOOTSTRAP COMPLETO - Sinaliza para outros módulos
@@ -8362,7 +8396,7 @@ export async function bootstrapApp() {
       window.__SINGEM_BOOTSTRAP_DONE__ = true;
       window.dispatchEvent(
         new CustomEvent('SINGEM:bootstrap:done', {
-          detail: { ts: Date.now(), version: APP_VERSION, build: APP_BUILD }
+          detail: { ts: Date.now(), version: versionMeta.version, build: versionMeta.build }
         })
       );
 
