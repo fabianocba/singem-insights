@@ -5,9 +5,6 @@
  */
 
 import { emit } from './core/eventBus.js';
-import { handleAiAvailabilityError, isAiAvailable } from './aiIntegration.js';
-import apiClient from './services/apiClient.js';
-import { escapeHTML as escapeHtml } from './utils/sanitize.js';
 
 /**
  * Configuração dos tipos de relatório disponíveis
@@ -64,11 +61,7 @@ const estadoRelatorio = {
     ano: '',
     busca: ''
   },
-  ordenacao: 'recente',
-  resumoIA: {
-    debounceTimer: null,
-    requestVersion: 0
-  }
+  ordenacao: 'recente'
 };
 
 function buildRelatorioSearchKey(emp) {
@@ -85,7 +78,6 @@ function buildRelatorioSearchKey(emp) {
 
 // Flag de debug para os relatórios
 const DEBUG_REL_EMP = false;
-const AI_REPORT_SUMMARY_KEY = 'relatorio_empenhos';
 
 /**
  * Inicializa o módulo de relatórios
@@ -104,9 +96,6 @@ export function inicializarRelatorios() {
 
   // Configurar delegação de eventos para botões Ver/Detalhes
   setupDelegacaoEventosRelatorio();
-
-  // Configurar atualização manual do resumo de IA
-  setupEventosResumoIA();
 
   // Carregar anos disponíveis
   carregarAnosDisponiveis();
@@ -254,253 +243,6 @@ function setupDelegacaoEventosRelatorio() {
 
   if (DEBUG_REL_EMP) {
     console.log('[Relatórios] ✅ Delegação de eventos configurada');
-  }
-}
-
-function setupEventosResumoIA() {
-  const container = document.getElementById('resumoRelatorioIA');
-  if (!container || container.__boundRelatorioIA) {
-    return;
-  }
-
-  container.__boundRelatorioIA = true;
-  container.addEventListener('click', async (event) => {
-    const btn = event.target.closest('[data-ai-report-action]');
-    if (!btn) {
-      return;
-    }
-
-    if (btn.dataset.aiReportAction === 'refresh') {
-      await atualizarResumoRelatorioIA(filtrarEmpenhos(), { forceRefresh: true });
-    }
-  });
-}
-
-function getResumoRelatorioIAContainer() {
-  return document.getElementById('resumoRelatorioIA');
-}
-
-function hideResumoRelatorioIA() {
-  const container = getResumoRelatorioIAContainer();
-  if (!container) {
-    return;
-  }
-
-  if (estadoRelatorio.resumoIA.debounceTimer) {
-    clearTimeout(estadoRelatorio.resumoIA.debounceTimer);
-    estadoRelatorio.resumoIA.debounceTimer = null;
-  }
-
-  container.innerHTML = '';
-  container.classList.add('hidden');
-}
-
-function renderResumoRelatorioIALoading(container) {
-  container.innerHTML = `
-    <div class="ai-report-header">
-      <div>
-        <h4>🧠 Resumo por IA</h4>
-        <p class="ai-report-subtitle">Analisando o recorte atual do relatório...</p>
-      </div>
-      <div class="ai-report-status">
-        <span class="ai-assist-chip">IA</span>
-        <span class="ai-assist-chip ai-assist-chip-muted">Processando</span>
-      </div>
-    </div>
-    <p class="ai-report-text">Gerando leitura inteligente das métricas filtradas.</p>
-  `;
-  container.classList.remove('hidden');
-}
-
-function renderResumoRelatorioIAErro(container, message) {
-  container.innerHTML = `
-    <div class="ai-report-error">
-      <div class="ai-report-header">
-        <div>
-          <h4>🧠 Resumo por IA</h4>
-          <p class="ai-report-subtitle">O resumo inteligente não pôde ser carregado agora.</p>
-        </div>
-        <div class="ai-report-status">
-          <button type="button" class="btn btn-outline btn-sm" data-ai-report-action="refresh">Tentar novamente</button>
-        </div>
-      </div>
-      <p class="ai-report-text">${escapeHtml(message)}</p>
-    </div>
-  `;
-  container.classList.remove('hidden');
-}
-
-function buildResumoRelatorioIAData(empenhosFiltrados) {
-  const totalEmpenhos = empenhosFiltrados.length;
-  const valorTotal = empenhosFiltrados.reduce((acc, emp) => acc + (emp.valorTotalEmpenho ?? emp.valorTotal ?? 0), 0);
-  const valorUtilizado = empenhosFiltrados.reduce((acc, emp) => acc + (emp.valorUtilizado ?? 0), 0);
-  const saldoTotal = valorTotal - valorUtilizado;
-  const saldosDisponiveis = empenhosFiltrados.map((emp) => {
-    const valorEmpenho = emp.valorTotalEmpenho ?? emp.valorTotal ?? 0;
-    const valorConsumido = emp.valorUtilizado ?? 0;
-    return Number((emp.saldoDisponivel ?? valorEmpenho - valorConsumido).toFixed(2));
-  });
-  const comSaldo = saldosDisponiveis.filter((saldo) => saldo > 0).length;
-  const semSaldo = saldosDisponiveis.filter((saldo) => saldo <= 0).length;
-  const rascunhos = empenhosFiltrados.filter(
-    (emp) => emp.statusValidacao === 'rascunho' || !emp.statusValidacao
-  ).length;
-  const validados = empenhosFiltrados.filter((emp) => emp.statusValidacao === 'validado').length;
-  const criticidadeAlta = empenhosFiltrados.filter((emp) => (emp.percentualUtilizado ?? 0) >= 80).length;
-  const ticketMedio = totalEmpenhos > 0 ? Number((valorTotal / totalEmpenhos).toFixed(2)) : 0;
-  const percentualValidados = totalEmpenhos > 0 ? Number(((validados / totalEmpenhos) * 100).toFixed(2)) : 0;
-  const percentualComSaldo = totalEmpenhos > 0 ? Number(((comSaldo / totalEmpenhos) * 100).toFixed(2)) : 0;
-  const percentualSemSaldo = totalEmpenhos > 0 ? Number(((semSaldo / totalEmpenhos) * 100).toFixed(2)) : 0;
-  const percentualMedioUtilizado =
-    totalEmpenhos > 0
-      ? Number(
-          (empenhosFiltrados.reduce((acc, emp) => acc + (emp.percentualUtilizado ?? 0), 0) / totalEmpenhos).toFixed(2)
-        )
-      : 0;
-
-  const fornecedores = new Map();
-  for (const emp of empenhosFiltrados) {
-    const fornecedor = String(emp.fornecedor || 'Fornecedor não informado').trim();
-    fornecedores.set(fornecedor, (fornecedores.get(fornecedor) || 0) + 1);
-  }
-
-  const maiorConcentracaoFornecedor = totalEmpenhos > 0 ? Math.max(...fornecedores.values()) : 0;
-  const concentracaoFornecedorPct =
-    totalEmpenhos > 0 ? Number(((maiorConcentracaoFornecedor / totalEmpenhos) * 100).toFixed(2)) : 0;
-  const anosCobertos = new Set(empenhosFiltrados.map((emp) => String(emp.ano || '')).filter(Boolean)).size;
-
-  return {
-    total_empenhos: totalEmpenhos,
-    valor_total_empenhado: Number(valorTotal.toFixed(2)),
-    valor_total_utilizado: Number(valorUtilizado.toFixed(2)),
-    saldo_total_disponivel: Number(saldoTotal.toFixed(2)),
-    ticket_medio_empenho: ticketMedio,
-    percentual_medio_utilizado: percentualMedioUtilizado,
-    percentual_validados: percentualValidados,
-    percentual_com_saldo: percentualComSaldo,
-    percentual_sem_saldo: percentualSemSaldo,
-    total_empenhos_com_saldo: comSaldo,
-    total_empenhos_sem_saldo: semSaldo,
-    total_rascunhos_pendentes: rascunhos,
-    total_validados: validados,
-    total_fornecedores_unicos: fornecedores.size,
-    total_anos_cobertos: anosCobertos,
-    alerta_empenhos_sem_saldo: semSaldo,
-    alerta_rascunhos_pendentes: rascunhos,
-    anomalia_empenhos_criticos: criticidadeAlta,
-    anomalia_concentracao_fornecedor_pct: concentracaoFornecedorPct,
-    tipo_relatorio: estadoRelatorio.tipoAtual,
-    ano_filtro: estadoRelatorio.filtros.ano || 'todos',
-    busca_aplicada: estadoRelatorio.filtros.busca || 'sem filtro textual',
-    ordenacao_aplicada: estadoRelatorio.ordenacao
-  };
-}
-
-function renderResumoRelatorioIA(container, payload, empenhosFiltrados) {
-  const confidence = Math.round(Number(payload?.confidence || 0) * 100);
-  const insights = Array.isArray(payload?.insights) ? payload.insights : [];
-  const alerts = Array.isArray(payload?.alerts) ? payload.alerts : [];
-  const anomalies = Array.isArray(payload?.anomalies) ? payload.anomalies : [];
-  const recorteLabel = TIPOS_RELATORIO[estadoRelatorio.tipoAtual]?.titulo || 'Relatório de Empenhos';
-
-  const renderList = (items, emptyText) => {
-    if (!items.length) {
-      return `<p class="ai-report-empty">${escapeHtml(emptyText)}</p>`;
-    }
-
-    return `<ul class="ai-report-list">${items.map((item) => `<li>${escapeHtml(item)}</li>`).join('')}</ul>`;
-  };
-
-  container.innerHTML = `
-    <div class="ai-report-header">
-      <div>
-        <h4>🧠 Resumo por IA</h4>
-        <p class="ai-report-subtitle">${escapeHtml(recorteLabel)} • ${empenhosFiltrados.length} empenho(s) analisado(s)</p>
-      </div>
-      <div class="ai-report-status">
-        <span class="ai-assist-chip">IA</span>
-        <span class="ai-assist-chip ai-assist-chip-muted">${payload?.cached ? 'Cache' : 'Atual'}</span>
-        <span class="ai-assist-chip ai-assist-chip-score">Confiança ${confidence}%</span>
-        <button type="button" class="btn btn-outline btn-sm" data-ai-report-action="refresh">Atualizar agora</button>
-      </div>
-    </div>
-    <p class="ai-report-text">${escapeHtml(payload?.summary || 'Resumo indisponível.')}</p>
-    <div class="ai-report-grid">
-      <section class="ai-report-section">
-        <h5>Indicadores-chave</h5>
-        ${renderList(insights, 'Sem indicadores complementares para este recorte.')}
-      </section>
-      <section class="ai-report-section">
-        <h5>Alertas</h5>
-        ${renderList(alerts, 'Nenhum alerta relevante foi detectado.')}
-      </section>
-      <section class="ai-report-section">
-        <h5>Anomalias</h5>
-        ${renderList(anomalies, 'Nenhuma anomalia relevante foi detectada.')}
-      </section>
-    </div>
-  `;
-  container.classList.remove('hidden');
-}
-
-function agendarAtualizacaoResumoRelatorioIA(empenhosFiltrados) {
-  const container = getResumoRelatorioIAContainer();
-  if (!container) {
-    return;
-  }
-
-  if (estadoRelatorio.resumoIA.debounceTimer) {
-    clearTimeout(estadoRelatorio.resumoIA.debounceTimer);
-  }
-
-  estadoRelatorio.resumoIA.debounceTimer = setTimeout(() => {
-    estadoRelatorio.resumoIA.debounceTimer = null;
-    atualizarResumoRelatorioIA(empenhosFiltrados).catch((error) => {
-      console.warn('[Relatórios] Falha ao atualizar resumo IA:', error?.message || error);
-    });
-  }, 500);
-}
-
-async function atualizarResumoRelatorioIA(empenhosFiltrados, { forceRefresh = false } = {}) {
-  const container = getResumoRelatorioIAContainer();
-  if (!container) {
-    return;
-  }
-
-  if (!Array.isArray(empenhosFiltrados) || empenhosFiltrados.length === 0) {
-    hideResumoRelatorioIA();
-    return;
-  }
-
-  const available = await isAiAvailable({ forceRefresh });
-  if (!available) {
-    renderResumoRelatorioIAErro(container, 'Serviço de IA indisponível no momento para resumir o relatório.');
-    return;
-  }
-
-  const requestVersion = ++estadoRelatorio.resumoIA.requestVersion;
-  renderResumoRelatorioIALoading(container);
-
-  try {
-    const response = await apiClient.ai.reportSummary({
-      report_key: AI_REPORT_SUMMARY_KEY,
-      context_module: 'empenhos',
-      data: buildResumoRelatorioIAData(empenhosFiltrados),
-      force_refresh: forceRefresh
-    });
-
-    if (requestVersion !== estadoRelatorio.resumoIA.requestVersion) {
-      return;
-    }
-
-    renderResumoRelatorioIA(container, response, empenhosFiltrados);
-  } catch (error) {
-    if (requestVersion !== estadoRelatorio.resumoIA.requestVersion) {
-      return;
-    }
-
-    handleAiAvailabilityError(error);
-    renderResumoRelatorioIAErro(container, error?.message || 'Resumo inteligente indisponível para este relatório.');
   }
 }
 
@@ -735,7 +477,6 @@ async function renderizarListaRelatorio() {
 
   // Atualizar resumo
   await renderizarResumoRelatorio();
-  agendarAtualizacaoResumoRelatorioIA(empenhosFiltrados);
 
   if (empenhosFiltrados.length === 0) {
     container.innerHTML = `

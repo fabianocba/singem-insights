@@ -2,13 +2,11 @@ const fs = require('fs').promises;
 const os = require('os');
 
 const db = require('../db');
-const aiCoreClient = require('./aiCoreClient');
 const { readVersion } = require('../utils/version');
 const config = require('../config');
 
 const TIMEOUTS = {
   databaseMs: Number(process.env.SYSTEM_STATUS_DATABASE_TIMEOUT_MS || 120),
-  aiCoreMs: Number(process.env.SYSTEM_STATUS_AI_TIMEOUT_MS || 120),
   nfeMs: Number(process.env.SYSTEM_STATUS_NFE_TIMEOUT_MS || 120),
   internetMs: Number(process.env.SYSTEM_STATUS_INTERNET_TIMEOUT_MS || 120)
 };
@@ -78,46 +76,6 @@ async function checkDatabase() {
       status: 'OFFLINE',
       ok: false,
       message: safeMessage(error, 'PostgreSQL unavailable')
-    };
-  }
-}
-
-async function checkAICore({ requestId }) {
-  const timeoutMs = toPositiveTimeout(TIMEOUTS.aiCoreMs, 120);
-
-  try {
-    const ai = await aiCoreClient.healthCheck({ requestId, timeoutMs });
-
-    if (ai?.enabled && ai?.ok) {
-      return {
-        name: 'aiCore',
-        status: 'OK',
-        ok: true,
-        message: 'AI Core available'
-      };
-    }
-
-    if (!ai?.enabled) {
-      return {
-        name: 'aiCore',
-        status: 'OFFLINE',
-        ok: false,
-        message: 'AI Core disabled by configuration'
-      };
-    }
-
-    return {
-      name: 'aiCore',
-      status: 'OFFLINE',
-      ok: false,
-      message: 'AI Core unavailable'
-    };
-  } catch (error) {
-    return {
-      name: 'aiCore',
-      status: 'OFFLINE',
-      ok: false,
-      message: safeMessage(error, 'AI Core unavailable')
     };
   }
 }
@@ -341,10 +299,10 @@ function buildDownPayload(versionInfo, serviceMessage = 'PostgreSQL unavailable'
 
 async function getSystemStatus({ requestId, nfeService, nfeServiceV2 }) {
   const info = readVersion();
+  void requestId;
 
   const services = await Promise.all([
     checkDatabase(),
-    checkAICore({ requestId }),
     checkNFEService({ nfeService, nfeServiceV2 }),
     checkGovBr(),
     checkAlmoxarifado(),
@@ -366,7 +324,6 @@ async function getSystemStatus({ requestId, nfeService, nfeServiceV2 }) {
 
 module.exports = {
   checkDatabase,
-  checkAICore,
   checkNFEService,
   checkGovBr,
   checkAlmoxarifado,

@@ -3,7 +3,6 @@
 const { priceIntelligenceService } = require('./price-intelligence.service');
 const { supplierIntelligenceService } = require('./supplier-intelligence.service');
 const { buyerIntelligenceService } = require('./buyer-intelligence.service');
-const reportInsightService = require('./ai-core/reportInsightService');
 const AppError = require('../utils/appError');
 
 function normalizeFocus(value) {
@@ -92,60 +91,11 @@ function buildIntegratedPanel(focus, response, linkedSuppliers = [], linkedBuyer
   };
 }
 
-function buildAiPayload(focus, response) {
-  if (!response) {
-    return null;
-  }
-
-  const reportKey =
-    focus === 'price'
-      ? 'compras_publicas_preco'
-      : focus === 'supplier'
-        ? 'compras_publicas_fornecedor'
-        : 'compras_publicas_buyer';
-  const contextModule =
-    focus === 'price' ? 'price-intelligence' : focus === 'supplier' ? 'supplier-intelligence' : 'buyer-intelligence';
-
-  return {
-    report_key: reportKey,
-    context_module: contextModule,
-    data: {
-      summary: response?.summary?.text || '',
-      metrics: response?.metrics || {},
-      cache: response?.cache || null,
-      focus,
-      generatedAt: response?.meta?.generatedAt || response?.meta?.timestamp || null
-    }
-  };
-}
-
 class ProcurementAnalyticsService {
   constructor(options = {}) {
     this.priceIntelligenceService = options.priceIntelligenceService || priceIntelligenceService;
     this.supplierIntelligenceService = options.supplierIntelligenceService || supplierIntelligenceService;
     this.buyerIntelligenceService = options.buyerIntelligenceService || buyerIntelligenceService;
-    this.reportInsightService = options.reportInsightService || reportInsightService;
-  }
-
-  async maybeGenerateAiSummary(focus, response, context = {}, includeAiSummary = false) {
-    if (!includeAiSummary) {
-      return null;
-    }
-
-    const payload = buildAiPayload(focus, response);
-    if (!payload) {
-      return null;
-    }
-
-    try {
-      return await this.reportInsightService.gerarInsight(payload, context);
-    } catch (error) {
-      logAnalytics('AI', {
-        focus,
-        erro: error?.message || 'falha ao gerar resumo AI'
-      });
-      return null;
-    }
   }
 
   async query(input = {}, context = {}) {
@@ -162,37 +112,31 @@ class ProcurementAnalyticsService {
       const linkedSuppliers = await this.supplierIntelligenceService.lookupProfiles(topSupplierDocs, context);
       const linkedBuyers = await this.buyerIntelligenceService.lookupUasgProfiles(topBuyerCodes, context);
       const integratedPanel = buildIntegratedPanel(focus, response, linkedSuppliers, linkedBuyers);
-      const aiSummary = await this.maybeGenerateAiSummary(focus, response, context, input.includeAiSummary === true);
 
       return {
         ...response,
         focus,
-        integratedPanel,
-        aiSummary
+        integratedPanel
       };
     }
 
     if (focus === 'supplier') {
       const response = await this.supplierIntelligenceService.query(input, context);
       const integratedPanel = buildIntegratedPanel(focus, response);
-      const aiSummary = await this.maybeGenerateAiSummary(focus, response, context, input.includeAiSummary === true);
       return {
         ...response,
         focus,
-        integratedPanel,
-        aiSummary
+        integratedPanel
       };
     }
 
     if (focus === 'buyer') {
       const response = await this.buyerIntelligenceService.query(input, context);
       const integratedPanel = buildIntegratedPanel(focus, response);
-      const aiSummary = await this.maybeGenerateAiSummary(focus, response, context, input.includeAiSummary === true);
       return {
         ...response,
         focus,
-        integratedPanel,
-        aiSummary
+        integratedPanel
       };
     }
 

@@ -26,8 +26,6 @@ import { showToast as sharedShowToast } from './shared/ui/toast.js';
 import { hideLoader, showLoader } from './shared/ui/loader.js';
 import { focusField } from './shared/ui/formField.js';
 import { confirmAction } from './shared/ui/modal.js';
-import { initFornecedorAIAssist, initItemModalAIAssist } from './aiIntegration.js';
-import { initVisualAudits, scheduleVisualAuditRefresh } from './ui/aiVisualAudit.js';
 import { initPremiumShell, refreshPremiumShell } from './ui/premiumShell.js';
 import { escapeHTML } from './utils/sanitize.js';
 import { renderSidebar } from './core/accessScope.js';
@@ -160,10 +158,6 @@ export class ControleMaterialApp {
       notaFiscal: createNotaFiscalFeature(this)
     };
 
-    this.aiAssistState = {
-      fornecedorCleanup: null
-    };
-
     console.log('[State] 📦 Estado único inicializado:', this.empenhoDraft);
 
     this.init();
@@ -217,7 +211,6 @@ export class ControleMaterialApp {
       this.setupEventListeners();
       console.log('✅ Event listeners configurados');
 
-      initVisualAudits();
       initPremiumShell(this);
 
       // Restaura dados lembrados (login/senha) sem auto-login
@@ -539,6 +532,25 @@ export class ControleMaterialApp {
     document.getElementById('btnRecuperarSenha')?.addEventListener('click', (e) => {
       e.preventDefault();
       this.abrirModalRecuperacaoSenha();
+    });
+
+    const toggleSenhaBtn = document.getElementById('toggleLoginSenha');
+    const senhaInput = document.getElementById('loginSenha');
+    const toggleSenhaIcon = document.getElementById('toggleLoginSenhaIcon');
+
+    toggleSenhaBtn?.addEventListener('click', () => {
+      if (!senhaInput) {
+        return;
+      }
+
+      const mostrarSenha = senhaInput.type === 'password';
+      senhaInput.type = mostrarSenha ? 'text' : 'password';
+      toggleSenhaBtn.setAttribute('aria-pressed', mostrarSenha ? 'true' : 'false');
+      toggleSenhaBtn.setAttribute('aria-label', mostrarSenha ? 'Ocultar senha' : 'Mostrar senha');
+
+      if (toggleSenhaIcon) {
+        toggleSenhaIcon.textContent = mostrarSenha ? '🙈' : '👁';
+      }
     });
 
     // Botão de limpar dados lembrados
@@ -1851,7 +1863,7 @@ export class ControleMaterialApp {
     // Desabilita botão e mostra loading
     if (btnLogin) {
       btnLogin.disabled = true;
-      btnLogin.textContent = '🔄 Autenticando...';
+      btnLogin.textContent = 'Autenticando...';
     }
 
     try {
@@ -1904,7 +1916,7 @@ export class ControleMaterialApp {
 
       if (btnLogin) {
         btnLogin.disabled = false;
-        btnLogin.textContent = '🔐 Entrar';
+        btnLogin.textContent = 'Entrar';
       }
       return;
     } catch (error) {
@@ -1923,7 +1935,7 @@ export class ControleMaterialApp {
       // Reseta botão
       if (btnLogin) {
         btnLogin.disabled = false;
-        btnLogin.textContent = '🔐 Entrar';
+        btnLogin.textContent = 'Entrar';
       }
     }
   }
@@ -3419,7 +3431,6 @@ export class ControleMaterialApp {
     document.getElementById('cnpjEmitente')?.addEventListener('input', this.formatarCNPJInput.bind(this));
 
     document.getElementById('cnpjDestinatario')?.addEventListener('input', this.formatarCNPJInput.bind(this));
-    this.inicializarSugestaoFornecedorIA();
 
     // Botão para cadastrar novo empenho (da tela de NF)
     document.getElementById('btnCadastrarEmpenho')?.addEventListener('click', () => {
@@ -3502,46 +3513,6 @@ export class ControleMaterialApp {
 
     // Limpa referência
     this.telaAntesCadastroEmpenho = null;
-  }
-
-  inicializarSugestaoFornecedorIA() {
-    if (this.aiAssistState?.fornecedorCleanup) {
-      return;
-    }
-
-    const fornecedorInput = document.getElementById('fornecedorEmpenho');
-    const cnpjInput = document.getElementById('cnpjFornecedor');
-    const container = document.getElementById('aiFornecedorSuggestion');
-    if (!fornecedorInput || !cnpjInput || !container) {
-      return;
-    }
-
-    this.aiAssistState.fornecedorCleanup = initFornecedorAIAssist({
-      input: fornecedorInput,
-      cnpjInput,
-      container,
-      contextModule: 'empenhos',
-      onApply: (suggestion) => {
-        const metadata = suggestion?.metadata || {};
-        const suggestedName = String(metadata.fornecedor || suggestion?.title || '').trim();
-        const suggestedCnpj = FormatUtils.onlyDigits(String(metadata.cnpj || ''));
-
-        if (suggestedName) {
-          fornecedorInput.value = suggestedName;
-          this.empenhoDraft.header.fornecedorRazao = suggestedName;
-        }
-
-        if (suggestedCnpj) {
-          cnpjInput.value = FormatUtils.formatCNPJ(suggestedCnpj);
-          this.empenhoDraft.header.cnpjDigits = suggestedCnpj;
-        }
-
-        this.showToast('Sugestao de fornecedor aplicada pela IA.', 'info');
-      },
-      onError: (error) => {
-        console.warn('[AI] Sugestao de fornecedor indisponivel:', error?.message || error);
-      }
-    });
   }
 
   /**
@@ -5322,7 +5293,6 @@ export class ControleMaterialApp {
 
     document.body.dataset.currentScreen = screenId;
     refreshPremiumShell(this);
-    scheduleVisualAuditRefresh(screenId);
   }
 
   /**
@@ -6397,7 +6367,6 @@ ${details.stack || 'Não disponível'}</div>
               <label for="modalDescricao">Descrição *</label>
               <textarea id="modalDescricao" rows="2" placeholder="Descrição completa do item">${dados.descricao || ''}</textarea>
             </div>
-            <div id="modalAiItemSuggestion" class="ai-assist-card hidden" aria-live="polite"></div>
           </fieldset>
 
           <!-- Seção: Valores -->
@@ -6491,46 +6460,6 @@ ${details.stack || 'Não disponível'}</div>
 
     let itemModalDirty = false;
 
-    const destroyItemAiAssist = initItemModalAIAssist({
-      overlay,
-      contextModule: 'empenhos',
-      onApply: (suggestion) => {
-        const metadata = suggestion?.metadata || {};
-        const descricaoInput = overlay.querySelector('#modalDescricao');
-        const unidadeInput = overlay.querySelector('#modalUnidade');
-        const catmatCodigoInput = overlay.querySelector('#modalCatmatCodigo');
-        const catmatDescricaoInput = overlay.querySelector('#modalCatmatDescricao');
-        const catmatFonteInput = overlay.querySelector('#modalCatmatFonte');
-
-        if (descricaoInput && suggestion?.title) {
-          descricaoInput.value = suggestion.title;
-        }
-
-        if (unidadeInput && metadata.unidade) {
-          unidadeInput.value = String(metadata.unidade).trim();
-        }
-
-        if (String(suggestion?.entity_type || '') === 'catmat_item') {
-          const catmatCodigo = String(metadata.codigo || suggestion?.entity_id || '').trim();
-          if (catmatCodigoInput && catmatCodigo) {
-            catmatCodigoInput.value = catmatCodigo;
-          }
-          if (catmatDescricaoInput && suggestion?.title) {
-            catmatDescricaoInput.value = suggestion.title;
-          }
-          if (catmatFonteInput) {
-            catmatFonteInput.value = String(metadata.unidade || metadata.source || 'IA').trim();
-          }
-        }
-
-        itemModalDirty = true;
-        this.showToast('Sugestao de item aplicada pela IA.', 'info');
-      },
-      onError: (error) => {
-        console.warn('[AI] Sugestao de item indisponivel:', error?.message || error);
-      }
-    });
-
     // Marcar como dirty quando qualquer input mudar
     const marcarDirty = () => {
       itemModalDirty = true;
@@ -6550,7 +6479,6 @@ ${details.stack || 'Não disponível'}</div>
           return; // Não fecha se o usuário cancelar
         }
       }
-      destroyItemAiAssist?.();
       document.removeEventListener('keydown', handleEsc);
       overlay.remove();
     };
@@ -6650,7 +6578,6 @@ ${details.stack || 'Não disponível'}</div>
 
       this.reindexarSequenciaEmpenho();
       this.renderItensEmpenho();
-      destroyItemAiAssist?.();
       overlay.remove();
     });
 

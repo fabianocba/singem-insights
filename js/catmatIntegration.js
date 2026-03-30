@@ -8,9 +8,7 @@ import { debounce } from './utils/throttle.js';
 import { showLoading, hideLoading, notifySuccess, notifyError, notifyInfo } from './ui/feedback.js';
 import { httpRequest } from './shared/lib/http.js';
 import { emit } from './core/eventBus.js';
-import { isAiAvailable, handleAiAvailabilityError } from './aiIntegration.js';
 import { escapeHTML } from './utils/sanitize.js';
-import apiClient from './services/apiClient.js';
 
 /**
  * Configuração do módulo
@@ -351,36 +349,9 @@ function ensureOutsideClickHandler() {
  * @returns {Promise<Array>} Itens sugeridos pela IA
  */
 async function fetchAiSuggestions(query, limit = 5) {
-  try {
-    const available = await isAiAvailable();
-    if (!available) {
-      return [];
-    }
-
-    const response = await apiClient.ai.search({
-      query_text: query,
-      entity_types: ['catmat_item', 'material'],
-      context_module: 'catmat',
-      page: 1,
-      page_size: limit
-    });
-
-    if (!response?.results?.length) {
-      return [];
-    }
-
-    return response.results.map((r) => ({
-      codigo: r.metadata?.codigo || r.entity_id || '',
-      catmat_id: r.metadata?.codigo || r.entity_id || '',
-      descricao: r.title || '',
-      unidade: r.metadata?.unidade || 'UN',
-      _aiScore: r.score?.final || 0,
-      _aiSource: 'ai_suggest'
-    }));
-  } catch (err) {
-    handleAiAvailabilityError(err);
-    return [];
-  }
+  void query;
+  void limit;
+  return [];
 }
 
 /**

@@ -297,7 +297,7 @@ function Stop-ComposeConflicts {
 }
 
 function Remove-SingemContainerConflicts {
-  foreach ($container in @('singem-postgres', 'singem-redis', 'singem-backend', 'singem-frontend', 'singem-ai-core')) {
+  foreach ($container in @('singem-postgres', 'singem-redis', 'singem-backend', 'singem-frontend')) {
     if (Test-DockerContainerExists -Name $container) {
       Invoke-DevCommand -FilePath 'docker' -ArgumentList @('rm', '-f', $container) -AllowFailure
     }

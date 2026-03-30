@@ -1,11 +1,7 @@
 /**
  * Módulo de Integração com APIs de Nota Fiscal Eletrônica
  * Sistema de Controle de Material - IF Baiano
- * Integração com AI Core para matching inteligente
  */
-
-import { isAiAvailable, handleAiAvailabilityError } from './aiIntegration.js';
-import apiClient from './services/apiClient.js';
 
 class NFEIntegration {
   constructor() {
@@ -388,31 +384,9 @@ class NFEIntegration {
    * @returns {Promise<Object|null>} Sugestão de fornecedor ou null
    */
   async matchFornecedorAI(cnpj, razaoSocial) {
-    try {
-      const available = await isAiAvailable();
-      if (!available) {
-        return null;
-      }
-
-      const text = razaoSocial || '';
-      const cleanCnpj = String(cnpj || '').replace(/\D/g, '');
-
-      if (!text && cleanCnpj.length < 14) {
-        return null;
-      }
-
-      const response = await apiClient.ai.suggestFornecedor({
-        text,
-        cnpj: cleanCnpj || undefined,
-        context_module: 'notas_fiscais',
-        limit: 3
-      });
-
-      return response?.suggestion_main || response?.alternatives?.[0] || null;
-    } catch (err) {
-      handleAiAvailabilityError(err);
-      return null;
-    }
+    void cnpj;
+    void razaoSocial;
+    return null;
   }
 
   /**
@@ -425,46 +399,7 @@ class NFEIntegration {
       return itens;
     }
 
-    try {
-      const available = await isAiAvailable();
-      if (!available) {
-        return itens;
-      }
-
-      const enriched = await Promise.all(
-        itens.map(async (item) => {
-          try {
-            const response = await apiClient.ai.suggestItem({
-              text: item.descricao || '',
-              context_module: 'notas_fiscais',
-              hints: { unidade: item.unidade || '' },
-              limit: 1
-            });
-
-            const suggestion = response?.suggestion_main;
-            if (suggestion && suggestion.confidence >= 0.5) {
-              return {
-                ...item,
-                _aiSuggestion: {
-                  catmatCodigo: suggestion.metadata?.codigo || suggestion.entity_id,
-                  catmatDescricao: suggestion.title,
-                  confidence: suggestion.confidence,
-                  entityType: suggestion.entity_type
-                }
-              };
-            }
-          } catch {
-            // best-effort per item
-          }
-          return item;
-        })
-      );
-
-      return enriched;
-    } catch (err) {
-      handleAiAvailabilityError(err);
-      return itens;
-    }
+    return itens;
   }
 
   /**

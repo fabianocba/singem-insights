@@ -1,6 +1,5 @@
 const notasService = require('./notas-fiscais.service');
 const { ok, created, paginated } = require('../../utils/httpResponse');
-const { scheduleAiReindex } = require('../../services/aiReindexScheduler');
 
 async function list(req, res, next) {
   try {
@@ -41,7 +40,6 @@ async function getByChave(req, res, next) {
 async function create(req, res, next) {
   try {
     const result = await notasService.createNota(req.body, req.user, { ip: req.ip });
-    scheduleAiReindex(['fornecedor'], 'notas-fiscais.create');
     return created(req, res, result);
   } catch (error) {
     return next(error);
@@ -51,7 +49,6 @@ async function create(req, res, next) {
 async function update(req, res, next) {
   try {
     const result = await notasService.updateNota(req.params.id, req.body, req.user);
-    scheduleAiReindex(['fornecedor'], 'notas-fiscais.update');
     return ok(req, res, result);
   } catch (error) {
     return next(error);
@@ -79,7 +76,6 @@ async function receber(req, res, next) {
 async function remove(req, res, next) {
   try {
     const result = await notasService.deleteNota(req.params.id, req.user);
-    scheduleAiReindex(['fornecedor'], 'notas-fiscais.remove');
     return ok(req, res, result);
   } catch (error) {
     return next(error);

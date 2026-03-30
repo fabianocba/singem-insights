@@ -8,9 +8,7 @@
 import * as API from './apiCompras.js';
 // Fornecedor já exportado do mesmo módulo apiCompras.js
 import * as Cache from './cache.js';
-import { isAiAvailable } from '../aiIntegration.js';
 import { escapeHTML as escapeHtmlContent } from '../utils/sanitize.js';
-import apiClient from '../services/apiClient.js';
 import {
   createPriceDashboardState,
   renderPriceIntelligenceErrorState,
@@ -280,23 +278,9 @@ function hasAnyTextFilterTooShort(filters = {}, dataset = state.dataset) {
 }
 
 async function fetchAiSearchHints(queryText, dataset = state.dataset) {
-  try {
-    const available = await isAiAvailable();
-    if (!available) {
-      return null;
-    }
-
-    const entityTypes = dataset === 'fornecedor' ? ['fornecedor'] : ['catmat_item', 'material', 'fornecedor'];
-    return await apiClient.ai.search({
-      query_text: queryText,
-      entity_types: entityTypes,
-      context_module: 'consultas',
-      page: 1,
-      page_size: 5
-    });
-  } catch {
-    return null;
-  }
+  void queryText;
+  void dataset;
+  return null;
 }
 
 function stableSerialize(value) {
@@ -2129,34 +2113,9 @@ function resolveAiFallbackQueryText(filters = {}, dataset = state.dataset) {
  * Retorna array de resultados ou null se indisponível.
  */
 async function tryAiFallback(filters, dataset) {
-  try {
-    const available = await isAiAvailable();
-    if (!available) {
-      return null;
-    }
-
-    const queryText = resolveAiFallbackQueryText(filters, dataset);
-    if (!queryText) {
-      return null;
-    }
-
-    const entityTypes =
-      dataset === 'materiais' || dataset === 'servicos' || dataset === PRICE_INTELLIGENCE_DATASET
-        ? ['catmat_item', 'material', 'fornecedor']
-        : ['catmat_item', 'material', 'fornecedor'];
-
-    const response = await apiClient.ai.search({
-      query_text: queryText,
-      entity_types: entityTypes,
-      context_module: 'consultas',
-      page: 1,
-      page_size: dataset === PRICE_INTELLIGENCE_DATASET ? 30 : 20
-    });
-
-    return response?.results?.length ? response.results : null;
-  } catch {
-    return null;
-  }
+  void filters;
+  void dataset;
+  return null;
 }
 
 /**
@@ -2297,39 +2256,6 @@ async function executeSearch({ force = false } = {}) {
       state.loading = false;
       renderTable();
       return;
-    }
-
-    // Fallback via AI Core quando upstream Compras.gov.br está indisponível (502/503/timeout)
-    const isUpstreamFailure =
-      /502|503|upstream|tempo limite|timeout|Failed to fetch|ECONNREFUSED|EntityManager|JPA entity|HibernateException|could not open|datasource/i.test(
-        String(error?.message || '')
-      );
-    if (isUpstreamFailure) {
-      const aiResult = await tryAiFallback(state.filters, state.dataset);
-      if (aiResult) {
-        if (state.inFlightSignature !== signature) {
-          return;
-        }
-
-        state.inFlightSignature = null;
-        state.loading = false;
-        state.hasActiveSearch = true;
-        state.aiResults = aiResult;
-        state.results = [];
-        state.totalRecords = aiResult.length;
-        state.totalPages = 1;
-        state.pageRawItems = [];
-        state.priceIntelligenceResponse = null;
-        state.analyticsResponse = null;
-
-        if (isPriceDataset) {
-          state.priceUiError = null;
-        }
-
-        renderPagination();
-        renderTable();
-        return;
-      }
     }
 
     if (state.inFlightSignature === signature) {

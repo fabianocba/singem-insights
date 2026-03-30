@@ -36,16 +36,6 @@ scrape_configs:
           service: 'backend'
           environment: 'docker'
 
-  # AI Core FastAPI
-  - job_name: 'singem-ai-core'
-    metrics_path: /ai/metrics
-    scrape_interval: 30s
-    static_configs:
-      - targets: ['ai-core:8010']
-        labels:
-          service: 'ai-core'
-          environment: 'docker'
-
   # PostgreSQL Exporter
   - job_name: 'postgres'
     static_configs:

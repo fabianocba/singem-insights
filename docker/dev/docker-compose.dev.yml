@@ -81,12 +81,6 @@ services:
       SERPROID_ENABLED: ${SERPROID_ENABLED:-false}
       CATMAT_ENABLED: ${CATMAT_ENABLED:-false}
       CATMAT_OBRIGATORIO: ${CATMAT_OBRIGATORIO:-false}
-      AI_CORE_ENABLED: ${AI_CORE_ENABLED:-true}
-      AI_CORE_BASE_URL: ${AI_CORE_BASE_URL:-http://ai-core:8010}
-      AI_CORE_API_PREFIX: ${AI_CORE_API_PREFIX:-/ai}
-      AI_CORE_INTERNAL_TOKEN: ${AI_CORE_INTERNAL_TOKEN:-dev-token-local}
-      AI_CORE_TIMEOUT_MS: ${AI_CORE_TIMEOUT_MS:-15000}
-      AI_CORE_HEALTH_TIMEOUT_MS: ${AI_CORE_HEALTH_TIMEOUT_MS:-2500}
       COMPRASGOV_BASE_URL: ${COMPRASGOV_BASE_URL:-https://dadosabertos.compras.gov.br}
       COMPRASGOV_TIMEOUT_MS: ${COMPRASGOV_TIMEOUT_MS:-30000}
       COMPRASGOV_MAX_RETRIES: ${COMPRASGOV_MAX_RETRIES:-3}
@@ -155,46 +149,3 @@ services:
     depends_on:
       backend:
         condition: service_healthy
-
-  ai-core:
-    container_name: singem-dev-ai-core
-    build:
-      context: ../..
-      dockerfile: Dockerfile.ai
-      args:
-        GPU_ENABLED: 'false'
-    restart: unless-stopped
-    environment:
-      APP_ENV: development
-      APP_DEBUG: 'true'
-      AI_CORE_HOST: 0.0.0.0
-      AI_CORE_PORT: 8010
-      AI_CORE_RELOAD: 'false'
-      AI_INTERNAL_TOKEN: ${AI_CORE_INTERNAL_TOKEN:-dev-token-local}
-      DB_HOST: postgres
-      DB_PORT: 5432
-      DB_NAME: ${SINGEM_DB_NAME:-singem}
-      DB_USER: ${SINGEM_DB_USER:-adm}
-      DB_PASSWORD: ${SINGEM_DB_PASSWORD:-Singem@12345}
-      EMBEDDING_PROVIDER: ${EMBEDDING_PROVIDER:-hash}
-      EMBEDDING_DIMENSION: ${EMBEDDING_DIMENSION:-384}
-      ENABLE_VECTOR_SEARCH: ${ENABLE_VECTOR_SEARCH:-true}
-    ports:
-      - '${AI_PORT_EXTERNAL:-8010}:8010'
-    networks:
-      - singem-network
-    depends_on:
-      postgres:
-        condition: service_healthy
-    healthcheck:
-      test:
-        [
-          'CMD',
-          'python',
-          '-c',
-          "import json,urllib.request,sys; data=json.load(urllib.request.urlopen('http://localhost:8010/ai/health', timeout=5)); sys.exit(0 if data.get('ok') else 1)"
-        ]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 20s

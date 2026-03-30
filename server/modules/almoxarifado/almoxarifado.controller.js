@@ -1,6 +1,5 @@
 const service = require('./almoxarifado.service');
 const { ok, created, paginated } = require('../../utils/httpResponse');
-const { scheduleAiReindex } = require('../../services/aiReindexScheduler');
 
 async function getMeta(req, res, next) {
   try {
@@ -59,7 +58,6 @@ async function getItem(req, res, next) {
 async function createItem(req, res, next) {
   try {
     const result = await service.createItem(req.body, req.user, req.requestId);
-    scheduleAiReindex(['material', 'catmat_item'], 'almoxarifado.item.create');
     return created(req, res, result);
   } catch (error) {
     return next(error);
@@ -69,7 +67,6 @@ async function createItem(req, res, next) {
 async function updateItem(req, res, next) {
   try {
     const result = await service.updateItem(req.params.id, req.body, req.user, req.requestId);
-    scheduleAiReindex(['material', 'catmat_item'], 'almoxarifado.item.update');
     return ok(req, res, result);
   } catch (error) {
     return next(error);
@@ -88,7 +85,6 @@ async function listNotasEntrada(req, res, next) {
 async function createNotaEntrada(req, res, next) {
   try {
     const result = await service.createNotaEntrada(req.body, req.user, req.requestId);
-    scheduleAiReindex(['material', 'fornecedor'], 'almoxarifado.nf.create');
     return created(req, res, result);
   } catch (error) {
     return next(error);

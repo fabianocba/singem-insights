@@ -38,7 +38,6 @@
         <button class="tab-button" data-tab="arquivos">📁 Arquivos</button>
         <button class="tab-button" data-tab="rede">🌐 Rede/LAN</button>
         <button class="tab-button" data-tab="integracoes">🔗 Integrações</button>
-        <button class="tab-button" data-tab="ia">🤖 Inteligência Artificial</button>
         <button class="tab-button" data-tab="preferencias">🎨 Preferências</button>
         <button class="tab-button" data-tab="diagnostico">🔍 Diagnóstico</button>
       </div>
@@ -842,86 +841,6 @@
         </div>
       </div>
 
-      <!-- Tab: Inteligência Artificial -->
-      <div id="tabIa" class="tab-content">
-        <div class="panel">
-          <div class="panel-header">🤖 Status do SINGEM AI Core</div>
-          <div id="aiStatusPanel" class="sg-panel-body">
-            <p class="sg-empty-copy">Verificando status da IA...</p>
-          </div>
-        </div>
-
-        <div class="panel">
-          <div class="panel-header">📊 Funcionalidades IA Disponíveis</div>
-          <div class="sg-panel-body">
-            <table class="sg-plain-table">
-              <thead>
-                <tr>
-                  <th>Funcionalidade</th>
-                  <th>Módulo</th>
-                  <th class="is-center">Status</th>
-                </tr>
-              </thead>
-              <tbody id="aiFeaturesBody">
-                <tr>
-                  <td>Sugestão de Fornecedor</td>
-                  <td>Empenhos</td>
-                  <td class="is-center" id="aiFeatureFornecedor">-</td>
-                </tr>
-                <tr>
-                  <td>Sugestão de Item/CATMAT</td>
-                  <td>Empenhos</td>
-                  <td class="is-center" id="aiFeatureItem">-</td>
-                </tr>
-                <tr>
-                  <td>Busca Inteligente CATMAT</td>
-                  <td>CATMAT</td>
-                  <td class="is-center" id="aiFeatureCatmat">-</td>
-                </tr>
-                <tr>
-                  <td>Matching NF-e</td>
-                  <td>Notas Fiscais</td>
-                  <td class="is-center" id="aiFeatureNfe">-</td>
-                </tr>
-                <tr>
-                  <td>Sugestões em Consultas</td>
-                  <td>Consultas</td>
-                  <td class="is-center" id="aiFeatureConsultas">-</td>
-                </tr>
-                <tr>
-                  <td>Resumo de Relatórios</td>
-                  <td>Relatórios</td>
-                  <td class="is-center" id="aiFeatureRelatorios">-</td>
-                </tr>
-                <tr>
-                  <td>Busca Semântica</td>
-                  <td>Global</td>
-                  <td class="is-center" id="aiFeatureSearch">-</td>
-                </tr>
-                <tr>
-                  <td>Entity Matching</td>
-                  <td>Global</td>
-                  <td class="is-center" id="aiFeatureMatch">-</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <div class="panel">
-          <div class="panel-header">🔄 Ações Administrativas</div>
-          <div class="sg-panel-body sg-panel-actions">
-            <button type="button" id="btnAiRebuildIndex" class="btn btn-primary" disabled>
-              ⚡ Reconstruir Índice AI
-            </button>
-            <button type="button" id="btnAiRefreshStatus" class="btn btn-secondary">
-              🔄 Atualizar Status
-            </button>
-          </div>
-          <div id="aiActionResult" class="sg-result-shell hidden"></div>
-        </div>
-      </div>
-
       <!-- Tab: Diagnóstico -->
       <div id="tabDiagnostico" class="tab-content">
         <div class="panel">
@@ -975,7 +894,6 @@
     <script type="module" src="../js/settings/integracoes.js"></script>
     <script type="module" src="../js/settings/preferencias.js"></script>
     <script type="module" src="../js/settings/backup.js"></script>
-    <script type="module" src="../js/settings/ia.js"></script>
     <script type="module" src="../js/settings/diagnostico.js"></script>
     <script type="module" src="../js/ui/pageEnhancer.js"></script>
     <script type="module" src="../js/configuracoesPageBootstrap.js"></script>

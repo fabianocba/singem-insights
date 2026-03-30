@@ -125,7 +125,6 @@ if (-not $SkipHealthcheck) {
   Invoke-Remote -Script ($remotePrelude + @"
 $composePrelude
 sh -lc "docker compose --env-file docker/prod/.env.prod $COMPOSE_FILES exec -T backend wget -qO- http://localhost:3000/health >/dev/null"
-sh -lc "docker compose --env-file docker/prod/.env.prod $COMPOSE_FILES exec -T ai-core python -c 'import urllib.request,sys; sys.exit(0 if urllib.request.urlopen(\"http://localhost:8010/ai/health\", timeout=5).status == 200 else 1)' >/dev/null"
 if sh -lc "docker compose --env-file docker/prod/.env.prod $COMPOSE_FILES ps --services" | grep -q '^frontend$'; then
   if [ -f docker/prod/docker-compose.prod.ssl.yml ]; then
     sh -lc "docker compose --env-file docker/prod/.env.prod $COMPOSE_FILES exec -T frontend wget --no-check-certificate -qO- https://localhost/health >/dev/null"

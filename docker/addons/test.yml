@@ -87,7 +87,6 @@ services:
       CORS_ORIGINS: http://localhost:8001,http://localhost:3001
       FRONTEND_URL: http://localhost:8001
 
-      AI_CORE_ENABLED: 'false'
       GOVBR_ENABLED: 'false'
       SERPRO_ENABLED: 'false'
 

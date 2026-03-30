@@ -7,7 +7,6 @@ const db = require('../../config/database');
 const { config } = require('../../config');
 const comprasApiClient = require('../../services/comprasApiClient');
 const comprasGovGateway = require('../../services/gov-api/comprasGovGatewayService');
-const catalogSearchService = require('../../services/ai-core/catalogSearchService');
 const integrationCache = require('../core/integrationCache');
 const { normalizeText } = require('../../utils/textNormalize');
 
@@ -529,43 +528,29 @@ class CatmatService {
 
     const searchPromise = (async () => {
       try {
-        const ranked = await catalogSearchService.buscarMateriaisComRanking(
-          safeQuery,
-          {
-            limite: clampedLimit,
-            offset: safeOffset,
-            codigoPdm: safeCodigoPdm,
-            detalhar: safeDetalhar,
-            statusItem: safeApenasAtivos ? '1' : undefined,
-            tamanhoPagina: Math.max(clampedLimit * 4, 80)
-          },
-          {
-            routeInterna: '/api/catmat/search'
-          }
-        );
+        const fallback = await this._queryCacheByTerm(safeQuery, {
+          limite: clampedLimit,
+          offset: safeOffset,
+          apenasAtivos: safeApenasAtivos
+        });
 
-        const rawItems = Array.isArray(ranked?.dados) ? ranked.dados.map(normalizeMaterial).filter(Boolean) : [];
-        if (rawItems.length > 0) {
-          await this._upsertCacheBatch(rawItems);
-        }
-
-        const dados = Array.isArray(ranked?.rankedItems)
-          ? ranked.rankedItems.map((entry) => mapCatalogItemToSearchData(entry.item, { score: entry.score }))
+        const dados = Array.isArray(fallback?.dados)
+          ? fallback.dados.map((item) => mapCatalogItemToSearchData(item))
           : [];
         const result = {
           dados,
-          total: Number(ranked?.totalRegistros || dados.length || 0),
+          total: Number(fallback?.total || dados.length || 0),
           pagina: Math.floor(safeOffset / clampedLimit) + 1,
-          totalPaginas: Math.max(1, Math.ceil(Number(ranked?.totalRegistros || dados.length || 0) / clampedLimit)),
-          fonte: 'api_oficial_compras',
-          modo: ranked?.modo || 'items',
-          sugestoes: Array.isArray(ranked?.sugestoes) ? ranked.sugestoes : [],
-          filtros: ranked?.filtros || {
+          totalPaginas: Math.max(1, Math.ceil(Number(fallback?.total || dados.length || 0) / clampedLimit)),
+          fonte: 'cache_local',
+          modo: 'items',
+          sugestoes: [],
+          filtros: {
             codigoPdm: safeCodigoPdm,
             detalhar: safeDetalhar
           },
-          contextoSelecionado: ranked?.contextoSelecionado || null,
-          groupedByPdm: Array.isArray(ranked?.groupedByPdm) ? ranked.groupedByPdm : []
+          contextoSelecionado: null,
+          groupedByPdm: []
         };
 
         integrationCache.set(CATMAT_SEARCH_CACHE_NAMESPACE, cacheKey, result, CATMAT_SEARCH_CACHE_TTL_SECONDS);

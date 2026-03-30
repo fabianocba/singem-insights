@@ -29,8 +29,6 @@ const priceIntelligenceRoutes = require('./routes/price-intelligence.routes');
 const procurementAnalyticsRoutes = require('./routes/procurement-analytics.routes');
 const dadosGovRoutes = require('./routes/dadosgov.routes');
 const integracoesAdminRoutes = require('./routes/integracoes-admin.routes');
-const aiRoutes = require('./routes/ai.routes');
-const aiCoreClient = require('./services/aiCoreClient');
 const { createSystemStatusRouter } = require('./routes/systemStatus');
 
 const { router: nfeRoutes, setNfeService } = require('./routes/nfe.routes');
@@ -100,7 +98,6 @@ function createApp({ nodeEnv, bodyLimit, corsOrigins, trustProxy, nfeService, nf
   app.use('/api/inteligencia-compras', createIntegracoesLimiter(), procurementAnalyticsRoutes);
   app.use('/api/compras/inteligencia-compras', createIntegracoesLimiter(), procurementAnalyticsRoutes);
   app.use('/api/compras', createIntegracoesLimiter(), comprasRoutes);
-  app.use('/api/ai', authenticate, aiRoutes);
   app.use('/api/integracoes/comprasgov', createIntegracoesLimiter(), authenticate, requireAdmin, comprasGovRoutes);
   app.use('/api/integracoes/dadosgov', createIntegracoesLimiter(), authenticate, requireAdmin, dadosGovRoutes);
   app.use('/api/integracoes', createIntegracoesLimiter(), authenticate, requireAdmin, integracoesAdminRoutes);
@@ -113,7 +110,6 @@ function createApp({ nodeEnv, bodyLimit, corsOrigins, trustProxy, nfeService, nf
       ok: false,
       error: error?.message || 'Falha no healthcheck do PostgreSQL'
     }));
-    const aiStatus = await aiCoreClient.healthCheck({ requestId: req.requestId, timeoutMs: 2000 });
 
     const versionInfo = readVersion();
 
@@ -126,26 +122,12 @@ function createApp({ nodeEnv, bodyLimit, corsOrigins, trustProxy, nfeService, nf
       buildTimestamp: versionInfo.buildTimestamp,
       sistema: 'SINGEM',
       database: dbStatus.ok ? 'conectado' : 'desconectado',
-      aiCore: {
-        enabled: Boolean(aiStatus.enabled),
-        status: aiStatus.status || 'unknown',
-        ok: Boolean(aiStatus.ok),
-        service: aiStatus.service || 'SINGEM AI Core'
-      },
       nfeService: nfeService ? 'ativo' : 'inativo',
       timestamp: new Date().toISOString()
     };
 
-    if (dbStatus.ok && aiStatus.enabled && !aiStatus.ok) {
-      response.status = 'DEGRADED';
-    }
-
     if (nodeEnv !== 'production' && dbStatus.error) {
       response.dbError = dbStatus.error;
-    }
-
-    if (nodeEnv !== 'production' && aiStatus.error) {
-      response.aiCore.error = aiStatus.error;
     }
 
     return res.json(response);
@@ -256,7 +238,6 @@ function createApp({ nodeEnv, bodyLimit, corsOrigins, trustProxy, nfeService, nf
     '/api/inteligencia-compras',
     '/api/compras/inteligencia-compras',
     '/api/compras',
-    '/api/ai',
     '/api/integracoes',
     '/api/integracoes/comprasgov',
     '/api/integracoes/dadosgov',

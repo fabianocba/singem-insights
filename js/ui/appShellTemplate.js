@@ -30,11 +30,11 @@ export const APP_SHELL_TEMPLATE = `
 
           <div class="premium-topbar__right">
             <button id="btnHome" class="nav-btn active" type="button" title="Ir para o painel principal">
-              <span aria-hidden="true">🏠</span>
+              <span class="material-symbols-outlined" aria-hidden="true">dashboard</span>
               <span>Painel</span>
             </button>
             <button id="btnConfig" class="nav-btn" type="button" title="Configurações do sistema">
-              <span aria-hidden="true">⚙️</span>
+              <span class="material-symbols-outlined" aria-hidden="true">settings</span>
               <span>Config</span>
             </button>
             <span id="topbarVersion" class="sg-badge sg-badge--secondary" title="Versão do sistema">v...</span>
@@ -49,7 +49,7 @@ export const APP_SHELL_TEMPLATE = `
               </div>
             </div>
             <button id="btnSair" class="nav-btn btn-sair" type="button" title="Encerrar sessão">
-              <span aria-hidden="true">🚪</span>
+              <span class="material-symbols-outlined" aria-hidden="true">logout</span>
               <span>Sair</span>
             </button>
           </div>
@@ -62,8 +62,8 @@ export const APP_SHELL_TEMPLATE = `
          =================================================== -->
     <aside id="appSidebar" class="app-sidebar hidden" aria-label="Navegação principal do sistema">
       <!-- Brand -->
-      <div class="app-sidebar__brand">
-        <div class="logo-mark" aria-hidden="true">SI</div>
+      <div class="app-sidebar__brand ops-sidebar-brand">
+        <div class="logo-mark ops-sidebar-mark" aria-hidden="true">SI</div>
         <div class="app-sidebar__brand-copy">
           <strong>Operação</strong>
           <span>SINGEM</span>
@@ -71,89 +71,97 @@ export const APP_SHELL_TEMPLATE = `
       </div>
 
       <!-- Navigation tree -->
-      <nav class="app-sidebar__nav" aria-label="Menu principal">
-        <span class="app-sidebar__group-label">Painel</span>
-        <button type="button" class="app-sidebar__link is-active" data-nav-screen="homeScreen" aria-current="page">
-          <span aria-hidden="true">🏠</span>
+      <nav class="app-sidebar__nav ops-scrollbar" aria-label="Menu principal">
+        <button
+          type="button"
+          class="app-sidebar__link ops-side-link is-active"
+          data-nav-screen="homeScreen"
+          aria-current="page"
+        >
+          <span class="material-symbols-outlined" aria-hidden="true">dashboard</span>
           <span>Painel executivo</span>
         </button>
 
-        <span class="app-sidebar__group-label">Módulos operacionais</span>
-        <button type="button" class="app-sidebar__link" data-nav-screen="empenhoScreen">
-          <span aria-hidden="true">📝</span>
+        <span class="app-sidebar__group-label">Núcleo administrativo</span>
+        <button type="button" class="app-sidebar__link ops-side-link" data-nav-screen="relatoriosScreen">
+          <span class="material-symbols-outlined" aria-hidden="true">assessment</span>
+          <span>Relatórios</span>
+        </button>
+        <button type="button" class="app-sidebar__link ops-side-link" data-nav-screen="configScreen">
+          <span class="material-symbols-outlined" aria-hidden="true">settings</span>
+          <span>Configurações</span>
+        </button>
+        <button type="button" class="app-sidebar__link ops-side-link" data-nav-screen="consultasScreen">
+          <span class="material-symbols-outlined" aria-hidden="true">shopping_cart</span>
+          <span>Inteligência de compras</span>
+        </button>
+        <button type="button" class="app-sidebar__link ops-side-link" data-nav-screen="catalogacaoScreen">
+          <span class="material-symbols-outlined" aria-hidden="true">inventory_2</span>
+          <span>Catalogação</span>
+        </button>
+        <button type="button" class="app-sidebar__link ops-side-link" data-nav-href="/system-status/">
+          <span class="material-symbols-outlined" aria-hidden="true">analytics</span>
+          <span>System Status</span>
+        </button>
+
+        <span class="app-sidebar__group-label">Módulos setoriais</span>
+        <button type="button" class="app-sidebar__link ops-side-link" data-nav-screen="empenhoScreen">
+          <span class="material-symbols-outlined" aria-hidden="true">description</span>
           <span>Empenhos</span>
         </button>
-        <button type="button" class="app-sidebar__link" data-nav-screen="notaFiscalScreen">
-          <span aria-hidden="true">📄</span>
+        <button type="button" class="app-sidebar__link ops-side-link" data-nav-screen="notaFiscalScreen">
+          <span class="material-symbols-outlined" aria-hidden="true">receipt_long</span>
           <span>Notas fiscais</span>
         </button>
-        <button type="button" class="app-sidebar__link" data-nav-screen="almoxarifadoScreen">
-          <span aria-hidden="true">🏬</span>
+        <button type="button" class="app-sidebar__link ops-side-link" data-nav-screen="almoxarifadoScreen">
+          <span class="material-symbols-outlined" aria-hidden="true">warehouse</span>
           <span>Almoxarifado</span>
         </button>
-        <button type="button" class="app-sidebar__link" data-nav-screen="entregaScreen">
-          <span aria-hidden="true">📦</span>
+        <button type="button" class="app-sidebar__link ops-side-link" data-nav-screen="entregaScreen">
+          <span class="material-symbols-outlined" aria-hidden="true">local_shipping</span>
           <span>Entregas</span>
         </button>
-        <button type="button" class="app-sidebar__link" data-nav-screen="patrimonioScreen">
-          <span aria-hidden="true">🏛️</span>
+        <button type="button" class="app-sidebar__link ops-side-link" data-nav-screen="patrimonioScreen">
+          <span class="material-symbols-outlined" aria-hidden="true">account_balance</span>
           <span>Patrimônio</span>
         </button>
-        <button type="button" class="app-sidebar__link" data-nav-screen="veiculosScreen">
-          <span aria-hidden="true">🚗</span>
+        <button type="button" class="app-sidebar__link ops-side-link" data-nav-screen="veiculosScreen">
+          <span class="material-symbols-outlined" aria-hidden="true">directions_car</span>
           <span>Veículos</span>
         </button>
-        <button type="button" class="app-sidebar__link" data-nav-screen="servicosInternosScreen">
-          <span aria-hidden="true">🛠️</span>
-          <span>Serviços internos</span>
+        <button type="button" class="app-sidebar__link ops-side-link" data-nav-screen="servicosInternosScreen">
+          <span class="material-symbols-outlined" aria-hidden="true">build_circle</span>
+          <span>Serviços</span>
         </button>
-        <button type="button" class="app-sidebar__link" data-nav-screen="contratosScreen">
-          <span aria-hidden="true">📑</span>
+        <button type="button" class="app-sidebar__link ops-side-link" data-nav-screen="contratosScreen">
+          <span class="material-symbols-outlined" aria-hidden="true">assignment</span>
           <span>Contratos</span>
         </button>
 
-        <span class="app-sidebar__group-label">Inteligência e análise</span>
-        <button type="button" class="app-sidebar__link" data-nav-screen="consultasScreen">
-          <span aria-hidden="true">🔍</span>
-          <span>Inteligência de compras</span>
-        </button>
-        <button type="button" class="app-sidebar__link" data-nav-screen="catalogacaoScreen">
-          <span aria-hidden="true">📋</span>
-          <span>Catalogação</span>
-        </button>
-        <button type="button" class="app-sidebar__link" data-nav-screen="relatoriosScreen">
-          <span aria-hidden="true">📊</span>
-          <span>Relatórios</span>
-        </button>
-
-        <span class="app-sidebar__group-label">Solicitações</span>
-        <button type="button" class="app-sidebar__link" data-nav-screen="solicitacaoAlmoxScreen">
-          <span aria-hidden="true">📥</span>
+        <span class="app-sidebar__group-label">Solicitações gerais</span>
+        <button type="button" class="app-sidebar__link ops-side-link" data-nav-screen="solicitacaoAlmoxScreen">
+          <span class="material-symbols-outlined" aria-hidden="true">add_shopping_cart</span>
           <span>Solicitação de almox</span>
         </button>
-        <button type="button" class="app-sidebar__link" data-nav-screen="solicitacaoVeiculosScreen">
-          <span aria-hidden="true">🚘</span>
+        <button type="button" class="app-sidebar__link ops-side-link" data-nav-screen="solicitacaoVeiculosScreen">
+          <span class="material-symbols-outlined" aria-hidden="true">minor_crash</span>
           <span>Solicitação de veículos</span>
         </button>
-        <button type="button" class="app-sidebar__link" data-nav-screen="solicitacaoServicosScreen">
-          <span aria-hidden="true">🧰</span>
+        <button type="button" class="app-sidebar__link ops-side-link" data-nav-screen="solicitacaoServicosScreen">
+          <span class="material-symbols-outlined" aria-hidden="true">miscellaneous_services</span>
           <span>Solicitação de serviços</span>
-        </button>
-
-        <span class="app-sidebar__group-label">Sistema</span>
-        <button type="button" class="app-sidebar__link" data-nav-screen="configScreen">
-          <span aria-hidden="true">⚙️</span>
-          <span>Configurações</span>
-        </button>
-        <button type="button" class="app-sidebar__link" data-nav-href="/system-status/">
-          <span aria-hidden="true">🖥️</span>
-          <span>System Status</span>
         </button>
       </nav>
 
-      <div class="app-sidebar__footer">
-        <p style="font-weight:600;color:rgba(255,255,255,0.90);margin-bottom:0.35rem;font-size:0.8125rem">Fluxo offline-first</p>
-        <p style="font-size:0.75rem;line-height:1.55;color:rgba(226,232,240,0.66);margin:0">Dados versionados localmente e camada analítica integrada ao ecossistema de compras públicas.</p>
+      <div class="app-sidebar__footer ops-sidebar-footer">
+        <button type="button" class="ops-sidebar-offline-btn">
+          <span class="material-symbols-outlined" aria-hidden="true">offline_pin</span>
+          <span>Fluxo offline-first</span>
+        </button>
+        <div class="ops-sidebar-status-row">
+          <span class="material-symbols-outlined" aria-hidden="true">cloud_done</span>
+          <span>Status: Sincronizado</span>
+        </div>
       </div>
     </aside>
 
@@ -201,26 +209,13 @@ export const APP_SHELL_TEMPLATE = `
                 </div>
                 <div class="login-brand__copy">
                   <h1 id="loginUnidadeNome">SINGEM</h1>
-                  <p id="loginUnidadeInfo">Sistema Institucional de Gestão de Material</p>
+                  <p id="loginUnidadeInfo">IF Baiano</p>
                 </div>
               </div>
 
-              <!-- Gov.br — acesso institucional primário -->
-              <div id="loginCardGovBr" class="login-govbr-section">
-                <p class="login-access-label">Acesso institucional recomendado</p>
-                <a id="btnGovBr" href="#" class="btn-govbr" data-prevent-default="true">
-                  <img src="img/govbr-logo.svg" alt="Gov.br" class="govbr-logo-img" data-image-fallback=".govbr-logo-fallback" />
-                  <span class="govbr-logo-fallback">gov.br</span>
-                  <span>Entrar com Gov.br</span>
-                </a>
-                <div id="govbrUnavailable" class="login-alert login-alert--warn">
-                  Login Gov.br indisponível no momento.
-                </div>
-              </div>
-
-              <!-- Divisor: Gov.br → credenciais admin -->
-              <div class="login-divider">
-                <span>acesso administrativo</span>
+              <div class="login-welcome">
+                <h2>Acesse o SINGEM</h2>
+                <p>Sistema de Controle de Material</p>
               </div>
 
               <!-- Formulário de credenciais -->
@@ -233,28 +228,58 @@ export const APP_SHELL_TEMPLATE = `
               >
                 <div class="login-field">
                   <label for="loginUsuario">Usuário</label>
-                  <input
-                    type="text"
-                    id="loginUsuario"
-                    name="username"
-                    placeholder="Informe seu usuário"
-                    autocomplete="username"
-                    spellcheck="false"
-                  />
+                  <div class="login-input-wrap">
+                    <span class="login-input-icon" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20 21a8 8 0 0 0-16 0"/>
+                        <circle cx="12" cy="7" r="4"/>
+                      </svg>
+                    </span>
+                    <input
+                      type="text"
+                      id="loginUsuario"
+                      name="username"
+                      placeholder="CPF ou E-mail"
+                      autocomplete="username"
+                      spellcheck="false"
+                    />
+                  </div>
                 </div>
 
                 <div class="login-field">
-                  <label for="loginSenha">Senha</label>
-                  <input
-                    type="password"
-                    id="loginSenha"
-                    name="password"
-                    placeholder="Digite sua senha"
-                    autocomplete="current-password"
-                  />
+                  <div class="login-password-header">
+                    <label for="loginSenha">Senha</label>
+                    <button type="button" id="btnRecuperarSenha" class="login-aux__link">
+                      Esqueci minha senha
+                    </button>
+                  </div>
+                  <div class="login-input-wrap login-input-wrap--password">
+                    <span class="login-input-icon" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="4" y="11" width="16" height="10" rx="2" ry="2"/>
+                        <path d="M8 11V7a4 4 0 1 1 8 0v4"/>
+                      </svg>
+                    </span>
+                    <input
+                      type="password"
+                      id="loginSenha"
+                      name="password"
+                      placeholder="••••••••"
+                      autocomplete="current-password"
+                    />
+                    <button
+                      type="button"
+                      id="toggleLoginSenha"
+                      class="login-password-toggle"
+                      aria-label="Mostrar senha"
+                      aria-pressed="false"
+                    >
+                      <span id="toggleLoginSenhaIcon" aria-hidden="true">👁</span>
+                    </button>
+                  </div>
                 </div>
 
-                <!-- Row: lembrar usuário + esqueci a senha -->
+                <!-- Row: lembrar usuário + estado interno de compatibilidade -->
                 <div class="login-meta-row">
                   <label class="login-checkbox">
                     <input type="checkbox" id="rememberUser" />
@@ -262,19 +287,31 @@ export const APP_SHELL_TEMPLATE = `
                   </label>
                   <!-- rememberPass mantido oculto para compatibilidade com authRemember.js -->
                   <input type="checkbox" id="rememberPass" style="display:none" aria-hidden="true" />
-                  <button type="button" id="btnRecuperarSenha" class="login-aux__link">
-                    Esqueci a senha
-                  </button>
                 </div>
 
                 <button id="btnLogin" type="submit" class="login-submit">
-                  <span>Entrar no sistema</span>
+                  <span>Entrar</span>
                   <span class="login-submit__arrow" aria-hidden="true">→</span>
                 </button>
               </form>
 
               <!-- Mensagem de erro de autenticação -->
               <div id="loginError" class="login-error hidden" role="alert" aria-live="assertive"></div>
+
+              <!-- Gov.br — acesso institucional primário -->
+              <div id="loginCardGovBr" class="login-govbr-section">
+                <div class="login-divider">
+                  <span>Outras formas de acesso</span>
+                </div>
+                <a id="btnGovBr" href="#" class="btn-govbr" data-prevent-default="true">
+                  <img src="img/govbr-logo.svg" alt="Gov.br" class="govbr-logo-img" data-image-fallback=".govbr-logo-fallback" />
+                  <span class="govbr-logo-fallback">gov.br</span>
+                  <span>Entrar com Gov.br</span>
+                </a>
+                <div id="govbrUnavailable" class="login-alert login-alert--warn">
+                  Login Gov.br indisponível no momento.
+                </div>
+              </div>
 
               <!-- SerproID — certificado digital (mostrado/ocultado por authProvidersBootstrap.js) -->
               <div id="serproidSeparator" class="login-serproid">
@@ -286,6 +323,11 @@ export const APP_SHELL_TEMPLATE = `
                   Certificado digital indisponível no momento.
                 </div>
               </div>
+
+              <p class="login-support-text">
+                Precisa de ajuda?
+                <a href="/docs/GUIA_USO_APLICACAO.md" class="login-aux__link" target="_blank" rel="noopener noreferrer">Suporte Técnico</a>
+              </p>
             </div>
 
             <!-- Rodapé institucional -->
@@ -293,41 +335,37 @@ export const APP_SHELL_TEMPLATE = `
               <p class="login-copyright">
                 &copy; 2026 IF Baiano &mdash; Instituto Federal de Educação, Ciência e Tecnologia Baiano
               </p>
+              <div class="login-footer-links">
+                <a href="/system-status/" target="_blank" rel="noopener noreferrer">Versão 2.4.0</a>
+                <a href="/docs/GUIA_USO_APLICACAO.md" target="_blank" rel="noopener noreferrer">Suporte Técnico</a>
+                <a href="/README_DOCKER.md" target="_blank" rel="noopener noreferrer">Privacidade</a>
+              </div>
             </footer>
           </div>
         </section>
 
         <!-- Tela Inicial - Menu Principal -->
         <section id="homeScreen" class="screen sg-screen-shell">
-          <div class="dashboard-shell">
-            <section class="dashboard-hero">
+          <div class="dashboard-shell ops-dashboard-shell">
+            <header class="ops-main-header">
               <div>
-                <span class="dashboard-kicker">SINGEM Control Tower</span>
-                <h2>
-                  Operação de materiais com visão executiva, rastreabilidade e resposta rápida.
-                </h2>
+                <h2>Painel de Controle</h2>
                 <p id="dashboardSubtitle">
-                  Base operacional do IF Baiano com monitoramento contínuo dos fluxos críticos e
-                  acesso imediato às rotinas mais usadas.
+                  Bem-vindo ao SINGEM. Gerenciamento institucional de suprimentos.
                 </p>
               </div>
-              <div class="dashboard-hero__actions">
-                <button type="button" class="btn btn-secondary" data-nav-screen="empenhoScreen">
-                  📝 Novo empenho
+              <div class="ops-main-header__meta">
+                <button type="button" class="ops-notification-btn" aria-label="Notificações">
+                  <span class="material-symbols-outlined" aria-hidden="true">notifications</span>
                 </button>
-                <button type="button" class="btn btn-outline" data-nav-screen="notaFiscalScreen">
-                  📄 Registrar NF
-                </button>
-                <button type="button" class="btn btn-outline" data-nav-screen="almoxarifadoScreen">
-                  🏬 Operar almoxarifado
-                </button>
-                <button type="button" class="btn btn-outline" data-nav-screen="consultasScreen">
-                  🔍 Abrir inteligência
-                </button>
+                <div class="ops-user-chip">
+                  <span class="ops-user-chip__avatar material-symbols-outlined" aria-hidden="true">person</span>
+                  <span>Operador Central</span>
+                </div>
               </div>
-            </section>
+            </header>
 
-            <section id="dashboardMetrics" class="dashboard-metrics-grid">
+            <section id="dashboardMetrics" class="dashboard-metrics-grid ops-kpi-grid">
               <article class="dashboard-metric-card is-loading">
                 <span class="dashboard-metric-label">Empenhos</span>
                 <strong class="dashboard-metric-value">--</strong>
@@ -350,147 +388,111 @@ export const APP_SHELL_TEMPLATE = `
               </article>
             </section>
 
-            <section class="dashboard-detail-grid">
-              <article class="dashboard-panel dashboard-panel--spotlight">
-                <span class="dashboard-panel-kicker">Postura operacional</span>
-                <h3 id="dashboardUnitHeading">Carregando base institucional...</h3>
-                <p id="dashboardOperationalPulse">
-                  Consolidando empenhos, notas fiscais e inteligência de compras para a unidade
-                  ativa.
-                </p>
-
-                <div class="dashboard-signal-row">
-                  <div class="dashboard-signal-chip">
-                    <span>Validados</span>
-                    <strong id="dashboardValidatedCount">--</strong>
+            <section class="ops-middle-grid">
+              <article class="ops-radar-card">
+                <div class="ops-radar-card__glow" aria-hidden="true"></div>
+                <div class="ops-radar-card__content">
+                  <p class="ops-radar-card__title">Radar de Execução</p>
+                  <h3 id="dashboardUnitHeading">Carregando base institucional...</h3>
+                  <p id="dashboardOperationalPulse">
+                    Consolidando empenhos, notas fiscais e inteligência de compras para a unidade ativa.
+                  </p>
+                  <div class="ops-radar-card__metrics">
+                    <div>
+                      <span>Validados</span>
+                      <strong id="dashboardValidatedCount">--</strong>
+                    </div>
+                    <div>
+                      <span>Rascunhos</span>
+                      <strong id="dashboardDraftCount">--</strong>
+                    </div>
+                    <div>
+                      <span>Base ativa</span>
+                      <strong id="dashboardSupplierActiveCount">--</strong>
+                    </div>
+                    <div>
+                      <span>Notas fiscais</span>
+                      <strong id="dashboardInvoiceCount">--</strong>
+                    </div>
                   </div>
-                  <div class="dashboard-signal-chip">
-                    <span>Rascunhos</span>
-                    <strong id="dashboardDraftCount">--</strong>
-                  </div>
-                  <div class="dashboard-signal-chip">
-                    <span>Base ativa</span>
-                    <strong id="dashboardSupplierActiveCount">--</strong>
-                  </div>
+                  <p class="ops-radar-card__refresh">Última leitura: <span id="dashboardLastRefresh">--:--</span></p>
                 </div>
-              </article>
-
-              <article class="dashboard-panel">
-                <span class="dashboard-panel-kicker">Governança</span>
-                <h3>Controles críticos do dia</h3>
-                <ul class="dashboard-checklist">
-                  <li>Empenhos e notas fiscais com vínculo operacional rastreável.</li>
-                  <li>Consulta pública unificada para preço, fornecedor e UASG.</li>
-                  <li>Backups, preferências e diagnósticos acessíveis em um mesmo comando.</li>
-                </ul>
-              </article>
-
-              <article class="dashboard-panel">
-                <span class="dashboard-panel-kicker">Inteligência</span>
-                <h3>Radar de execução</h3>
-
-                <div class="dashboard-mini-metrics">
-                  <div>
-                    <span>Notas fiscais</span>
-                    <strong id="dashboardInvoiceCount">--</strong>
-                  </div>
-                  <div>
-                    <span>Última leitura</span>
-                    <strong id="dashboardLastRefresh">--:--</strong>
-                  </div>
-                </div>
-
-                <p class="dashboard-panel-note">
-                  Use o cockpit analítico para comparar preços praticados, validar fornecedores e
-                  reduzir atrito antes da emissão ou do vínculo documental.
-                </p>
-
-                <button type="button" class="btn btn-outline" data-nav-screen="consultasScreen">
+                <button type="button" class="ops-radar-btn" data-nav-screen="consultasScreen">
                   Abrir cockpit analítico
+                  <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
                 </button>
+              </article>
+
+              <article class="ops-critical-card">
+                <h4>Controles Críticos do Dia</h4>
+                <div class="ops-critical-grid">
+                  <button type="button" class="ops-critical-item" data-nav-screen="notaFiscalScreen">
+                    <span class="ops-critical-icon material-symbols-outlined" aria-hidden="true">track_changes</span>
+                    <span class="ops-critical-title">Empenhos & NF</span>
+                    <small>Rastreamento automatizado de obrigações fiscais pendentes.</small>
+                  </button>
+                  <button type="button" class="ops-critical-item" data-nav-screen="consultasScreen">
+                    <span class="ops-critical-icon material-symbols-outlined" aria-hidden="true">hub</span>
+                    <span class="ops-critical-title">Consulta Unificada</span>
+                    <small>Integração direta com bases governamentais e compras.gov.</small>
+                  </button>
+                  <button type="button" class="ops-critical-item" data-nav-screen="configScreen">
+                    <span class="ops-critical-icon material-symbols-outlined" aria-hidden="true">backup</span>
+                    <span class="ops-critical-title">Backups & Config</span>
+                    <small>Preferências do sistema e integridade de dados locais.</small>
+                  </button>
+                </div>
               </article>
             </section>
 
-            <div
-              id="dashboardVisualAudit"
-              class="sg-ai-audit-panel hidden"
-              data-ai-visual-audit="homeScreen"
-              data-ai-audit-root="#homeScreen"
-              data-ai-audit-report-key="frontend_visual_dashboard"
-              data-ai-audit-title="Radar IA do Painel"
-              data-ai-audit-label="Painel executivo"
-            ></div>
-
-            <div class="welcome">
-              <h2>Áreas operacionais</h2>
-              <p>
-                Atalhos priorizados para cadastro, recebimento, inteligência de compras e
-                acompanhamento diário.
-              </p>
+            <div class="welcome ops-area-title">
+              <h2>Áreas Operacionais</h2>
+              <p>Atalhos priorizados para cadastro, recebimento, inteligência de compras e monitoramento diário.</p>
             </div>
 
-            <div class="menu-grid">
-              <div class="menu-item" data-screen="empenhoScreen">
-                <div class="menu-icon">📝</div>
-                <h3>Cadastro de Empenho</h3>
-                <p>
-                  Cadastre novas notas de empenho, valide o fluxo e anexe a documentação crítica.
-                </p>
-              </div>
-
+            <div class="menu-grid ops-area-grid">
               <div class="menu-item" data-screen="entregaScreen">
-                <div class="menu-icon">📦</div>
+                <div class="menu-icon material-symbols-outlined" aria-hidden="true">move_to_inbox</div>
                 <h3>Entrada de Entrega</h3>
-                <p>
-                  Registre recebimentos semanais e mantenha o histórico físico alinhado ao
-                  financeiro.
-                </p>
+                <p>Processamento de recebimento físico de materiais no almoxarifado.</p>
               </div>
 
               <div class="menu-item" data-screen="notaFiscalScreen">
-                <div class="menu-icon">📄</div>
+                <div class="menu-icon material-symbols-outlined" aria-hidden="true">description</div>
                 <h3>Entrada de Nota Fiscal</h3>
-                <p>Cadastre notas fiscais, valide divergências e vincule ao empenho correto.</p>
+                <p>Lançamento e conferência de documentos fiscais eletrônicos.</p>
               </div>
 
               <div class="menu-item" data-screen="almoxarifadoScreen">
-                <div class="menu-icon">🏬</div>
+                <div class="menu-icon material-symbols-outlined" aria-hidden="true">warehouse</div>
                 <h3>Almoxarifado</h3>
-                <p>
-                  Controle entrada, estoque, solicitações e auditoria em uma mesma trilha
-                  operacional.
-                </p>
-              </div>
-
-              <div class="menu-item" data-screen="relatoriosScreen">
-                <div class="menu-icon">📊</div>
-                <h3>Relatórios</h3>
-                <p>
-                  Gere painéis de conferência e recortes analíticos sem sair do fluxo principal.
-                </p>
+                <p>Controle de estoque, inventário e movimentação interna.</p>
               </div>
 
               <div class="menu-item" id="consultasMenuItem">
-                <div class="menu-icon">🔍</div>
+                <div class="menu-icon material-symbols-outlined" aria-hidden="true">language</div>
                 <h3>Consulte Compras.gov</h3>
-                <p>
-                  Acesse inteligência de preços, fornecedores, UASG e dados públicos do ecossistema.
-                </p>
+                <p>Acesso direto ao portal de compras do governo federal.</p>
               </div>
 
               <div class="menu-item" data-screen="catalogacaoScreen">
-                <div class="menu-icon">📋</div>
+                <div class="menu-icon material-symbols-outlined" aria-hidden="true">fact_check</div>
                 <h3>Pedidos de Catalogação</h3>
-                <p>
-                  Gerencie solicitações CATMAT/CATSER com visibilidade do backlog e do ciclo de
-                  ajuste.
-                </p>
+                <p>Solicitações de novos itens no catálogo institucional.</p>
               </div>
 
               <div class="menu-item" id="systemStatusMenuItem">
-                <div class="menu-icon">🖥️</div>
+                <div class="menu-icon material-symbols-outlined" aria-hidden="true">dns</div>
                 <h3>System Status</h3>
-                <p>Monitore a saúde operacional dos serviços do SINGEM e acelere o diagnóstico.</p>
+                <p>Monitoramento de servidores e serviços SINGEM ativos.</p>
+              </div>
+            </div>
+
+            <div class="ops-floating-alert" role="status" aria-live="polite">
+              <span class="ops-floating-alert__icon material-symbols-outlined" aria-hidden="true">check_circle</span>
+              <div>
+                <strong>Sistema Estável</strong>
+                <p>Ambiente de produção operando normalmente.</p>
               </div>
             </div>
           </div>
@@ -526,16 +528,6 @@ export const APP_SHELL_TEMPLATE = `
             <button class="btn-back">← Voltar</button>
             <h2>🔍 Consulte Compras.gov</h2>
           </div>
-
-          <div
-            id="consultasVisualAudit"
-            class="sg-ai-audit-panel hidden"
-            data-ai-visual-audit="consultasScreen"
-            data-ai-audit-root="#consultasScreen"
-            data-ai-audit-report-key="frontend_visual_consultas"
-            data-ai-audit-title="Radar IA da Consulta"
-            data-ai-audit-label="Inteligência de compras"
-          ></div>
 
           <div id="consultasContainer" class="consultas-wrapper">
             <!-- Menu de Consultas (Tela Inicial) -->
@@ -687,16 +679,6 @@ export const APP_SHELL_TEMPLATE = `
             <h2>📝 Gerenciamento de Empenhos</h2>
           </div>
 
-          <div
-            id="empenhoVisualAudit"
-            class="sg-ai-audit-panel hidden"
-            data-ai-visual-audit="empenhoScreen"
-            data-ai-audit-root="#empenhoScreen"
-            data-ai-audit-report-key="frontend_visual_empenhos"
-            data-ai-audit-title="Radar IA do Cadastro de Empenhos"
-            data-ai-audit-label="Cadastro de empenho"
-          ></div>
-
           <!-- Abas de navegação -->
           <div class="tabs-container sg-command-cluster">
             <button class="tab-btn active" data-tab="cadastro">📝 Novo Cadastro</button>
@@ -819,12 +801,6 @@ export const APP_SHELL_TEMPLATE = `
                       />
                     </div>
                   </div>
-
-                  <div
-                    id="aiFornecedorSuggestion"
-                    class="ai-assist-card hidden"
-                    aria-live="polite"
-                  ></div>
 
                   <div class="form-row">
                     <div class="form-group">
@@ -991,8 +967,6 @@ export const APP_SHELL_TEMPLATE = `
               <!-- Preenchido dinamicamente -->
             </div>
 
-            <div id="resumoRelatorioIA" class="ai-report-panel hidden" aria-live="polite"></div>
-
             <p class="sg-info-note">
               ℹ️ <strong>Modo Visualização:</strong> Para editar empenhos, utilize a aba "Novo
               Cadastro".
@@ -1051,16 +1025,6 @@ export const APP_SHELL_TEMPLATE = `
             <button class="btn-back">← Voltar</button>
             <h2>📄 Entrada de Nota Fiscal</h2>
           </div>
-
-          <div
-            id="notaFiscalVisualAudit"
-            class="sg-ai-audit-panel hidden"
-            data-ai-visual-audit="notaFiscalScreen"
-            data-ai-audit-root="#notaFiscalScreen"
-            data-ai-audit-report-key="frontend_visual_nota_fiscal"
-            data-ai-audit-title="Radar IA da Nota Fiscal"
-            data-ai-audit-label="Entrada de nota fiscal"
-          ></div>
 
           <div class="form-container sg-form-shell">
             <!-- ✅ ENTRADA MANUAL (PADRÃO) - Empenho obrigatório no topo -->

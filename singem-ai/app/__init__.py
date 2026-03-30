@@ -1,1 +1,0 @@
-"""SINGEM AI Core package."""
