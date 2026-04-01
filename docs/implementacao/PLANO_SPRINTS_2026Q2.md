@@ -13,51 +13,63 @@ Inicio sugerido: 31/03/2026.
 ## Sprint 1 (31/03 a 11/04)
 
 Objetivo:
+
 - Fechar todo P0 de seguranca.
 
 Itens:
+
 - A-01 Baseline seguro de ambiente.
 - A-02 Rotacao de segredos operacionais.
 - A-03 Eliminar advisories high.
 
 Saida esperada:
+
 - Gate de seguranca aprovado para avancar a Fase 2.
 
 ## Sprint 2 (14/04 a 25/04)
 
 Objetivo:
+
 - Estabelecer baseline tecnica e iniciar ganho de performance.
 
 Itens:
+
 - B-01 Baseline de sync atual.
 - B-02 Batching no motor de sync (implementacao principal).
 
 Saida esperada:
+
 - Primeira medicao comparativa de ganho.
 
 ## Sprint 3 (28/04 a 09/05)
 
 Objetivo:
+
 - Consolidar robustez operacional e observabilidade.
 
 Itens:
+
 - B-02 Batching no motor de sync (fechamento + hardening).
 - B-03 Politica de retencao e expurgo.
 - C-01 Metricas por endpoint.
 
 Saida esperada:
+
 - Operacao com metricas tecnicas e governanca de dados historicos.
 
 ## Sprint 4 (12/05 a 23/05)
 
 Objetivo:
+
 - Fechar governanca institucional.
 
 Itens:
+
 - C-02 SLO/SLA institucionais.
 - C-03 Checklist LGPD operacional.
 
 Saida esperada:
+
 - Pacote completo de governanca para encerramento do ciclo.
 
 ## Cerimonias recomendadas

@@ -20,11 +20,11 @@
       <div class="settings-header">
         <div class="sg-page-header-grid">
           <div>
-            <h1>⚙️ Configurações</h1>
+            <h1>Configuracoes</h1>
             <p>Sistema de Controle de Material - IF Baiano</p>
           </div>
           <div class="sg-page-header-actions">
-            <a class="btn btn-outline" href="../index.html">← Voltar ao painel</a>
+            <a class="btn btn-outline" href="../index.html">Voltar ao painel</a>
             <button type="button" data-theme-toggle aria-label="Alternar tema"></button>
           </div>
         </div>
@@ -33,19 +33,19 @@
       <!-- Tabs -->
       <!-- Aba Backup removida - funcionalidade centralizada em Preferências -->
       <div class="settings-tabs">
-        <button class="tab-button active" data-tab="unidade">🏢 Unidade Orçamentária</button>
-        <button class="tab-button" data-tab="usuarios">👥 Usuários</button>
-        <button class="tab-button" data-tab="arquivos">📁 Arquivos</button>
-        <button class="tab-button" data-tab="rede">🌐 Rede/LAN</button>
-        <button class="tab-button" data-tab="integracoes">🔗 Integrações</button>
-        <button class="tab-button" data-tab="preferencias">🎨 Preferências</button>
-        <button class="tab-button" data-tab="diagnostico">🔍 Diagnóstico</button>
+        <button class="tab-button active" data-tab="unidade">Unidade orcamentaria</button>
+        <button class="tab-button" data-tab="usuarios">Usuarios</button>
+        <button class="tab-button" data-tab="arquivos">Arquivos</button>
+        <button class="tab-button" data-tab="rede">Rede/LAN</button>
+        <button class="tab-button" data-tab="integracoes">Integracoes</button>
+        <button class="tab-button" data-tab="preferencias">Preferencias</button>
+        <button class="tab-button" data-tab="diagnostico">Diagnostico</button>
       </div>
 
       <!-- Tab: Unidade Orçamentária -->
       <div id="tabUnidade" class="tab-content active">
         <div class="panel">
-          <div class="panel-header">🏢 Cadastro da Unidade Orçamentária</div>
+          <div class="panel-header">Cadastro da unidade orcamentaria</div>
 
           <div id="statusUnidade"></div>
 
@@ -107,7 +107,7 @@
             </div>
 
             <div class="form-group">
-              <label for="logomarcaUnidade">🖼️ Logomarca da Unidade</label>
+              <label for="logomarcaUnidade">Logomarca da unidade</label>
               <input
                 type="file"
                 id="logomarcaUnidade"
@@ -122,20 +122,20 @@
               <div id="previewLogomarca" class="preview-logomarca hidden">
                 <img id="imgPreviewLogomarca" src="" alt="Preview" />
                 <button type="button" id="btnRemoverLogomarca" class="btn btn-sm btn-remove-logo">
-                  🗑️ Remover Logomarca
+                  Remover logomarca
                 </button>
               </div>
             </div>
 
             <div class="button-group">
-              <button type="submit" class="btn btn-primary">💾 Salvar Unidade</button>
+              <button type="submit" class="btn btn-primary">Salvar unidade</button>
             </div>
           </form>
         </div>
 
         <!-- Lista de Unidades Cadastradas -->
         <div class="panel panel-spacing">
-          <div class="panel-header">📋 Unidades Cadastradas</div>
+          <div class="panel-header">Unidades cadastradas</div>
 
           <div class="table-container">
             <table class="table">
@@ -162,7 +162,7 @@
       <!-- Tab: Usuários -->
       <div id="tabUsuarios" class="tab-content">
         <div class="panel">
-          <div class="panel-header">👤 Novo Usuário</div>
+          <div class="panel-header">Novo usuario</div>
 
           <div id="panelNovoUsuario">
             <form id="formNovoUsuario">
@@ -189,7 +189,7 @@
                   />
                   <div id="indicadorForcaSenha"></div>
                   <small class="sg-empty-copy"
-                    >🔢 Um PIN de recuperação será gerado automaticamente</small
+                    >Um PIN de recuperacao sera gerado automaticamente</small
                   >
                 </div>
 
@@ -203,7 +203,7 @@
               </div>
 
               <div class="button-group">
-                <button type="submit" class="btn btn-primary">➕ Cadastrar Usuário</button>
+                <button type="submit" class="btn btn-primary">Cadastrar usuario</button>
               </div>
             </form>
           </div>
@@ -247,20 +247,20 @@
 
             <div class="button-group">
               <button type="button" id="btnSalvarEdicaoUsuario" class="btn btn-primary">
-                💾 Salvar Alterações
+                Salvar alteracoes
               </button>
               <button type="button" id="btnExcluirUsuario" class="btn btn-danger">
-                🗑️ Excluir Usuário
+                Excluir usuario
               </button>
               <button type="button" id="btnCancelarEdicao" class="btn btn-secondary">
-                ✖️ Cancelar
+                Cancelar
               </button>
             </div>
           </div>
         </div>
 
         <div class="panel">
-          <div class="panel-header">📋 Usuários Cadastrados</div>
+          <div class="panel-header">Usuarios cadastrados</div>
 
           <table>
             <thead>
@@ -284,21 +284,21 @@
       <!-- Tab: Arquivos -->
       <div id="tabArquivos" class="tab-content">
         <div class="panel">
-          <div class="panel-header">📊 Armazenamento (Banco/API)</div>
+          <div class="panel-header">Armazenamento (Banco/API)</div>
 
           <div id="statusConfigPastas" class="mb-3">
             <div class="alert alert-info">
-              ℹ️ <strong>Modo Banco/API Ativo</strong><br />
+              <strong>Modo Banco/API ativo</strong><br />
               O armazenamento local por pastas foi removido.
             </div>
           </div>
         </div>
 
         <div class="panel">
-          <div class="panel-header">📖 Como Funciona</div>
+          <div class="panel-header">Como funciona</div>
 
           <div class="sg-note-card">
-            <h4>📋 Operação em Banco/API</h4>
+            <h4>Operacao em Banco/API</h4>
 
             <p>Empenhos, Notas Fiscais e anexos são persistidos no banco de dados.</p>
             <p>Não há configuração de pastas locais neste modo.</p>
@@ -307,41 +307,37 @@
             <p>O sistema cria/detecta a seguinte estrutura:</p>
 
             <div class="sg-code-block-note">
-              📁 [Pasta Escolhida]/<br />
-              &nbsp;&nbsp;└─ 📁 IF Guanambi/
+              [Pasta Escolhida]/<br />
+              &nbsp;&nbsp;└─ IF Guanambi/
               <span class="sg-muted-inline">(abreviação da sua unidade)</span><br />
-              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└─ 📁 2024/
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└─ 2024/
               <span class="sg-muted-inline">(ano atual)</span><br />
-              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├─ 📁 Notas de Empenho/<br />
-              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└─ 📁 Notas Fiscais/
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├─ Notas de Empenho/<br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└─ Notas Fiscais/
             </div>
 
             <p class="sg-section-copy sg-top-gap"><strong>4. Organização Inteligente:</strong></p>
             <ul class="sg-list-compact">
               <li>
-                ✅ <strong>Ano Automático:</strong> Documentos são salvos na pasta do ano de emissão
+                <strong>Ano automatico:</strong> documentos sao salvos na pasta do ano de emissao
               </li>
               <li>
-                ✅ <strong>Pastas Sob Demanda:</strong> Anos anteriores são criados quando
-                necessário
+                <strong>Pastas sob demanda:</strong> anos anteriores sao criados quando necessário
               </li>
               <li>
-                ✅ <strong>Nomeação Inteligente:</strong> Arquivos recebem nomes únicos
-                automaticamente
+                <strong>Nomeacao inteligente:</strong> arquivos recebem nomes unicos automaticamente
               </li>
-              <li>
-                ✅ <strong>Compatível com Manual:</strong> Reconhece pastas criadas manualmente
-              </li>
+              <li><strong>Compativel com manual:</strong> reconhece pastas criadas manualmente</li>
             </ul>
 
             <p class="sg-section-copy sg-top-gap"><strong>5. Exemplo Prático:</strong></p>
             <div class="sg-example-stack">
               <div class="sg-example-item">
-                📝 NE emitida em <strong>15/03/2023</strong><br />
+                NE emitida em <strong>15/03/2023</strong><br />
                 ➜ Salva em: <code>IF Guanambi/2023/Notas de Empenho/NE_2023_001.pdf</code>
               </div>
               <div class="sg-example-item">
-                📄 NF emitida em <strong>20/08/2024</strong><br />
+                NF emitida em <strong>20/08/2024</strong><br />
                 ➜ Salva em: <code>IF Guanambi/2024/Notas Fiscais/NF_2024_123.pdf</code>
               </div>
             </div>
@@ -349,17 +345,17 @@
         </div>
 
         <div class="panel">
-          <div class="panel-header">⚠️ Avisos Importantes</div>
+          <div class="panel-header">Avisos importantes</div>
 
           <div class="alert alert-warning sg-status-slot">
-            <strong>🔒 Permissões do Navegador:</strong><br />
+            <strong>Permissoes do navegador:</strong><br />
             • Use Chrome, Edge ou Opera atualizado<br />
             • O sistema solicitará permissão para acessar a pasta escolhida<br />
             • Esta permissão é necessária para salvar os documentos automaticamente
           </div>
 
           <div class="alert alert-info">
-            <strong>💾 Armazenamento Local:</strong><br />
+            <strong>Armazenamento local:</strong><br />
             • Os arquivos ficam salvos APENAS no seu computador<br />
             • Faça backup regular da pasta configurada<br />
             • A configuração fica salva no navegador (IndexedDB)
@@ -368,10 +364,10 @@
 
         <!-- Nova Seção: Gerenciamento e Proteção -->
         <div class="panel">
-          <div class="panel-header">🛡️ Gerenciamento e Proteção de Arquivos</div>
+          <div class="panel-header">Gerenciamento e protecao de arquivos</div>
 
           <div class="alert alert-warning sg-status-slot">
-            <strong>⚠️ IMPORTANTE - Proteção de Dados:</strong><br />
+            <strong>Importante - protecao de dados:</strong><br />
             • <strong>NÃO exclua arquivos pelo Windows Explorer!</strong><br />
             • Exclusões externas desvinculam o arquivo do registro no sistema<br />
             • Use sempre as ferramentas abaixo para manter a integridade dos dados
@@ -380,7 +376,7 @@
           <div class="sg-action-card-grid">
             <!-- Sincronização de Arquivos -->
             <div class="sg-action-card sg-action-card--info">
-              <h4>🔄 Sincronização de Arquivos</h4>
+              <h4>Sincronizacao de arquivos</h4>
               <p>
                 Detecta arquivos que foram deletados externamente e atualiza os registros do banco
                 de dados.
@@ -390,13 +386,13 @@
                 onclick="parent.app?.sincronizarArquivos()"
                 class="btn btn-info"
               >
-                🔄 Sincronizar Agora
+                Sincronizar agora
               </button>
             </div>
 
             <!-- Verificação de Integridade -->
             <div class="sg-action-card sg-action-card--success">
-              <h4>🔍 Verificar Integridade</h4>
+              <h4>Verificar integridade</h4>
               <p>
                 Verifica se todas as pastas configuradas existem e se foram deletadas externamente.
               </p>
@@ -405,13 +401,13 @@
                 onclick="parent.app?.verificarIntegridadePastas()"
                 class="btn btn-primary"
               >
-                🔍 Verificar Estrutura
+                Verificar estrutura
               </button>
             </div>
 
             <!-- Reparo de Estrutura -->
             <div class="sg-action-card sg-action-card--warning">
-              <h4>🔧 Reparar Estrutura</h4>
+              <h4>Reparar estrutura</h4>
               <p>
                 Recria pastas que foram deletadas externamente, restaurando a estrutura completa.
               </p>
@@ -420,13 +416,13 @@
                 onclick="parent.app?.repararEstrutura()"
                 class="btn btn-warning"
               >
-                🔧 Reparar Agora
+                Reparar agora
               </button>
             </div>
 
             <!-- Limpeza de Registros -->
             <div class="sg-action-card sg-action-card--danger">
-              <h4>🗑️ Limpar Registros Deletados</h4>
+              <h4>Limpar registros deletados</h4>
               <p>
                 Exclui permanentemente do banco de dados os registros de empenhos e notas fiscais
                 cujos arquivos foram deletados externamente.
@@ -436,13 +432,13 @@
                 onclick="parent.app?.limparRegistrosDeletados()"
                 class="btn btn-danger"
               >
-                🗑️ Limpar Registros Deletados
+                Limpar registros deletados
               </button>
             </div>
 
             <!-- Limpeza de Órfãos -->
             <div class="sg-action-card sg-action-card--amber">
-              <h4>🧹 Limpar Registros Órfãos</h4>
+              <h4>Limpar registros orfaos</h4>
               <p>
                 Exclui permanentemente registros de empenhos/NFs que NÃO possuem arquivo PDF
                 vinculado. Use para limpar dados inconsistentes ou cadastrados incorretamente.
@@ -452,14 +448,14 @@
                 onclick="parent.app?.limparRegistrosOrfaos()"
                 class="btn btn-warning"
               >
-                🧹 Limpar Órfãos
+                Limpar orfaos
               </button>
             </div>
           </div>
 
           <!-- Estatísticas -->
           <div class="sg-note-card sg-note-card--info">
-            <h4>📊 Como Funciona:</h4>
+            <h4>Como funciona:</h4>
             <ul>
               <li><strong>Sincronização Automática:</strong> Executa ao iniciar o sistema</li>
               <li>
@@ -480,7 +476,7 @@
       <!-- Tab: Rede/LAN -->
       <div id="tabRede" class="tab-content">
         <div class="panel">
-          <div class="panel-header">🌐 Configurações de Rede</div>
+          <div class="panel-header">Configuracoes de rede</div>
 
           <div id="statusConexao"></div>
 
@@ -513,19 +509,17 @@
             </div>
 
             <div class="button-group">
-              <button type="submit" class="btn btn-primary">💾 Salvar Configurações</button>
-              <button type="button" id="btnDetectarIP" class="btn btn-outline">
-                🔍 Detectar IP
-              </button>
+              <button type="submit" class="btn btn-primary">Salvar configuracoes</button>
+              <button type="button" id="btnDetectarIP" class="btn btn-outline">Detectar IP</button>
               <button type="button" id="btnTestarConexao" class="btn btn-outline">
-                🔌 Testar Conexão
+                Testar conexao
               </button>
             </div>
           </form>
         </div>
 
         <div class="panel">
-          <div class="panel-header">🖥️ Servidor Node.js (Opcional)</div>
+          <div class="panel-header">Servidor Node.js (opcional)</div>
 
           <p>Para compartilhar dados em rede local, execute o servidor Node.js:</p>
 
@@ -537,10 +531,10 @@
 
           <div class="button-group">
             <button type="button" id="btnIniciarServidor" class="btn btn-secondary">
-              ▶️ Instruções para Iniciar
+              Instrucoes para iniciar
             </button>
             <button type="button" id="btnPararServidor" class="btn btn-secondary">
-              ⏹️ Instruções para Parar
+              Instrucoes para parar
             </button>
           </div>
         </div>
@@ -549,7 +543,7 @@
       <!-- Tab: Preferências -->
       <div id="tabPreferencias" class="tab-content">
         <div class="panel">
-          <div class="panel-header">🎨 Aparência</div>
+          <div class="panel-header">Aparencia</div>
 
           <form id="formPreferencias">
             <div class="grid-2">
@@ -571,7 +565,7 @@
               </div>
             </div>
 
-            <div class="panel-header panel-header-spacing">🔍 Validações</div>
+            <div class="panel-header panel-header-spacing">Validacoes</div>
 
             <div class="grid-2">
               <div class="form-group">
@@ -596,7 +590,7 @@
               </div>
             </div>
 
-            <div class="panel-header panel-header-spacing">🔔 Comportamento</div>
+            <div class="panel-header panel-header-spacing">Comportamento</div>
 
             <div class="form-group">
               <div class="checkbox-group">
@@ -613,7 +607,7 @@
             </div>
 
             <div class="button-group">
-              <button type="submit" class="btn btn-primary">💾 Salvar Preferências</button>
+              <button type="submit" class="btn btn-primary">Salvar preferencias</button>
             </div>
           </form>
         </div>
@@ -621,7 +615,7 @@
         <!-- Seção: Backup e Restauração (ÚNICA no sistema) -->
         <!-- IMPORTANTE: Backup/Restore centralizados aqui - não duplicar em outras abas -->
         <div class="panel">
-          <div class="panel-header">💾 Backup e Restauração</div>
+          <div class="panel-header">Backup e restauracao</div>
           <p class="sg-section-copy">
             Exporte todos os seus dados para um arquivo JSON ou restaure a partir de um backup.
             Inclui: unidade gestora, usuários, empenhos, notas fiscais, configurações e storage.
@@ -629,13 +623,13 @@
 
           <div class="button-group sg-status-slot">
             <button type="button" id="btnExportarBackupPref" class="btn btn-primary">
-              📤 Exportar Backup Completo
+              Exportar backup completo
             </button>
             <button type="button" id="btnImportarBackupPref" class="btn btn-outline">
-              📥 Importar Backup
+              Importar backup
             </button>
             <button type="button" id="btnVerificarDadosPref" class="btn btn-outline">
-              🔍 Verificar Dados no Banco
+              Verificar dados no banco
             </button>
           </div>
 
@@ -645,33 +639,33 @@
           <div id="dadosBancoResult" class="sg-result-shell hidden"></div>
 
           <small class="sg-empty-copy">
-            💡 <strong>Dica:</strong> Faça backup regularmente para evitar perda de dados.
+            <strong>Dica:</strong> faca backup regularmente para evitar perda de dados.
           </small>
         </div>
 
         <!-- Seção: Exportar/Importar CSV (movido do header Exportar) -->
         <div class="panel">
-          <div class="panel-header">📥 Exportar / Importar Dados (CSV)</div>
+          <div class="panel-header">Exportar / importar dados (CSV)</div>
           <p class="sg-section-copy">
             Exporte dados específicos em formato CSV para análise em planilhas.
           </p>
 
           <div class="button-group sg-status-slot">
             <button type="button" id="btnExportarNFcsv" class="btn btn-secondary">
-              📄 Exportar Notas Fiscais (CSV)
+              Exportar notas fiscais (CSV)
             </button>
             <button type="button" id="btnExportarEmpenhosCSV" class="btn btn-secondary">
-              📋 Exportar Empenhos (CSV)
+              Exportar empenhos (CSV)
             </button>
           </div>
 
           <small class="sg-empty-copy">
-            💡 Arquivos CSV podem ser abertos no Excel, LibreOffice ou Google Sheets.
+            Arquivos CSV podem ser abertos no Excel, LibreOffice ou Google Sheets.
           </small>
         </div>
 
         <div class="panel">
-          <div class="panel-header panel-header-danger">⚠️ Zona de Perigo</div>
+          <div class="panel-header panel-header-danger">Zona de perigo</div>
 
           <p class="danger-description">
             <strong>Atenção:</strong> Esta ação é irreversível e excluirá permanentemente todos os
@@ -679,7 +673,7 @@
           </p>
 
           <button type="button" id="btnLimparBanco" class="btn btn-danger">
-            🗑️ Limpar Banco de Dados
+            Limpar banco de dados
           </button>
         </div>
       </div>
@@ -688,25 +682,25 @@
       <div id="tabBackup" class="tab-content">
         <!-- Seção: Informação sobre Backup -->
         <div class="panel">
-          <div class="panel-header">💾 Backup e Restauração</div>
+          <div class="panel-header">Backup e restauracao</div>
           <p class="sg-section-copy">
             As funções de backup foram centralizadas na aba <strong>Preferências</strong>.
           </p>
           <button type="button" id="btnIrParaBackupTab" class="btn btn-primary">
-            📦 Ir para Backup em Preferências
+            Ir para backup em preferencias
           </button>
         </div>
 
         <!-- Seção: Dados de Teste (DEV) -->
         <div class="panel" id="panelDadosTeste">
-          <div class="panel-header">🧪 Dados de Teste</div>
+          <div class="panel-header">Dados de teste</div>
           <p class="sg-section-copy">
             Carrega um conjunto de dados fictícios para testar a aplicação sem precisar cadastrar
             manualmente.
           </p>
 
           <div class="sg-note-card sg-note-card--info">
-            <strong>📊 O dataset de teste inclui:</strong>
+            <strong>O dataset de teste inclui:</strong>
             <ul>
               <li>1 Unidade Gestora (IF Baiano - Campus Teste)</li>
               <li>3 Usuários (admin, almoxarife, consulta)</li>
@@ -720,11 +714,11 @@
             <div class="sg-choice-row">
               <label>
                 <input type="radio" name="testDataMode" value="merge" checked />
-                <span>🔀 <strong>Mesclar</strong> (mantém dados existentes)</span>
+                <span><strong>Mesclar</strong> (mantem dados existentes)</span>
               </label>
               <label>
                 <input type="radio" name="testDataMode" value="replace" />
-                <span>🔄 <strong>Substituir</strong> (começa do zero)</span>
+                <span><strong>Substituir</strong> (comeca do zero)</span>
               </label>
             </div>
           </div>
@@ -733,18 +727,18 @@
 
           <div class="button-group">
             <button type="button" id="btnCarregarDadosTeste" class="btn btn-warning">
-              🧪 Carregar Dados de Teste
+              Carregar dados de teste
             </button>
           </div>
 
-          <small class="sg-empty-copy"> ⚠️ Ação manual - nunca executada automaticamente. </small>
+          <small class="sg-empty-copy"> Acao manual - nunca executada automaticamente. </small>
         </div>
 
         <!-- Seção: Resetar Dados (DEV) -->
         <div class="panel sg-panel-danger hidden" id="panelResetarDados">
-          <div class="panel-header panel-header-danger">🗑️ Resetar Dados (DEV)</div>
+          <div class="panel-header panel-header-danger">Resetar dados (DEV)</div>
           <p class="sg-section-copy">
-            <strong>⚠️ PERIGO:</strong> Remove TODOS os dados do sistema. Esta ação é irreversível!
+            <strong>Perigo:</strong> remove TODOS os dados do sistema. Esta acao e irreversivel!
           </p>
 
           <div class="form-group">
@@ -762,7 +756,7 @@
           <div id="resetStatus" class="sg-status-slot"></div>
 
           <button type="button" id="btnResetarTudo" class="btn btn-danger" disabled>
-            🗑️ Resetar Todos os Dados
+            Resetar todos os dados
           </button>
         </div>
       </div>
@@ -770,11 +764,11 @@
       <!-- Tab: Integrações -->
       <div id="tabIntegracoes" class="tab-content">
         <div class="panel">
-          <div class="panel-header">🔗 Painel Administrativo de Integrações</div>
+          <div class="panel-header">Painel administrativo de integracoes</div>
 
           <div class="sg-panel-actions sg-status-slot">
             <button type="button" id="btnIntegracoesRefresh" class="btn btn-primary">
-              🔄 Atualizar Painel
+              Atualizar painel
             </button>
             <label id="integracoesTipoSyncLabel" for="integracoesTipoSync" class="sr-only"
               >Tipo de sincronização das integrações</label
@@ -793,10 +787,10 @@
               <option value="fornecedor">Sync: Fornecedor</option>
             </select>
             <button type="button" id="btnIntegracoesSync" class="btn btn-secondary">
-              ▶️ Rodar Sync agora
+              Rodar sync agora
             </button>
             <button type="button" id="btnIntegracoesClearCache" class="btn btn-danger">
-              🧹 Limpar Cache
+              Limpar cache
             </button>
           </div>
 
@@ -804,17 +798,17 @@
         </div>
 
         <div class="panel">
-          <div class="panel-header">📊 Últimos Sync Jobs</div>
+          <div class="panel-header">Ultimos sync jobs</div>
           <div id="integracoesSyncJobs" class="loading">Carregando sync jobs...</div>
         </div>
 
         <div class="panel">
-          <div class="panel-header">🧾 Últimos 20 logs de auditoria</div>
+          <div class="panel-header">Ultimos 20 logs de auditoria</div>
           <div id="integracoesLogs" class="loading">Carregando logs...</div>
         </div>
 
         <div class="panel">
-          <div class="panel-header">📄 Pesquisa de Preço — Relatório Oficial</div>
+          <div class="panel-header">Pesquisa de preco - relatorio oficial</div>
           <div class="grid-2 sg-grid-end">
             <div class="form-group">
               <label for="integracoesSnapshotId">Snapshot ID</label>
@@ -844,29 +838,29 @@
       <!-- Tab: Diagnóstico -->
       <div id="tabDiagnostico" class="tab-content">
         <div class="panel">
-          <div class="panel-header">📊 Estatísticas de Armazenamento</div>
+          <div class="panel-header">Estatisticas de armazenamento</div>
           <div id="storageStats" class="loading">Carregando estatísticas...</div>
         </div>
 
         <div class="panel">
-          <div class="panel-header">🔍 Detalhes do IndexedDB</div>
+          <div class="panel-header">Detalhes do IndexedDB</div>
           <div id="indexedDBDetails" class="loading">Carregando detalhes do banco...</div>
         </div>
 
         <div class="panel">
-          <div class="panel-header">📝 Chaves do localStorage</div>
+          <div class="panel-header">Chaves do localStorage</div>
           <div id="localStorageDetails" class="loading">Carregando chaves...</div>
         </div>
 
         <div class="panel">
-          <div class="panel-header">ℹ️ Informações do Sistema</div>
+          <div class="panel-header">Informacoes do sistema</div>
           <div id="systemInfo" class="loading">Carregando informações...</div>
         </div>
 
         <div class="panel">
-          <div class="panel-header">🖥️ Console de Diagnóstico</div>
+          <div class="panel-header">Console de diagnostico</div>
           <button type="button" id="btnPrintStorageReport" class="btn btn-info">
-            📋 Imprimir Relatório no Console
+            Imprimir relatorio no console
           </button>
           <small class="sg-empty-copy">
             Abre o console do navegador (F12) e imprime um relatório detalhado de todo o
@@ -883,7 +877,7 @@
     <script src="../js/config.js"></script>
     <script src="../js/db.js"></script>
 
-    <!-- 📋 CONFIGURAÇÃO DE MENUS (aliases e estrutura) -->
+    <!-- Configuracao de menus (aliases e estrutura) -->
     <script src="../js/core/menuConfig.js"></script>
 
     <script type="module" src="../js/settings/index.js"></script>

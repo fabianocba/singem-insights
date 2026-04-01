@@ -14,12 +14,12 @@
   <body data-page="importar-nfe" class="sg-standalone-page">
     <div class="container nf-screen">
       <div class="sg-page-header-actions">
-        <a href="../index.html" class="nav-back">← Voltar ao Sistema</a>
+        <a href="../index.html" class="nav-back">Voltar ao sistema</a>
         <button type="button" data-theme-toggle aria-label="Alternar tema"></button>
       </div>
 
       <header>
-        <h1>📄 Cadastro de Nota Fiscal</h1>
+        <h1>Cadastro de nota fiscal</h1>
         <p>Lançamento manual de notas fiscais</p>
       </header>
 
@@ -61,7 +61,7 @@
 
         <!-- Dados do Emitente -->
         <div class="card">
-          <h2>🏢 Dados do Emitente (Fornecedor)</h2>
+          <h2>Dados do emitente (fornecedor)</h2>
 
           <div class="form-row cols-2">
             <div class="form-group">
@@ -84,7 +84,7 @@
 
         <!-- Valores -->
         <div class="card">
-          <h2>💰 Valores</h2>
+          <h2>Valores</h2>
 
           <div class="form-row cols-2">
             <div class="form-group">
@@ -100,14 +100,14 @@
           <!-- Itens da NF (obrigatório) -->
           <div class="items-section">
             <div class="items-header sg-toolbar">
-              <h3>📦 Itens da Nota Fiscal <span class="required">*</span></h3>
+              <h3>Itens da nota fiscal <span class="required">*</span></h3>
               <button
                 type="button"
                 class="btn-sm btn-outline"
                 id="btnAddItemFromEmpenho"
                 title="Adicionar itens do empenho selecionado"
               >
-                📋 Adicionar do Empenho
+                Adicionar do empenho
               </button>
             </div>
 
@@ -150,7 +150,7 @@
 
         <!-- Vincular a Empenho -->
         <div class="card">
-          <h2>📋 Vincular a Empenho</h2>
+          <h2>Vincular a empenho</h2>
 
           <div class="form-group">
             <label>Filtrar por CNPJ do Fornecedor</label>
@@ -173,7 +173,7 @@
         <!-- Ações -->
         <div class="actions">
           <button type="button" class="btn btn-secondary" onclick="limparFormulario()">
-            🗑️ Limpar
+            Limpar
           </button>
           <button
             type="button"
@@ -181,10 +181,10 @@
             id="btnValidar"
             onclick="validarNFCompleta()"
           >
-            🔍 Validar NF
+            Validar NF
           </button>
           <button type="submit" class="btn btn-primary" id="btnSalvar" disabled>
-            💾 Salvar Nota Fiscal
+            Salvar nota fiscal
           </button>
         </div>
       </form>
@@ -193,7 +193,7 @@
       <div id="modalDivergencias" class="modal-overlay hidden">
         <div class="modal-content modal-card" role="dialog" aria-modal="true">
           <div class="modal-header">
-            <h3 id="modalTitulo">📋 Resultado da Validação</h3>
+            <h3 id="modalTitulo">Resultado da validacao</h3>
             <button type="button" class="modal-close" onclick="fecharModal()">&times;</button>
           </div>
           <div class="modal-body" id="modalBody">
@@ -201,7 +201,7 @@
           </div>
           <div class="modal-footer" id="modalFooter">
             <button type="button" class="btn btn-secondary" onclick="fecharModal()">
-              ← Voltar e Corrigir
+              Voltar e corrigir
             </button>
             <button
               type="button"
@@ -209,7 +209,7 @@
               id="btnSalvarComAlertas"
               onclick="salvarComAlertas()"
             >
-              ⚠️ Salvar Mesmo Assim
+              Salvar mesmo assim
             </button>
           </div>
         </div>
@@ -220,7 +220,7 @@
         <div class="overlay" onclick="fecharModalItensEmpenho()"></div>
         <div class="modal-content modal-card" role="dialog" aria-modal="true">
           <div class="modal-header">
-            <h3 class="modal-title">📋 Selecionar Itens do Empenho</h3>
+            <h3 class="modal-title">Selecionar itens do empenho</h3>
             <button type="button" class="modal-close" onclick="fecharModalItensEmpenho()">
               &times;
             </button>
@@ -233,7 +233,7 @@
                 id="btnMarcarTodos"
                 onclick="setAllChecks(true)"
               >
-                ☑️ Marcar todos
+                Marcar todos
               </button>
               <button
                 type="button"
@@ -241,7 +241,7 @@
                 id="btnDesmarcarTodos"
                 onclick="setAllChecks(false)"
               >
-                ☐ Desmarcar todos
+                Desmarcar todos
               </button>
             </div>
             <div id="modalItensEmpenhoLista" class="itens-checklist">
@@ -253,7 +253,7 @@
               Cancelar
             </button>
             <button type="button" class="btn btn-primary" onclick="confirmarItensEmpenho()">
-              ✅ Adicionar Selecionados
+              Adicionar selecionados
             </button>
           </div>
         </div>

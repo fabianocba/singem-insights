@@ -52,8 +52,7 @@ const ADM_SUBITEMS = [
 // Sub-telas do módulo singem_devtools
 const DEVTOOLS_SUBITEMS = [
   { screenId: 'consultasScreen', label: 'Inteligência de compras', icon: '🔍' },
-  { screenId: 'catalogacaoScreen', label: 'Catalogação', icon: '📋' },
-  { href: '/system-status/', label: 'System Status', icon: '🖥️' }
+  { screenId: 'catalogacaoScreen', label: 'Catalogação', icon: '📋' }
 ];
 
 // Módulos que expandem em sub-telas

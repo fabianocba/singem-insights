@@ -279,7 +279,6 @@ function validateRuntimeConfig() {
     if (getCorsOrigins().length === 0) {
       errors.push('Defina CORS_ORIGINS para produção (origens permitidas separadas por vírgula)');
     }
-
   }
 
   if (errors.length > 0) {

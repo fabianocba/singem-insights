@@ -22,16 +22,16 @@ Compatibilidade legada (temporaria):
 
 ## Scripts canônicos
 
-| Script | Função |
-| --- | --- |
-| `start.ps1` | Sobe stack oficial de desenvolvimento via Docker |
-| `stop.ps1` | Para stack oficial e remove órfãos |
-| `rebuild.ps1` | Rebuild completo sem cache e subida da stack |
-| `logs.ps1` | Exibe logs consolidados ou por serviço |
-| `deploy.ps1` | Deploy oficial para VPS (prod) |
-| `version.ps1` | Atualiza `version.json` com política de bump |
-| `clean-legacy.ps1` | Remove arquivos e fluxos legados detectados |
-| `dev-up.ps1` | Wrapper de compatibilidade para comandos legados (`-Action up/down/rebuild/restart`) |
+| Script             | Função                                                                               |
+| ------------------ | ------------------------------------------------------------------------------------ |
+| `start.ps1`        | Sobe stack oficial de desenvolvimento via Docker                                     |
+| `stop.ps1`         | Para stack oficial e remove órfãos                                                   |
+| `rebuild.ps1`      | Rebuild completo sem cache e subida da stack                                         |
+| `logs.ps1`         | Exibe logs consolidados ou por serviço                                               |
+| `deploy.ps1`       | Deploy oficial para VPS (prod)                                                       |
+| `version.ps1`      | Atualiza `version.json` com política de bump                                         |
+| `clean-legacy.ps1` | Remove arquivos e fluxos legados detectados                                          |
+| `dev-up.ps1`       | Wrapper de compatibilidade para comandos legados (`-Action up/down/rebuild/restart`) |
 
 ## Atalhos NPM
 

@@ -10,10 +10,7 @@
 
 const API_CONFIG = {
   // URL base do servidor
-  baseUrl:
-    window.__API_BASE_URL__ ||
-    window.CONFIG?.api?.baseUrl ||
-    window.location.origin,
+  baseUrl: window.__API_BASE_URL__ || window.CONFIG?.api?.baseUrl || window.location.origin,
   timeout: 30000,
   retries: 3,
   retryBaseDelayMs: 500

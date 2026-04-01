@@ -423,7 +423,6 @@ function Ensure-ProjectEnvFiles {
   Ensure-EnvFile -TargetPath (Join-Path $ProjectRoot '.env.prod') -ExamplePath (Join-Path $ProjectRoot '.env.example')
   Ensure-EnvFile -TargetPath (Join-Path $ProjectRoot 'docker\prod\.env.prod') -ExamplePath (Join-Path $ProjectRoot 'docker\prod\.env.example')
   Ensure-EnvFile -TargetPath (Join-Path $ProjectRoot 'server\.env') -ExamplePath (Join-Path $ProjectRoot 'server\.env.example')
-  Ensure-EnvFile -TargetPath (Join-Path $ProjectRoot 'singem-ai\.env') -ExamplePath (Join-Path $ProjectRoot 'singem-ai\.env.example')
 }
 
 function Remove-PathIfExists {

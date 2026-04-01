@@ -51,12 +51,12 @@ class SettingsManager {
 
     if (!this.usuarioLogado) {
       // Sem usuário logado - modo administrador padrão para compatibilidade
-        const serverMode = window.CONFIG?.storage?.mode === 'server';
-        if (serverMode) {
-          console.info('[Settings] Usuário ainda não autenticado no modo servidor. Recursos protegidos exigem login.');
-        } else {
-          console.log('⚠️ Nenhum usuário logado - acesso completo (modo compatibilidade)');
-        }
+      const serverMode = window.CONFIG?.storage?.mode === 'server';
+      if (serverMode) {
+        console.info('[Settings] Usuário ainda não autenticado no modo servidor. Recursos protegidos exigem login.');
+      } else {
+        console.log('⚠️ Nenhum usuário logado - acesso completo (modo compatibilidade)');
+      }
       return;
     }
 

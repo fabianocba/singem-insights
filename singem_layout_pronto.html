@@ -1,387 +1,673 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SINGEM Layout Base</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          colors: {
-            singem: {
-              50: '#eef7f5',
-              100: '#d7ebe5',
-              200: '#b1d8cc',
-              300: '#83bea9',
-              400: '#569783',
-              500: '#377566',
-              600: '#285d52',
-              700: '#214a43',
-              800: '#1d3c38',
-              900: '#1a322f',
-              950: '#0b1e1c'
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SINGEM Layout Base</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              singem: {
+                50: '#eef7f5',
+                100: '#d7ebe5',
+                200: '#b1d8cc',
+                300: '#83bea9',
+                400: '#569783',
+                500: '#377566',
+                600: '#285d52',
+                700: '#214a43',
+                800: '#1d3c38',
+                900: '#1a322f',
+                950: '#0b1e1c'
+              }
+            },
+            boxShadow: {
+              soft: '0 10px 30px rgba(15, 23, 42, 0.08)',
+              panel: '0 8px 24px rgba(2, 6, 23, 0.08)'
             }
-          },
-          boxShadow: {
-            soft: '0 10px 30px rgba(15, 23, 42, 0.08)',
-            panel: '0 8px 24px rgba(2, 6, 23, 0.08)'
           }
         }
+      };
+    </script>
+    <style>
+      .scrollbar-thin::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
       }
-    }
-  </script>
-  <style>
-    .scrollbar-thin::-webkit-scrollbar { width: 8px; height: 8px; }
-    .scrollbar-thin::-webkit-scrollbar-thumb { background: rgba(148,163,184,.45); border-radius: 999px; }
-  </style>
-</head>
-<body class="min-h-screen bg-slate-100 text-slate-900 antialiased">
-
-  <!-- LOGIN -->
-  <section id="loginScreen" class="min-h-screen flex items-center justify-center p-4 bg-[radial-gradient(circle_at_top_left,_rgba(41,94,82,0.18),_transparent_32%),linear-gradient(to_bottom_right,_#f8fafc,_#e2e8f0)]">
-    <div class="w-full max-w-md rounded-3xl border border-white/60 bg-white/90 backdrop-blur shadow-soft p-6 sm:p-8">
-      <div class="mb-8 text-center">
-        <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-singem-600 text-white shadow-panel">
-          <span class="text-2xl font-bold">SI</span>
-        </div>
-        <h1 class="text-3xl font-bold tracking-tight text-slate-900">Bem-vindo ao SINGEM</h1>
-        <p class="mt-2 text-sm text-slate-500">Sistema Inteligente de Gestão de Materiais, Serviços e Logística</p>
-      </div>
-
-      <div class="mb-4 rounded-2xl border border-blue-200 bg-blue-50 p-3 text-center text-sm text-blue-700">
-        Ambiente de desenvolvimento com acesso administrativo e Gov.br.
-      </div>
-
-      <div class="grid grid-cols-1 gap-3">
-        <button class="inline-flex h-11 items-center justify-center rounded-xl bg-[#1351b4] px-4 text-sm font-semibold text-white transition hover:opacity-95 active:scale-[0.99]">
-          Entrar com Gov.br
-        </button>
-      </div>
-
-      <div class="my-5 flex items-center gap-3 text-xs uppercase tracking-[0.25em] text-slate-400">
-        <div class="h-px flex-1 bg-slate-200"></div>
-        <span>ou</span>
-        <div class="h-px flex-1 bg-slate-200"></div>
-      </div>
-
-      <form class="space-y-4">
-        <div>
-          <label class="mb-1.5 block text-sm font-medium text-slate-700">Usuário</label>
-          <input value="admin" type="text" class="h-12 w-full rounded-xl border border-slate-300 bg-white px-4 text-sm outline-none transition focus:border-singem-500 focus:ring-4 focus:ring-singem-100" />
+      .scrollbar-thin::-webkit-scrollbar-thumb {
+        background: rgba(148, 163, 184, 0.45);
+        border-radius: 999px;
+      }
+    </style>
+  </head>
+  <body class="min-h-screen bg-slate-100 text-slate-900 antialiased">
+    <!-- LOGIN -->
+    <section
+      id="loginScreen"
+      class="min-h-screen flex items-center justify-center p-4 bg-[radial-gradient(circle_at_top_left,_rgba(41,94,82,0.18),_transparent_32%),linear-gradient(to_bottom_right,_#f8fafc,_#e2e8f0)]"
+    >
+      <div
+        class="w-full max-w-md rounded-3xl border border-white/60 bg-white/90 backdrop-blur shadow-soft p-6 sm:p-8"
+      >
+        <div class="mb-8 text-center">
+          <div
+            class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-singem-600 text-white shadow-panel"
+          >
+            <span class="text-2xl font-bold">SI</span>
+          </div>
+          <h1 class="text-3xl font-bold tracking-tight text-slate-900">Bem-vindo ao SINGEM</h1>
+          <p class="mt-2 text-sm text-slate-500">
+            Sistema Inteligente de Gestão de Materiais, Serviços e Logística
+          </p>
         </div>
 
-        <div>
-          <label class="mb-1.5 block text-sm font-medium text-slate-700">Senha</label>
-          <input value="************" type="password" class="h-12 w-full rounded-xl border border-slate-300 bg-white px-4 text-sm outline-none transition focus:border-singem-500 focus:ring-4 focus:ring-singem-100" />
+        <div
+          class="mb-4 rounded-2xl border border-blue-200 bg-blue-50 p-3 text-center text-sm text-blue-700"
+        >
+          Ambiente de desenvolvimento com acesso administrativo e Gov.br.
         </div>
 
-        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <label class="inline-flex items-center gap-2 text-sm text-slate-600">
-            <input type="checkbox" class="h-4 w-4 rounded border-slate-300 text-singem-600 focus:ring-singem-500" />
-            Lembrar usuário
-          </label>
-          <a href="#" class="text-sm font-medium text-singem-700 hover:text-singem-800">Esqueci minha senha</a>
+        <div class="grid grid-cols-1 gap-3">
+          <button
+            class="inline-flex h-11 items-center justify-center rounded-xl bg-[#1351b4] px-4 text-sm font-semibold text-white transition hover:opacity-95 active:scale-[0.99]"
+          >
+            Entrar com Gov.br
+          </button>
         </div>
 
-        <button type="button" onclick="showApp()" class="inline-flex h-12 w-full items-center justify-center rounded-xl bg-singem-600 px-4 text-sm font-semibold text-white shadow-panel transition hover:bg-singem-700 active:scale-[0.99]">
-          Entrar no sistema
-        </button>
-      </form>
+        <div
+          class="my-5 flex items-center gap-3 text-xs uppercase tracking-[0.25em] text-slate-400"
+        >
+          <div class="h-px flex-1 bg-slate-200"></div>
+          <span>ou</span>
+          <div class="h-px flex-1 bg-slate-200"></div>
+        </div>
 
-      <p class="mt-6 text-center text-xs text-slate-400">© 2026 IF Baiano — Instituto Federal de Educação, Ciência e Tecnologia Baiano</p>
-    </div>
-  </section>
-
-  <!-- APP -->
-  <section id="appShell" class="hidden min-h-screen bg-slate-100">
-    <div class="flex min-h-screen">
-      <!-- Sidebar backdrop mobile -->
-      <div id="backdrop" class="fixed inset-0 z-30 hidden bg-slate-950/40 lg:hidden" onclick="closeSidebar()"></div>
-
-      <!-- SIDEBAR -->
-      <aside id="sidebar" class="fixed inset-y-0 left-0 z-40 flex w-72 -translate-x-full flex-col border-r border-white/10 bg-gradient-to-b from-slate-950 via-slate-900 to-singem-950 text-white shadow-2xl transition-transform duration-300 lg:translate-x-0">
-        <div class="flex h-20 items-center gap-3 border-b border-white/10 px-5">
-          <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/10 font-bold">SI</div>
+        <form class="space-y-4">
           <div>
-            <p class="text-xs uppercase tracking-[0.28em] text-emerald-200/70">Operação</p>
-            <h2 class="text-2xl font-bold leading-none">SINGEM</h2>
-          </div>
-        </div>
-
-        <div class="flex-1 overflow-y-auto px-3 py-4 scrollbar-thin">
-          <div class="mb-4">
-            <p class="px-3 pb-2 text-[11px] font-semibold uppercase tracking-[0.3em] text-amber-200/60">Núcleo administrativo</p>
-            <nav class="space-y-1.5">
-              <a class="flex items-center rounded-xl bg-white/10 px-3 py-2.5 text-sm font-medium shadow-inner ring-1 ring-white/10">🏠 <span class="ml-3">Painel executivo</span></a>
-              <a class="flex items-center rounded-xl px-3 py-2.5 text-sm text-slate-200 transition hover:bg-white/10">📊 <span class="ml-3">Relatórios</span></a>
-              <a class="flex items-center rounded-xl px-3 py-2.5 text-sm text-slate-200 transition hover:bg-white/10">⚙️ <span class="ml-3">Configurações</span></a>
-              <a class="flex items-center rounded-xl px-3 py-2.5 text-sm text-slate-200 transition hover:bg-white/10">🧠 <span class="ml-3">Inteligência de compras</span></a>
-              <a class="flex items-center rounded-xl px-3 py-2.5 text-sm text-slate-200 transition hover:bg-white/10">📚 <span class="ml-3">Catalogação</span></a>
-            </nav>
-          </div>
-
-          <div class="mb-4">
-            <p class="px-3 pb-2 text-[11px] font-semibold uppercase tracking-[0.3em] text-amber-200/60">Módulos setoriais</p>
-            <nav class="space-y-1.5">
-              <a class="flex items-center rounded-xl px-3 py-2.5 text-sm text-slate-200 transition hover:bg-white/10">📌 <span class="ml-3">Empenhos</span></a>
-              <a class="flex items-center rounded-xl px-3 py-2.5 text-sm text-slate-200 transition hover:bg-white/10">🧾 <span class="ml-3">Notas fiscais</span></a>
-              <a class="flex items-center rounded-xl px-3 py-2.5 text-sm text-slate-200 transition hover:bg-white/10">📦 <span class="ml-3">Almoxarifado</span></a>
-              <a class="flex items-center rounded-xl px-3 py-2.5 text-sm text-slate-200 transition hover:bg-white/10">🚚 <span class="ml-3">Entregas</span></a>
-              <a class="flex items-center rounded-xl px-3 py-2.5 text-sm text-slate-200 transition hover:bg-white/10">🏛️ <span class="ml-3">Patrimônio</span></a>
-              <a class="flex items-center rounded-xl px-3 py-2.5 text-sm text-slate-200 transition hover:bg-white/10">🚗 <span class="ml-3">Veículos</span></a>
-              <a class="flex items-center rounded-xl px-3 py-2.5 text-sm text-slate-200 transition hover:bg-white/10">🛠️ <span class="ml-3">Serviços</span></a>
-              <a class="flex items-center rounded-xl px-3 py-2.5 text-sm text-slate-200 transition hover:bg-white/10">📑 <span class="ml-3">Contratos</span></a>
-            </nav>
+            <label class="mb-1.5 block text-sm font-medium text-slate-700">Usuário</label>
+            <input
+              value="admin"
+              type="text"
+              class="h-12 w-full rounded-xl border border-slate-300 bg-white px-4 text-sm outline-none transition focus:border-singem-500 focus:ring-4 focus:ring-singem-100"
+            />
           </div>
 
           <div>
-            <p class="px-3 pb-2 text-[11px] font-semibold uppercase tracking-[0.3em] text-amber-200/60">Solicitações gerais</p>
-            <nav class="space-y-1.5">
-              <a class="flex items-center rounded-xl px-3 py-2.5 text-sm text-slate-200 transition hover:bg-white/10">📥 <span class="ml-3">Solicitação de almox</span></a>
-              <a class="flex items-center rounded-xl px-3 py-2.5 text-sm text-slate-200 transition hover:bg-white/10">🚘 <span class="ml-3">Solicitação de veículos</span></a>
-              <a class="flex items-center rounded-xl px-3 py-2.5 text-sm text-slate-200 transition hover:bg-white/10">🧰 <span class="ml-3">Solicitação de serviços</span></a>
-            </nav>
+            <label class="mb-1.5 block text-sm font-medium text-slate-700">Senha</label>
+            <input
+              value="************"
+              type="password"
+              class="h-12 w-full rounded-xl border border-slate-300 bg-white px-4 text-sm outline-none transition focus:border-singem-500 focus:ring-4 focus:ring-singem-100"
+            />
           </div>
-        </div>
 
-        <div class="border-t border-white/10 p-4">
-          <div class="rounded-2xl bg-white/5 p-4 text-sm text-slate-300 ring-1 ring-white/10">
-            <p class="font-medium text-white">Fluxo offline-first</p>
-            <p class="mt-1 text-xs leading-5 text-slate-400">Dados versionados localmente e camada analítica integrada ao ecossistema de compras públicas.</p>
+          <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <label class="inline-flex items-center gap-2 text-sm text-slate-600">
+              <input
+                type="checkbox"
+                class="h-4 w-4 rounded border-slate-300 text-singem-600 focus:ring-singem-500"
+              />
+              Lembrar usuário
+            </label>
+            <a href="#" class="text-sm font-medium text-singem-700 hover:text-singem-800"
+              >Esqueci minha senha</a
+            >
           </div>
-        </div>
-      </aside>
 
-      <!-- MAIN COLUMN -->
-      <div class="flex min-h-screen flex-1 flex-col lg:pl-72">
-        <!-- HEADER -->
-        <header class="sticky top-0 z-20 border-b border-slate-200/80 bg-white/90 backdrop-blur">
-          <div class="flex h-16 items-center justify-between gap-3 px-4 sm:px-6">
-            <div class="flex items-center gap-3">
-              <button onclick="openSidebar()" class="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-700 shadow-sm transition hover:bg-slate-50 lg:hidden">
-                ☰
-              </button>
-              <div>
-                <div class="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.25em] text-singem-700">
-                  <span class="rounded-full bg-singem-50 px-2 py-1">Painel executivo</span>
-                  <span class="rounded-full bg-slate-100 px-2 py-1 text-slate-500">Seguindo sistema</span>
-                </div>
-                <h1 class="mt-1 text-lg font-semibold text-slate-900">Operação institucional do SINGEM</h1>
-              </div>
+          <button
+            type="button"
+            onclick="showApp()"
+            class="inline-flex h-12 w-full items-center justify-center rounded-xl bg-singem-600 px-4 text-sm font-semibold text-white shadow-panel transition hover:bg-singem-700 active:scale-[0.99]"
+          >
+            Entrar no sistema
+          </button>
+        </form>
+
+        <p class="mt-6 text-center text-xs text-slate-400">
+          © 2026 IF Baiano — Instituto Federal de Educação, Ciência e Tecnologia Baiano
+        </p>
+      </div>
+    </section>
+
+    <!-- APP -->
+    <section id="appShell" class="hidden min-h-screen bg-slate-100">
+      <div class="flex min-h-screen">
+        <!-- Sidebar backdrop mobile -->
+        <div
+          id="backdrop"
+          class="fixed inset-0 z-30 hidden bg-slate-950/40 lg:hidden"
+          onclick="closeSidebar()"
+        ></div>
+
+        <!-- SIDEBAR -->
+        <aside
+          id="sidebar"
+          class="fixed inset-y-0 left-0 z-40 flex w-72 -translate-x-full flex-col border-r border-white/10 bg-gradient-to-b from-slate-950 via-slate-900 to-singem-950 text-white shadow-2xl transition-transform duration-300 lg:translate-x-0"
+        >
+          <div class="flex h-20 items-center gap-3 border-b border-white/10 px-5">
+            <div
+              class="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/10 font-bold"
+            >
+              SI
+            </div>
+            <div>
+              <p class="text-xs uppercase tracking-[0.28em] text-emerald-200/70">Operação</p>
+              <h2 class="text-2xl font-bold leading-none">SINGEM</h2>
+            </div>
+          </div>
+
+          <div class="flex-1 overflow-y-auto px-3 py-4 scrollbar-thin">
+            <div class="mb-4">
+              <p
+                class="px-3 pb-2 text-[11px] font-semibold uppercase tracking-[0.3em] text-amber-200/60"
+              >
+                Núcleo administrativo
+              </p>
+              <nav class="space-y-1.5">
+                <a
+                  class="flex items-center rounded-xl bg-white/10 px-3 py-2.5 text-sm font-medium shadow-inner ring-1 ring-white/10"
+                  >🏠 <span class="ml-3">Painel executivo</span></a
+                >
+                <a
+                  class="flex items-center rounded-xl px-3 py-2.5 text-sm text-slate-200 transition hover:bg-white/10"
+                  >📊 <span class="ml-3">Relatórios</span></a
+                >
+                <a
+                  class="flex items-center rounded-xl px-3 py-2.5 text-sm text-slate-200 transition hover:bg-white/10"
+                  >⚙️ <span class="ml-3">Configurações</span></a
+                >
+                <a
+                  class="flex items-center rounded-xl px-3 py-2.5 text-sm text-slate-200 transition hover:bg-white/10"
+                  >🧠 <span class="ml-3">Inteligência de compras</span></a
+                >
+                <a
+                  class="flex items-center rounded-xl px-3 py-2.5 text-sm text-slate-200 transition hover:bg-white/10"
+                  >📚 <span class="ml-3">Catalogação</span></a
+                >
+              </nav>
             </div>
 
-            <div class="flex items-center gap-2 sm:gap-3">
-              <button class="hidden rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 sm:inline-flex">⚙️ Configurações</button>
-              <div class="flex h-10 items-center gap-3 rounded-2xl border border-slate-200 bg-white px-3 shadow-sm">
-                <div class="flex h-8 w-8 items-center justify-center rounded-full bg-singem-700 text-sm font-bold text-white">AS</div>
-                <div class="hidden text-left md:block">
-                  <p class="text-sm font-semibold text-slate-900">Administrador SINGEM</p>
-                  <p class="text-xs text-slate-500">Acesso administrativo</p>
-                </div>
-              </div>
-              <button onclick="showLogin()" class="rounded-xl bg-rose-50 px-3 py-2 text-sm font-semibold text-rose-700 transition hover:bg-rose-100">Sair</button>
+            <div class="mb-4">
+              <p
+                class="px-3 pb-2 text-[11px] font-semibold uppercase tracking-[0.3em] text-amber-200/60"
+              >
+                Módulos setoriais
+              </p>
+              <nav class="space-y-1.5">
+                <a
+                  class="flex items-center rounded-xl px-3 py-2.5 text-sm text-slate-200 transition hover:bg-white/10"
+                  >📌 <span class="ml-3">Empenhos</span></a
+                >
+                <a
+                  class="flex items-center rounded-xl px-3 py-2.5 text-sm text-slate-200 transition hover:bg-white/10"
+                  >🧾 <span class="ml-3">Notas fiscais</span></a
+                >
+                <a
+                  class="flex items-center rounded-xl px-3 py-2.5 text-sm text-slate-200 transition hover:bg-white/10"
+                  >📦 <span class="ml-3">Almoxarifado</span></a
+                >
+                <a
+                  class="flex items-center rounded-xl px-3 py-2.5 text-sm text-slate-200 transition hover:bg-white/10"
+                  >🚚 <span class="ml-3">Entregas</span></a
+                >
+                <a
+                  class="flex items-center rounded-xl px-3 py-2.5 text-sm text-slate-200 transition hover:bg-white/10"
+                  >🏛️ <span class="ml-3">Patrimônio</span></a
+                >
+                <a
+                  class="flex items-center rounded-xl px-3 py-2.5 text-sm text-slate-200 transition hover:bg-white/10"
+                  >🚗 <span class="ml-3">Veículos</span></a
+                >
+                <a
+                  class="flex items-center rounded-xl px-3 py-2.5 text-sm text-slate-200 transition hover:bg-white/10"
+                  >🛠️ <span class="ml-3">Serviços</span></a
+                >
+                <a
+                  class="flex items-center rounded-xl px-3 py-2.5 text-sm text-slate-200 transition hover:bg-white/10"
+                  >📑 <span class="ml-3">Contratos</span></a
+                >
+              </nav>
+            </div>
+
+            <div>
+              <p
+                class="px-3 pb-2 text-[11px] font-semibold uppercase tracking-[0.3em] text-amber-200/60"
+              >
+                Solicitações gerais
+              </p>
+              <nav class="space-y-1.5">
+                <a
+                  class="flex items-center rounded-xl px-3 py-2.5 text-sm text-slate-200 transition hover:bg-white/10"
+                  >📥 <span class="ml-3">Solicitação de almox</span></a
+                >
+                <a
+                  class="flex items-center rounded-xl px-3 py-2.5 text-sm text-slate-200 transition hover:bg-white/10"
+                  >🚘 <span class="ml-3">Solicitação de veículos</span></a
+                >
+                <a
+                  class="flex items-center rounded-xl px-3 py-2.5 text-sm text-slate-200 transition hover:bg-white/10"
+                  >🧰 <span class="ml-3">Solicitação de serviços</span></a
+                >
+              </nav>
             </div>
           </div>
-        </header>
 
-        <!-- CONTENT -->
-        <main class="flex-1 px-4 py-6 sm:px-6 lg:px-8">
-          <div class="mx-auto flex w-full max-w-7xl flex-col gap-6">
-            <!-- HERO -->
-            <section class="overflow-hidden rounded-3xl bg-gradient-to-r from-singem-950 via-singem-800 to-emerald-700 px-6 py-7 text-white shadow-panel sm:px-8">
-              <div class="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
-                <div class="max-w-3xl">
-                  <p class="mb-2 text-xs font-semibold uppercase tracking-[0.32em] text-emerald-100/80">Painel executivo</p>
-                  <h2 class="text-3xl font-bold leading-tight sm:text-4xl">Materiais com visão executiva, resposta rápida e rastreabilidade.</h2>
-                  <p class="mt-3 max-w-2xl text-sm text-emerald-50/85 sm:text-base">Monitore fluxos críticos, acompanhe empenhos, notas fiscais, fornecedores e operações do almoxarifado com uma experiência muito mais organizada no desktop e no mobile.</p>
-                </div>
-                <div class="flex flex-wrap gap-3">
-                  <button class="rounded-2xl bg-slate-950/60 px-4 py-3 text-sm font-semibold shadow-lg ring-1 ring-white/10 transition hover:bg-slate-950/75">📌 Novo empenho</button>
-                  <button class="rounded-2xl bg-white/10 px-4 py-3 text-sm font-semibold ring-1 ring-white/15 transition hover:bg-white/20">🧾 Registrar NF</button>
-                  <button class="rounded-2xl bg-white/10 px-4 py-3 text-sm font-semibold ring-1 ring-white/15 transition hover:bg-white/20">📦 Operar almoxarifado</button>
-                </div>
-              </div>
-            </section>
+          <div class="border-t border-white/10 p-4">
+            <div class="rounded-2xl bg-white/5 p-4 text-sm text-slate-300 ring-1 ring-white/10">
+              <p class="font-medium text-white">Fluxo offline-first</p>
+              <p class="mt-1 text-xs leading-5 text-slate-400">
+                Dados versionados localmente e camada analítica integrada ao ecossistema de compras
+                públicas.
+              </p>
+            </div>
+          </div>
+        </aside>
 
-            <!-- KPIs -->
-            <section class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-              <article class="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
-                <p class="text-[11px] font-semibold uppercase tracking-[0.28em] text-slate-400">Notas fiscais</p>
-                <div class="mt-3 flex items-end justify-between gap-3">
-                  <strong class="text-4xl font-bold text-slate-900">0</strong>
-                  <span class="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-500">Operacional</span>
-                </div>
-                <p class="mt-2 text-sm text-slate-500">Registros disponíveis para conferência e vínculo.</p>
-              </article>
-
-              <article class="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
-                <p class="text-[11px] font-semibold uppercase tracking-[0.28em] text-slate-400">Fornecedores</p>
-                <div class="mt-3 flex items-end justify-between gap-3">
-                  <strong class="text-4xl font-bold text-slate-900">0</strong>
-                  <span class="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700">Base ativa</span>
-                </div>
-                <p class="mt-2 text-sm text-slate-500">Base ativa no recorte operacional atual.</p>
-              </article>
-
-              <article class="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
-                <p class="text-[11px] font-semibold uppercase tracking-[0.28em] text-slate-400">Valor empenhado</p>
-                <div class="mt-3 flex items-end justify-between gap-3">
-                  <strong class="text-4xl font-bold text-slate-900">R$ 0</strong>
-                  <span class="rounded-full bg-amber-50 px-2.5 py-1 text-xs font-medium text-amber-700">Financeiro</span>
-                </div>
-                <p class="mt-2 text-sm text-slate-500">Exposição financeira consolidada do painel.</p>
-              </article>
-
-              <article class="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
-                <p class="text-[11px] font-semibold uppercase tracking-[0.28em] text-slate-400">Radar de execução</p>
-                <div class="mt-3 flex items-end justify-between gap-3">
-                  <strong class="text-4xl font-bold text-slate-900">19:57</strong>
-                  <span class="rounded-full bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700">Última leitura</span>
-                </div>
-                <p class="mt-2 text-sm text-slate-500">Acompanhe comparação de preços e atritos antes da emissão.</p>
-              </article>
-            </section>
-
-            <!-- CONTENT GRID -->
-            <section class="grid grid-cols-1 gap-6 xl:grid-cols-12">
-              <article class="xl:col-span-7 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-                <div class="mb-5 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                  <div>
-                    <p class="text-[11px] font-semibold uppercase tracking-[0.28em] text-emerald-700">Governança</p>
-                    <h3 class="text-2xl font-bold text-slate-900">Controles críticos do dia</h3>
-                  </div>
-                  <button class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100">Abrir cockpit analítico</button>
-                </div>
-                <div class="grid gap-3 sm:grid-cols-2">
-                  <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                    <h4 class="font-semibold text-slate-900">Empenhos e notas fiscais</h4>
-                    <p class="mt-2 text-sm text-slate-600">Vínculo operacional rastreável para auditoria, execução e acompanhamento diário.</p>
-                  </div>
-                  <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                    <h4 class="font-semibold text-slate-900">Consulta pública unificada</h4>
-                    <p class="mt-2 text-sm text-slate-600">Preço, fornecedor e UASG em um mesmo fluxo operacional sem sair do painel.</p>
-                  </div>
-                  <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                    <h4 class="font-semibold text-slate-900">Backups e preferências</h4>
-                    <p class="mt-2 text-sm text-slate-600">Diagnósticos acessíveis e centralizados com menos atrito visual e operacional.</p>
-                  </div>
-                  <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                    <h4 class="font-semibold text-slate-900">Governança inteligente</h4>
-                    <p class="mt-2 text-sm text-slate-600">Organização de regras, leituras e consistência de interface para uso prolongado.</p>
-                  </div>
-                </div>
-              </article>
-
-              <article class="xl:col-span-5 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-                <div class="flex items-center justify-between gap-3">
-                  <div>
-                    <p class="text-[11px] font-semibold uppercase tracking-[0.28em] text-emerald-700">Operação</p>
-                    <h3 class="text-2xl font-bold text-slate-900">Resumo de execução</h3>
-                  </div>
-                  <span class="rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">Atualizado</span>
-                </div>
-                <div class="mt-5 grid gap-3 sm:grid-cols-2">
-                  <div class="rounded-2xl border border-slate-200 p-4">
-                    <p class="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-400">Fluxos ativos</p>
-                    <p class="mt-2 text-4xl font-bold text-slate-900">3</p>
-                  </div>
-                  <div class="rounded-2xl border border-slate-200 p-4">
-                    <p class="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-400">Módulos</p>
-                    <p class="mt-2 text-4xl font-bold text-slate-900">5</p>
-                  </div>
-                </div>
-                <div class="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                  <p class="text-sm font-semibold uppercase tracking-[0.24em] text-slate-500">Status</p>
-                  <ul class="mt-3 space-y-2 text-sm text-slate-600">
-                    <li>• Fluxos de empenho em operação normal</li>
-                    <li>• Entrada de NF disponível</li>
-                    <li>• Consultas públicas ativas</li>
-                    <li>• Sem alertas críticos no momento</li>
-                  </ul>
-                </div>
-              </article>
-            </section>
-
-            <!-- ACTION CARDS -->
-            <section>
-              <div class="mb-4 flex items-end justify-between gap-3">
+        <!-- MAIN COLUMN -->
+        <div class="flex min-h-screen flex-1 flex-col lg:pl-72">
+          <!-- HEADER -->
+          <header class="sticky top-0 z-20 border-b border-slate-200/80 bg-white/90 backdrop-blur">
+            <div class="flex h-16 items-center justify-between gap-3 px-4 sm:px-6">
+              <div class="flex items-center gap-3">
+                <button
+                  onclick="openSidebar()"
+                  class="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-700 shadow-sm transition hover:bg-slate-50 lg:hidden"
+                >
+                  ☰
+                </button>
                 <div>
-                  <h3 class="text-3xl font-bold tracking-tight text-slate-900">Áreas operacionais</h3>
-                  <p class="mt-1 text-sm text-slate-500">Recebimento, inteligência de compras e acompanhamento diário em uma área muito mais organizada.</p>
+                  <div
+                    class="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.25em] text-singem-700"
+                  >
+                    <span class="rounded-full bg-singem-50 px-2 py-1">Painel executivo</span>
+                    <span class="rounded-full bg-slate-100 px-2 py-1 text-slate-500"
+                      >Seguindo sistema</span
+                    >
+                  </div>
+                  <h1 class="mt-1 text-lg font-semibold text-slate-900">
+                    Operação institucional do SINGEM
+                  </h1>
                 </div>
               </div>
-              <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-                <article class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:shadow-panel">
-                  <div class="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-50 text-2xl">📦</div>
-                  <h4 class="text-2xl font-bold text-slate-900">Entrada de entrega</h4>
-                  <p class="mt-2 text-sm leading-6 text-slate-600">Registre recebimentos semanais e mantenha o histórico físico alinhado ao financeiro.</p>
-                </article>
-                <article class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:shadow-panel">
-                  <div class="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-50 text-2xl">🧾</div>
-                  <h4 class="text-2xl font-bold text-slate-900">Entrada de nota fiscal</h4>
-                  <p class="mt-2 text-sm leading-6 text-slate-600">Cadastre notas fiscais, valide divergências e vincule ao empenho correto.</p>
-                </article>
-                <article class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:shadow-panel">
-                  <div class="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-violet-50 text-2xl">📊</div>
-                  <h4 class="text-2xl font-bold text-slate-900">Relatórios</h4>
-                  <p class="mt-2 text-sm leading-6 text-slate-600">Gere painéis de conferência e recortes analíticos sem sair do fluxo principal.</p>
-                </article>
-                <article class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:shadow-panel">
-                  <div class="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-50 text-2xl">🔎</div>
-                  <h4 class="text-2xl font-bold text-slate-900">Consulte Compras.gov</h4>
-                  <p class="mt-2 text-sm leading-6 text-slate-600">Acesse inteligência de preços, fornecedores, UASG e dados públicos do ecossistema.</p>
-                </article>
-                <article class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:shadow-panel">
-                  <div class="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-cyan-50 text-2xl">🖥️</div>
-                  <h4 class="text-2xl font-bold text-slate-900">System status</h4>
-                  <p class="mt-2 text-sm leading-6 text-slate-600">Monitore a saúde operacional dos serviços do SINGEM e acelere o diagnóstico.</p>
-                </article>
-                <article class="rounded-3xl border border-dashed border-slate-300 bg-white/70 p-6 shadow-sm">
-                  <div class="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-100 text-2xl">➕</div>
-                  <h4 class="text-2xl font-bold text-slate-900">Nova área</h4>
-                  <p class="mt-2 text-sm leading-6 text-slate-600">Espaço reservado para novos módulos sem quebrar a organização geral do layout.</p>
-                </article>
+
+              <div class="flex items-center gap-2 sm:gap-3">
+                <button
+                  class="hidden rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 sm:inline-flex"
+                >
+                  ⚙️ Configurações
+                </button>
+                <div
+                  class="flex h-10 items-center gap-3 rounded-2xl border border-slate-200 bg-white px-3 shadow-sm"
+                >
+                  <div
+                    class="flex h-8 w-8 items-center justify-center rounded-full bg-singem-700 text-sm font-bold text-white"
+                  >
+                    AS
+                  </div>
+                  <div class="hidden text-left md:block">
+                    <p class="text-sm font-semibold text-slate-900">Administrador SINGEM</p>
+                    <p class="text-xs text-slate-500">Acesso administrativo</p>
+                  </div>
+                </div>
+                <button
+                  onclick="showLogin()"
+                  class="rounded-xl bg-rose-50 px-3 py-2 text-sm font-semibold text-rose-700 transition hover:bg-rose-100"
+                >
+                  Sair
+                </button>
               </div>
-            </section>
-          </div>
-        </main>
+            </div>
+          </header>
+
+          <!-- CONTENT -->
+          <main class="flex-1 px-4 py-6 sm:px-6 lg:px-8">
+            <div class="mx-auto flex w-full max-w-7xl flex-col gap-6">
+              <!-- HERO -->
+              <section
+                class="overflow-hidden rounded-3xl bg-gradient-to-r from-singem-950 via-singem-800 to-emerald-700 px-6 py-7 text-white shadow-panel sm:px-8"
+              >
+                <div class="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
+                  <div class="max-w-3xl">
+                    <p
+                      class="mb-2 text-xs font-semibold uppercase tracking-[0.32em] text-emerald-100/80"
+                    >
+                      Painel executivo
+                    </p>
+                    <h2 class="text-3xl font-bold leading-tight sm:text-4xl">
+                      Materiais com visão executiva, resposta rápida e rastreabilidade.
+                    </h2>
+                    <p class="mt-3 max-w-2xl text-sm text-emerald-50/85 sm:text-base">
+                      Monitore fluxos críticos, acompanhe empenhos, notas fiscais, fornecedores e
+                      operações do almoxarifado com uma experiência muito mais organizada no desktop
+                      e no mobile.
+                    </p>
+                  </div>
+                  <div class="flex flex-wrap gap-3">
+                    <button
+                      class="rounded-2xl bg-slate-950/60 px-4 py-3 text-sm font-semibold shadow-lg ring-1 ring-white/10 transition hover:bg-slate-950/75"
+                    >
+                      📌 Novo empenho
+                    </button>
+                    <button
+                      class="rounded-2xl bg-white/10 px-4 py-3 text-sm font-semibold ring-1 ring-white/15 transition hover:bg-white/20"
+                    >
+                      🧾 Registrar NF
+                    </button>
+                    <button
+                      class="rounded-2xl bg-white/10 px-4 py-3 text-sm font-semibold ring-1 ring-white/15 transition hover:bg-white/20"
+                    >
+                      📦 Operar almoxarifado
+                    </button>
+                  </div>
+                </div>
+              </section>
+
+              <!-- KPIs -->
+              <section class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                <article class="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+                  <p class="text-[11px] font-semibold uppercase tracking-[0.28em] text-slate-400">
+                    Notas fiscais
+                  </p>
+                  <div class="mt-3 flex items-end justify-between gap-3">
+                    <strong class="text-4xl font-bold text-slate-900">0</strong>
+                    <span
+                      class="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-500"
+                      >Operacional</span
+                    >
+                  </div>
+                  <p class="mt-2 text-sm text-slate-500">
+                    Registros disponíveis para conferência e vínculo.
+                  </p>
+                </article>
+
+                <article class="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+                  <p class="text-[11px] font-semibold uppercase tracking-[0.28em] text-slate-400">
+                    Fornecedores
+                  </p>
+                  <div class="mt-3 flex items-end justify-between gap-3">
+                    <strong class="text-4xl font-bold text-slate-900">0</strong>
+                    <span
+                      class="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700"
+                      >Base ativa</span
+                    >
+                  </div>
+                  <p class="mt-2 text-sm text-slate-500">
+                    Base ativa no recorte operacional atual.
+                  </p>
+                </article>
+
+                <article class="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+                  <p class="text-[11px] font-semibold uppercase tracking-[0.28em] text-slate-400">
+                    Valor empenhado
+                  </p>
+                  <div class="mt-3 flex items-end justify-between gap-3">
+                    <strong class="text-4xl font-bold text-slate-900">R$ 0</strong>
+                    <span
+                      class="rounded-full bg-amber-50 px-2.5 py-1 text-xs font-medium text-amber-700"
+                      >Financeiro</span
+                    >
+                  </div>
+                  <p class="mt-2 text-sm text-slate-500">
+                    Exposição financeira consolidada do painel.
+                  </p>
+                </article>
+
+                <article class="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+                  <p class="text-[11px] font-semibold uppercase tracking-[0.28em] text-slate-400">
+                    Radar de execução
+                  </p>
+                  <div class="mt-3 flex items-end justify-between gap-3">
+                    <strong class="text-4xl font-bold text-slate-900">19:57</strong>
+                    <span
+                      class="rounded-full bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700"
+                      >Última leitura</span
+                    >
+                  </div>
+                  <p class="mt-2 text-sm text-slate-500">
+                    Acompanhe comparação de preços e atritos antes da emissão.
+                  </p>
+                </article>
+              </section>
+
+              <!-- CONTENT GRID -->
+              <section class="grid grid-cols-1 gap-6 xl:grid-cols-12">
+                <article
+                  class="xl:col-span-7 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm"
+                >
+                  <div
+                    class="mb-5 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"
+                  >
+                    <div>
+                      <p
+                        class="text-[11px] font-semibold uppercase tracking-[0.28em] text-emerald-700"
+                      >
+                        Governança
+                      </p>
+                      <h3 class="text-2xl font-bold text-slate-900">Controles críticos do dia</h3>
+                    </div>
+                    <button
+                      class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100"
+                    >
+                      Abrir cockpit analítico
+                    </button>
+                  </div>
+                  <div class="grid gap-3 sm:grid-cols-2">
+                    <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                      <h4 class="font-semibold text-slate-900">Empenhos e notas fiscais</h4>
+                      <p class="mt-2 text-sm text-slate-600">
+                        Vínculo operacional rastreável para auditoria, execução e acompanhamento
+                        diário.
+                      </p>
+                    </div>
+                    <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                      <h4 class="font-semibold text-slate-900">Consulta pública unificada</h4>
+                      <p class="mt-2 text-sm text-slate-600">
+                        Preço, fornecedor e UASG em um mesmo fluxo operacional sem sair do painel.
+                      </p>
+                    </div>
+                    <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                      <h4 class="font-semibold text-slate-900">Backups e preferências</h4>
+                      <p class="mt-2 text-sm text-slate-600">
+                        Diagnósticos acessíveis e centralizados com menos atrito visual e
+                        operacional.
+                      </p>
+                    </div>
+                    <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                      <h4 class="font-semibold text-slate-900">Governança inteligente</h4>
+                      <p class="mt-2 text-sm text-slate-600">
+                        Organização de regras, leituras e consistência de interface para uso
+                        prolongado.
+                      </p>
+                    </div>
+                  </div>
+                </article>
+
+                <article
+                  class="xl:col-span-5 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm"
+                >
+                  <div class="flex items-center justify-between gap-3">
+                    <div>
+                      <p
+                        class="text-[11px] font-semibold uppercase tracking-[0.28em] text-emerald-700"
+                      >
+                        Operação
+                      </p>
+                      <h3 class="text-2xl font-bold text-slate-900">Resumo de execução</h3>
+                    </div>
+                    <span
+                      class="rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700"
+                      >Atualizado</span
+                    >
+                  </div>
+                  <div class="mt-5 grid gap-3 sm:grid-cols-2">
+                    <div class="rounded-2xl border border-slate-200 p-4">
+                      <p
+                        class="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-400"
+                      >
+                        Fluxos ativos
+                      </p>
+                      <p class="mt-2 text-4xl font-bold text-slate-900">3</p>
+                    </div>
+                    <div class="rounded-2xl border border-slate-200 p-4">
+                      <p
+                        class="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-400"
+                      >
+                        Módulos
+                      </p>
+                      <p class="mt-2 text-4xl font-bold text-slate-900">5</p>
+                    </div>
+                  </div>
+                  <div class="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                    <p class="text-sm font-semibold uppercase tracking-[0.24em] text-slate-500">
+                      Status
+                    </p>
+                    <ul class="mt-3 space-y-2 text-sm text-slate-600">
+                      <li>• Fluxos de empenho em operação normal</li>
+                      <li>• Entrada de NF disponível</li>
+                      <li>• Consultas públicas ativas</li>
+                      <li>• Sem alertas críticos no momento</li>
+                    </ul>
+                  </div>
+                </article>
+              </section>
+
+              <!-- ACTION CARDS -->
+              <section>
+                <div class="mb-4 flex items-end justify-between gap-3">
+                  <div>
+                    <h3 class="text-3xl font-bold tracking-tight text-slate-900">
+                      Áreas operacionais
+                    </h3>
+                    <p class="mt-1 text-sm text-slate-500">
+                      Recebimento, inteligência de compras e acompanhamento diário em uma área muito
+                      mais organizada.
+                    </p>
+                  </div>
+                </div>
+                <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+                  <article
+                    class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:shadow-panel"
+                  >
+                    <div
+                      class="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-50 text-2xl"
+                    >
+                      📦
+                    </div>
+                    <h4 class="text-2xl font-bold text-slate-900">Entrada de entrega</h4>
+                    <p class="mt-2 text-sm leading-6 text-slate-600">
+                      Registre recebimentos semanais e mantenha o histórico físico alinhado ao
+                      financeiro.
+                    </p>
+                  </article>
+                  <article
+                    class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:shadow-panel"
+                  >
+                    <div
+                      class="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-50 text-2xl"
+                    >
+                      🧾
+                    </div>
+                    <h4 class="text-2xl font-bold text-slate-900">Entrada de nota fiscal</h4>
+                    <p class="mt-2 text-sm leading-6 text-slate-600">
+                      Cadastre notas fiscais, valide divergências e vincule ao empenho correto.
+                    </p>
+                  </article>
+                  <article
+                    class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:shadow-panel"
+                  >
+                    <div
+                      class="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-violet-50 text-2xl"
+                    >
+                      📊
+                    </div>
+                    <h4 class="text-2xl font-bold text-slate-900">Relatórios</h4>
+                    <p class="mt-2 text-sm leading-6 text-slate-600">
+                      Gere painéis de conferência e recortes analíticos sem sair do fluxo principal.
+                    </p>
+                  </article>
+                  <article
+                    class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:shadow-panel"
+                  >
+                    <div
+                      class="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-50 text-2xl"
+                    >
+                      🔎
+                    </div>
+                    <h4 class="text-2xl font-bold text-slate-900">Consulte Compras.gov</h4>
+                    <p class="mt-2 text-sm leading-6 text-slate-600">
+                      Acesse inteligência de preços, fornecedores, UASG e dados públicos do
+                      ecossistema.
+                    </p>
+                  </article>
+                  <article
+                    class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:shadow-panel"
+                  >
+                    <div
+                      class="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-cyan-50 text-2xl"
+                    >
+                      🖥️
+                    </div>
+                    <h4 class="text-2xl font-bold text-slate-900">System status</h4>
+                    <p class="mt-2 text-sm leading-6 text-slate-600">
+                      Monitore a saúde operacional dos serviços do SINGEM e acelere o diagnóstico.
+                    </p>
+                  </article>
+                  <article
+                    class="rounded-3xl border border-dashed border-slate-300 bg-white/70 p-6 shadow-sm"
+                  >
+                    <div
+                      class="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-100 text-2xl"
+                    >
+                      ➕
+                    </div>
+                    <h4 class="text-2xl font-bold text-slate-900">Nova área</h4>
+                    <p class="mt-2 text-sm leading-6 text-slate-600">
+                      Espaço reservado para novos módulos sem quebrar a organização geral do layout.
+                    </p>
+                  </article>
+                </div>
+              </section>
+            </div>
+          </main>
+        </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <script>
-    const sidebar = document.getElementById('sidebar');
-    const backdrop = document.getElementById('backdrop');
-    const appShell = document.getElementById('appShell');
-    const loginScreen = document.getElementById('loginScreen');
+    <script>
+      const sidebar = document.getElementById('sidebar');
+      const backdrop = document.getElementById('backdrop');
+      const appShell = document.getElementById('appShell');
+      const loginScreen = document.getElementById('loginScreen');
 
-    function openSidebar() {
-      sidebar.classList.remove('-translate-x-full');
-      backdrop.classList.remove('hidden');
-    }
+      function openSidebar() {
+        sidebar.classList.remove('-translate-x-full');
+        backdrop.classList.remove('hidden');
+      }
 
-    function closeSidebar() {
-      sidebar.classList.add('-translate-x-full');
-      backdrop.classList.add('hidden');
-    }
+      function closeSidebar() {
+        sidebar.classList.add('-translate-x-full');
+        backdrop.classList.add('hidden');
+      }
 
-    function showApp() {
-      loginScreen.classList.add('hidden');
-      appShell.classList.remove('hidden');
-    }
+      function showApp() {
+        loginScreen.classList.add('hidden');
+        appShell.classList.remove('hidden');
+      }
 
-    function showLogin() {
-      appShell.classList.add('hidden');
-      loginScreen.classList.remove('hidden');
-      closeSidebar();
-    }
+      function showLogin() {
+        appShell.classList.add('hidden');
+        loginScreen.classList.remove('hidden');
+        closeSidebar();
+      }
 
-    window.addEventListener('resize', () => {
-      if (window.innerWidth >= 1024) backdrop.classList.add('hidden');
-    });
-  </script>
-</body>
+      window.addEventListener('resize', () => {
+        if (window.innerWidth >= 1024) backdrop.classList.add('hidden');
+      });
+    </script>
+  </body>
 </html>

@@ -14,7 +14,6 @@ COPY css/ ./css/
 COPY index.html ./
 COPY consultas/ ./consultas/
 COPY config/ ./config/
-COPY system-status/ ./system-status/
 COPY js/ ./js/
 
 RUN npm run tailwind:build
@@ -34,7 +33,6 @@ COPY js/ /usr/share/nginx/html/js/
 COPY img/ /usr/share/nginx/html/img/
 COPY consultas/ /usr/share/nginx/html/consultas/
 COPY config/ /usr/share/nginx/html/config/
-COPY system-status/ /usr/share/nginx/html/system-status/
 COPY css/ /usr/share/nginx/html/css/
 
 COPY --from=css-builder /src/css/tailwind.css /usr/share/nginx/html/css/tailwind.css

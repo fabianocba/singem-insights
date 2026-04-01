@@ -276,7 +276,7 @@ export class ControleMaterialApp {
       // Mostra erro na tela de login
       const errorDiv = document.getElementById('loginError');
       if (errorDiv) {
-        errorDiv.textContent = '⚠️ ' + decodedError;
+        errorDiv.textContent = decodedError;
         errorDiv.classList.remove('hidden');
       }
       return;
@@ -403,7 +403,7 @@ export class ControleMaterialApp {
           ]);
         } else if (headerLogo) {
           // Mantém título padrão sem logo no header
-          headerLogo.textContent = '📋 Controle de Material';
+          headerLogo.textContent = 'Controle de Material';
         }
       } else {
         // Se não houver unidade cadastrada, mostra logo padrão do IF Baiano
@@ -498,7 +498,7 @@ export class ControleMaterialApp {
       if (motivo === 'token_invalid') {
         const errorDiv = document.getElementById('loginError');
         if (errorDiv) {
-          errorDiv.textContent = '⏱️ Sessão expirada. Faça login novamente.';
+          errorDiv.textContent = 'Sessao expirada. Faca login novamente.';
           errorDiv.classList.remove('hidden');
         }
         console.warn('[AUTH] Sessão expirada detectada (token inválido/expirado).');
@@ -522,10 +522,6 @@ export class ControleMaterialApp {
     document.getElementById('consultasMenuItem')?.addEventListener('click', () => {
       console.log('🔍 Abrindo Consulte Compras.gov...');
       this.showScreen('consultasScreen');
-    });
-
-    document.getElementById('systemStatusMenuItem')?.addEventListener('click', () => {
-      window.location.href = '/system-status/';
     });
 
     // Botão/link de recuperar senha
@@ -859,7 +855,7 @@ export class ControleMaterialApp {
   _renderizarItemCadastro(emp) {
     const status = emp.statusValidacao || 'rascunho';
     const badgeClass = status === 'validado' ? 'ativo' : status === 'concluido' ? 'concluido' : 'rascunho';
-    const badgeText = status === 'validado' ? '✅ Ativo' : status === 'concluido' ? '🏁 Concluído' : '📝 Rascunho';
+    const badgeText = status === 'validado' ? 'Ativo' : status === 'concluido' ? 'Concluido' : 'Rascunho';
     const fornecedor = emp.fornecedor || 'Fornecedor não informado';
     const qtdItens = emp.itens?.length || 0;
 
@@ -874,8 +870,8 @@ export class ControleMaterialApp {
           </div>
         </div>
         <div class="empenho-item-acoes">
-          <button class="btn-acao visualizar" data-id="${emp.id}" title="Visualizar empenho">🔍 Visualizar</button>
-          <button class="btn-acao excluir" data-id="${emp.id}" title="Excluir empenho">🗑️</button>
+          <button class="btn-acao visualizar" data-id="${emp.id}" title="Visualizar empenho">Visualizar</button>
+          <button class="btn-acao excluir" data-id="${emp.id}" title="Excluir empenho">Excluir</button>
         </div>
       </div>
     `;
@@ -917,7 +913,7 @@ export class ControleMaterialApp {
       if (!empenhosCompletos || empenhosCompletos.length === 0) {
         container.innerHTML = `
           <div class="sg-empty-state">
-            <p class="sg-empty-state__title">📭 Nenhum empenho cadastrado.</p>
+            <p class="sg-empty-state__title">Nenhum empenho cadastrado.</p>
             <p class="sg-empty-state__text">Cadastre empenhos para visualizar o controle de saldos.</p>
           </div>
         `;
@@ -954,11 +950,11 @@ export class ControleMaterialApp {
               id="btnAtualizarControleSaldos"
               class="btn btn-secondary inline-flex items-center gap-1 px-4 py-2 whitespace-nowrap"
               title="Recarregar lista de empenhos">
-              🔄 Atualizar Lista
+              Atualizar lista
             </button>
           </div>
           <p class="sg-info-note sg-saldo-toolbar__meta">
-            💡 Total: ${empenhosCompletos.length} empenho(s) | ${empenhosComArquivo.length} com arquivo PDF vinculado
+            Total: ${empenhosCompletos.length} empenho(s) | ${empenhosComArquivo.length} com arquivo PDF vinculado
           </p>
           <div id="saldoDetalhesTab" class="sg-saldo-details" aria-live="polite"></div>
         </section>
@@ -1034,7 +1030,7 @@ export class ControleMaterialApp {
       // Mostrar loading
       container.innerHTML = `
         <div class="empenhos-loading">
-          <span>⏳ Carregando empenhos...</span>
+          <span>Carregando empenhos...</span>
         </div>
       `;
 
@@ -1076,7 +1072,7 @@ export class ControleMaterialApp {
       <div class="listagem-empenhos">
         <!-- Header -->
         <div class="listagem-header">
-          <h3>📋 Notas de Empenho</h3>
+          <h3>Notas de empenho</h3>
           <span class="listagem-contador" id="contadorEmpenhos">
             ${total} empenho(s) cadastrado(s)
           </span>
@@ -1088,7 +1084,7 @@ export class ControleMaterialApp {
             type="text"
             id="buscaEmpenho"
             class="busca-input"
-            placeholder="🔍 Buscar empenho (ano, número, fornecedor, processo...)"
+            placeholder="Buscar empenho (ano, numero, fornecedor, processo...)"
             value="${termoBusca}"
           />
         </div>
@@ -1100,10 +1096,10 @@ export class ControleMaterialApp {
               Todos
             </button>
             <button class="chip ${this.listagemState.filtroStatus === 'rascunho' ? 'chip-ativo' : ''}" data-filtro="rascunho">
-              🟡 Rascunhos
+              Rascunhos
             </button>
             <button class="chip ${this.listagemState.filtroStatus === 'validado' ? 'chip-ativo' : ''}" data-filtro="validado">
-              🟢 Validados
+              Validados
             </button>
           </div>
           <div class="ordenacao-container">
@@ -1124,7 +1120,7 @@ export class ControleMaterialApp {
 
         <!-- Rodapé com contador -->
         <div class="listagem-footer" id="footerListagem">
-          <span id="totalExibido">📊 Total exibido: ${total}</span>
+          <span id="totalExibido">Total exibido: ${total}</span>
         </div>
       </div>
     `;
@@ -1260,7 +1256,7 @@ export class ControleMaterialApp {
 
     // Atualizar contadores
     if (totalExibido) {
-      const textoTotalExibido = `📊 Total exibido: ${empenhosFiltrados.length}`;
+      const textoTotalExibido = `Total exibido: ${empenhosFiltrados.length}`;
       if (totalExibido.textContent !== textoTotalExibido) {
         totalExibido.textContent = textoTotalExibido;
       }
@@ -1276,7 +1272,7 @@ export class ControleMaterialApp {
     if (empenhosFiltrados.length === 0) {
       listaContainer.innerHTML = `
         <div class="empenhos-vazio">
-          <p>📭 Nenhum empenho encontrado.</p>
+          <p>Nenhum empenho encontrado.</p>
           ${this.listagemState.termoBusca ? '<p><small>Tente ajustar os termos da busca.</small></p>' : ''}
         </div>
       `;
@@ -1302,7 +1298,7 @@ export class ControleMaterialApp {
     const titulo = escapeHTML(`${ano} NE ${numero}`);
     const status = emp.statusValidacao || 'rascunho';
     const badgeClass = status === 'validado' ? 'badge-success' : 'badge-warning';
-    const badgeText = status === 'validado' ? '🟢 VALIDADO' : '🟡 RASCUNHO';
+    const badgeText = status === 'validado' ? 'VALIDADO' : 'RASCUNHO';
     const qtdItens = emp.itens?.length || 0;
     const fornecedor = escapeHTML(String(emp.fornecedor || 'Fornecedor não informado'));
 
@@ -1321,13 +1317,13 @@ export class ControleMaterialApp {
     let botoesAcoes = '';
     if (somenteVisualizacao) {
       botoesAcoes = `
-        <button class="btn-acao" data-action="ver-detalhes" data-id="${emp.id}" title="Ver detalhes">🔍 Detalhes</button>
+        <button class="btn-acao" data-action="ver-detalhes" data-id="${emp.id}" title="Ver detalhes">Detalhes</button>
       `;
     } else {
       botoesAcoes = `
-        <button class="btn-acao" data-action="editar" data-id="${emp.id}" title="Editar empenho">✏️ Editar</button>
-        <button class="btn-acao" data-action="adicionar-item" data-id="${emp.id}" title="Adicionar item">➕ Item</button>
-        <button class="btn-acao" data-action="ver-detalhes" data-id="${emp.id}" title="Ver detalhes">🔍 Detalhes</button>
+        <button class="btn-acao" data-action="editar" data-id="${emp.id}" title="Editar empenho">Editar</button>
+        <button class="btn-acao" data-action="adicionar-item" data-id="${emp.id}" title="Adicionar item">Adicionar item</button>
+        <button class="btn-acao" data-action="ver-detalhes" data-id="${emp.id}" title="Ver detalhes">Detalhes</button>
       `;
     }
 
@@ -1485,7 +1481,7 @@ export class ControleMaterialApp {
     overlay.innerHTML = `
       <div class="modal-card modal-detalhes">
         <div class="modal-header">
-          <h4>📋 ${ano} NE ${numero}</h4>
+          <h4>${ano} NE ${numero}</h4>
           <button type="button" class="btn-fechar" id="btnFecharDetalhesX" title="Fechar">✕</button>
         </div>
         <div class="modal-body">
@@ -1504,7 +1500,7 @@ export class ControleMaterialApp {
         </div>
         <div class="modal-actions">
           <button class="btn btn-secondary" id="btnFecharDetalhes">Fechar</button>
-          <button class="btn btn-primary" id="btnEditarDetalhes" data-id="${empenhoId}">✏️ Editar</button>
+          <button class="btn btn-primary" id="btnEditarDetalhes" data-id="${empenhoId}">Editar</button>
         </div>
       </div>
     `;
@@ -1716,7 +1712,7 @@ export class ControleMaterialApp {
         btnEditarEmpenho.type = 'button';
         btnEditarEmpenho.id = 'btnHabilitarEdicao';
         btnEditarEmpenho.className = 'btn btn-primary inline-flex items-center gap-1.5';
-        btnEditarEmpenho.textContent = '✏️ Editar Empenho';
+        btnEditarEmpenho.textContent = 'Editar empenho';
 
         // Inserir após o botão Cancelar
         const btnCancelar = formActions.querySelector('#btnCancelarEmpenho');
@@ -1964,22 +1960,22 @@ export class ControleMaterialApp {
 
     if (status === 401) {
       if (mensagemOriginal.includes('sessão expirada') || mensagemOriginal.includes('sessao expirada')) {
-        return '⏱️ Sessão expirada. Faça login novamente.';
+        return 'Sessao expirada. Faca login novamente.';
       }
 
-      return '❌ Usuário ou senha inválidos. Verifique e tente novamente.';
+      return 'Usuario ou senha invalidos. Verifique e tente novamente.';
     }
 
     if (status === 405) {
-      return '🚫 Método não permitido no endpoint de login. Atualize o deploy e valide o proxy /api/auth/login.';
+      return 'Metodo nao permitido no endpoint de login. Atualize o deploy e valide o proxy /api/auth/login.';
     }
 
     if (status >= 500) {
-      return '🛠️ Erro interno no servidor ao autenticar. Verifique logs do backend/proxy.';
+      return 'Erro interno no servidor ao autenticar. Verifique logs do backend/proxy.';
     }
 
     if (mensagemOriginal.includes('failed to fetch') || mensagemOriginal.includes('timeout')) {
-      return '🌐 Não foi possível conectar ao servidor. Verifique se o backend está ativo.';
+      return 'Nao foi possivel conectar ao servidor. Verifique se o backend esta ativo.';
     }
 
     return error?.message || 'Erro ao realizar login. Tente novamente.';
@@ -2059,7 +2055,7 @@ export class ControleMaterialApp {
     const usuarioPerfil = document.getElementById('usuarioLogadoPerfil');
 
     if (usuarioNome && this.usuarioLogado) {
-      const perfil = this.usuarioLogado.perfil === 'admin' ? '👑' : '👤';
+      const perfil = this.usuarioLogado.perfil === 'admin' ? 'Administrador' : 'Usuario';
       // Prevenção XSS: usar textContent para dados de usuário
       const nomeExibicao = this.usuarioLogado.nome || this.usuarioLogado.login;
       usuarioNome.textContent = `${perfil} ${nomeExibicao}`;
@@ -3005,7 +3001,7 @@ export class ControleMaterialApp {
       // Validação do arquivo
       const fileValidation = InputValidator.validatePDFFile(file);
       if (!fileValidation.valid) {
-        alert(`❌ Arquivo inválido: ${fileValidation.error}`);
+        alert(`Arquivo invalido: ${fileValidation.error}`);
         return;
       }
 
@@ -3144,10 +3140,10 @@ export class ControleMaterialApp {
       // Exibe preview dos dados extraídos
       this.exibirPreviewNotaFiscal(extractedData);
 
-      this.showSuccess('✅ PDF processado com sucesso! Revise os dados extraídos abaixo.');
+      this.showSuccess('PDF processado com sucesso. Revise os dados extraidos abaixo.');
     } catch (error) {
       console.error('Erro ao processar upload de nota fiscal:', error);
-      this.showError('❌ Erro ao processar PDF: ' + error.message);
+      this.showError('Erro ao processar PDF: ' + error.message);
     }
   }
 
@@ -3287,7 +3283,7 @@ export class ControleMaterialApp {
     try {
       // Verificar se NFValidator está disponível
       if (!window.NFValidator) {
-        this.showError('❌ Módulo NFValidator não carregado. Recarregue a página.');
+        this.showError('Modulo NFValidator nao carregado. Recarregue a pagina.');
         return;
       }
 
@@ -3332,7 +3328,7 @@ export class ControleMaterialApp {
       // Atualizar título do modal
       const tituloModal = document.getElementById('modalValidacaoTitulo');
       if (tituloModal) {
-        tituloModal.textContent = resultado.ok ? '✅ Validação OK' : '❌ Divergências Encontradas';
+        tituloModal.textContent = resultado.ok ? 'Validacao concluida' : 'Divergencias encontradas';
         tituloModal.classList.remove(
           'sg-modal-heading--success',
           'sg-modal-heading--danger',
@@ -3354,13 +3350,13 @@ export class ControleMaterialApp {
 
       // Feedback visual
       if (resultado.ok) {
-        this.showSuccess('✅ Validação OK! NF pode ser salva.');
+        this.showSuccess('Validacao concluida. A NF pode ser salva.');
       } else {
-        this.showWarning(`⚠️ ${resultado.errors.length} erro(s) encontrado(s)`);
+        this.showWarning(`${resultado.errors.length} erro(s) encontrado(s)`);
       }
     } catch (error) {
       console.error('[NF] Erro na validação:', error);
-      this.showError('❌ Erro ao validar NF: ' + error.message);
+      this.showError('Erro ao validar NF: ' + error.message);
     }
   }
 
@@ -3663,7 +3659,7 @@ export class ControleMaterialApp {
 
       this._mostrarModalValidacao({
         sucesso: true,
-        titulo: '✅ Cadastro Validado!',
+        titulo: 'Cadastro validado',
         mensagem: `O empenho ${anoDisplay} NE ${neDisplay} foi validado com sucesso.`,
         resumo: {
           valorEmpenho: valorTotal,
@@ -3855,7 +3851,7 @@ export class ControleMaterialApp {
     if (erros.length > 0) {
       html += `
         <div style="background: #f8d7da; padding: 12px; border-radius: 8px; margin-bottom: 12px;">
-          <strong style="color: #721c24;">❌ Erros de Cadastro:</strong>
+          <strong style="color: #721c24;">Erros de cadastro:</strong>
           <ul style="margin: 8px 0 0 20px; color: #721c24;">
             ${erros.map((e) => `<li>${e}</li>`).join('')}
           </ul>
@@ -4035,7 +4031,7 @@ export class ControleMaterialApp {
           }
           const optionVazio = document.createElement('option');
           optionVazio.value = '';
-          optionVazio.textContent = '⚠️ Nenhum empenho cadastrado';
+          optionVazio.textContent = 'Nenhum empenho cadastrado';
           optionVazio.disabled = true;
           empenhoAssociadoSelect.appendChild(optionVazio);
         } else {
@@ -4113,7 +4109,7 @@ export class ControleMaterialApp {
       // Se o CNPJ do fornecedor for igual ao da unidade, alerta
       if (cnpjFornecedorLimpo === unidade.cnpjNumeros) {
         return confirm(
-          '⚠️ ATENÇÃO!\n\n' +
+          'ATENCAO!\n\n' +
             'O CNPJ do Fornecedor é igual ao CNPJ da Unidade Orçamentária cadastrada:\n\n' +
             `CNPJ: ${unidade.cnpj}\n` +
             `Unidade: ${unidade.razaoSocial}\n\n` +
@@ -4123,7 +4119,7 @@ export class ControleMaterialApp {
     } else if (!unidade || !unidade.cnpjNumeros) {
       // Alerta se não há unidade configurada
       return confirm(
-        '⚠️ UNIDADE ORÇAMENTÁRIA NÃO CONFIGURADA\n\n' +
+        'UNIDADE ORCAMENTARIA NAO CONFIGURADA\n\n' +
           'Não foi possível validar o CNPJ pois nenhuma Unidade Orçamentária ' +
           'está cadastrada no sistema.\n\n' +
           'Recomenda-se cadastrar a Unidade em: Configurações → Unidade Orçamentária\n\n' +
@@ -4173,7 +4169,7 @@ export class ControleMaterialApp {
       const erros = this.validateEmpenhoDraft();
       if (erros.length > 0) {
         this.hideLoading();
-        const mensagemErros = '❌ Dados mínimos obrigatórios:\n\n' + erros.join('\n');
+        const mensagemErros = 'Dados minimos obrigatorios:\n\n' + erros.join('\n');
         console.error('[APP] ❌ Validação mínima falhou:', erros);
         alert(mensagemErros);
         return;
@@ -4585,13 +4581,13 @@ export class ControleMaterialApp {
       // Se o CNPJ do destinatário for DIFERENTE da unidade, BLOQUEIA
       if (cnpjDestinatarioLimpo !== unidade.cnpjNumeros) {
         alert(
-          '❌ CNPJ DO DESTINATÁRIO INVÁLIDO!\n\n' +
+          'CNPJ DO DESTINATARIO INVALIDO\n\n' +
             'O CNPJ do Destinatário/Beneficiário da Nota Fiscal é diferente ' +
             'do CNPJ da Unidade Orçamentária vinculada ao seu usuário.\n\n' +
             `CNPJ da Unidade: ${unidade.cnpj}\n` +
             `Unidade: ${unidade.razaoSocial}\n\n` +
             `CNPJ Destinatário NF: ${cnpjDestinatario}\n\n` +
-            '⚠️ Notas Fiscais com CNPJ de destinatário diferente da unidade ' +
+            'Notas Fiscais com CNPJ de destinatario diferente da unidade ' +
             'logada NÃO podem ser cadastradas.\n\n' +
             'Verifique:\n' +
             '1. Se a NF é realmente para esta unidade\n' +
@@ -4603,7 +4599,7 @@ export class ControleMaterialApp {
     } else if (!unidade || !unidade.cnpjNumeros) {
       // Bloqueia se não há unidade configurada
       alert(
-        '❌ UNIDADE ORÇAMENTÁRIA NÃO CONFIGURADA\n\n' +
+        'UNIDADE ORCAMENTARIA NAO CONFIGURADA\n\n' +
           'Não é possível cadastrar Notas Fiscais sem uma Unidade Orçamentária ' +
           'vinculada ao seu usuário.\n\n' +
           'Por favor:\n' +
@@ -4678,21 +4674,21 @@ export class ControleMaterialApp {
       );
 
       if (resultados) {
-        let mensagem = `✅ Nota Fiscal ${notaFiscal.numero} salva com sucesso!\n\n`;
+        let mensagem = `Nota Fiscal ${notaFiscal.numero} salva com sucesso.\n\n`;
 
         if (resultados.encontrados.length > 0) {
-          mensagem += `📋 Itens correspondidos (${resultados.encontrados.length}):\n`;
+          mensagem += `Itens correspondidos (${resultados.encontrados.length}):\n`;
           resultados.encontrados.forEach((item) => {
             mensagem += `  • ${item.itemNF}\n    ↔ ${item.itemEmpenho} (${item.score}% match)\n\n`;
           });
         }
 
         if (resultados.naoEncontrados.length > 0) {
-          mensagem += `⚠️ Itens NÃO correspondidos (${resultados.naoEncontrados.length}):\n`;
+          mensagem += `Itens nao correspondidos (${resultados.naoEncontrados.length}):\n`;
           resultados.naoEncontrados.forEach((item) => {
             mensagem += `  • ${item.codigo} - ${item.descricao}\n`;
           });
-          mensagem += `\n💡 Estes itens não atualizaram o saldo do empenho.`;
+          mensagem += `\nEsses itens nao atualizaram o saldo do empenho.`;
         }
 
         alert(mensagem);
@@ -4727,7 +4723,7 @@ export class ControleMaterialApp {
       });
       if (!validacaoEntrada.valid) {
         this.hideLoading();
-        alert('❌ Dados inválidos:\n\n' + validacaoEntrada.errors.join('\n'));
+        alert('Dados invalidos:\n\n' + validacaoEntrada.errors.join('\n'));
         if (!empenhoId) {
           focusField('empenhoAssociado');
         } else {
@@ -4746,7 +4742,7 @@ export class ControleMaterialApp {
       if (Math.abs(diferencaTotalItens) > TOLERANCIA_TOTAL) {
         this.hideLoading();
         const confirmar = confirmAction(
-          `⚠️ DIVERGÊNCIA ENTRE TOTAL E SOMA DOS ITENS:\n\n` +
+          `DIVERGENCIA ENTRE TOTAL E SOMA DOS ITENS:\n\n` +
             `• Valor Total da NF: R$ ${this.fmtMoneyBR(totalNFManual)}\n` +
             `• Soma dos Itens: R$ ${this.fmtMoneyBR(somaItens)}\n` +
             `• Diferença: R$ ${this.fmtMoneyBR(diferencaTotalItens)}\n\n` +
@@ -5313,14 +5309,14 @@ export class ControleMaterialApp {
    * Mostra mensagem de sucesso
    */
   showSuccess(message) {
-    this.showToast('✅ ' + message, 'success');
+    this.showToast(message, 'success');
   }
 
   /**
    * Mostra mensagem informativa
    */
   showInfo(message) {
-    this.showToast('ℹ️ ' + message, 'info');
+    this.showToast(message, 'info');
   }
 
   showToast(message, type = 'info') {
@@ -5368,7 +5364,7 @@ export class ControleMaterialApp {
       if (details instanceof Error) {
         detailsHtml = `
           <div style="margin-top: 15px; padding: 15px; background: #2a2a2a; border-radius: 5px; border-left: 3px solid #dc3545;">
-            <div style="font-weight: bold; color: #ffc107; margin-bottom: 10px;">📋 Detalhes Técnicos (selecione para copiar):</div>
+            <div style="font-weight: bold; color: #ffc107; margin-bottom: 10px;">Detalhes tecnicos (selecione para copiar):</div>
             <div style="
               font-family: 'Courier New', monospace;
               font-size: 12px;
@@ -5394,7 +5390,7 @@ ${details.stack || 'Não disponível'}</div>
       } else if (typeof details === 'object') {
         detailsHtml = `
           <div style="margin-top: 15px; padding: 15px; background: #2a2a2a; border-radius: 5px; border-left: 3px solid #dc3545;">
-            <div style="font-weight: bold; color: #ffc107; margin-bottom: 10px;">📋 Detalhes (selecione para copiar):</div>
+            <div style="font-weight: bold; color: #ffc107; margin-bottom: 10px;">Detalhes (selecione para copiar):</div>
             <div style="
               font-family: 'Courier New', monospace;
               font-size: 12px;
@@ -5413,7 +5409,7 @@ ${details.stack || 'Não disponível'}</div>
       } else {
         detailsHtml = `
           <div style="margin-top: 15px; padding: 15px; background: #2a2a2a; border-radius: 5px; border-left: 3px solid #dc3545;">
-            <div style="font-weight: bold; color: #ffc107; margin-bottom: 10px;">📋 Detalhes (selecione para copiar):</div>
+            <div style="font-weight: bold; color: #ffc107; margin-bottom: 10px;">Detalhes (selecione para copiar):</div>
             <div style="
               font-family: 'Courier New', monospace;
               font-size: 12px;
@@ -5444,7 +5440,7 @@ ${details.stack || 'Não disponível'}</div>
         animation: slideDown 0.3s;
       ">
         <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 20px;">
-          <div style="font-size: 48px;">❌</div>
+          <div style="font-size: 48px;">Erro</div>
           <div>
             <h2 style="margin: 0; color: #dc3545; font-size: 24px;">Erro ao Salvar</h2>
             <p style="margin: 5px 0 0 0; color: #ccc; font-size: 14px;">Ocorreu um problema durante o salvamento</p>
@@ -5458,7 +5454,7 @@ ${details.stack || 'Não disponível'}</div>
           margin-bottom: 20px;
           border-left: 4px solid #dc3545;
         ">
-          <div style="font-weight: bold; color: #fff; margin-bottom: 10px;">📝 Mensagem:</div>
+          <div style="font-weight: bold; color: #fff; margin-bottom: 10px;">Mensagem:</div>
           <div style="
             color: #ff6b6b;
             line-height: 1.6;
@@ -5472,7 +5468,7 @@ ${details.stack || 'Não disponível'}</div>
         ${detailsHtml}
 
         <div style="margin-top: 20px; padding: 15px; background: #2a2a2a; border-radius: 5px; border-left: 3px solid #ffc107;">
-          <div style="font-weight: bold; color: #ffc107; margin-bottom: 10px;">💡 Como Reportar:</div>
+          <div style="font-weight: bold; color: #ffc107; margin-bottom: 10px;">Como reportar:</div>
           <ol style="margin: 10px 0; padding-left: 20px; color: #ccc; line-height: 1.8;">
             <li>Selecione e copie (Ctrl+C) a mensagem de erro acima</li>
             <li>Abra o Console (pressione F12)</li>
@@ -5482,7 +5478,7 @@ ${details.stack || 'Não disponível'}</div>
         </div>
 
         <div style="display: flex; gap: 10px; margin-top: 25px; justify-content: flex-end;">
-          <button onclick="console.log('=== DETALHES DO ERRO ==='); console.error('${message.replace(/'/g, "\\'")}'); ${details ? `console.error(${JSON.stringify(details)});` : ''} alert('✅ Erro logado no console! Pressione F12 para ver.')"
+          <button onclick="console.log('=== DETALHES DO ERRO ==='); console.error('${message.replace(/'/g, "\\'")}'); ${details ? `console.error(${JSON.stringify(details)});` : ''} alert('Erro registrado no console. Pressione F12 para ver.')"
             style="
               background: #6c757d;
               color: white;
@@ -5497,7 +5493,7 @@ ${details.stack || 'Não disponível'}</div>
             onmouseover="this.style.background='#5a6268'"
             onmouseout="this.style.background='#6c757d'"
           >
-            📋 Logar no Console
+            Registrar no Console
           </button>
           <button onclick="document.getElementById('error-modal-custom').remove()"
             style="
@@ -5557,7 +5553,7 @@ ${details.stack || 'Não disponível'}</div>
    * Mostra mensagem de aviso
    */
   showWarning(message) {
-    alert('⚠️ ' + message);
+    alert(message);
   }
 
   /**
@@ -5755,7 +5751,7 @@ ${details.stack || 'Não disponível'}</div>
     const jaAdicionados = itensComStatus.filter((i) => i.jaAdicionado);
 
     if (disponiveis.length === 0 && jaAdicionados.length > 0) {
-      this.showInfo('✅ Todos os itens do empenho já foram adicionados à NF');
+      this.showInfo('Todos os itens do empenho ja foram adicionados a NF');
       return;
     }
 
@@ -5776,15 +5772,15 @@ ${details.stack || 'Não disponível'}</div>
       <div class="overlay"></div>
       <div class="modal-content">
         <div class="modal-header">
-          <h3 class="modal-title">📋 Adicionar Itens do Empenho</h3>
+          <h3 class="modal-title">Adicionar itens do empenho</h3>
           <button type="button" class="modal-close" aria-label="Fechar">&times;</button>
         </div>
         <div class="modal-controls">
           <button type="button" class="btn btn-sm btn-outline" id="btnMarcarTodosItensEmpenho">
-            ☑️ Marcar todos
+            Marcar todos
           </button>
           <button type="button" class="btn btn-sm btn-outline" id="btnDesmarcarTodosItensEmpenho">
-            ☐ Desmarcar todos
+            Desmarcar todos
           </button>
           <span class="contador-itens">
             ${disponiveis.length} disponíveis${jaAdicionados.length ? `, ${jaAdicionados.length} já adicionados` : ''}
@@ -5824,7 +5820,7 @@ ${details.stack || 'Não disponível'}</div>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" id="btnCancelarItensEmpenho">Cancelar</button>
-          <button type="button" class="btn btn-primary" id="btnConfirmarItensEmpenho">✅ Adicionar Selecionados</button>
+          <button type="button" class="btn btn-primary" id="btnConfirmarItensEmpenho">Adicionar selecionados</button>
         </div>
       </div>
     `;
@@ -5863,7 +5859,7 @@ ${details.stack || 'Não disponível'}</div>
 
       fecharModal();
       self.calcularValorTotalNotaFiscal();
-      self.showSuccess(`✅ ${checkboxes.length} item(ns) adicionado(s)`);
+      self.showSuccess(`${checkboxes.length} item(ns) adicionado(s)`);
     });
 
     // Força todos desmarcados por padrão
@@ -7810,7 +7806,7 @@ ${details.stack || 'Não disponível'}</div>
       // Scroll para o formulário
       document.getElementById('formNotaFiscal').scrollIntoView({ behavior: 'smooth' });
 
-      this.showSuccess('✅ Dados transferidos com sucesso! Revise e salve a Nota Fiscal.');
+      this.showSuccess('Dados transferidos com sucesso. Revise e salve a Nota Fiscal.');
     } catch (error) {
       console.error('Erro ao transferir dados:', error);
       this.showError('Erro ao transferir dados: ' + error.message);

@@ -56,10 +56,7 @@ async function renderStorageStats(containerId) {
 
   if (SERVER_MODE) {
     const authAtivo = !!window.__SINGEM_AUTH?.accessToken;
-    const apiBase =
-      window.__API_BASE_URL__ ||
-      window.CONFIG?.api?.baseUrl ||
-      window.location.origin;
+    const apiBase = window.__API_BASE_URL__ || window.CONFIG?.api?.baseUrl || window.location.origin;
     renderInto(
       container,
       metricGridMarkup([

@@ -1,6 +1,5 @@
 import repository from '../core/repository.js';
 import { initTheme, mountThemeToggle } from './themeManager.js';
-import { scheduleVisualAuditRefresh } from './aiVisualAudit.js';
 
 const SCREEN_LABELS = {
   homeScreen: 'Painel executivo',
@@ -390,7 +389,6 @@ export async function updateDashboardMetrics(app) {
         accent: 'warning'
       })
     ].join('');
-    scheduleVisualAuditRefresh('homeScreen');
   } catch (error) {
     console.warn('[PremiumShell] Falha ao atualizar métricas:', error);
     setTextContent('dashboardUnitHeading', 'Painel institucional indisponível');
@@ -407,7 +405,6 @@ export async function updateDashboardMetrics(app) {
         <p class="dashboard-metric-detail">Não foi possível carregar as métricas agora.</p>
       </article>
     `;
-    scheduleVisualAuditRefresh('homeScreen');
   }
 }
 
@@ -462,9 +459,7 @@ export function initPremiumShell(app) {
   const envNotice = document.getElementById('loginEnvNotice');
   if (
     envNotice &&
-    (location.hostname === 'localhost' ||
-      location.hostname === '127.0.0.1' ||
-      location.hostname.endsWith('.local'))
+    (location.hostname === 'localhost' || location.hostname === '127.0.0.1' || location.hostname.endsWith('.local'))
   ) {
     envNotice.style.display = '';
   }

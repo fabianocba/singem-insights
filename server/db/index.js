@@ -26,7 +26,9 @@ function parseBoolean(value, fallback = false) {
 }
 
 function isPrivateNetworkHost(hostname) {
-  const normalized = String(hostname || '').trim().toLowerCase();
+  const normalized = String(hostname || '')
+    .trim()
+    .toLowerCase();
   if (!normalized) {
     return true;
   }
@@ -63,7 +65,9 @@ function isPrivateNetworkHost(hostname) {
 }
 
 function shouldEnableSsl({ nodeEnv, hostname }) {
-  const sslMode = String(process.env.PGSSLMODE || '').trim().toLowerCase();
+  const sslMode = String(process.env.PGSSLMODE || '')
+    .trim()
+    .toLowerCase();
   if (['require', 'verify-ca', 'verify-full'].includes(sslMode)) {
     return true;
   }

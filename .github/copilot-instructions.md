@@ -3,6 +3,7 @@
 ## Visão Geral do Sistema
 
 SINGEM é um sistema de controle de materiais do IF Baiano com arquitetura **hibrida**:
+
 - Frontend web com suporte offline e persistencia local (IndexedDB) para fluxos legados.
 - Backend Node.js/Express com PostgreSQL para APIs, autenticacao e integracoes.
 - Orquestracao oficial via Docker (`docker/dev/docker-compose.dev.yml` e `docker/prod/docker-compose.prod.yml`).
@@ -24,8 +25,8 @@ Frontend Input → Validadores/UI → API (`/api`) ou Repository local → Persi
 
 ### Arquivos Críticos
 
-| Arquivo                                        | Responsabilidade                                                  |
-| ---------------------------------------------- | ----------------------------------------------------------------- |
+| Arquivo                                           | Responsabilidade                                                  |
+| ------------------------------------------------- | ----------------------------------------------------------------- |
 | [js/app.js](../js/app.js)                         | Aplicação principal (~7000 linhas) - classe `ControleMaterialApp` |
 | [js/db.js](../js/db.js)                           | `window.dbManager` - operações IndexedDB                          |
 | [js/neParser.js](../js/neParser.js)               | Parser de PDFs de Notas de Empenho (padrão IF Baiano)             |

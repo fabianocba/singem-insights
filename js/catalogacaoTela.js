@@ -118,13 +118,13 @@ function renderPedidoRow(pedido) {
       <td>${dataFormatada}</td>
       <td>
         <button type="button" class="btn-acao btn-ver" data-id="${pedido.id}" title="Ver detalhes">
-          👁️
+          Ver
         </button>
         ${
           pedido.status === 'NAO_SOLICITADO'
             ? `
           <button type="button" class="btn-acao btn-solicitar" data-id="${pedido.id}" title="Marcar como Solicitado">
-            📤
+            Solicitar
           </button>
         `
             : ''
@@ -133,10 +133,10 @@ function renderPedidoRow(pedido) {
           pedido.status === 'SOLICITADO'
             ? `
           <button type="button" class="btn-acao btn-aprovar" data-id="${pedido.id}" title="Marcar como Aprovado">
-            ✅
+            Aprovar
           </button>
           <button type="button" class="btn-acao btn-devolver" data-id="${pedido.id}" title="Marcar como Devolvido">
-            ↩️
+            Devolver
           </button>
         `
             : ''
@@ -145,7 +145,7 @@ function renderPedidoRow(pedido) {
           ['NAO_SOLICITADO'].includes(pedido.status)
             ? `
           <button type="button" class="btn-acao btn-excluir" data-id="${pedido.id}" title="Excluir">
-            🗑️
+            Excluir
           </button>
         `
             : ''
@@ -166,7 +166,7 @@ function renderTabela(container) {
   if (state.pedidos.length === 0) {
     container.innerHTML = `
       <div class="catalogacao-empty-state">
-        <p class="catalogacao-empty-icon">📋</p>
+        <p class="catalogacao-empty-icon material-symbols-outlined" aria-hidden="true">list_alt</p>
         <p>Nenhum pedido de catalogação encontrado.</p>
         <button type="button" id="btnNovoPedidoCat" class="btn btn-primary">
           + Novo Pedido
@@ -201,7 +201,7 @@ function renderTabela(container) {
         ? `
       <div class="catalogacao-pagination pagination-controls">
         <button type="button" class="btn btn-secondary btn-pag-ant" ${state.paginacao.pagina <= 1 ? 'disabled' : ''}>
-          ← Anterior
+          Anterior
         </button>
         <span class="pagination-info">
           Página ${state.paginacao.pagina} de ${Math.ceil(state.paginacao.total / state.paginacao.limite)}
@@ -226,7 +226,7 @@ function abrirModalDetalhes(pedido) {
   modal.innerHTML = `
     <div class="modal-content modal-card catalogacao-modal-card" role="dialog" aria-modal="true">
       <div class="modal-header">
-        <h2 class="catalogacao-modal-title">📋 Pedido #${pedido.id}</h2>
+        <h2 class="catalogacao-modal-title">Pedido #${pedido.id}</h2>
         <button type="button" class="btn-fechar catalogacao-btn-fechar">&times;</button>
       </div>
 
@@ -315,7 +315,7 @@ function abrirModalDetalhes(pedido) {
 
         <div class="catalogacao-info-box">
           <p class="catalogacao-info-title">
-            📌 Acompanhar no Compras.gov.br
+            Acompanhar no Compras.gov.br
           </p>
           <a href="https://www.gov.br/compras/pt-br/sistemas/sistema-de-catalogacao"
              target="_blank"
@@ -351,7 +351,7 @@ export function initTelaCatalogacao(containerId = 'catalogacaoPedidosContainer')
   container.innerHTML = `
     <div class="catalogacao-filtros sg-toolbar">
       <div class="form-group catalogacao-filtro-grow">
-        <input type="text" id="filtroTermoCat" placeholder="🔍 Buscar por termo ou descrição..."
+        <input type="text" id="filtroTermoCat" placeholder="Buscar por termo ou descricao..."
           class="sg-input" />
       </div>
 

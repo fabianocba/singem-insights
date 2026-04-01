@@ -18,7 +18,9 @@ export const APP_SHELL_TEMPLATE = `
             </button>
             <!-- Logo: shows on mobile or when sidebar is collapsed -->
             <div class="logo">
-              <div class="logo-mark" aria-hidden="true">SI</div>
+              <div class="logo-mark" aria-hidden="true">
+                <img src="img/LOGO LG.png" alt="SINGEM" />
+              </div>
               <div class="logo-content">
                 <h1>SINGEM</h1>
                 <p>IF Baiano</p>
@@ -63,7 +65,9 @@ export const APP_SHELL_TEMPLATE = `
     <aside id="appSidebar" class="app-sidebar hidden" aria-label="Navegação principal do sistema">
       <!-- Brand -->
       <div class="app-sidebar__brand ops-sidebar-brand">
-        <div class="logo-mark ops-sidebar-mark" aria-hidden="true">SI</div>
+        <div class="logo-mark ops-sidebar-mark" aria-hidden="true">
+          <img src="img/LOGO LG.png" alt="SINGEM" />
+        </div>
         <div class="app-sidebar__brand-copy">
           <strong>Operação</strong>
           <span>SINGEM</span>
@@ -99,11 +103,6 @@ export const APP_SHELL_TEMPLATE = `
           <span class="material-symbols-outlined" aria-hidden="true">inventory_2</span>
           <span>Catalogação</span>
         </button>
-        <button type="button" class="app-sidebar__link ops-side-link" data-nav-href="/system-status/">
-          <span class="material-symbols-outlined" aria-hidden="true">analytics</span>
-          <span>System Status</span>
-        </button>
-
         <span class="app-sidebar__group-label">Módulos setoriais</span>
         <button type="button" class="app-sidebar__link ops-side-link" data-nav-screen="empenhoScreen">
           <span class="material-symbols-outlined" aria-hidden="true">description</span>
@@ -186,7 +185,7 @@ export const APP_SHELL_TEMPLATE = `
           <div class="login-container">
             <!-- Badge institucional acima do card -->
             <div class="login-institution-badge" aria-hidden="true">
-              <span>🏛️</span>
+              <span class="material-symbols-outlined" aria-hidden="true">account_balance</span>
               <span>Instituto Federal Baiano</span>
             </div>
 
@@ -200,16 +199,12 @@ export const APP_SHELL_TEMPLATE = `
               <!-- Faixa accent no topo do card -->
               <div class="login-card__accent" aria-hidden="true"></div>
 
-              <!-- Branding: ícone + nome + subtítulo -->
+              <!-- Branding: logo SINGEM + unidade orçamentária -->
               <div class="login-brand">
-                <div class="login-brand__icon" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11M8 14v3M12 14v3M16 14v3"/>
-                  </svg>
-                </div>
-                <div class="login-brand__copy">
-                  <h1 id="loginUnidadeNome">SINGEM</h1>
-                  <p id="loginUnidadeInfo">IF Baiano</p>
+                <img src="img/LOGO COMPLETA.png" alt="SINGEM - Sistema Integrado de Gestão de Materiais e Logística" class="login-brand__img" />
+                <div class="login-brand__unit">
+                  <p id="loginUnidadeNome">IF Baiano</p>
+                  <small id="loginUnidadeInfo">Campus Guanambi</small>
                 </div>
               </div>
 
@@ -336,7 +331,7 @@ export const APP_SHELL_TEMPLATE = `
                 &copy; 2026 IF Baiano &mdash; Instituto Federal de Educação, Ciência e Tecnologia Baiano
               </p>
               <div class="login-footer-links">
-                <a href="/system-status/" target="_blank" rel="noopener noreferrer">Versão 2.4.0</a>
+                <span>Versão 2.4.0</span>
                 <a href="/docs/GUIA_USO_APLICACAO.md" target="_blank" rel="noopener noreferrer">Suporte Técnico</a>
                 <a href="/README_DOCKER.md" target="_blank" rel="noopener noreferrer">Privacidade</a>
               </div>
@@ -355,11 +350,7 @@ export const APP_SHELL_TEMPLATE = `
                 </p>
               </div>
               <div class="ops-main-header__meta">
-                <button type="button" class="ops-notification-btn" aria-label="Notificações">
-                  <span class="material-symbols-outlined" aria-hidden="true">notifications</span>
-                </button>
                 <div class="ops-user-chip">
-                  <span class="ops-user-chip__avatar material-symbols-outlined" aria-hidden="true">person</span>
                   <span>Operador Central</span>
                 </div>
               </div>
@@ -427,17 +418,14 @@ export const APP_SHELL_TEMPLATE = `
                 <h4>Controles Críticos do Dia</h4>
                 <div class="ops-critical-grid">
                   <button type="button" class="ops-critical-item" data-nav-screen="notaFiscalScreen">
-                    <span class="ops-critical-icon material-symbols-outlined" aria-hidden="true">track_changes</span>
                     <span class="ops-critical-title">Empenhos & NF</span>
                     <small>Rastreamento automatizado de obrigações fiscais pendentes.</small>
                   </button>
                   <button type="button" class="ops-critical-item" data-nav-screen="consultasScreen">
-                    <span class="ops-critical-icon material-symbols-outlined" aria-hidden="true">hub</span>
                     <span class="ops-critical-title">Consulta Unificada</span>
                     <small>Integração direta com bases governamentais e compras.gov.</small>
                   </button>
                   <button type="button" class="ops-critical-item" data-nav-screen="configScreen">
-                    <span class="ops-critical-icon material-symbols-outlined" aria-hidden="true">backup</span>
                     <span class="ops-critical-title">Backups & Config</span>
                     <small>Preferências do sistema e integridade de dados locais.</small>
                   </button>
@@ -452,40 +440,36 @@ export const APP_SHELL_TEMPLATE = `
 
             <div class="menu-grid ops-area-grid">
               <div class="menu-item" data-screen="entregaScreen">
-                <div class="menu-icon material-symbols-outlined" aria-hidden="true">move_to_inbox</div>
+                <div class="menu-icon menu-icon--compact material-symbols-outlined" aria-hidden="true">move_to_inbox</div>
                 <h3>Entrada de Entrega</h3>
                 <p>Processamento de recebimento físico de materiais no almoxarifado.</p>
               </div>
 
               <div class="menu-item" data-screen="notaFiscalScreen">
-                <div class="menu-icon material-symbols-outlined" aria-hidden="true">description</div>
+                <div class="menu-icon menu-icon--compact material-symbols-outlined" aria-hidden="true">description</div>
                 <h3>Entrada de Nota Fiscal</h3>
                 <p>Lançamento e conferência de documentos fiscais eletrônicos.</p>
               </div>
 
               <div class="menu-item" data-screen="almoxarifadoScreen">
-                <div class="menu-icon material-symbols-outlined" aria-hidden="true">warehouse</div>
+                <div class="menu-icon menu-icon--compact material-symbols-outlined" aria-hidden="true">warehouse</div>
                 <h3>Almoxarifado</h3>
                 <p>Controle de estoque, inventário e movimentação interna.</p>
               </div>
 
               <div class="menu-item" id="consultasMenuItem">
-                <div class="menu-icon material-symbols-outlined" aria-hidden="true">language</div>
+                <div class="menu-icon menu-icon--compact material-symbols-outlined" aria-hidden="true">language</div>
                 <h3>Consulte Compras.gov</h3>
                 <p>Acesso direto ao portal de compras do governo federal.</p>
               </div>
 
               <div class="menu-item" data-screen="catalogacaoScreen">
-                <div class="menu-icon material-symbols-outlined" aria-hidden="true">fact_check</div>
+                <div class="menu-icon menu-icon--compact material-symbols-outlined" aria-hidden="true">fact_check</div>
                 <h3>Pedidos de Catalogação</h3>
                 <p>Solicitações de novos itens no catálogo institucional.</p>
               </div>
 
-              <div class="menu-item" id="systemStatusMenuItem">
-                <div class="menu-icon material-symbols-outlined" aria-hidden="true">dns</div>
-                <h3>System Status</h3>
-                <p>Monitoramento de servidores e serviços SINGEM ativos.</p>
-              </div>
+
             </div>
 
             <div class="ops-floating-alert" role="status" aria-live="polite">
@@ -501,7 +485,7 @@ export const APP_SHELL_TEMPLATE = `
         <section id="almoxarifadoScreen" class="screen sg-screen-shell">
           <div class="screen-header sg-screen-header">
             <button class="btn-back">← Voltar</button>
-            <h2>🏬 SINGEM Almoxarifado</h2>
+            <h2>SINGEM Almoxarifado</h2>
           </div>
 
           <div id="almoxarifadoPageRoot" class="almoxarifado-page-root">
@@ -513,7 +497,7 @@ export const APP_SHELL_TEMPLATE = `
         <section id="catalogacaoScreen" class="screen sg-screen-shell">
           <div class="screen-header sg-screen-header">
             <button class="btn-back">← Voltar</button>
-            <h2>📋 Pedidos de Catalogação</h2>
+            <h2>Pedidos de Catalogação</h2>
           </div>
 
           <div id="catalogacaoPedidosContainer" class="catalogacao-wrapper">
@@ -526,7 +510,7 @@ export const APP_SHELL_TEMPLATE = `
         <section id="consultasScreen" class="screen sg-screen-shell">
           <div class="screen-header sg-screen-header">
             <button class="btn-back">← Voltar</button>
-            <h2>🔍 Consulte Compras.gov</h2>
+            <h2>Consulte Compras.gov</h2>
           </div>
 
           <div id="consultasContainer" class="consultas-wrapper">
@@ -535,10 +519,10 @@ export const APP_SHELL_TEMPLATE = `
               <!-- Controle de Modo API -->
               <div id="apiModeControl" class="api-mode-control">
                 <label class="api-status-label">
-                  <span id="apiStatusText">🌐 Modo: API Real</span>
+                  <span id="apiStatusText">Modo: API Real</span>
                 </label>
                 <button id="btnToggleAPIMode" class="btn btn-sm btn-outline btn-toggle-api">
-                  🎭 Alternar para Modo Demo
+                  Alternar para modo demo
                 </button>
               </div>
 
@@ -557,13 +541,13 @@ export const APP_SHELL_TEMPLATE = `
                   role="button"
                   tabindex="0"
                 >
-                  <div class="menu-icon-consulta">📦</div>
+                  <span class="menu-icon-consulta material-symbols-outlined" aria-hidden="true">inventory_2</span>
                   <h4>Catálogo de Material</h4>
                   <p>Consulte itens do CATMAT por descrição ou código CATMAT</p>
                 </div>
 
                 <div class="menu-item-consulta" data-consulta="servicos" role="button" tabindex="0">
-                  <div class="menu-icon-consulta">🛠️</div>
+                  <span class="menu-icon-consulta material-symbols-outlined" aria-hidden="true">construction</span>
                   <h4>Catálogo de Serviço</h4>
                   <p>Consulte serviços do CATSER por grupo e classe</p>
                 </div>
@@ -574,13 +558,13 @@ export const APP_SHELL_TEMPLATE = `
                   role="button"
                   tabindex="0"
                 >
-                  <div class="menu-icon-consulta">📈</div>
+                  <span class="menu-icon-consulta material-symbols-outlined" aria-hidden="true">monitoring</span>
                   <h4>Módulo 3 - Preços Praticados (CATMAT/CATSER)</h4>
                   <p>Pesquisa de preços praticados por código CATMAT/CATSER em compras públicas</p>
                 </div>
 
                 <div class="menu-item-consulta" data-consulta="uasg" role="button" tabindex="0">
-                  <div class="menu-icon-consulta">🏛️</div>
+                  <span class="menu-icon-consulta material-symbols-outlined" aria-hidden="true">account_balance</span>
                   <h4>Consultar UASG</h4>
                   <p>Busque unidades administrativas por código ou UF</p>
                 </div>
@@ -591,19 +575,19 @@ export const APP_SHELL_TEMPLATE = `
                   role="button"
                   tabindex="0"
                 >
-                  <div class="menu-icon-consulta">🏢</div>
+                  <span class="menu-icon-consulta material-symbols-outlined" aria-hidden="true">domain</span>
                   <h4>Fornecedor</h4>
                   <p>Consulte fornecedores por CNPJ, CPF, natureza jurídica, porte e CNAE</p>
                 </div>
 
                 <div class="menu-item-consulta" data-consulta="arp" role="button" tabindex="0">
-                  <div class="menu-icon-consulta">📋</div>
+                  <span class="menu-icon-consulta material-symbols-outlined" aria-hidden="true">list_alt</span>
                   <h4>ARP - Atas de Preços</h4>
                   <p>Consulte itens de Atas de Registro de Preços</p>
                 </div>
 
                 <div class="menu-item-consulta" data-consulta="pncp" role="button" tabindex="0">
-                  <div class="menu-icon-consulta">📑</div>
+                  <span class="menu-icon-consulta material-symbols-outlined" aria-hidden="true">description</span>
                   <h4>Contratações PNCP</h4>
                   <p>Lei 14.133/2021 - Portal Nacional de Contratações</p>
                 </div>
@@ -614,7 +598,7 @@ export const APP_SHELL_TEMPLATE = `
                   role="button"
                   tabindex="0"
                 >
-                  <div class="menu-icon-consulta">📚</div>
+                  <span class="menu-icon-consulta material-symbols-outlined" aria-hidden="true">gavel</span>
                   <h4>Licitações (Legado)</h4>
                   <p>Consulte licitações do sistema antigo ComprasNet</p>
                 </div>
@@ -625,7 +609,7 @@ export const APP_SHELL_TEMPLATE = `
                   role="button"
                   tabindex="0"
                 >
-                  <div class="menu-icon-consulta">📄</div>
+                  <span class="menu-icon-consulta material-symbols-outlined" aria-hidden="true">article</span>
                   <h4>Itens de Licitação (Legado)</h4>
                   <p>Consulte itens de licitações do sistema legado</p>
                 </div>
@@ -636,13 +620,13 @@ export const APP_SHELL_TEMPLATE = `
             <div id="telaConsulta" class="tela-consulta hidden sg-section-shell" aria-hidden="true">
               <!-- Breadcrumb / Voltar -->
               <div class="consulta-nav">
-                <button id="btnVoltarMenu" class="btn btn-secondary">◀ Voltar ao Menu</button>
+                <button id="btnVoltarMenu" class="btn btn-secondary">Voltar ao menu</button>
                 <h3 id="tituloConsulta">Consulta</h3>
               </div>
 
               <!-- Filtros Dinâmicos -->
               <section class="filters-section">
-                <h4>🎛️ Filtros de Busca</h4>
+                <h4>Filtros de Busca</h4>
                 <div id="filtersContainer">
                   <p class="text-muted">Carregando filtros...</p>
                 </div>
@@ -655,10 +639,10 @@ export const APP_SHELL_TEMPLATE = `
 
               <!-- Resultados -->
               <section class="results-section">
-                <h4>📋 Resultados</h4>
+                <h4>Resultados</h4>
                 <div id="resultsTable">
                   <div class="empty-state">
-                    <p>📋 Nenhum resultado ainda.</p>
+                    <p>Nenhum resultado ainda.</p>
                     <p class="text-muted">Configure os filtros e clique em "Buscar".</p>
                   </div>
                 </div>
@@ -676,14 +660,14 @@ export const APP_SHELL_TEMPLATE = `
         <section id="empenhoScreen" class="screen sg-screen-shell">
           <div class="screen-header sg-screen-header">
             <button class="btn-back">← Voltar</button>
-            <h2>📝 Gerenciamento de Empenhos</h2>
+            <h2>Gerenciamento de Empenhos</h2>
           </div>
 
           <!-- Abas de navegação -->
           <div class="tabs-container sg-command-cluster">
-            <button class="tab-btn active" data-tab="cadastro">📝 Novo Cadastro</button>
-            <button class="tab-btn" data-tab="controle-saldos">📊 Controle de Saldos</button>
-            <button class="tab-btn" data-tab="relatorio">📋 Relatório de Empenhos</button>
+            <button class="tab-btn active" data-tab="cadastro">Novo cadastro</button>
+            <button class="tab-btn" data-tab="controle-saldos">Controle de saldos</button>
+            <button class="tab-btn" data-tab="relatorio">Relatório de empenhos</button>
           </div>
 
           <!-- Conteúdo: Cadastro -->
@@ -691,12 +675,12 @@ export const APP_SHELL_TEMPLATE = `
             <!-- Lista de Empenhos para Edição -->
             <div id="listaEmpenhosCadastro" class="empenhos-lista-cadastro mb-8">
               <div class="sg-toolbar">
-                <h3 class="sg-toolbar__title">📋 Empenhos Cadastrados</h3>
+                <h3 class="sg-toolbar__title">Empenhos cadastrados</h3>
                 <div class="sg-toolbar__actions">
                   <input
                     type="text"
                     id="buscaEmpenhoCadastro"
-                    placeholder="🔍 Buscar empenho..."
+                    placeholder="Buscar empenho..."
                     class="sg-inline-input"
                   />
                   <select
@@ -707,7 +691,7 @@ export const APP_SHELL_TEMPLATE = `
                     <option value="">Todos os anos</option>
                   </select>
                   <button type="button" id="btnNovoEmpenho" class="btn btn-success">
-                    ➕ Novo Empenho
+                    Novo empenho
                   </button>
                 </div>
               </div>
@@ -719,12 +703,12 @@ export const APP_SHELL_TEMPLATE = `
             <hr class="sg-divider" />
 
             <div class="form-container sg-form-shell">
-              <h2 class="sg-section-title">📝 Cadastro Manual de Nota de Empenho</h2>
+              <h2 class="sg-section-title">Cadastro manual de nota de empenho</h2>
 
               <form id="formEmpenho" class="form">
                 <!-- CABEÇALHO DO EMPENHO -->
                 <fieldset class="sg-fieldset">
-                  <legend class="sg-legend">📋 Cabeçalho do Empenho</legend>
+                  <legend class="sg-legend">Cabeçalho do empenho</legend>
 
                   <div class="form-row">
                     <div class="form-group">
@@ -767,7 +751,7 @@ export const APP_SHELL_TEMPLATE = `
                           class="btn btn-secondary whitespace-nowrap px-3 py-2"
                           title="Consultar processo no SUAP"
                         >
-                          🔍 Consultar
+                          Consultar
                         </button>
                       </div>
                     </div>
@@ -784,7 +768,7 @@ export const APP_SHELL_TEMPLATE = `
 
                 <!-- DADOS DO FORNECEDOR -->
                 <fieldset class="sg-fieldset">
-                  <legend class="sg-legend">🏢 Dados do Fornecedor</legend>
+                  <legend class="sg-legend">Dados do fornecedor</legend>
 
                   <div class="form-row">
                     <div class="form-group">
@@ -838,7 +822,7 @@ export const APP_SHELL_TEMPLATE = `
                       + Adicionar Item
                     </button>
                     <button type="button" id="btnValidarEmpenho" class="btn btn-success" disabled>
-                      ✅ Validar NE
+                      Validar NE
                     </button>
                   </div>
                 </div>
@@ -851,7 +835,7 @@ export const APP_SHELL_TEMPLATE = `
                       id="btnAnexarPdfNE"
                       class="btn btn-secondary inline-flex items-center gap-1.5"
                     >
-                      📎 Anexar PDF da NE
+                      Anexar PDF da NE
                     </button>
                     <span id="statusAnexoPdfNE" class="sg-help-text">Nenhum PDF anexado.</span>
                   </div>
@@ -883,53 +867,53 @@ export const APP_SHELL_TEMPLATE = `
                 data-tipo="todos"
                 title="Todos os empenhos cadastrados"
               >
-                📋 Todos os Empenhos
+                Todos os empenhos
               </button>
               <button
                 class="btn-tipo-relatorio sg-report-type-button"
                 data-tipo="ano"
                 title="Empenhos filtrados por ano"
               >
-                📅 Por Ano
+                Por ano
               </button>
               <button
                 class="btn-tipo-relatorio sg-report-type-button"
                 data-tipo="com-saldo"
                 title="Empenhos com saldo disponível"
               >
-                💰 Com Saldo
+                Com saldo
               </button>
               <button
                 class="btn-tipo-relatorio sg-report-type-button"
                 data-tipo="sem-saldo"
                 title="Empenhos totalmente utilizados"
               >
-                🔴 Sem Saldo
+                Sem saldo
               </button>
               <button
                 class="btn-tipo-relatorio sg-report-type-button"
                 data-tipo="rascunho"
                 title="Empenhos em fase de cadastro"
               >
-                📝 Em Cadastro
+                Em cadastro
               </button>
               <button
                 class="btn-tipo-relatorio sg-report-type-button"
                 data-tipo="validado"
                 title="Empenhos validados e prontos"
               >
-                ✅ Validados
+                Validados
               </button>
             </div>
 
             <!-- Filtros específicos por tipo -->
             <div id="filtrosRelatorioContainer" class="relatorio-header sg-toolbar mb-5">
-              <h3 id="tituloRelatorioAtual" class="sg-toolbar__title">📋 Todos os Empenhos</h3>
+              <h3 id="tituloRelatorioAtual" class="sg-toolbar__title">Todos os empenhos</h3>
               <div class="sg-toolbar__actions">
                 <input
                   type="text"
                   id="buscaEmpenhoRelatorio"
-                  placeholder="🔍 Buscar..."
+                  placeholder="Buscar..."
                   class="sg-inline-input min-w-45"
                 />
                 <select
@@ -944,20 +928,20 @@ export const APP_SHELL_TEMPLATE = `
                   class="sg-inline-select"
                   aria-label="Ordenar relatório de empenhos"
                 >
-                  <option value="recente">📅 Mais recentes</option>
-                  <option value="antigo">📅 Mais antigos</option>
-                  <option value="numero">🔢 Por número</option>
-                  <option value="valor-desc">💰 Maior valor</option>
-                  <option value="valor-asc">💰 Menor valor</option>
-                  <option value="saldo-desc">📊 Maior saldo</option>
-                  <option value="saldo-asc">📊 Menor saldo</option>
+                  <option value="recente">Mais recentes</option>
+                  <option value="antigo">Mais antigos</option>
+                  <option value="numero">Por numero</option>
+                  <option value="valor-desc">Maior valor</option>
+                  <option value="valor-asc">Menor valor</option>
+                  <option value="saldo-desc">Maior saldo</option>
+                  <option value="saldo-asc">Menor saldo</option>
                 </select>
                 <button
                   id="btnExportarRelatorio"
                   class="btn btn-secondary inline-flex items-center gap-1 px-3 py-2"
                   title="Exportar relatório"
                 >
-                  📥 Exportar
+                  Exportar
                 </button>
               </div>
             </div>
@@ -967,10 +951,7 @@ export const APP_SHELL_TEMPLATE = `
               <!-- Preenchido dinamicamente -->
             </div>
 
-            <p class="sg-info-note">
-              ℹ️ <strong>Modo Visualização:</strong> Para editar empenhos, utilize a aba "Novo
-              Cadastro".
-            </p>
+            <p class="sg-info-note"><strong>Modo visualizacao:</strong> para editar empenhos, utilize a aba "Novo cadastro".</p>
             <div id="relatorioEmpenhosContainer" class="sg-dynamic-panel-host">
               <!-- Conteúdo será carregado dinamicamente -->
             </div>
@@ -981,7 +962,7 @@ export const APP_SHELL_TEMPLATE = `
         <section id="entregaScreen" class="screen sg-screen-shell">
           <div class="screen-header sg-screen-header">
             <button class="btn-back">← Voltar</button>
-            <h2>📦 Entrada de Entrega</h2>
+            <h2>Entrada de entrega</h2>
           </div>
 
           <div class="form-container sg-form-shell">
@@ -1023,14 +1004,14 @@ export const APP_SHELL_TEMPLATE = `
         <section id="notaFiscalScreen" class="screen nf-screen sg-screen-shell">
           <div class="screen-header sg-screen-header">
             <button class="btn-back">← Voltar</button>
-            <h2>📄 Entrada de Nota Fiscal</h2>
+            <h2>Entrada de nota fiscal</h2>
           </div>
 
           <div class="form-container sg-form-shell">
-            <!-- ✅ ENTRADA MANUAL (PADRÃO) - Empenho obrigatório no topo -->
+            <!-- Entrada manual (padrao) - Empenho obrigatorio no topo -->
             <div class="nf-empenho-section sg-highlight-panel">
               <h3 class="sg-highlight-title">
-                <span>📋</span> 1. Selecione o Empenho (Obrigatório)
+                <span class="material-symbols-outlined" aria-hidden="true">list_alt</span> 1. Selecione o empenho (obrigatorio)
               </h3>
               <div class="empenho-select-container sg-highlight-row">
                 <select id="empenhoAssociado" class="sg-highlight-select" required>
@@ -1057,12 +1038,12 @@ export const APP_SHELL_TEMPLATE = `
             <!-- Importação Opcional (Colapsável) -->
             <details class="import-opcoes sg-details">
               <summary class="sg-details-summary">
-                📥 Importar dados (opcional) - Clique para expandir
+                Importar dados (opcional) - clique para expandir
               </summary>
               <div class="sg-details-body">
                 <div class="opcoes-grid sg-option-grid">
                   <div class="opcao-card sg-option-card" data-opcao="upload" id="opcaoUpload">
-                    <div class="opcao-icon">📎</div>
+                    <div class="opcao-icon"><span class="material-symbols-outlined" aria-hidden="true">attach_file</span></div>
                     <h4>Upload do PDF</h4>
                     <p>Extrair dados do PDF da NF</p>
                   </div>
@@ -1079,21 +1060,21 @@ export const APP_SHELL_TEMPLATE = `
             <div class="entrada-content" id="contentUpload">
               <div class="upload-area">
                 <div class="upload-box" id="uploadNotaFiscal">
-                  <div class="upload-icon">📎</div>
+                  <div class="upload-icon"><span class="material-symbols-outlined" aria-hidden="true">attach_file</span></div>
                   <p>Clique ou arraste o PDF da Nota Fiscal</p>
                   <input type="file" id="fileNotaFiscal" accept=".pdf" hidden />
                 </div>
 
                 <!-- Área de Preview dos Dados Extraídos -->
                 <div id="previewDadosNF" class="preview-dados hidden">
-                  <h4 class="preview-title">📋 Dados Extraídos do PDF</h4>
+                  <h4 class="preview-title">Dados extraidos do PDF</h4>
 
                   <!-- Alerta de Divergência -->
                   <div id="alertaDivergencia" class="alert hidden"></div>
 
                   <!-- Cabeçalho da NF -->
                   <div class="dados-cabecalho">
-                    <h5>📄 Dados do Cabeçalho</h5>
+                    <h5>Dados do cabecalho</h5>
                     <div class="grid-dados-nf">
                       <div>
                         <strong>Número NF:</strong>
@@ -1128,7 +1109,7 @@ export const APP_SHELL_TEMPLATE = `
 
                   <!-- Itens Extraídos -->
                   <div class="dados-itens secao-itens">
-                    <h5>📦 Itens/Produtos Extraídos</h5>
+                    <h5>Itens/produtos extraidos</h5>
                     <div id="tabelaItensExtraidos" class="tabela-itens-container">
                       <!-- Tabela será gerada dinamicamente -->
                     </div>
@@ -1136,7 +1117,7 @@ export const APP_SHELL_TEMPLATE = `
 
                   <!-- Resumo da Validação -->
                   <div class="resumo-validacao">
-                    <h5>📊 Resumo da Validação</h5>
+                    <h5>Resumo da validacao</h5>
                     <div class="grid-dados-nf">
                       <div>
                         <strong>Total de Itens:</strong>
@@ -1164,7 +1145,7 @@ export const APP_SHELL_TEMPLATE = `
                       id="btnTransferirDados"
                       class="btn btn-primary btn-salvar-confirmacao"
                     >
-                      ✅ Transferir Dados para Formulário
+                      Transferir dados para formulario
                     </button>
                   </div>
                 </div>
@@ -1187,10 +1168,10 @@ export const APP_SHELL_TEMPLATE = `
                 </div>
                 <div class="chave-actions">
                   <button type="button" id="btnBuscarPorChave" class="btn btn-primary">
-                    🔍 Buscar Nota Fiscal
+                    Buscar nota fiscal
                   </button>
                   <button type="button" id="btnLimparChave" class="btn btn-outline">
-                    🗑️ Limpar
+                    Limpar
                   </button>
                 </div>
                 <div id="chaveStatus" class="status-message hidden"></div>
@@ -1255,13 +1236,13 @@ export const APP_SHELL_TEMPLATE = `
               </div>
 
               <div id="divergenciasContainer" class="divergencias hidden">
-                <h3>⚠️ Divergências Encontradas</h3>
+                <h3>Divergencias encontradas</h3>
                 <div id="listaDivergencias"></div>
               </div>
 
               <div class="items-section">
                 <div class="nf-items-header">
-                  <h3>📦 Itens da Nota Fiscal</h3>
+                  <h3>Itens da nota fiscal</h3>
                   <small id="nfItensHint">Selecione um empenho para sugestões de itens</small>
                 </div>
                 <!-- Datalist para autocompletar itens do empenho -->
@@ -1306,7 +1287,7 @@ export const APP_SHELL_TEMPLATE = `
                 <div class="sg-inline-actions">
                   <!-- REMOVIDO: Botão manual PROIBIDO - Itens só podem vir do Empenho -->
                   <button type="button" id="btnAddItemFromEmpenho" class="btn btn-primary">
-                    📋 Adicionar do Empenho
+                    Adicionar do empenho
                   </button>
                 </div>
 
@@ -1349,7 +1330,7 @@ export const APP_SHELL_TEMPLATE = `
                   class="btn btn-warning"
                   title="Valida NF contra Empenho vinculado"
                 >
-                  🔍 Validar NF
+                  Validar NF
                 </button>
                 <button type="submit" class="btn btn-primary">Salvar Nota Fiscal</button>
               </div>
@@ -1360,7 +1341,7 @@ export const APP_SHELL_TEMPLATE = `
               <div class="modal-content sg-modal-wide sg-validation-modal">
                 <div class="modal-header">
                   <h3 id="modalValidacaoTitulo" class="sg-modal-heading sg-modal-heading--primary">
-                    🔍 Resultado da Validação
+                    Resultado da validacao
                   </h3>
                   <button type="button" class="modal-close" id="btnFecharValidacaoNF">
                     &times;
@@ -1383,17 +1364,17 @@ export const APP_SHELL_TEMPLATE = `
         <section id="relatoriosScreen" class="screen sg-screen-shell">
           <div class="screen-header sg-screen-header">
             <button class="btn-back">← Voltar</button>
-            <h2>📊 Relatórios</h2>
+            <h2>Relatorios</h2>
           </div>
 
           <div class="reports-container">
             <!-- Acesso a Arquivos (modo banco/API) -->
             <div class="file-management-section">
-              <h3>📊 Arquivos e Estatísticas</h3>
+              <h3>Arquivos e estatisticas</h3>
               <p class="nf-warning-text">O armazenamento está em modo banco/API.</p>
               <div class="file-management-actions">
                 <button id="btnEstatisticasArquivos" class="btn btn-outline">
-                  📊 Estatísticas
+                  Estatisticas
                 </button>
               </div>
               <div id="fileStatsDisplay" class="file-stats hidden">
@@ -1423,7 +1404,7 @@ export const APP_SHELL_TEMPLATE = `
 
             <!-- RELATÓRIOS DINÂMICOS - Nível ERP -->
             <div class="report-section-dynamic">
-              <h3>📈 Relatórios Gerenciais</h3>
+              <h3>Relatorios gerenciais</h3>
 
               <!-- Filtros Dinâmicos -->
               <div class="report-filters" id="reportDynamicFilters">
@@ -1470,35 +1451,35 @@ export const APP_SHELL_TEMPLATE = `
 
             <!-- Relatórios Legados -->
             <h3 class="mb-4 text-xl font-semibold tracking-tight text-(--sg-text)">
-              📋 Relatórios Básicos
+              Relatorios basicos
             </h3>
             <div class="report-types">
               <div class="report-card" data-report="conferencia">
-                <h3>📋 Relatório de Conferência</h3>
+                <h3>Relatorio de conferencia</h3>
                 <p>Para envio ao fornecedor baseado nas entregas</p>
                 <button class="btn btn-secondary">Gerar</button>
               </div>
 
               <div class="report-card" data-report="saldos">
-                <h3>📊 Controle de Saldos de Empenhos</h3>
+                <h3>Controle de saldos de empenhos</h3>
                 <p>Acompanhamento detalhado de recebimentos por item</p>
                 <button class="btn btn-primary">Visualizar</button>
               </div>
 
               <div class="report-card" data-report="empenhos">
-                <h3>📝 Relatório de Empenhos</h3>
+                <h3>Relatorio de empenhos</h3>
                 <p>Lista completa de empenhos cadastrados</p>
                 <button class="btn btn-secondary">Gerar</button>
               </div>
 
               <div class="report-card" data-report="entregas">
-                <h3>📦 Relatório de Entregas</h3>
+                <h3>Relatorio de entregas</h3>
                 <p>Histórico de recebimentos por período</p>
                 <button class="btn btn-secondary">Gerar</button>
               </div>
 
               <div class="report-card" data-report="divergencias">
-                <h3>⚠️ Relatório de Divergências</h3>
+                <h3>Relatorio de divergencias</h3>
                 <p>Diferenças entre empenhos e notas fiscais</p>
                 <button class="btn btn-secondary">Gerar</button>
               </div>
@@ -1508,8 +1489,8 @@ export const APP_SHELL_TEMPLATE = `
               <div class="report-header">
                 <h3 id="reportTitle"></h3>
                 <div class="report-actions">
-                  <button id="btnExportPDF" class="btn btn-primary">📄 Exportar PDF</button>
-                  <button id="btnExportCSV" class="btn btn-secondary">📊 Exportar CSV</button>
+                  <button id="btnExportPDF" class="btn btn-primary">Exportar PDF</button>
+                  <button id="btnExportCSV" class="btn btn-secondary">Exportar CSV</button>
                   <button id="btnCloseReport" class="btn btn-outline">✕ Fechar</button>
                 </div>
               </div>
@@ -1524,7 +1505,7 @@ export const APP_SHELL_TEMPLATE = `
         <section id="configScreen" class="screen sg-screen-shell">
           <div class="screen-header sg-screen-header">
             <button class="btn-back">← Voltar</button>
-            <h2>⚙️ Configurações</h2>
+            <h2>Configuracoes</h2>
           </div>
           <div class="config-iframe-container">
             <iframe
@@ -1541,10 +1522,10 @@ export const APP_SHELL_TEMPLATE = `
         <section id="patrimonioScreen" class="screen sg-screen-shell">
           <div class="screen-header sg-screen-header">
             <button class="btn-back">← Voltar</button>
-            <h2>🏗️ Gestão de Patrimônio</h2>
+            <h2>Gestao de patrimonio</h2>
           </div>
           <div class="module-placeholder">
-            <div class="module-placeholder__icon">🏗️</div>
+            <div class="module-placeholder__icon material-symbols-outlined" aria-hidden="true">apartment</div>
             <h3>Gestão de Patrimônio</h3>
             <p>Tombamento, transferência, baixa, localização e inventário patrimonial.</p>
             <span class="module-placeholder__badge">Em desenvolvimento</span>
@@ -1555,10 +1536,10 @@ export const APP_SHELL_TEMPLATE = `
         <section id="veiculosScreen" class="screen sg-screen-shell">
           <div class="screen-header sg-screen-header">
             <button class="btn-back">← Voltar</button>
-            <h2>🚗 Gestão de Veículos</h2>
+            <h2>Gestao de veiculos</h2>
           </div>
           <div class="module-placeholder">
-            <div class="module-placeholder__icon">🚗</div>
+            <div class="module-placeholder__icon material-symbols-outlined" aria-hidden="true">directions_car</div>
             <h3>Gestão de Veículos</h3>
             <p>Frota, motoristas, reservas, abastecimentos, manutenção e relatórios.</p>
             <span class="module-placeholder__badge">Em desenvolvimento</span>
@@ -1569,10 +1550,10 @@ export const APP_SHELL_TEMPLATE = `
         <section id="servicosInternosScreen" class="screen sg-screen-shell">
           <div class="screen-header sg-screen-header">
             <button class="btn-back">← Voltar</button>
-            <h2>🔧 Gestão de Serviços Internos</h2>
+            <h2>Gestao de servicos internos</h2>
           </div>
           <div class="module-placeholder">
-            <div class="module-placeholder__icon">🔧</div>
+            <div class="module-placeholder__icon material-symbols-outlined" aria-hidden="true">construction</div>
             <h3>Gestão de Serviços Internos</h3>
             <p>Ordens de serviço, equipes, acompanhamento, encerramento e relatórios.</p>
             <span class="module-placeholder__badge">Em desenvolvimento</span>
@@ -1583,10 +1564,10 @@ export const APP_SHELL_TEMPLATE = `
         <section id="contratosScreen" class="screen sg-screen-shell">
           <div class="screen-header sg-screen-header">
             <button class="btn-back">← Voltar</button>
-            <h2>📑 Gestão de Contratos</h2>
+            <h2>Gestao de contratos</h2>
           </div>
           <div class="module-placeholder">
-            <div class="module-placeholder__icon">📑</div>
+            <div class="module-placeholder__icon material-symbols-outlined" aria-hidden="true">description</div>
             <h3>Gestão de Contratos</h3>
             <p>Vigência, fiscal, aditivos, documentos, alertas e relatórios contratuais.</p>
             <span class="module-placeholder__badge">Em desenvolvimento</span>
@@ -1597,10 +1578,10 @@ export const APP_SHELL_TEMPLATE = `
         <section id="solicitacaoAlmoxScreen" class="screen sg-screen-shell">
           <div class="screen-header sg-screen-header">
             <button class="btn-back">← Voltar</button>
-            <h2>📋 Solicitação de Almoxarifado</h2>
+            <h2>Solicitacao de almoxarifado</h2>
           </div>
           <div class="module-placeholder">
-            <div class="module-placeholder__icon">📋</div>
+            <div class="module-placeholder__icon material-symbols-outlined" aria-hidden="true">assignment</div>
             <h3>Solicitação de Almoxarifado</h3>
             <p>Portal de requisição de materiais e acompanhamento de pedidos.</p>
             <span class="module-placeholder__badge">Em desenvolvimento</span>
@@ -1611,10 +1592,10 @@ export const APP_SHELL_TEMPLATE = `
         <section id="solicitacaoVeiculosScreen" class="screen sg-screen-shell">
           <div class="screen-header sg-screen-header">
             <button class="btn-back">← Voltar</button>
-            <h2>🚐 Solicitação de Veículos</h2>
+            <h2>Solicitacao de veiculos</h2>
           </div>
           <div class="module-placeholder">
-            <div class="module-placeholder__icon">🚐</div>
+            <div class="module-placeholder__icon material-symbols-outlined" aria-hidden="true">airport_shuttle</div>
             <h3>Solicitação de Veículos</h3>
             <p>Portal de reservas, deslocamentos e acompanhamento de solicitações.</p>
             <span class="module-placeholder__badge">Em desenvolvimento</span>
@@ -1625,10 +1606,10 @@ export const APP_SHELL_TEMPLATE = `
         <section id="solicitacaoServicosScreen" class="screen sg-screen-shell">
           <div class="screen-header sg-screen-header">
             <button class="btn-back">← Voltar</button>
-            <h2>📝 Solicitação de Serviços</h2>
+            <h2>Solicitacao de servicos</h2>
           </div>
           <div class="module-placeholder">
-            <div class="module-placeholder__icon">📝</div>
+            <div class="module-placeholder__icon material-symbols-outlined" aria-hidden="true">edit_note</div>
             <h3>Solicitação de Serviços Internos</h3>
             <p>Portal para ordens e demandas de serviços internos.</p>
             <span class="module-placeholder__badge">Em desenvolvimento</span>
@@ -1645,4 +1626,3 @@ export const APP_SHELL_TEMPLATE = `
       <p>Processando...</p>
     </div>
 `;
-

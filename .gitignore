@@ -6,7 +6,6 @@
 # Dependências locais
 node_modules/
 server/node_modules/
-singem-ai/.venv/
 
 # Build e cache local
 dist/
@@ -48,7 +47,6 @@ server/.env
 server/.env.development
 server/.env.production
 server/.env.bak
-singem-ai/.env
 
 # IDE / OS
 .idea/

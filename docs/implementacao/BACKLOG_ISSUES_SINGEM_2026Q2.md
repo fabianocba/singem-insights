@@ -176,6 +176,7 @@ Sprint 4 (P2): C-02, C-03
 ## Regra de Qualidade para Fechamento de Issue
 
 Uma issue so pode ser concluida quando:
+
 - Criterios de aceite atendidos.
 - Evidencias anexadas (logs, output de testes, captura de dashboard ou benchmark).
 - Sem regressao critica detectada em fluxo NE/NF/entregas.

@@ -28,21 +28,21 @@ const MENU_CONFIG = {
   header: [
     {
       id: 'btnHome',
-      label: '🏠 Início',
+      label: 'Inicio',
       action: 'nav:homeScreen',
-      icon: '🏠'
+      icon: 'home'
     },
     {
       id: 'btnConfig',
-      label: '⚙️ Configurações',
+      label: 'Configuracoes',
       action: 'nav:configScreen',
-      icon: '⚙️'
+      icon: 'settings'
     },
     {
       id: 'btnSair',
-      label: '🚪 Sair',
+      label: 'Sair',
       action: 'auth:logout',
-      icon: '🚪'
+      icon: 'logout'
     }
   ],
 
@@ -55,7 +55,7 @@ const MENU_CONFIG = {
       label: 'Cadastro de Empenho',
       description: 'Cadastre novas notas de empenho e faça upload dos PDFs',
       screen: 'empenhoScreen',
-      icon: '📝',
+      icon: 'edit_note',
       category: 'cadastros'
     },
     {
@@ -63,7 +63,7 @@ const MENU_CONFIG = {
       label: 'Entrada de Entrega',
       description: 'Registre recebimentos semanais de materiais',
       screen: 'entregaScreen',
-      icon: '📦',
+      icon: 'inventory_2',
       category: 'controle'
     },
     {
@@ -71,7 +71,7 @@ const MENU_CONFIG = {
       label: 'Entrada de Nota Fiscal',
       description: 'Cadastre notas fiscais e compare com empenhos',
       screen: 'notaFiscalScreen',
-      icon: '📄',
+      icon: 'article',
       category: 'cadastros'
     },
     {
@@ -79,7 +79,7 @@ const MENU_CONFIG = {
       label: 'Relatórios',
       description: 'Gere relatórios de conferência e análises',
       screen: 'relatoriosScreen',
-      icon: '📊',
+      icon: 'bar_chart',
       category: 'controle'
     },
     {
@@ -87,17 +87,9 @@ const MENU_CONFIG = {
       label: 'Consulte Compras.gov',
       description: 'Acesse dados abertos do Compras.gov.br',
       screen: 'consultasScreen',
-      icon: '🔍',
+      icon: 'search',
       category: 'consultas'
     },
-    {
-      id: 'systemStatusMenuItem',
-      label: 'System Status',
-      description: 'Monitore o estado operacional dos serviços do SINGEM',
-      action: 'link:/system-status/',
-      icon: '🖥️',
-      category: 'sistema'
-    }
   ],
 
   // ========================================
@@ -106,41 +98,41 @@ const MENU_CONFIG = {
   config: [
     {
       id: 'tabUnidade',
-      label: '🏢 Unidade Orçamentária',
+      label: 'Unidade Orcamentaria',
       tab: 'unidade',
       category: 'cadastros'
     },
     {
       id: 'tabUsuarios',
-      label: '👥 Usuários',
+      label: 'Usuarios',
       tab: 'usuarios',
       category: 'cadastros',
       adminOnly: true
     },
     {
       id: 'tabArquivos',
-      label: '📁 Arquivos',
+      label: 'Arquivos',
       tab: 'arquivos',
       category: 'preferencias',
       description: 'Configuração de armazenamento e pastas'
     },
     {
       id: 'tabRede',
-      label: '🌐 Rede/LAN',
+      label: 'Rede/LAN',
       tab: 'rede',
       category: 'sistema',
       adminOnly: true
     },
     {
       id: 'tabPreferencias',
-      label: '🎨 Preferências',
+      label: 'Preferencias',
       tab: 'preferencias',
       category: 'preferencias',
       description: 'Backup, Restore, Importar, Exportar, Tema, Validações'
     },
     {
       id: 'tabDiagnostico',
-      label: '🔍 Diagnóstico',
+      label: 'Diagnostico',
       tab: 'diagnostico',
       category: 'sistema'
     }
@@ -152,17 +144,17 @@ const MENU_CONFIG = {
   empenho: [
     {
       id: 'tabCadastro',
-      label: '📝 Novo Cadastro',
+      label: 'Novo cadastro',
       tab: 'cadastro'
     },
     {
       id: 'tabControleSaldos',
-      label: '📊 Controle de Saldos',
+      label: 'Controle de saldos',
       tab: 'controle-saldos'
     },
     {
       id: 'tabRelatorio',
-      label: '📋 Relatório de Empenhos',
+      label: 'Relatorio de empenhos',
       tab: 'relatorio'
     }
   ]

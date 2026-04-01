@@ -1,13 +1,11 @@
 import { ensureFloatingThemeToggle, initTheme, mountThemeToggle } from './themeManager.js';
-import { initVisualAudits, scheduleVisualAuditRefresh } from './aiVisualAudit.js';
 
 const PAGE_LABELS = {
   consultas: 'Cockpit analítico',
   configuracoes: 'Centro de controle',
   'gerenciar-backups': 'Resiliência operacional',
   'diagnostico-cache': 'Diagnóstico técnico',
-  'importar-nfe': 'Lançamento fiscal',
-  'system-status': 'Monitoramento interno'
+  'importar-nfe': 'Lançamento fiscal'
 };
 
 const STYLABLE_INPUT_TYPES = new Set([
@@ -232,14 +230,12 @@ function initStandalonePageEnhancer() {
   }
 
   initTheme();
-  initVisualAudits();
   mountInlineToggleIfNeeded();
   decorateStandalonePage();
   decorateActionClusters();
   decorateVisualStandards();
   decorateStandaloneHero();
   decorateVersionFooter();
-  scheduleVisualAuditRefresh(document.body?.dataset?.page || 'standalone');
 }
 
 if (document.readyState === 'loading') {

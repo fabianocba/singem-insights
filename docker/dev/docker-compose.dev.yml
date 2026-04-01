@@ -143,7 +143,6 @@ services:
       - ../../img:/usr/share/nginx/html/img:ro
       - ../../consultas:/usr/share/nginx/html/consultas:ro
       - ../../config:/usr/share/nginx/html/config:ro
-      - ../../system-status:/usr/share/nginx/html/system-status:ro
     networks:
       - singem-network
     depends_on:

@@ -124,13 +124,13 @@ const ModuleCatalog = Object.freeze([
     description: 'Recursos técnicos restritos a ambiente de desenvolvimento.',
     category: ModuleCategories.CENTRAL,
     menuGroup: 'central',
-    route: '/system-status/',
+    route: null,
     screenId: null,
     icon: 'flask-conical',
     order: 15,
     enabledByDefault: true,
     devOnly: true,
-    legacyAliases: ['system-status', 'system_status', 'ai', 'catalogacao', 'consultas']
+    legacyAliases: ['ai', 'catalogacao', 'consultas']
   },
   {
     key: ModuleKeys.GESTAO_ALMOXARIFADO,

@@ -2,7 +2,7 @@
 /**
  * uiConsultas.js
  * Interface de usuário para Consulte Compras.gov (Dados Abertos Compras.gov.br)
- * Integração com AI Core para sugestões inteligentes
+ * Interface para consultas e painéis analíticos integrados
  */
 
 import * as API from './apiCompras.js';
@@ -26,7 +26,6 @@ import {
   showConsultaJsonModal,
   showPriceDetailModal
 } from './uiConsultasActions.js';
-import { scheduleVisualAuditRefresh } from '../ui/aiVisualAudit.js';
 
 const AUTO_SEARCH_DEBOUNCE_MS = 650;
 const PRICE_INTELLIGENCE_DATASET = 'precos-praticados';
@@ -51,8 +50,7 @@ const state = {
   analyticsResponse: null,
   pageRawItems: [],
   priceUiError: null,
-  priceDashboard: createPriceDashboardState(),
-  aiResults: null
+  priceDashboard: createPriceDashboardState()
 };
 
 let debouncedAutoSearch = null;
@@ -332,10 +330,6 @@ function getCatalogTypeForShortcut(dataset = state.dataset) {
   }
 
   return null;
-}
-
-function getConsultaAuditScope() {
-  return document.body?.dataset?.page === 'main' ? 'consultasScreen' : 'consultas';
 }
 
 export function normalizeText(str) {
@@ -1064,10 +1058,8 @@ export function showMenu() {
   state.pageRawItems = [];
   state.priceUiError = null;
   state.priceDashboard = createPriceDashboardState();
-  state.aiResults = null;
 
   console.log('✅ Estado resetado para menu');
-  scheduleVisualAuditRefresh(getConsultaAuditScope());
 }
 
 /**
@@ -1111,7 +1103,6 @@ export function showConsulta(dataset) {
   state.pageRawItems = [];
   state.priceUiError = null;
   state.priceDashboard = createPriceDashboardState();
-  state.aiResults = null;
 
   console.log('📊 Estado atualizado:', {
     dataset,
@@ -1146,7 +1137,6 @@ export function showConsulta(dataset) {
 
   // Scroll para o topo
   window.scrollTo({ top: 0, behavior: 'smooth' });
-  scheduleVisualAuditRefresh(getConsultaAuditScope());
 }
 
 /**
@@ -1355,7 +1345,6 @@ function renderTable() {
   if (state.loading) {
     if (isPriceIntelligenceDataset()) {
       container.innerHTML = renderPriceIntelligenceLoadingState();
-      scheduleVisualAuditRefresh(getConsultaAuditScope());
       return;
     }
 
@@ -1365,20 +1354,12 @@ function renderTable() {
         <p>Carregando dados...</p>
       </div>
     `;
-    scheduleVisualAuditRefresh(getConsultaAuditScope());
     return;
   }
 
   if (isPriceIntelligenceDataset()) {
-    if (state.aiResults && state.aiResults.length > 0) {
-      container.innerHTML = renderAiResultsHtml(state.aiResults, { dataset: state.dataset });
-      scheduleVisualAuditRefresh(getConsultaAuditScope());
-      return;
-    }
-
     if (state.priceUiError) {
       container.innerHTML = renderPriceIntelligenceErrorState(state.priceUiError);
-      scheduleVisualAuditRefresh(getConsultaAuditScope());
       return;
     }
 
@@ -1388,7 +1369,6 @@ function renderTable() {
         state.results || [],
         state.priceDashboard
       );
-      scheduleVisualAuditRefresh(getConsultaAuditScope());
       return;
     }
 
@@ -1396,24 +1376,16 @@ function renderTable() {
       title: 'Nenhuma consulta executada',
       message: 'Configure os filtros premium e clique em Buscar para gerar o dashboard executivo.'
     });
-    scheduleVisualAuditRefresh(getConsultaAuditScope());
     return;
   }
 
   if (!state.results || state.results.length === 0) {
-    if (state.aiResults && state.aiResults.length > 0) {
-      container.innerHTML = `${analyticsPanelHtml}${renderAiResultsHtml(state.aiResults)}`;
-      scheduleVisualAuditRefresh(getConsultaAuditScope());
-      return;
-    }
-
     container.innerHTML = `${analyticsPanelHtml}
       <div class="empty-state">
         <p>📋 Nenhum resultado encontrado.</p>
         <p class="text-muted">Ajuste os filtros e tente novamente.</p>
       </div>
     `;
-    scheduleVisualAuditRefresh(getConsultaAuditScope());
     return;
   }
 
@@ -1496,7 +1468,6 @@ function renderTable() {
   `;
 
   container.innerHTML = `${analyticsPanelHtml}${html}`;
-  scheduleVisualAuditRefresh(getConsultaAuditScope());
 }
 
 /**
@@ -1669,7 +1640,6 @@ function attachEventListeners() {
       state.pageRawItems = [];
       state.priceUiError = null;
       state.priceDashboard = createPriceDashboardState();
-      state.aiResults = null;
       renderFilters();
       renderPagination();
       renderTable();
@@ -1966,10 +1936,7 @@ function describeSearchError(error) {
   const errorMessage = String(error?.message || '');
 
   if (errorMessage.includes('Failed to fetch') || errorMessage.includes('conectar com a API')) {
-    const apiBase =
-      window.__API_BASE_URL__ ||
-      window.CONFIG?.api?.baseUrl ||
-      window.location.origin;
+    const apiBase = window.__API_BASE_URL__ || window.CONFIG?.api?.baseUrl || window.location.origin;
     const healthUrl = `${String(apiBase).replace(/\/+$/, '')}/api/compras/health`;
 
     info.title = 'Erro de Conexão';
@@ -2108,82 +2075,6 @@ function resolveAiFallbackQueryText(filters = {}, dataset = state.dataset) {
   return fallbackEntry?.[1] || null;
 }
 
-/**
- * Tenta busca via AI Core como fallback quando upstream falha.
- * Retorna array de resultados ou null se indisponível.
- */
-async function tryAiFallback(filters, dataset) {
-  void filters;
-  void dataset;
-  return null;
-}
-
-/**
- * Renderiza resultados do fallback AI (quando Compras.gov.br está indisponível)
- */
-function renderAiResultsHtml(results, { dataset = state.dataset } = {}) {
-  const fallbackNotice =
-    dataset === PRICE_INTELLIGENCE_DATASET
-      ? 'Modulo 3 em contingencia: upstream indisponivel. Exibindo referencias da base local IA para apoio ate a normalizacao.'
-      : 'Compras.gov.br indisponivel: exibindo dados do indice local IA. Tente novamente mais tarde para resultados completos.';
-
-  const rows = results
-    .map((r) => {
-      const conf = Math.round((r.score?.final || 0) * 100);
-      const meta = r.metadata || {};
-      const badge =
-        r.entity_type === 'fornecedor' ? 'Fornecedor' : r.entity_type === 'catmat_item' ? 'CATMAT' : 'Material';
-      const codigo = meta.codigo ? escapeHtmlContent(String(meta.codigo)) : '-';
-      const unidade = escapeHtmlContent(String(meta.unidade_medida || meta.unidade || '-'));
-      const valor =
-        meta.preco_medio !== null && meta.preco_medio !== undefined
-          ? `R$ ${Number(meta.preco_medio).toFixed(2).replace('.', ',')}`
-          : '-';
-      return `<tr>
-        <td>${codigo}</td>
-        <td>${escapeHtmlContent(String(r.title || '-'))}</td>
-        <td>${unidade}</td>
-        <td>-</td>
-        <td><span class="sg-ai-result-chip">${escapeHtmlContent(badge)}</span></td>
-        <td>-</td>
-        <td>${escapeHtmlContent(valor)}</td>
-        <td><span class="sg-ai-result-score">${conf}%</span></td>
-      </tr>`;
-    })
-    .join('');
-
-  return `
-    <div class="sg-ai-callout">
-      <div class="sg-ai-callout__header">
-        <div>
-          <h5 class="sg-ai-callout__title">Resultado da Base Local (IA)</h5>
-          <p class="sg-ai-callout__meta">${escapeHtmlContent(fallbackNotice)}</p>
-        </div>
-        <div class="sg-ai-audit__status">
-          <span class="sg-ai-pill">IA Core</span>
-          <span class="sg-ai-pill is-muted">Contingencia</span>
-        </div>
-      </div>
-    </div>
-    <div class="table-responsive">
-      <table class="table table-striped">
-        <thead>
-          <tr>
-            <th>Código</th>
-            <th>Descrição</th>
-            <th>Unidade</th>
-            <th>Órgão/UASG</th>
-            <th>Tipo</th>
-            <th>Atualização</th>
-            <th>Ref. Preço</th>
-            <th>Conf. IA</th>
-          </tr>
-        </thead>
-        <tbody>${rows}</tbody>
-      </table>
-    </div>`;
-}
-
 async function executeSearch({ force = false } = {}) {
   const config = DATASETS[state.dataset];
   if (!validateSearchExecution(config)) {
@@ -2231,7 +2122,6 @@ async function executeSearch({ force = false } = {}) {
   }
 
   state.loading = true;
-  state.aiResults = null;
   renderTable();
 
   try {

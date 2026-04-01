@@ -64,7 +64,9 @@ function syncFrontendVersionFallback(jsVersionPath, data) {
   );
 
   if (updated === content) {
-    console.warn('[bump-version] AVISO: não foi possível localizar FALLBACK em js/core/version.js — atualize manualmente.');
+    console.warn(
+      '[bump-version] AVISO: não foi possível localizar FALLBACK em js/core/version.js — atualize manualmente.'
+    );
     return;
   }
 

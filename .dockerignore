@@ -6,14 +6,11 @@
 # ------ Dependências (reconstruídas no container) ----------
 node_modules/
 server/node_modules/
-singem-ai/.venv/
-singem-ai/__pycache__/
 **/__pycache__/
 **/*.pyc
 **/*.pyo
 **/*.pyd
 **/*.egg-info/
-singem-ai/.pytest_cache/
 
 # ------ Git ------------------------------------------------
 .git/
@@ -33,7 +30,6 @@ server/.env.bak
 # Manter apenas os exemplos
 !.env.example
 !server/.env.example
-!singem-ai/.env.example
 
 # ------ Logs e temporários --------------------------------
 *.log

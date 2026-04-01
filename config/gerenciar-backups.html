@@ -13,15 +13,15 @@
     <div class="backup-container">
       <header class="backup-header">
         <div>
-          <h1>🔒 Gerenciar Backups</h1>
+          <h1>Gerenciar backups</h1>
           <p>Sistema de backup automático e restauração de dados</p>
         </div>
         <div class="backup-actions">
           <button class="btn btn-primary" onclick="criarBackupManual(this)">
-            💾 Criar Backup Agora
+            Criar backup agora
           </button>
           <button class="btn btn-secondary" onclick="document.getElementById('importFile').click()">
-            📥 Importar Backup
+            Importar backup
           </button>
           <button type="button" data-theme-toggle aria-label="Alternar tema"></button>
           <input
@@ -33,20 +33,20 @@
             onchange="importarBackup(event)"
           />
           <button class="btn btn-warning" onclick="window.location.href = '../index.html'">
-            ← Voltar
+            Voltar
           </button>
         </div>
       </header>
 
       <div class="backup-list" id="backupList">
         <div class="empty-state">
-          <div class="empty-state-icon">📦</div>
+          <div class="empty-state-icon material-symbols-outlined" aria-hidden="true">archive</div>
           <p>Carregando backups...</p>
         </div>
       </div>
 
       <div class="changelog-section">
-        <h2>📝 Histórico de Alterações</h2>
+        <h2>Historico de alteracoes</h2>
         <div id="changelogList"></div>
       </div>
     </div>

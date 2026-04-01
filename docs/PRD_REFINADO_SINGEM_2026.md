@@ -60,20 +60,24 @@ Resultado principal esperado: Plataforma de controle de materiais com confiabili
 ### 4.1 In-scope (release de refinamento)
 
 Produto e operacao:
+
 - Formalizacao de PRD, criterios de aceite e governanca de release.
 - Definicao de SLO/SLA operacionais e rotina de observabilidade.
 
 Seguranca:
+
 - Rotacao de segredos JWT/DB/admin.
 - Baseline de ambiente seguro (.env.example sem defaults inseguros).
 - Atualizacao de dependencias com vulnerabilidades high.
 
 Dados e performance:
+
 - Politica de retencao/expurgo para tabelas historicas.
 - Implementacao de batching no sync de catalogos.
 - Instrumentacao de metricas (latencia, timeout-rate, erro-rate).
 
 Infra e deploy:
+
 - Padronizacao dos fluxos via scripts oficiais start/stop/rebuild/logs/deploy.
 - Validacao de checklist de prontidao para producao.
 
@@ -95,12 +99,14 @@ Infra e deploy:
 ### 5.1 EPIC A - Seguranca e Configuracao
 
 Historia A1:
+
 - Como administrador, quero rotacionar segredos e remover defaults inseguros para reduzir risco de comprometimento.
 - Criterio de aceite:
   - Nenhum segredo sensivel em arquivos de exemplo.
   - Processo documentado de rotacao e validado em ambiente dev.
 
 Historia A2:
+
 - Como equipe de engenharia, quero atualizar dependencias vulneraveis para reduzir exposicao a CVEs.
 - Criterio de aceite:
   - Sem advisories high abertas no escopo de producao.
@@ -108,12 +114,14 @@ Historia A2:
 ### 5.2 EPIC B - Sync e Escalabilidade
 
 Historia B1:
+
 - Como sistema, quero persistir sincronizacao em lotes para reduzir latencia total.
 - Criterio de aceite:
   - Throughput maior que baseline atual.
   - Tempo total de sync reduzido em no minimo 40% em cenario comparavel.
 
 Historia B2:
+
 - Como operacao, quero evitar impacto de crescimento historico sem governanca.
 - Criterio de aceite:
   - Politica de retencao por tabela definida e executada automaticamente.
@@ -121,11 +129,13 @@ Historia B2:
 ### 5.3 EPIC C - Observabilidade e Governanca
 
 Historia C1:
+
 - Como gestor tecnico, quero visualizar p95/p99, timeout-rate e erro-rate por endpoint.
 - Criterio de aceite:
   - Dashboard operacional disponivel e atualizado.
 
 Historia C2:
+
 - Como organizacao, quero SLO/SLA formais para integrar operacao e decisao de capacidade.
 - Criterio de aceite:
   - Documento aprovado por produto + engenharia + operacao.
@@ -182,26 +192,31 @@ Historia C2:
 ## 9. Dependencias
 
 Internas:
+
 - Engenharia frontend, backend, infra/devops.
 - Produto e operacao (almoxarifado).
 
 Externas:
+
 - Disponibilidade das APIs externas (ComprasGov/CKAN).
 - Janela institucional para deploy e validacao.
 
 ## 10. Timeline por Fases (90 dias)
 
 Fase 1 (0-15 dias) - Contencao de risco
+
 - Rotacao de segredos.
 - Baseline de ambiente seguro.
 - Atualizacao de dependencias criticas.
 
 Fase 2 (15-45 dias) - Robustez operacional
+
 - Batching no sync.
 - Retencao/expurgo por tabela.
 - Instrumentacao de metricas tecnicas por endpoint.
 
 Fase 3 (45-90 dias) - Escala institucional
+
 - SLO/SLA formal.
 - Dashboard operacional com p95/p99.
 - Plano de capacidade e rotina periodica de verificacao.
@@ -217,16 +232,19 @@ Fase 3 (45-90 dias) - Escala institucional
 ## 12. Backlog Tecnico Inicial (acionavel)
 
 Prioridade P0:
+
 1. Criar baseline seguro de variaveis de ambiente.
 2. Rotacionar segredos e validar pipeline de deploy.
 3. Corrigir dependencias com advisories high.
 
 Prioridade P1:
+
 1. Implementar batching no motor de sync.
 2. Instrumentar metricas de latencia, timeout e erro.
 3. Definir e aplicar retencao/expurgo em tabelas historicas.
 
 Prioridade P2:
+
 1. Publicar SLO/SLA oficiais por integracao.
 2. Consolidar dashboard de operacao e capacidade.
 3. Formalizar checklist LGPD operacional para integracoes.
@@ -234,11 +252,13 @@ Prioridade P2:
 ## 13. Criterios de Go/No-Go
 
 Go:
+
 - P0 concluido sem regressao critica.
 - Batching e observabilidade validados em ambiente controlado.
 - Procedimentos operacionais documentados.
 
 No-Go:
+
 - Segredos sem rotacao.
 - Vulnerabilidade high de producao sem plano aprovado.
 - Ausencia de monitoracao minima para endpoints criticos.

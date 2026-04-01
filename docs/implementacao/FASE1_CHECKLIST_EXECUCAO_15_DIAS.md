@@ -23,21 +23,25 @@ Janela sugerida: 31/03/2026 a 11/04/2026.
 ### Semana 1
 
 1. Levantar variaveis de ambiente usadas em backend e scripts.
+
 - Owner: Backend
 - Estimativa: 0,5 dia
 - Saida esperada: inventario consolidado de variaveis.
 
 2. Publicar baseline seguro de ambiente.
+
 - Owner: Backend + Infra
 - Estimativa: 1 dia
 - Saida esperada: arquivo de exemplo seguro + instrucoes de uso.
 
 3. Definir plano de rotacao com janela e plano de rollback.
+
 - Owner: Infra/Security
 - Estimativa: 0,5 dia
 - Saida esperada: procedimento aprovado para execucao.
 
 4. Coletar baseline de vulnerabilidades de producao.
+
 - Owner: Backend
 - Estimativa: 0,5 dia
 - Saida esperada: lista de pacotes e severidade atual.
@@ -45,21 +49,25 @@ Janela sugerida: 31/03/2026 a 11/04/2026.
 ### Semana 2
 
 5. Executar rotacao de segredos em ambiente controlado.
+
 - Owner: Infra/Security
 - Estimativa: 1 dia
 - Saida esperada: segredos antigos revogados e novos validados.
 
 6. Atualizar dependencias vulneraveis (high) e validar aplicacao.
+
 - Owner: Backend
 - Estimativa: 2 dias
 - Saida esperada: advisories high zerados no escopo de producao.
 
 7. Rodar testes de contrato e smoke apos atualizacoes.
+
 - Owner: Backend + QA
 - Estimativa: 1 dia
 - Saida esperada: evidencias de nao regressao.
 
 8. Revisao de prontidao e decisao Go/No-Go da fase.
+
 - Owner: Lead tecnico + Operacao
 - Estimativa: 0,5 dia
 - Saida esperada: ata de decisao com pendencias e plano da Fase 2.
@@ -92,17 +100,21 @@ Todos os itens abaixo precisam estar cumpridos:
 ## Riscos de Execucao da Fase 1 e Mitigacao
 
 1. Janela de manutencao insuficiente para rotacao.
+
 - Mitigacao: agendar janela dedicada com rollback pre-aprovado.
 
 2. Atualizacao de dependencia gerar regressao.
+
 - Mitigacao: atualizar em blocos pequenos e validar por bateria de testes.
 
 3. Falta de dono claro por atividade.
+
 - Mitigacao: nomear responsaveis antes do inicio da semana 1.
 
 ## Definicao de Conclusao da Fase
 
 A Fase 1 so termina quando:
+
 - Gate de qualidade aprovado.
 - Pendencias classificadas por severidade.
 - Fase 2 planejada com escopo fechado para 30 dias seguintes.

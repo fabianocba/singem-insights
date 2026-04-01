@@ -1,7 +1,7 @@
 /**
  * CATMAT Integration - SINGEM Frontend
  * Componente de autocomplete e modal de pedido de catalogação
- * Integração com AI Core para sugestões inteligentes
+ * Integração com serviços de consulta e apoio à catalogação
  */
 
 import { debounce } from './utils/throttle.js';
@@ -623,9 +623,7 @@ function renderResults(dropdown, results, inputElement, onSelect, options = {}) 
     const item = document.createElement('div');
     item.className = 'catmat-item';
 
-    const aiBadge = material._aiSource
-      ? '<span class="catmat-item-ai-badge">IA</span>'
-      : '';
+    const aiBadge = material._aiSource ? '<span class="catmat-item-ai-badge">IA</span>' : '';
     const contextLine = buildMaterialContext(material);
 
     item.innerHTML = `

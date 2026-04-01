@@ -278,13 +278,13 @@ async function handleAnexarPdfNE() {
 
     // Validar campos obrigatórios
     if (!ano) {
-      alert('⚠️ Preencha o campo "Ano" antes de anexar o PDF.');
+      alert('Preencha o campo "Ano" antes de anexar o PDF.');
       anoInput?.focus();
       return;
     }
 
     if (!numero) {
-      alert('⚠️ Preencha o campo "Número do Empenho" antes de anexar o PDF.');
+      alert('Preencha o campo "Numero do Empenho" antes de anexar o PDF.');
       numeroInput?.focus();
       return;
     }
@@ -293,7 +293,7 @@ async function handleAnexarPdfNE() {
     const pdfAtual = statusEl?.querySelector('.link-pdf-anexado')?.dataset?.pdf;
     if (pdfAtual) {
       const confirmarSubstituir = confirm(
-        `⚠️ Já existe um PDF anexado:\n${pdfAtual}\n\nDeseja substituir pelo novo arquivo?`
+        `Ja existe um PDF anexado:\n${pdfAtual}\n\nDeseja substituir pelo novo arquivo?`
       );
       if (!confirmarSubstituir) {
         logDebug('Usuário cancelou substituição');
@@ -313,10 +313,10 @@ async function handleAnexarPdfNE() {
     // Feedback visual
     if (btnAnexar) {
       btnAnexar.disabled = true;
-      btnAnexar.textContent = '⏳ Salvando...';
+      btnAnexar.textContent = 'Salvando...';
     }
     if (statusEl) {
-      statusEl.textContent = '⏳ Salvando PDF...';
+      statusEl.textContent = 'Salvando PDF...';
       statusEl.style.color = '#666';
     }
 
@@ -337,21 +337,21 @@ async function handleAnexarPdfNE() {
     }
 
     // Mostrar sucesso
-    alert(`✅ PDF anexado com sucesso!\n\nArquivo: ${arquivoInfo.savedName}\nArmazenamento: banco de dados`);
+    alert(`PDF anexado com sucesso.\n\nArquivo: ${arquivoInfo.savedName}\nArmazenamento: banco de dados`);
   } catch (error) {
     console.error('[AnexarPdfNE] Erro:', error);
 
     if (statusEl) {
-      statusEl.textContent = `❌ Erro: ${error.message}`;
+      statusEl.textContent = `Erro: ${error.message}`;
       statusEl.style.color = '#dc3545';
     }
 
-    alert(`❌ Erro ao anexar PDF:\n\n${error.message}`);
+    alert(`Erro ao anexar PDF:\n\n${error.message}`);
   } finally {
     // Restaurar botão
     if (btnAnexar) {
       btnAnexar.disabled = false;
-      btnAnexar.textContent = '📎 Anexar PDF da NE';
+      btnAnexar.textContent = 'Anexar PDF da NE';
     }
   }
 }
@@ -382,7 +382,7 @@ async function abrirPdfAnexado(pdfFileName, ano, empenhoId = null) {
     }
 
     if (!pdfBase64) {
-      alert('⚠️ PDF não encontrado no banco para este empenho.');
+      alert('PDF nao encontrado no banco para este empenho.');
       return;
     }
 
@@ -399,12 +399,12 @@ async function abrirPdfAnexado(pdfFileName, ano, empenhoId = null) {
     const newWindow = window.open(url, '_blank');
 
     if (newWindow) {
-      logDebug('✅ PDF aberto em nova aba');
+      logDebug('PDF aberto em nova aba');
       // Limpar URL após um tempo (para liberar memória)
       setTimeout(() => URL.revokeObjectURL(url), 60000);
     } else {
       // Popup bloqueado - tentar download
-      alert('⚠️ Pop-up bloqueado pelo navegador.\n\nO PDF será baixado.');
+      alert('Pop-up bloqueado pelo navegador.\n\nO PDF sera baixado.');
       const a = document.createElement('a');
       a.href = url;
       a.download = pdfFileName;
@@ -413,7 +413,7 @@ async function abrirPdfAnexado(pdfFileName, ano, empenhoId = null) {
     }
   } catch (error) {
     console.error('[AnexarPdfNE] Erro ao abrir PDF:', error);
-    alert(`❌ Erro ao abrir PDF:\n\n${error.message}`);
+    alert(`Erro ao abrir PDF:\n\n${error.message}`);
   }
 }
 
@@ -425,7 +425,7 @@ async function abrirPdfAnexado(pdfFileName, ano, empenhoId = null) {
  */
 function criarLinkPdf(pdfFileName, ano, empenhoId = '') {
   // Usar data attributes para passar os parâmetros
-  return `✅ PDF anexado: <a href="#" class="link-pdf-anexado" data-pdf="${pdfFileName}" data-ano="${ano}" data-empenho-id="${empenhoId}" style="color: #007bff; text-decoration: underline; cursor: pointer; font-weight: bold;">${pdfFileName}</a>`;
+  return `PDF anexado: <a href="#" class="link-pdf-anexado" data-pdf="${pdfFileName}" data-ano="${ano}" data-empenho-id="${empenhoId}" style="color: #007bff; text-decoration: underline; cursor: pointer; font-weight: bold;">${pdfFileName}</a>`;
 }
 
 /**

@@ -28,6 +28,7 @@ Consolidar o SINGEM como plataforma institucional hibrida (offline-first + backe
 ## Escopo desta iniciativa
 
 Inclui:
+
 - Baseline seguro de ambiente e rotacao de segredos.
 - Atualizacao de dependencias vulneraveis.
 - Batching de sincronizacao.
@@ -35,6 +36,7 @@ Inclui:
 - Dashboard de metricas tecnicas e SLO/SLA.
 
 Nao inclui:
+
 - Reescrita total do frontend legado.
 - Mudanca de stack principal.
 - Novos modulos fora de NE/NF/entregas neste ciclo.
@@ -56,6 +58,7 @@ Fase 3 (45-90 dias): escala institucional (SLO/SLA, dashboard e capacidade).
 ## Decisao solicitada
 
 Aprovar:
+
 1. Escopo do ciclo de 90 dias.
 2. Ordem de prioridade P0 -> P1 -> P2.
 3. Gate de Go/No-Go ao fim de cada fase.

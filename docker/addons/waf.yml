@@ -22,7 +22,6 @@ services:
       - ../../img:/usr/share/nginx/html/img:ro
       - ../../consultas:/usr/share/nginx/html/consultas:ro
       - ../../config:/usr/share/nginx/html/config:ro
-      - ../../system-status:/usr/share/nginx/html/system-status:ro
     environment:
       MODSEC_RULE_ENGINE: 'On'
       PARANOIA: 2

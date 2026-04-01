@@ -25,14 +25,14 @@
       <header class="consultas-header">
         <div class="sg-page-header-grid">
           <div>
-            <h1>🔍 Consulte Compras.gov - Dados Abertos Compras.gov.br</h1>
+            <h1>Consulte Compras.gov - Dados Abertos Compras.gov.br</h1>
             <p>
               Consulte dados públicos de materiais, serviços, UASG, atas de registro de preços,
               contratações PNCP e licitações do sistema legado.
             </p>
           </div>
           <div class="sg-page-header-actions">
-            <a class="btn btn-outline" href="../index.html">← Voltar ao painel</a>
+            <a class="btn btn-outline" href="../index.html">Voltar ao painel</a>
             <button type="button" data-theme-toggle aria-label="Alternar tema"></button>
           </div>
         </div>
@@ -47,13 +47,17 @@
 
         <div class="menu-grid-consultas">
           <div class="menu-item-consulta" data-consulta="materiais" role="button" tabindex="0">
-            <div class="menu-icon-consulta">📦</div>
+            <span class="menu-icon-consulta material-symbols-outlined" aria-hidden="true"
+              >inventory_2</span
+            >
             <h3>Catálogo de Material</h3>
             <p>Consulte itens do CATMAT por descrição ou código CATMAT</p>
           </div>
 
           <div class="menu-item-consulta" data-consulta="servicos" role="button" tabindex="0">
-            <div class="menu-icon-consulta">🛠️</div>
+            <span class="menu-icon-consulta material-symbols-outlined" aria-hidden="true"
+              >construction</span
+            >
             <h3>Catálogo de Serviço</h3>
             <p>Consulte serviços do CATSER por grupo e classe</p>
           </div>
@@ -64,31 +68,41 @@
             role="button"
             tabindex="0"
           >
-            <div class="menu-icon-consulta">📈</div>
+            <span class="menu-icon-consulta material-symbols-outlined" aria-hidden="true"
+              >monitoring</span
+            >
             <h3>Módulo 3 - Preços Praticados (CATMAT/CATSER)</h3>
             <p>Pesquisa de preços praticados por código CATMAT/CATSER em compras públicas</p>
           </div>
 
           <div class="menu-item-consulta" data-consulta="uasg" role="button" tabindex="0">
-            <div class="menu-icon-consulta">🏛️</div>
+            <span class="menu-icon-consulta material-symbols-outlined" aria-hidden="true"
+              >account_balance</span
+            >
             <h3>Consultar UASG</h3>
             <p>Consulte UASG por código, CNPJ do órgão, UF, status e uso SISG</p>
           </div>
 
           <div class="menu-item-consulta" data-consulta="fornecedor" role="button" tabindex="0">
-            <div class="menu-icon-consulta">🏢</div>
+            <span class="menu-icon-consulta material-symbols-outlined" aria-hidden="true"
+              >domain</span
+            >
             <h3>Fornecedor</h3>
             <p>Consulte fornecedores por CNPJ, CPF, natureza jurídica, porte e CNAE</p>
           </div>
 
           <div class="menu-item-consulta" data-consulta="arp" role="button" tabindex="0">
-            <div class="menu-icon-consulta">📋</div>
+            <span class="menu-icon-consulta material-symbols-outlined" aria-hidden="true"
+              >list_alt</span
+            >
             <h3>ARP - Atas de Preços</h3>
             <p>Consulte itens de Atas de Registro de Preços</p>
           </div>
 
           <div class="menu-item-consulta" data-consulta="pncp" role="button" tabindex="0">
-            <div class="menu-icon-consulta">📑</div>
+            <span class="menu-icon-consulta material-symbols-outlined" aria-hidden="true"
+              >description</span
+            >
             <h3>Contratações PNCP</h3>
             <p>Lei 14.133/2021 - Portal Nacional de Contratações</p>
           </div>
@@ -99,13 +113,17 @@
             role="button"
             tabindex="0"
           >
-            <div class="menu-icon-consulta">📚</div>
+            <span class="menu-icon-consulta material-symbols-outlined" aria-hidden="true"
+              >gavel</span
+            >
             <h3>Licitações (Legado)</h3>
             <p>Consulte licitações do sistema antigo ComprasNet</p>
           </div>
 
           <div class="menu-item-consulta" data-consulta="legado-itens" role="button" tabindex="0">
-            <div class="menu-icon-consulta">📄</div>
+            <span class="menu-icon-consulta material-symbols-outlined" aria-hidden="true"
+              >article</span
+            >
             <h3>Itens de Licitação (Legado)</h3>
             <p>Consulte itens de licitações do sistema legado</p>
           </div>
@@ -116,13 +134,13 @@
       <section id="telaConsulta" class="tela-consulta hidden sg-section-shell" aria-hidden="true">
         <!-- Breadcrumb / Voltar -->
         <div class="consulta-nav">
-          <button id="btnVoltar" class="btn btn-secondary">◀ Voltar ao Menu</button>
+          <button id="btnVoltar" class="btn btn-secondary">Voltar ao menu</button>
           <h2 id="tituloConsulta">Consulta</h2>
         </div>
 
         <!-- Filtros Dinâmicos -->
         <section class="filters-section">
-          <h3>🎛️ Filtros de Busca</h3>
+          <h3>Filtros de busca</h3>
           <div id="filtersContainer">
             <p class="text-muted">Carregando filtros...</p>
           </div>
@@ -135,10 +153,10 @@
 
         <!-- Resultados -->
         <section class="results-section">
-          <h3>📋 Resultados</h3>
+          <h3>Resultados</h3>
           <div id="resultsTable">
             <div class="empty-state">
-              <p>📋 Nenhum resultado ainda.</p>
+              <p>Nenhum resultado ainda.</p>
               <p class="text-muted">Configure os filtros e clique em "Buscar".</p>
             </div>
           </div>
@@ -153,7 +171,7 @@
       <!-- Rodapé Informativo -->
       <footer class="consultas-footer">
         <p>
-          📚 <strong>Fonte dos dados:</strong>
+          <strong>Fonte dos dados:</strong>
           <a
             href="https://dadosabertos.compras.gov.br/swagger-ui/index.html"
             target="_blank"
@@ -162,8 +180,8 @@
             Compras.gov.br - Dados Abertos
           </a>
         </p>
-        <p>⚡ Os resultados são cacheados por 5 minutos para melhor desempenho.</p>
-        <p>💾 SINGEM - IF Baiano</p>
+        <p>Os resultados sao cacheados por 5 minutos para melhor desempenho.</p>
+        <p>SINGEM - IF Baiano</p>
         <p><small id="app-version">Versão: carregando...</small></p>
       </footer>
     </div>
