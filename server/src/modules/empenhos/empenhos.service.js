@@ -1,7 +1,7 @@
-const baseEmpenhosService = require('../../src/services/empenhos.service');
-const AppError = require('../../utils/appError');
+const baseEmpenhosService = require('../../services/empenhos.service');
+const AppError = require('../../../utils/appError');
 const empenhosRepository = require('./empenhos.repository');
-const { parsePagination, buildMeta } = require('../../utils/pagination');
+const { parsePagination, buildMeta } = require('../../../utils/pagination');
 
 async function listEmpenhos(query) {
   const normalizedQuery = {

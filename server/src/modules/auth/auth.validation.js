@@ -1,5 +1,5 @@
-const { loginSchema } = require('../../src/validators/auth.validators');
-const { z } = require('../../src/validators/common');
+const { loginSchema } = require('../../validators/auth.validators');
+const { z } = require('../../validators/common');
 
 const refreshSchema = {
   body: z.object({

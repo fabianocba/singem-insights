@@ -1,7 +1,7 @@
 const express = require('express');
-const { createAuthLimiter } = require('../../middleware/rateLimit');
-const auth = require('../../middleware/auth');
-const validate = require('../../middlewares/validate');
+const { createAuthLimiter } = require('../../../middleware/rateLimit');
+const auth = require('../../../middleware/auth');
+const validate = require('../../../middlewares/validate');
 const authController = require('./auth.controller');
 const {
   loginSchema,
@@ -11,7 +11,7 @@ const {
   forgotPasswordSchema,
   resetPasswordSchema,
   changePasswordSchema
-} = require('./auth.schemas');
+} = require('./auth.validation');
 
 const router = express.Router();
 

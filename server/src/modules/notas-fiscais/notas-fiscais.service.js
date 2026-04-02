@@ -1,7 +1,7 @@
-const baseNotasService = require('../../src/services/notasFiscais.service');
-const AppError = require('../../utils/appError');
+const baseNotasService = require('../../services/notasFiscais.service');
+const AppError = require('../../../utils/appError');
 const notasRepository = require('./notas-fiscais.repository');
-const { parsePagination, buildMeta } = require('../../utils/pagination');
+const { parsePagination, buildMeta } = require('../../../utils/pagination');
 
 async function listNotas(query) {
   const normalizedQuery = {

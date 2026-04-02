@@ -1,5 +1,5 @@
-const db = require('../../db');
-const AppError = require('../../utils/appError');
+const db = require('../../../db');
+const AppError = require('../../../utils/appError');
 
 const ITEM_SORT_FIELDS = {
   createdAt: 'm.created_at',

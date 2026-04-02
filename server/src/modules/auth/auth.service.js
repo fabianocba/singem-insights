@@ -1,10 +1,10 @@
 const bcrypt = require('bcrypt');
 const crypto = require('crypto');
-const auth = require('../../middleware/auth');
-const identityService = require('../../domain/identity/identityService');
-const accessContextService = require('../../domain/identity/accessContextService');
-const { sendMail, buildActivationEmail, buildResetPasswordEmail } = require('../../src/services/emailService');
-const AppError = require('../../utils/appError');
+const auth = require('../../../middleware/auth');
+const identityService = require('../../../domain/identity/identityService');
+const accessContextService = require('../../../domain/identity/accessContextService');
+const { sendMail, buildActivationEmail, buildResetPasswordEmail } = require('../../services/emailService');
+const AppError = require('../../../utils/appError');
 const authRepository = require('./auth.repository');
 
 const SALT_ROUNDS = 10;

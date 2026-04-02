@@ -1,5 +1,5 @@
-const { idNotaSchema, chaveNotaSchema, createNotaSchema } = require('../../src/validators/notasFiscais.validators');
-const { z } = require('../../src/validators/common');
+const { idNotaSchema, chaveNotaSchema, createNotaSchema } = require('../../validators/notasFiscais.validators');
+const { z } = require('../../validators/common');
 
 const listNotasSchema = {
   query: z.object({

@@ -1,4 +1,4 @@
-const { z, toInt, idParam } = require('../../src/validators/common');
+const { z, toInt, idParam } = require('../../validators/common');
 
 const movementTypes = ['entrada', 'saida', 'transferencia', 'ajuste', 'devolucao'];
 const itemStatuses = ['ativo', 'inativo', 'bloqueado'];

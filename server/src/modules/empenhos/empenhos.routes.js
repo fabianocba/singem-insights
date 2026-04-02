@@ -1,7 +1,7 @@
 const express = require('express');
-const { authenticate } = require('../../middleware/auth');
-const { catmatObrigatorioMiddleware } = require('../../src/utils/catmatValidation');
-const validate = require('../../middlewares/validate');
+const { authenticate } = require('../../../middleware/auth');
+const { catmatObrigatorioMiddleware } = require('../../utils/catmatValidation');
+const validate = require('../../../middlewares/validate');
 const controller = require('./empenhos.controller');
 const {
   listEmpenhosSchema,
@@ -10,7 +10,7 @@ const {
   createEmpenhoSchema,
   updateEmpenhoSchema,
   syncEmpenhosSchema
-} = require('./empenhos.schemas');
+} = require('./empenhos.validation');
 
 const router = express.Router();
 

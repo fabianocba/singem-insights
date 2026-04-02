@@ -1,7 +1,7 @@
 const express = require('express');
-const { authenticate, requirePermission } = require('../../middleware/auth');
-const { catmatObrigatorioMiddleware } = require('../../src/utils/catmatValidation');
-const validate = require('../../middlewares/validate');
+const { authenticate, requirePermission } = require('../../../middleware/auth');
+const { catmatObrigatorioMiddleware } = require('../../utils/catmatValidation');
+const validate = require('../../../middlewares/validate');
 const controller = require('./notas-fiscais.controller');
 const {
   listNotasSchema,
@@ -9,7 +9,7 @@ const {
   chaveNotaSchema,
   createNotaSchema,
   updateNotaSchema
-} = require('./notas-fiscais.schemas');
+} = require('./notas-fiscais.validation');
 
 const router = express.Router();
 

@@ -1,6 +1,6 @@
 SINGEM - Relatório de Análise de Referências
 ============================================================
-Data: 25/03/2026, 17:14:26
+Data: 01/04/2026, 21:22:00
 
 ARQUIVOS ÓRFÃOS:
 ------------------------------------------------------------
@@ -20,6 +20,7 @@ css\tailwind.css
 docker\grafana\provisioning\dashboards\singem-overview.json
 docker\k6\singem-load.js
 docker\test-runner.js
+docs\ADR_PADRONIZACAO_ROTAS_BACKEND.md
 docs\ALMOXARIFADO_VALIDACAO_LOCAL.md
 docs\AMBIENTE_DESCARTAVEL_DEV.md
 docs\ANALISE_GLOBAL.md
@@ -62,7 +63,9 @@ docs\GUIA_USO_APLICACAO.md
 docs\HIGIENE_CODIGO.md
 docs\implementacao\ADEQUACAO_CONCLUIDA.md
 docs\implementacao\ANALISE_INTEGRACOES.md
+docs\implementacao\BACKLOG_ISSUES_SINGEM_2026Q2.md
 docs\implementacao\CORRECOES_EMPENHOS_2025-11-07.md
+docs\implementacao\FASE1_CHECKLIST_EXECUCAO_15_DIAS.md
 docs\implementacao\FRONTEND_REFACTOR_ETAPAS.md
 docs\implementacao\IMPLEMENTACAO_COMPLETA.md
 docs\implementacao\IMPLEMENTACAO_CONFIGURACOES.md
@@ -70,6 +73,8 @@ docs\implementacao\IMPLEMENTACAO_NE_PARSER.md
 docs\implementacao\INDICE_IMPLEMENTACAO.md
 docs\implementacao\INTEGRACAO_AUTENTICACAO.md
 docs\implementacao\INTEGRACOES_APLICADAS.md
+docs\implementacao\ISSUES_GITHUB_READY_2026Q2.md
+docs\implementacao\PLANO_SPRINTS_2026Q2.md
 docs\implementacao\RESTRICOES_SEGURANCA.md
 docs\implementacao\RESUMO_INTEGRACAO.md
 docs\implementacao\SISTEMA_LOGOMARCAS.md
@@ -85,6 +90,10 @@ docs\NE_PARSER.md
 docs\PADRAO_QUALIDADE.md
 docs\PADRONIZACAO_NF.md
 docs\PERFORMANCE_ESTABILIDADE.md
+docs\PLANO_DEPRECACAO_NFE_V1.md
+docs\PLANO_RESTRUTURACAO_APP_JS.md
+docs\PRD_EXECUTIVO_SINGEM_1PAGINA.md
+docs\PRD_REFINADO_SINGEM_2026.md
 docs\README_DEV_NF.md
 docs\README_V2.md
 docs\RELATORIO-AUDITORIA-CONFORMIDADE.md
@@ -106,15 +115,12 @@ docs\SOLUCAO_ERRO_SELECIONAVEL.md
 docs\SOLUCAO_MEMORIA_APLICACAO.md
 docs\SUMARIO_LIMPEZA.md
 docs\VINCULACAO_USUARIO_UNIDADE.md
-html\assets\index-COTh6lXR.css
-html\assets\index-DYO2mJ8d.js
 IF GUANAMBI\00_CONFIG\app-config.json
 infra\system\deploy-notes.md
 js\anexarPdfNE.js
 js\authProvidersBootstrap.js
 js\bootstrap.js
 js\catmatIntegration.js
-js\config\version.js
 js\config.js
 js\configuracoesPageBootstrap.js
 js\consultas\dadosMock.js
@@ -132,6 +138,7 @@ js\diagnosticoCachePage.js
 js\exportCSV.js
 js\features\almoxarifado\api.js
 js\features\almoxarifado\pages\almoxarifadoPage.js
+js\features\app\legacyDataMaintenance.js
 js\features\auth\pages.js
 js\features\auth\ui.js
 js\features\configuracoes\pages.js
@@ -179,7 +186,6 @@ js\relatoriosEmpenhos.js
 js\settings\arquivos.js
 js\settings\backup.js
 js\settings\diagnostico.js
-js\settings\ia.js
 js\settings\index.js
 js\settings\integracoes.js
 js\settings\preferencias.js
@@ -194,6 +200,7 @@ js\shared\ui\pageHeader.js
 js\shared\ui\select.js
 js\shared\ui\textarea.js
 js\softInit.js
+js\ui\appShellMount.js
 js\ui\pageEnhancer.js
 js\ui\settings\protecao.js
 js\ui\themeBoot.js
@@ -208,6 +215,7 @@ package.json
 README_DOCKER.md
 scripts\bump-version.js
 scripts\util\reset-ifdesk.js
+scripts\validate-version-sync.js
 server\app.js
 server\bootstrap.js
 server\config\database.js
@@ -272,7 +280,6 @@ server\modules\notas-fiscais\notas-fiscais.schemas.js
 server\modules\notas-fiscais\notas-fiscais.service.js
 server\package-lock.json
 server\package.json
-server\routes\ai.routes.js
 server\routes\catalogacao.routes.js
 server\routes\compras.routes.js
 server\routes\comprasgov.routes.js
@@ -330,17 +337,13 @@ server\src\utils\catmatValidation.js
 server\src\utils\danfeGenerator.js
 server\src\utils\successResponse.js
 server\src\utils\xmlParser.js
-server\src\validators\ai.validators.js
 server\src\validators\auth.validators.js
 server\src\validators\catmat.validators.js
 server\src\validators\common.js
 server\src\validators\empenhos.validators.js
 server\src\validators\estoque.validators.js
 server\src\validators\notasFiscais.validators.js
-server\tests\ai.contract.test.js
-server\tests\ai.routes.test.js
 server\tests\almoxarifado.contract.test.js
-server\tests\catmat.search.service.test.js
 server\tests\comprasgov.api-real.test.js
 server\tests\comprasgov.client.test.js
 server\tests\comprasgov.routes.test.js
@@ -358,7 +361,7 @@ web\package.json
 
 ESTATÍSTICAS:
 ------------------------------------------------------------
-Total de arquivos: 454
-Arquivos referenciados: 77
-Arquivos órfãos: 368
-Taxa de utilização: 17.0%
+Total de arquivos: 450
+Arquivos referenciados: 85
+Arquivos órfãos: 354
+Taxa de utilização: 18.9%

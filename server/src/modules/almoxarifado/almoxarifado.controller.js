@@ -1,5 +1,5 @@
 const service = require('./almoxarifado.service');
-const { ok, created, paginated } = require('../../utils/httpResponse');
+const { ok, created, paginated } = require('../../../utils/httpResponse');
 
 async function getMeta(req, res, next) {
   try {

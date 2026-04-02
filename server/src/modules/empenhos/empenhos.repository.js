@@ -1,5 +1,5 @@
-const db = require('../../db');
-const baseEmpenhosRepository = require('../../src/repositories/empenhos.repository');
+const db = require('../../../db');
+const baseEmpenhosRepository = require('../../repositories/empenhos.repository');
 
 const SORT_FIELD_MAP = {
   createdAt: 'created_at',

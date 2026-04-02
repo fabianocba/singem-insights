@@ -1,5 +1,5 @@
-const baseNotasRepository = require('../../src/repositories/notasFiscais.repository');
-const db = require('../../db');
+const baseNotasRepository = require('../../repositories/notasFiscais.repository');
+const db = require('../../../db');
 
 const SORT_FIELD_MAP = {
   createdAt: 'created_at',

@@ -1,6 +1,6 @@
 const express = require('express');
-const { authenticate, requireAdmin, requirePermission } = require('../../middleware/auth');
-const validate = require('../../middlewares/validate');
+const { authenticate, requireAdmin, requirePermission } = require('../../../middleware/auth');
+const validate = require('../../../middlewares/validate');
 const controller = require('./almoxarifado.controller');
 const {
   dashboardSchema,
@@ -19,7 +19,7 @@ const {
   updateSolicitacaoStatusSchema,
   relatorioResumoSchema,
   listAuditoriaSchema
-} = require('./almoxarifado.schemas');
+} = require('./almoxarifado.validation');
 
 const router = express.Router();
 

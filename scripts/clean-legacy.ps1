@@ -12,6 +12,10 @@ $root = Resolve-DevProjectRoot -ProjectRoot $ProjectRoot -ScriptRoot $PSScriptRo
 Write-DevTitle 'SINGEM CLEAN LEGACY'
 
 $legacyPaths = @(
+  'server/proxy-server.py',
+  'server/proxy-api-siasg.py',
+  'server/iniciar-proxy.ps1',
+  'server/src/modules/ai/.gitkeep',
   'docker/local/docker-compose.yml',
   'docker/local/nginx-dev.conf',
   'docker/local/.env.example',

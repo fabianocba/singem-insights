@@ -3,8 +3,8 @@ const {
   slugEmpenhoSchema,
   createEmpenhoSchema,
   updateEmpenhoSchema
-} = require('../../src/validators/empenhos.validators');
-const { z } = require('../../src/validators/common');
+} = require('../../validators/empenhos.validators');
+const { z } = require('../../validators/common');
 
 const listEmpenhosSchema = {
   query: z.object({

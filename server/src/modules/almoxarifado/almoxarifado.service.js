@@ -1,8 +1,8 @@
-const AppError = require('../../utils/appError');
-const { parsePagination, buildMeta } = require('../../utils/pagination');
+const AppError = require('../../../utils/appError');
+const { parsePagination, buildMeta } = require('../../../utils/pagination');
 const repository = require('./almoxarifado.repository');
 const dto = require('./almoxarifado.dto');
-const { movementTypes, itemStatuses, solicitationStatuses, priorityLevels } = require('./almoxarifado.schemas');
+const { movementTypes, itemStatuses, solicitationStatuses, priorityLevels } = require('./almoxarifado.validation');
 
 function buildValidationError(message, path = 'body') {
   return new AppError(400, 'VALIDATION_ERROR', message, [{ path, message, code: 'custom' }]);
