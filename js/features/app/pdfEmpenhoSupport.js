@@ -171,7 +171,9 @@ export function gerarMensagemResumoEmpenho(extractedData, arquivoInfo) {
     mensagem += 'Dados extraídos:\n';
     mensagem += extractedData.numero ? `✓ Número: ${extractedData.numero}\n` : '✗ Número não encontrado\n';
     mensagem += extractedData.data ? `✓ Data: ${extractedData.data}\n` : '✗ Data não encontrada\n';
-    mensagem += extractedData.fornecedor ? `✓ Fornecedor: ${extractedData.fornecedor}\n` : '✗ Fornecedor não encontrado\n';
+    mensagem += extractedData.fornecedor
+      ? `✓ Fornecedor: ${extractedData.fornecedor}\n`
+      : '✗ Fornecedor não encontrado\n';
     mensagem += extractedData.cnpj ? `✓ CNPJ: ${extractedData.cnpj}\n` : '✗ CNPJ não encontrado\n';
     mensagem +=
       extractedData.itens && extractedData.itens.length > 0

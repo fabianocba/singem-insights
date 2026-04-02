@@ -67,7 +67,13 @@ export async function carregarEmpenhosNovoCadastro(app) {
 
       if (filtroAno) {
         filtroAno.addEventListener('change', () => {
-          filtrarListaCadastro(app, app.cadastroEmpenhoState.empenhos, container, buscaInput?.value || '', filtroAno.value);
+          filtrarListaCadastro(
+            app,
+            app.cadastroEmpenhoState.empenhos,
+            container,
+            buscaInput?.value || '',
+            filtroAno.value
+          );
         });
       }
 

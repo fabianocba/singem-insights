@@ -469,7 +469,6 @@ class NfeImportServiceV2 {
 
     return importResult;
   }
-
 }
 
 module.exports = NfeImportServiceV2;

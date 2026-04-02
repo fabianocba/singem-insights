@@ -2,14 +2,7 @@ import * as NaturezaSubelementos from '../../data/naturezaSubelementos.js';
 
 /* eslint-disable complexity */
 export function abrirModalItemEmpenho(app, options = {}) {
-  const {
-    index = null,
-    seq = null,
-    descricao = '',
-    unidade = 'UN',
-    quantidade = null,
-    valorUnitario = null
-  } = options;
+  const { index = null, seq = null, descricao = '', unidade = 'UN', quantidade = null, valorUnitario = null } = options;
 
   const naturezaDespesa = app.empenhoDraft.header.naturezaDespesa;
   if (!naturezaDespesa) {

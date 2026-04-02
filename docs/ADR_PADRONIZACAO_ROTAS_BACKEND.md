@@ -8,7 +8,7 @@
 O backend do SINGEM cresceu com rotas em multiplos diretorios:
 
 - server/routes/
-- server/modules/*/*.routes.js
+- server/modules/_/_.routes.js
 - server/src/routes/
 
 Embora funcional, o bootstrap ficava concentrado em server/app.js com alto acoplamento e baixa rastreabilidade.

@@ -19,12 +19,15 @@ O arquivo js/app.js possui alto acoplamento e mais de 7 mil linhas, concentrando
 Foi iniciada a modularizacao com extracao de responsabilidades:
 
 1. Helpers de branding e versao para:
+
 - js/features/app/versionBranding.js
 
 2. Acoes legadas de manutencao de dados para:
+
 - js/features/app/legacyDataMaintenance.js
 
 3. Bloco de relatorios e controle de saldos para:
+
 - js/features/app/relatorios.js
   - gerarRelatorio, exibirControleSaldos, carregarSaldoEmpenho
   - getStatusColor, getStatusLabel, getSaldoStatusColor
@@ -32,16 +35,19 @@ Foi iniciada a modularizacao com extracao de responsabilidades:
   - aplicarFiltrosRelatorio, mostrarEstatisticasArquivos, atualizarEstatisticasArquivos
 
 4. Listeners da infraestrutura Enterprise para:
+
 - js/features/app/infrastructureListeners.js
   - setupInfrastructureListeners (eventBus: pdf.parse, ne.salva, nf.salva, queue.task, relatorio.gerar, saldo.atualizado)
 
 5. Gateway unico de acesso ao dbManager para:
+
 - js/core/dbGateway.js
   - leitura de estado do dbManager
   - wrappers semanticos para buscar/salvar/excluir registros
   - wrappers genericos para get/getAll/getByIndex/delete
 
 6. Bootstrap da aplicacao para:
+
 - js/features/app/bootstrap.js
   - waitForRepository
   - logBootstrapReport
@@ -49,6 +55,7 @@ Foi iniciada a modularizacao com extracao de responsabilidades:
   - tratamento visual de erro fatal na inicializacao
 
 7. Suporte de Nota Fiscal para:
+
 - js/features/app/notaFiscalSupport.js
   - buscarEmpenhoCorrespondente
   - verificarDivergencias
@@ -60,6 +67,7 @@ Foi iniciada a modularizacao com extracao de responsabilidades:
   - onEmpenhoSelecionado
 
 8. Suporte de Empenho para:
+
 - js/features/app/empenhoSupport.js
   - onlyDigits, dataBRtoISO, parseNumero, validarCNPJ
   - validarCNPJFornecedorContraUnidade
@@ -72,6 +80,7 @@ Foi iniciada a modularizacao com extracao de responsabilidades:
   - salvarEmpenho
 
 9. Shell inicial da aplicacao para:
+
 - js/features/app/appShell.js
   - init
   - setupCriticalAuthListeners
@@ -88,6 +97,7 @@ Foi iniciada a modularizacao com extracao de responsabilidades:
   - abrirModalRecuperacaoSenha
 
 10. Validacao e modalizacao de Empenho para:
+
 - js/features/app/empenhoValidationSupport.js
   - validarEmpenho
   - validarCadastroEmpenho
@@ -96,6 +106,7 @@ Foi iniciada a modularizacao com extracao de responsabilidades:
   - atualizarBotaoValidar
 
 11. Fluxo remanescente de Nota Fiscal para:
+
 - js/features/app/notaFiscalFlowSupport.js
   - setupNotaFiscalOptions, getNotaFiscalRefs, refreshNotaFiscalOptionRefs
   - selecionarOpcaoEntrada, setupChaveAcesso, setupCodigoBarras
@@ -111,6 +122,7 @@ Foi iniciada a modularizacao com extracao de responsabilidades:
   - exibirPreviewNotaFiscal, gerarTabelaItensExtraidos, transferirDadosParaFormulario
 
 12. js/app.js passa a delegar para todos os modulos extraidos mantendo compatibilidade funcional.
+
 - Linha base: 7071 linhas
 - Apos Fase 1 (versionBranding + legacyDataMaintenance): 7071 linhas
 - Apos Fase 2-3 (relatorios + infrastructureListeners): 6498 linhas (-573 linhas)

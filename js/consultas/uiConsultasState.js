@@ -2,12 +2,7 @@ import { DATASETS } from './datasetsConfig.js';
 import { createPriceDashboardState } from './precosPraticadosRenderer.js';
 import { shouldAutoSearch } from './uiConsultasFilters.js';
 
-export {
-  sanitizeCodesInput,
-  normalizeText,
-  shouldAutoSearch,
-  createSearchSignature
-} from './uiConsultasFilters.js';
+export { sanitizeCodesInput, normalizeText, shouldAutoSearch, createSearchSignature } from './uiConsultasFilters.js';
 
 export const AUTO_SEARCH_DEBOUNCE_MS = 650;
 export const PRICE_INTELLIGENCE_DATASET = 'precos-praticados';

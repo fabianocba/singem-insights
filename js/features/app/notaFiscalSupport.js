@@ -196,9 +196,7 @@ export async function salvarArquivoNotaFiscal(app, id, notaFiscal) {
 
   try {
     const fornecedor =
-      app.currentNotaFiscal.extractedData?.fornecedor ||
-      app.currentNotaFiscal.extractedData?.emitente ||
-      'FORNECEDOR';
+      app.currentNotaFiscal.extractedData?.fornecedor || app.currentNotaFiscal.extractedData?.emitente || 'FORNECEDOR';
 
     const metadados = {
       numero: notaFiscal.numero,

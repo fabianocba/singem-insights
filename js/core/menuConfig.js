@@ -89,7 +89,7 @@ const MENU_CONFIG = {
       screen: 'consultasScreen',
       icon: 'search',
       category: 'consultas'
-    },
+    }
   ],
 
   // ========================================

@@ -1,9 +1,5 @@
 import { DATASETS } from './datasetsConfig.js';
-import {
-  state,
-  resetConsultaState,
-  getDefaultFiltersForDataset
-} from './uiConsultasState.js';
+import { state, resetConsultaState, getDefaultFiltersForDataset } from './uiConsultasState.js';
 import { createPriceDashboardState } from './precosPraticadosRenderer.js';
 
 export function createConsultaNavigation({ renderFilters, renderPagination, renderTable, setSearchHint }) {

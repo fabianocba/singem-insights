@@ -17,6 +17,7 @@ testes/pdfs/**
 # Build output
 dist/
 build/
+css/tailwind.css
 
 # Cache
 .cache/

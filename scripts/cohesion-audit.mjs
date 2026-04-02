@@ -22,10 +22,7 @@ const refactorSet = new Set([
   'server/src/services/NfeImportServiceV2.js'
 ]);
 
-const removeSet = new Set([
-  '.lint-output.txt',
-  'SCAN_REPORT.txt'
-]);
+const removeSet = new Set(['.lint-output.txt', 'SCAN_REPORT.txt']);
 
 function safeLineCount(relPath) {
   try {

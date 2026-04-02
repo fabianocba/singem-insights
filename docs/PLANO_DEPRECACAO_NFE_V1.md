@@ -20,14 +20,17 @@ Unificar contratos de NF-e no envelope da v2 e reduzir custo de manutencao dupla
 ## Cronograma sugerido
 
 1. Ate 2026-06-30:
+
 - Monitorar consumo da v1 por logs e telemetria.
 - Publicar comunicacao para consumidores internos.
 
 2. Ate 2026-09-30:
+
 - Bloquear novas integracoes em v1.
 - Manter apenas correcoes criticas na v1.
 
 3. Ate 2026-12-31:
+
 - Encerrar v1.
 - Redirecionar documentacao oficial para v2 apenas.
 

@@ -267,14 +267,18 @@ export function iniciarDeteccaoBarcode(app) {
     if (typeof ZXing !== 'undefined') {
       app.codeReader = new ZXing.BrowserMultiFormatReader();
 
-      app.codeReader.decodeFromVideoDevice(app.cameras[app.currentCameraIndex].deviceId, 'barcodeVideo', (result, err) => {
-        if (result) {
-          app.codigoDetectado(result.text);
+      app.codeReader.decodeFromVideoDevice(
+        app.cameras[app.currentCameraIndex].deviceId,
+        'barcodeVideo',
+        (result, err) => {
+          if (result) {
+            app.codigoDetectado(result.text);
+          }
+          if (err && !(err instanceof ZXing.NotFoundException)) {
+            console.error('Erro na detecção:', err);
+          }
         }
-        if (err && !(err instanceof ZXing.NotFoundException)) {
-          console.error('Erro na detecção:', err);
-        }
-      });
+      );
     } else {
       app.iniciarDeteccaoSimulada();
     }
@@ -308,7 +312,10 @@ export function iniciarDeteccaoSimulada(app) {
   };
 
   video.addEventListener('loadedmetadata', () => {
-    app.showBarcodeStatus('Modo demonstração ativo. Em 5-10 segundos será simulada a detecção de um código.', 'warning');
+    app.showBarcodeStatus(
+      'Modo demonstração ativo. Em 5-10 segundos será simulada a detecção de um código.',
+      'warning'
+    );
     detectar();
   });
 }
@@ -722,16 +729,28 @@ export function adicionarItensExtraidos(app, containerId, itens) {
       console.log(`Adicionando item NF ${index + 1}:`, item);
       const itemRow = app.criarItemRow('notaFiscal');
 
-      setValueSafe(itemRow.querySelector('[data-field="descricao"]'), item.descricao || item.descricao_resumida || '', 'descricao');
+      setValueSafe(
+        itemRow.querySelector('[data-field="descricao"]'),
+        item.descricao || item.descricao_resumida || '',
+        'descricao'
+      );
       setValueSafe(itemRow.querySelector('[data-field="unidade"]'), item.unidade || 'UN', 'unidade');
-      setValueSafe(itemRow.querySelector('[data-field="quantidade"]'), window.formatarNumero(item.quantidade || 0), 'quantidade');
+      setValueSafe(
+        itemRow.querySelector('[data-field="quantidade"]'),
+        window.formatarNumero(item.quantidade || 0),
+        'quantidade'
+      );
       setValueSafe(
         itemRow.querySelector('[data-field="valorUnitario"]'),
         window.formatarNumero(item.valorUnitario || 0),
         'valorUnitario'
       );
       const valorTotal = item.valorTotal || item.quantidade * item.valorUnitario;
-      setValueSafe(itemRow.querySelector('[data-field="valorTotal"]'), window.formatarNumero(valorTotal || 0), 'valorTotal');
+      setValueSafe(
+        itemRow.querySelector('[data-field="valorTotal"]'),
+        window.formatarNumero(valorTotal || 0),
+        'valorTotal'
+      );
 
       container.appendChild(itemRow);
     });
@@ -801,7 +820,9 @@ export function exibirPreviewNotaFiscal(app, extractedData) {
     return;
   }
 
-  app.carregarEmpenhosSelect().catch((err) => console.error('[exibirPreviewNotaFiscal] Erro ao carregar empenhos:', err));
+  app
+    .carregarEmpenhosSelect()
+    .catch((err) => console.error('[exibirPreviewNotaFiscal] Erro ao carregar empenhos:', err));
 
   const somaItens = (extractedData.itens || []).reduce((sum, item) => {
     const valor = parseFloat(item.valorTotal) || 0;

@@ -6,6 +6,7 @@ Escopo: codigo real presente e ativo no workspace atual.
 ## 1) Estrutura real em execucao
 
 ### Backend ativo (runtime)
+
 - Entrada: `server/index.js` -> `server/bootstrap.js` -> `server/app.js`
 - Registro de rotas: `server/src/core/routes.js`
 - Modulos de dominio ativos (padrao controller/service/repository/schemas):
@@ -18,6 +19,7 @@ Escopo: codigo real presente e ativo no workspace atual.
   - `server/src/routes/*.routes.js` (catmat, estoque)
 
 ### Frontend ativo
+
 - Entrada principal: `index.html` + `js/app.js`
 - Orquestracao modular em andamento via `js/features/app/*`
 - Features por dominio existentes:
@@ -33,10 +35,12 @@ Escopo: codigo real presente e ativo no workspace atual.
 ## 2) Modulos existentes vs mortos
 
 ### Ativos e em uso
+
 - Backend: `auth`, `empenhos`, `notas-fiscais`, `almoxarifado`, integracoes ComprasGov/DadosGov/NFe
 - Frontend: `app` (shell/orquestracao), `empenho`, `notaFiscal`, `almoxarifado`, `auth`
 
 ### Mortos/removidos detectados e tratados nesta execucao
+
 - Removido: `server/proxy-server.py`
 - Removido: `server/proxy-api-siasg.py`
 - Removido: `server/iniciar-proxy.ps1`
@@ -46,6 +50,7 @@ Escopo: codigo real presente e ativo no workspace atual.
 ## 3) Arquivos problematicos por tamanho
 
 ### > 800 linhas
+
 - `css/style.css` (4271)
 - `css/tailwind-source.css` (4110)
 - `js/app.js` (3526)
@@ -66,6 +71,7 @@ Escopo: codigo real presente e ativo no workspace atual.
 - `js/settings/preferencias.js` (849)
 
 ### 500-800 linhas (amostra critica)
+
 - `server/integrations/comprasgov/client.js` (761)
 - `server/domain/nfe/NfeXmlParser.js` (746)
 - `server/services/gov-api/comprasGovGatewayService.js` (729)
@@ -91,6 +97,7 @@ Escopo: codigo real presente e ativo no workspace atual.
 ## 5) Arquitetura alvo (somente modulos reais)
 
 ### Backend (consolidacao proposta)
+
 - Manter apenas um eixo modular:
   - `server/src/modules/<modulo_real>/`
     - `<modulo>.routes.js`
@@ -105,6 +112,7 @@ Escopo: codigo real presente e ativo no workspace atual.
   4. remover duplicidade de pastas `middleware/` vs `middlewares/` (padrao unico)
 
 ### Frontend (estado real)
+
 - Padrao alvo por feature real:
   - `js/features/<modulo_real>/index.js`
   - `js/features/<modulo_real>/render.js`

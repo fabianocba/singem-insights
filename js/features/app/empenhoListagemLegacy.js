@@ -380,7 +380,8 @@ export async function mostrarDetalhesEmpenhoPrivado(app, empenhoId) {
 
   const email = emp.emailFornecedor || 'Não informado';
 
-  const processoExibicao = emp.processoSuap || emp.codigoReferencia || emp.processoNumero || emp.processo || 'Não informado';
+  const processoExibicao =
+    emp.processoSuap || emp.codigoReferencia || emp.processoNumero || emp.processo || 'Não informado';
 
   const valorEmpenho = emp.valorTotalEmpenho ?? emp.valorTotal ?? 0;
   const valorFormatado = FormatUtils.formatCurrencyBR(valorEmpenho);
