@@ -166,6 +166,93 @@ export async function exibirControleSaldos(app) {
 }
 
 /**
+ * Carrega o controle de saldos na aba dedicada da tela principal
+ * @param {object} app - Instância de ControleMaterialApp
+ */
+export async function carregarControleSaldosTab(app) {
+  const container = document.getElementById('controleSaldosContainer');
+  if (!container) {
+    return;
+  }
+
+  try {
+    const empenhosCompletos = await dbGateway.buscarEmpenhos(true);
+    const empenhosComArquivo = await dbGateway.buscarEmpenhos();
+
+    if (!empenhosCompletos || empenhosCompletos.length === 0) {
+      container.innerHTML = `
+          <div class="sg-empty-state">
+            <p class="sg-empty-state__title">Nenhum empenho cadastrado.</p>
+            <p class="sg-empty-state__text">Cadastre empenhos para visualizar o controle de saldos.</p>
+          </div>
+        `;
+      return;
+    }
+
+    const optionsHtml = empenhosCompletos
+      .map((emp) => {
+        const numero = String(emp.numero || 'Sem número');
+        const fornecedor = String(emp.fornecedor || 'Fornecedor não informado');
+        const valorFormatado = FormatUtils.formatCurrencyBR(emp.valorTotalEmpenho ?? emp.valorTotal ?? 0);
+
+        return `
+            <option value="${emp.id}">
+              NE ${numero} - ${fornecedor} - ${valorFormatado}
+            </option>
+          `;
+      })
+      .join('');
+
+    container.innerHTML = `
+        <section class="sg-section-shell sg-saldo-panel">
+          <div class="sg-toolbar sg-saldo-toolbar">
+            <div class="sg-saldo-toolbar__field">
+              <label for="saldoEmpenhoSelectTab" class="sg-saldo-toolbar__label">Selecione o Empenho:</label>
+              <select id="saldoEmpenhoSelectTab" class="sg-inline-select">
+                <option value="">-- Selecione um empenho --</option>
+                ${optionsHtml}
+              </select>
+            </div>
+            <button
+              type="button"
+              id="btnAtualizarControleSaldos"
+              class="btn btn-secondary inline-flex items-center gap-1 px-4 py-2 whitespace-nowrap"
+              title="Recarregar lista de empenhos">
+              Atualizar lista
+            </button>
+          </div>
+          <p class="sg-info-note sg-saldo-toolbar__meta">
+            Total: ${empenhosCompletos.length} empenho(s) | ${empenhosComArquivo.length} com arquivo PDF vinculado
+          </p>
+          <div id="saldoDetalhesTab" class="sg-saldo-details" aria-live="polite"></div>
+        </section>
+      `;
+
+    document.getElementById('btnAtualizarControleSaldos')?.addEventListener('click', () => {
+      app.carregarControleSaldos();
+    });
+
+    document.getElementById('saldoEmpenhoSelectTab')?.addEventListener('change', async (e) => {
+      const empenhoId = parseInt(e.target.value, 10);
+      if (empenhoId) {
+        await app.carregarSaldoEmpenhoTab(empenhoId);
+      } else {
+        const details = document.getElementById('saldoDetalhesTab');
+        if (details) {
+          details.replaceChildren();
+        }
+      }
+    });
+  } catch (error) {
+    console.error('Erro ao carregar controle de saldos:', error);
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'alert alert-danger';
+    errorDiv.textContent = `Erro ao carregar: ${error.message || 'Erro desconhecido'}`;
+    container.replaceChildren(errorDiv);
+  }
+}
+
+/**
  * Carrega e exibe o saldo detalhado de um empenho específico
  * @param {object} app - Instância de ControleMaterialApp
  * @param {number} empenhoId - ID do empenho
