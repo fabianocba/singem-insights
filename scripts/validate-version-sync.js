@@ -37,9 +37,15 @@ function fail(msg) {
 const versionJsonPath = path.join(root, 'version.json');
 const vj = readJson(versionJsonPath);
 
-if (!vj.version) fail('version.json não contém campo "version"');
-if (!vj.build) fail('version.json não contém campo "build"');
-if (!vj.name) fail('version.json não contém campo "name"');
+if (!vj.version) {
+  fail('version.json não contém campo "version"');
+}
+if (!vj.build) {
+  fail('version.json não contém campo "build"');
+}
+if (!vj.name) {
+  fail('version.json não contém campo "name"');
+}
 
 // ── 2. js/core/version.js FALLBACK ──────────────────────────────
 const jsCoreVersionPath = path.join(root, 'js', 'core', 'version.js');
@@ -83,9 +89,11 @@ if (fs.existsSync(serverPkgPath)) {
 // ── Resultado ───────────────────────────────────────────────────
 if (ok) {
   console.log(`[OK] Todas as fontes de versão sincronizadas: ${vj.name} ${vj.version} (${vj.build})`);
+  // eslint-disable-next-line no-undef
   process.exit(0);
 } else {
   console.error('');
   console.error('Para corrigir: node scripts/bump-version.js  OU  pwsh scripts/version.ps1');
+  // eslint-disable-next-line no-undef
   process.exit(1);
 }

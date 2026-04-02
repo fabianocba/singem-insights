@@ -27,6 +27,14 @@ const upload = multer({
 // Instância do serviço (será configurada no server)
 let nfeService = null;
 
+router.use((_req, res, next) => {
+  res.setHeader('Deprecation', 'true');
+  res.setHeader('Sunset', 'Wed, 31 Dec 2026 23:59:59 GMT');
+  res.setHeader('Link', '</api/nfe/v2>; rel="successor-version"');
+  res.setHeader('Warning', '299 - "API /api/nfe deprecada; migre para /api/nfe/v2"');
+  next();
+});
+
 /**
  * Middleware para verificar se o serviço está inicializado
  */

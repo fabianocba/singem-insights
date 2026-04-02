@@ -125,7 +125,7 @@ const ModuleCatalog = Object.freeze([
     category: ModuleCategories.CENTRAL,
     menuGroup: 'central',
     route: null,
-    screenId: null,
+    screenId: 'consultasScreen',
     icon: 'flask-conical',
     order: 15,
     enabledByDefault: true,

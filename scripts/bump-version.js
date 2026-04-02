@@ -56,7 +56,7 @@ function writeVersionFile(filePath, data) {
  * sem exigir um passo de compilação JS separado.
  */
 function syncFrontendVersionFallback(jsVersionPath, data) {
-  let content = fs.readFileSync(jsVersionPath, 'utf8');
+  const content = fs.readFileSync(jsVersionPath, 'utf8');
 
   const updated = content.replace(
     /const FALLBACK = Object\.freeze\(\{[\s\S]*?\}\);/,
@@ -75,10 +75,14 @@ function syncFrontendVersionFallback(jsVersionPath, data) {
 }
 
 function syncPackageJsonVersion(pkgPath, version) {
-  if (!fs.existsSync(pkgPath)) return;
+  if (!fs.existsSync(pkgPath)) {
+    return;
+  }
   const raw = fs.readFileSync(pkgPath, 'utf8').replace(/^\uFEFF/, '');
   const pkg = JSON.parse(raw);
-  if (pkg.version === version) return;
+  if (pkg.version === version) {
+    return;
+  }
   pkg.version = version;
   fs.writeFileSync(pkgPath, `${JSON.stringify(pkg, null, 2)}\n`, 'utf8');
   console.log(`[bump-version] ${path.relative(path.resolve(__dirname, '..'), pkgPath)} → ${version}`);

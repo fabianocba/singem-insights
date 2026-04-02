@@ -163,7 +163,7 @@ END $$;
 INSERT INTO system_modules (chave, nome_exibicao, descricao, categoria, rota, screen_id, icone, ordem_menu, habilitado, oculto_em_producao)
 VALUES
 	('singem_adm', 'SINGEM ADM', 'Administração, cadastros gerais, governança e parâmetros globais.', 'central', '/config/', 'configScreen', 'settings-2', 10, TRUE, FALSE),
-	('singem_devtools', 'Ferramentas de Desenvolvimento', 'Recursos técnicos restritos a ambiente de desenvolvimento.', 'central', NULL, NULL, 'flask-conical', 15, TRUE, TRUE),
+	('singem_devtools', 'Ferramentas de Desenvolvimento', 'Recursos técnicos restritos a ambiente de desenvolvimento.', 'central', NULL, 'consultasScreen', 'flask-conical', 15, TRUE, TRUE),
 	('gestao_almoxarifado', 'Gestão de Almoxarifado', 'Entradas, saídas, saldos, requisições, inventário e NF-e.', 'setorial', '/almoxarifado', 'almoxarifadoScreen', 'warehouse', 20, TRUE, FALSE),
 	('gestao_patrimonio', 'Gestão de Patrimônio', 'Tombamento, transferência, baixa, localização e inventário patrimonial.', 'setorial', '/patrimonio', NULL, 'building-2', 30, TRUE, FALSE),
 	('gestao_veiculos', 'Gestão de Veículos', 'Frota, motoristas, reservas, abastecimentos, manutenção e relatórios.', 'setorial', '/veiculos', NULL, 'car-front', 40, TRUE, FALSE),

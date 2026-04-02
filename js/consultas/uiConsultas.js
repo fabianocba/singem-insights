@@ -2005,7 +2005,7 @@ function presentSearchError(errorInfo, isPriceDataset) {
   renderTable();
 }
 
-function resolveAiFallbackQueryText(filters = {}, dataset = state.dataset) {
+function _resolveAiFallbackQueryText(filters = {}, dataset = state.dataset) {
   const valuesByKey = Object.entries(filters || {}).reduce((acc, [key, value]) => {
     const normalizedKey = String(key || '').trim();
     const normalizedValue = String(value || '').trim();

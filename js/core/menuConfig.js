@@ -302,15 +302,13 @@ function handlePreferencesAction(action, _context = {}) {
       break;
 
     case 'export:csv:nf':
-      // Abre modal de exportação CSV de NFs
       navigateToPreferences();
-      // TODO: trigger específico para exportar NF
+      window.dispatchEvent(new CustomEvent('singem:preferences:export-csv', { detail: { tipo: 'nf' } }));
       break;
 
     case 'export:csv:empenhos':
-      // Abre modal de exportação CSV de empenhos
       navigateToPreferences();
-      // TODO: trigger específico para exportar empenhos
+      window.dispatchEvent(new CustomEvent('singem:preferences:export-csv', { detail: { tipo: 'empenhos' } }));
       break;
 
     default:

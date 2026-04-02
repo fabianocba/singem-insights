@@ -15,7 +15,6 @@ css\consultas.css
 css\protecao.css
 css\reports.css
 css\style.css
-css\system-status.css
 css\tailwind-source.css
 css\tailwind.css
 docker\grafana\provisioning\dashboards\singem-overview.json
@@ -195,7 +194,6 @@ js\shared\ui\pageHeader.js
 js\shared\ui\select.js
 js\shared\ui\textarea.js
 js\softInit.js
-js\systemStatus\index.js
 js\ui\pageEnhancer.js
 js\ui\settings\protecao.js
 js\ui\themeBoot.js
@@ -287,7 +285,6 @@ server\routes\price-intelligence.routes.js
 server\routes\procurement-analytics.routes.js
 server\routes\serproid.routes.js
 server\routes\sync.routes.js
-server\routes\systemStatus.js
 server\scripts\import-catmat.js
 server\scripts\seed-admin.js
 server\scripts\test-contracts-auth.js
@@ -301,7 +298,6 @@ server\services\gov-api\csv\csvHistoricalNormalizer.js
 server\services\price-intelligence.service.js
 server\services\procurement-analytics.service.js
 server\services\supplier-intelligence.service.js
-server\services\systemStatusService.js
 server\src\config\db.js
 server\src\config\env.js
 server\src\config\logger.js

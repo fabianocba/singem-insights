@@ -12,26 +12,7 @@ const AppError = require('./utils/appError');
 const { createApiLimiter, createIntegracoesLimiter } = require('./middleware/rateLimit');
 const { authenticate, requireAdmin } = require('./middleware/auth');
 const { readVersion } = require('./utils/version');
-
-const authRoutes = require('./modules/auth/auth.routes');
-const govbrRoutes = require('./routes/govbr.routes');
-const serproidRoutes = require('./routes/serproid.routes');
-const empenhosRoutes = require('./modules/empenhos/empenhos.routes');
-const almoxarifadoRoutes = require('./modules/almoxarifado/almoxarifado.routes');
-const notasFiscaisRoutes = require('./modules/notas-fiscais/notas-fiscais.routes');
-const estoqueRoutes = require('./src/routes/estoque.routes');
-const syncRoutes = require('./routes/sync.routes');
-const catmatRoutes = require('./src/routes/catmat.routes');
-const catalogacaoRoutes = require('./routes/catalogacao.routes');
-const comprasRoutes = require('./routes/compras.routes');
-const comprasGovRoutes = require('./routes/comprasgov.routes');
-const priceIntelligenceRoutes = require('./routes/price-intelligence.routes');
-const procurementAnalyticsRoutes = require('./routes/procurement-analytics.routes');
-const dadosGovRoutes = require('./routes/dadosgov.routes');
-const integracoesAdminRoutes = require('./routes/integracoes-admin.routes');
-
-const { router: nfeRoutes, setNfeService } = require('./routes/nfe.routes');
-const { router: nfeRoutesV2, setNfeService: setNfeServiceV2 } = require('./routes/nfe.routes.v2');
+const { registerRoutes } = require('./src/core/routes');
 
 function setNoCacheHeaders(res) {
   res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
@@ -76,30 +57,13 @@ function createApp({ nodeEnv, bodyLimit, corsOrigins, trustProxy, nfeService, nf
   app.use(bodyParser.urlencoded({ extended: true, limit: bodyLimit }));
   app.use('/api', createApiLimiter());
 
-  setNfeService(nfeService);
-  setNfeServiceV2(nfeServiceV2);
-
-  app.use('/api/nfe', nfeRoutes);
-  app.use('/api/nfe/v2', nfeRoutesV2);
-
-  app.use('/api/auth', authRoutes);
-  app.use('/api/auth/govbr', govbrRoutes);
-  app.use('/api/auth/serproid', serproidRoutes);
-  app.use('/api/almoxarifado', almoxarifadoRoutes);
-  app.use('/api/empenhos', empenhosRoutes);
-  app.use('/api/notas-fiscais', notasFiscaisRoutes);
-  app.use('/api/estoque', estoqueRoutes);
-  app.use('/api/sync', syncRoutes);
-  app.use('/api/catmat', catmatRoutes);
-  app.use('/api/catalogacao-pedidos', catalogacaoRoutes);
-  app.use('/api/inteligencia-precos', createIntegracoesLimiter(), priceIntelligenceRoutes);
-  app.use('/api/compras/inteligencia-precos', createIntegracoesLimiter(), priceIntelligenceRoutes);
-  app.use('/api/inteligencia-compras', createIntegracoesLimiter(), procurementAnalyticsRoutes);
-  app.use('/api/compras/inteligencia-compras', createIntegracoesLimiter(), procurementAnalyticsRoutes);
-  app.use('/api/compras', createIntegracoesLimiter(), comprasRoutes);
-  app.use('/api/integracoes/comprasgov', createIntegracoesLimiter(), authenticate, requireAdmin, comprasGovRoutes);
-  app.use('/api/integracoes/dadosgov', createIntegracoesLimiter(), authenticate, requireAdmin, dadosGovRoutes);
-  app.use('/api/integracoes', createIntegracoesLimiter(), authenticate, requireAdmin, integracoesAdminRoutes);
+  const registeredApiRoutes = registerRoutes(app, {
+    createIntegracoesLimiter,
+    authenticate,
+    requireAdmin,
+    nfeService,
+    nfeServiceV2
+  });
 
   const handleHealthcheck = async (req, res) => {
     setNoCacheHeaders(res);
@@ -220,32 +184,7 @@ function createApp({ nodeEnv, bodyLimit, corsOrigins, trustProxy, nfeService, nf
   });
   app.use(errorHandler(process.env.NODE_ENV));
 
-  const registeredRoutes = [
-    '/api/auth',
-    '/api/auth/govbr',
-    '/api/auth/serproid',
-    '/api/almoxarifado',
-    '/api/empenhos',
-    '/api/notas-fiscais',
-    '/api/estoque',
-    '/api/sync',
-    '/api/catmat',
-    '/api/catalogacao-pedidos',
-    '/api/inteligencia-precos',
-    '/api/compras/inteligencia-precos',
-    '/api/inteligencia-compras',
-    '/api/compras/inteligencia-compras',
-    '/api/compras',
-    '/api/integracoes',
-    '/api/integracoes/comprasgov',
-    '/api/integracoes/dadosgov',
-    '/api/version',
-    '/api/nfe',
-    '/api/nfe/v2',
-    '/health',
-    '/api/info',
-    '/metrics'
-  ];
+  const registeredRoutes = [...registeredApiRoutes, '/api/version', '/health', '/api/info', '/metrics'];
 
   return { app, registeredRoutes };
 }
