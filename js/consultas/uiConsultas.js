@@ -17,6 +17,7 @@ import {
   getDefaultFiltersForDataset,
   setSearchHint,
   getRequiredHint,
+  sanitizeCodesInput,
   canSearchWithFilters,
   createDebouncedSearch,
   shouldAutoSearch,

@@ -16,6 +16,8 @@ const NfeXmlParser = require('../../domain/nfe/NfeXmlParser');
 const NfeFileStorage = require('../../domain/nfe/NfeFileStorage');
 const { validarNfeCompleta, validarChaveAcesso } = require('../../domain/nfe/NfeValidators');
 const { NfeConciliationService } = require('../../domain/nfe/NfeConciliationService');
+const { normalizeImportData } = require('./nfeImportNormalizer');
+const { shouldIncludeByFilters, mapToNfeSummary, sortByDataEmissaoDesc } = require('./nfeImportListing');
 
 /**
  * Resultado padronizado de importação
@@ -115,7 +117,7 @@ class NfeImportServiceV2 {
         status: 'OK_COM_ALERTAS',
         errors: [],
         alerts,
-        data: this._normalizarDados(dadosNfe, null, false)
+        data: normalizeImportData(dadosNfe, null, false)
       };
     }
 
@@ -130,7 +132,7 @@ class NfeImportServiceV2 {
     }
 
     // 6. Preparar e persistir metadados
-    const dadosNormalizados = this._normalizarDados(dadosNfe, xmlResult.caminho, true);
+    const dadosNormalizados = normalizeImportData(dadosNfe, xmlResult.caminho, true);
     dadosNormalizados.validacao = {
       status: alerts.length > 0 ? 'OK_COM_ALERTAS' : 'OK',
       errors,
@@ -252,47 +254,16 @@ class NfeImportServiceV2 {
         if (metaResult.sucesso) {
           const dados = metaResult.dados;
 
-          // Aplicar filtros
-          if (filtros.cnpjEmitente && dados.emitente?.cnpj !== filtros.cnpjEmitente) {
-            continue;
-          }
-          if (filtros.cnpjDestinatario && dados.destinatario?.cnpj !== filtros.cnpjDestinatario) {
-            continue;
-          }
-          if (filtros.dataInicio && dados.dataEmissao < filtros.dataInicio) {
-            continue;
-          }
-          if (filtros.dataFim && dados.dataEmissao > filtros.dataFim) {
+          if (!shouldIncludeByFilters(dados, filtros)) {
             continue;
           }
 
-          nfes.push({
-            chaveAcesso: dados.chaveAcesso,
-            numero: dados.numero,
-            serie: dados.serie,
-            dataEmissao: dados.dataEmissao,
-            emitente: {
-              cnpj: dados.emitente?.cnpj,
-              razaoSocial: dados.emitente?.razaoSocial
-            },
-            destinatario: {
-              cnpj: dados.destinatario?.cnpj,
-              razaoSocial: dados.destinatario?.razaoSocial
-            },
-            valorTotal: dados.totais?.valorNF,
-            quantidadeItens: dados.itens?.length || 0,
-            status: dados.validacao?.status || 'OK',
-            dataImportacao: dados.dataImportacao
-          });
+          nfes.push(mapToNfeSummary(dados));
         }
       }
 
       // Ordenar por data de emissão (mais recente primeiro)
-      nfes.sort((a, b) => {
-        const dataA = new Date(a.dataEmissao || 0);
-        const dataB = new Date(b.dataEmissao || 0);
-        return dataB - dataA;
-      });
+      sortByDataEmissaoDesc(nfes);
 
       return { sucesso: true, nfes, total: nfes.length };
     } catch (error) {
@@ -378,7 +349,7 @@ class NfeImportServiceV2 {
       status: statusFinal,
       errors,
       alerts,
-      data: this._normalizarDados(dadosNfe, null, false)
+      data: normalizeImportData(dadosNfe, null, false)
     };
   }
 
@@ -499,137 +470,6 @@ class NfeImportServiceV2 {
     return importResult;
   }
 
-  // ==========================================
-  // HELPERS PRIVADOS
-  // ==========================================
-
-  /**
-   * Normaliza dados para persistência
-   * @private
-   */
-  _normalizarDados(dadosNfe, caminhoXml, foiPersistido) {
-    return {
-      // Identificação
-      chaveAcesso: dadosNfe.chaveAcesso,
-      versao: dadosNfe.versao,
-
-      // Documento
-      numero: dadosNfe.numero,
-      serie: dadosNfe.serie,
-      modelo: dadosNfe.modelo || '55',
-      tipoNF: dadosNfe.tipoNF, // 0=Entrada, 1=Saída
-      tipoNFDescricao: dadosNfe.tipoNF === '0' ? 'Entrada' : dadosNfe.tipoNF === '1' ? 'Saída' : null,
-      naturezaOperacao: dadosNfe.natOp,
-
-      // Datas (normalizadas para ISO)
-      dataEmissao: dadosNfe.dataEmissao,
-      dataEmissaoOriginal: dadosNfe.dataEmissaoOriginal,
-      dataSaidaEntrada: dadosNfe.dataSaidaEntrada,
-
-      // Emitente
-      emitente: dadosNfe.emitente
-        ? {
-            cnpj: this._limparDocumento(dadosNfe.emitente.cnpj),
-            cpf: this._limparDocumento(dadosNfe.emitente.cpf),
-            razaoSocial: dadosNfe.emitente.razaoSocial,
-            nomeFantasia: dadosNfe.emitente.nomeFantasia,
-            ie: dadosNfe.emitente.ie,
-            crt: dadosNfe.emitente.crt,
-            endereco: dadosNfe.emitente.endereco
-          }
-        : null,
-
-      // Destinatário
-      destinatario: dadosNfe.destinatario
-        ? {
-            cnpj: this._limparDocumento(dadosNfe.destinatario.cnpj),
-            cpf: this._limparDocumento(dadosNfe.destinatario.cpf),
-            razaoSocial: dadosNfe.destinatario.razaoSocial,
-            ie: dadosNfe.destinatario.ie,
-            email: dadosNfe.destinatario.email,
-            endereco: dadosNfe.destinatario.endereco
-          }
-        : null,
-
-      // Itens (normaliza números)
-      itens: (dadosNfe.itens || []).map((item) => ({
-        numero: item.numero,
-        codigo: item.codigo,
-        ean: item.ean,
-        descricao: item.descricao,
-        ncm: item.ncm,
-        cfop: item.cfop,
-        unidade: item.unidade,
-        quantidade: this._normalizarNumero(item.quantidade),
-        valorUnitario: this._normalizarNumero(item.valorUnitario),
-        valorTotal: this._normalizarNumero(item.valorTotal),
-        valorDesconto: this._normalizarNumero(item.valorDesconto),
-        impostos: item.impostos
-      })),
-
-      // Totais
-      totais: dadosNfe.totais
-        ? {
-            valorProdutos: this._normalizarNumero(dadosNfe.totais.valorProdutos),
-            valorNF: this._normalizarNumero(dadosNfe.totais.valorNF),
-            valorFrete: this._normalizarNumero(dadosNfe.totais.valorFrete),
-            valorSeguro: this._normalizarNumero(dadosNfe.totais.valorSeguro),
-            valorDesconto: this._normalizarNumero(dadosNfe.totais.valorDesconto),
-            valorOutros: this._normalizarNumero(dadosNfe.totais.valorOutros),
-            valorICMS: this._normalizarNumero(dadosNfe.totais.valorICMS),
-            valorIPI: this._normalizarNumero(dadosNfe.totais.valorIPI),
-            valorPIS: this._normalizarNumero(dadosNfe.totais.valorPIS),
-            valorCOFINS: this._normalizarNumero(dadosNfe.totais.valorCOFINS),
-            valorST: this._normalizarNumero(dadosNfe.totais.valorST),
-            baseCalculoICMS: this._normalizarNumero(dadosNfe.totais.baseCalculoICMS)
-          }
-        : null,
-
-      // Quantidade de itens
-      quantidadeItens: (dadosNfe.itens || []).length,
-
-      // Transporte
-      transporte: dadosNfe.transporte,
-
-      // Cobrança
-      cobranca: dadosNfe.cobranca,
-
-      // Informações adicionais
-      infAdicionais: dadosNfe.infAdicionais,
-
-      // Protocolo
-      protocolo: dadosNfe.protocolo,
-
-      // Metadados de importação
-      caminhoXml,
-      foiPersistido,
-      dataImportacao: new Date().toISOString(),
-      origem: 'UPLOAD_XML'
-    };
-  }
-
-  /**
-   * Limpa documento (remove formatação)
-   * @private
-   */
-  _limparDocumento(doc) {
-    if (!doc) {
-      return null;
-    }
-    return String(doc).replace(/\D/g, '') || null;
-  }
-
-  /**
-   * Normaliza número para 2 casas decimais quando monetário
-   * @private
-   */
-  _normalizarNumero(valor) {
-    if (valor === null || valor === undefined) {
-      return null;
-    }
-    const num = parseFloat(valor);
-    return isNaN(num) ? null : Math.round(num * 100) / 100;
-  }
 }
 
 module.exports = NfeImportServiceV2;

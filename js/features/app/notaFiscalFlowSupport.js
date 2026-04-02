@@ -1,3 +1,8 @@
+export { formatarCNPJ, converterMoedaParaNumero, formatarMoeda } from './notaFiscalFormatters.js';
+export { updateStatusMessage, hideStatusMessage } from './notaFiscalStatusMessages.js';
+export { selecionarOpcaoEntrada } from './notaFiscalOptions.js';
+export { limparInfoEmpenhoNF, criarDatalistItensEmpenho } from './notaFiscalEmpenhoUi.js';
+
 export function setupNotaFiscalOptions(app) {
   app._refreshNotaFiscalOptionRefs();
 
@@ -44,28 +49,6 @@ export function refreshNotaFiscalOptionRefs(app) {
 
   app.notaFiscalUIState.opcaoCards = opcaoCards;
   app.notaFiscalUIState.entradaContents = entradaContents;
-}
-
-export function selecionarOpcaoEntrada(app, opcao) {
-  const precisaRefresh =
-    !Array.isArray(app.notaFiscalUIState.opcaoCards) || !Array.isArray(app.notaFiscalUIState.entradaContents);
-  if (precisaRefresh) {
-    app._refreshNotaFiscalOptionRefs();
-  }
-
-  const opcaoCards = app.notaFiscalUIState.opcaoCards || [];
-  const entradaContents = app.notaFiscalUIState.entradaContents || [];
-
-  opcaoCards.forEach((card) => {
-    card.classList.remove('active');
-  });
-
-  entradaContents.forEach((content) => {
-    content.classList.add('hidden');
-  });
-
-  document.querySelector(`[data-opcao="${opcao}"]`).classList.add('active');
-  document.getElementById(`content${opcao.charAt(0).toUpperCase() + opcao.slice(1)}`).classList.remove('hidden');
 }
 
 export function setupChaveAcesso(app) {
@@ -441,70 +424,6 @@ export function hideBarcodeStatus(app) {
   app._hideStatusMessage(statusDiv, 'barcodeStatusLast');
 }
 
-export function updateStatusMessage(app, statusDiv, stateKey, message, type) {
-  if (!statusDiv) {
-    return;
-  }
-
-  const normalizedMessage = String(message || '');
-  const nextStatus = { message: normalizedMessage, type, hidden: false };
-  const prevStatus = app.notaFiscalUIState[stateKey];
-
-  if (
-    prevStatus &&
-    prevStatus.hidden === false &&
-    prevStatus.message === nextStatus.message &&
-    prevStatus.type === nextStatus.type
-  ) {
-    return;
-  }
-
-  if (statusDiv.textContent !== normalizedMessage) {
-    statusDiv.textContent = normalizedMessage;
-  }
-
-  const className = `status-message ${type}`;
-  if (statusDiv.className !== className) {
-    statusDiv.className = className;
-  }
-
-  if (statusDiv.classList.contains('hidden')) {
-    statusDiv.classList.remove('hidden');
-  }
-
-  app.notaFiscalUIState[stateKey] = nextStatus;
-}
-
-export function hideStatusMessage(app, statusDiv, stateKey) {
-  if (!statusDiv) {
-    return;
-  }
-
-  const prevStatus = app.notaFiscalUIState[stateKey];
-  if (prevStatus?.hidden === true && statusDiv.classList.contains('hidden')) {
-    return;
-  }
-
-  statusDiv.classList.add('hidden');
-
-  app.notaFiscalUIState[stateKey] = {
-    message: prevStatus?.message || '',
-    type: prevStatus?.type || 'info',
-    hidden: true
-  };
-}
-
-export function formatarCNPJ(cnpj) {
-  if (typeof cnpj !== 'string') {
-    return cnpj;
-  }
-  const numerosCNPJ = cnpj.replace(/\D/g, '');
-  if (numerosCNPJ.length === 14) {
-    return numerosCNPJ.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/, '$1.$2.$3/$4-$5');
-  }
-  return cnpj;
-}
-
 export async function processarNotaFiscalUpload(app, file, textContent, extractedData) {
   try {
     app.currentNotaFiscal = {
@@ -519,79 +438,6 @@ export async function processarNotaFiscalUpload(app, file, textContent, extracte
     console.error('Erro ao processar upload de nota fiscal:', error);
     app.showError('Erro ao processar PDF: ' + error.message);
   }
-}
-
-export function converterMoedaParaNumero(valor) {
-  if (typeof valor === 'number') {
-    return valor;
-  }
-
-  return (
-    parseFloat(
-      valor
-        .toString()
-        .replace(/[R$\s]/g, '')
-        .replace(/\./g, '')
-        .replace(',', '.')
-    ) || 0
-  );
-}
-
-export function formatarMoeda(valor) {
-  return new Intl.NumberFormat('pt-BR', {
-    style: 'currency',
-    currency: 'BRL'
-  }).format(valor);
-}
-
-export function limparInfoEmpenhoNF(app) {
-  app.empenhoVinculadoNF = null;
-
-  const infoEmpenho = document.getElementById('infoEmpenhoSelecionado');
-  const itensHint = document.getElementById('nfItensHint');
-  const btnAddFromEmpenho = document.getElementById('btnAddItemFromEmpenho');
-  const datalist = document.getElementById('datalistItensEmpenho');
-
-  if (infoEmpenho) {
-    infoEmpenho.style.display = 'none';
-  }
-  if (itensHint) {
-    itensHint.textContent = 'Selecione um empenho para sugestões de itens';
-    itensHint.style.color = '#1976d2';
-  }
-  if (btnAddFromEmpenho) {
-    btnAddFromEmpenho.style.display = 'none';
-  }
-  if (datalist) {
-    datalist.innerHTML = '';
-  }
-}
-
-export function criarDatalistItensEmpenho(app, itens) {
-  const datalist = document.getElementById('datalistItensEmpenho');
-  if (!datalist || !itens) {
-    return;
-  }
-
-  datalist.innerHTML = '';
-
-  itens.forEach((item, idx) => {
-    const option = document.createElement('option');
-    const descricao = (item.descricao || item.material || '').toUpperCase();
-    const unidade = item.unidade || 'UN';
-    const vlrUnit = item.valorUnitario ? app.formatarMoeda(item.valorUnitario) : 'R$ 0,00';
-    const itemCompra = item.itemCompra || item.codigo || String(idx + 1).padStart(3, '0');
-
-    option.value = descricao;
-    option.dataset.unidade = unidade;
-    option.dataset.valorUnitario = item.valorUnitario || 0;
-    option.dataset.itemCompra = itemCompra;
-    option.textContent = `${descricao} | ${unidade} | ${vlrUnit}`;
-
-    datalist.appendChild(option);
-  });
-
-  console.log(`[NF] Datalist criado com ${itens.length} itens`);
 }
 
 export function mostrarSeletorItensEmpenho(app) {

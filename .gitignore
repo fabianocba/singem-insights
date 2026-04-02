@@ -60,6 +60,11 @@ desktop.ini
 # Sessão local de scripts
 .dev-session.json
 
+# Artefatos gerados de auditoria/qualidade
+SCAN_REPORT.txt
+.lint-output.txt
+quality-report.json
+
 # Dados reais e artefatos operacionais locais
 01_EMPENHOS/
 02_NOTAS_FISCAIS/

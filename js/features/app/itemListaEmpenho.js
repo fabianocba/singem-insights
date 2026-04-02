@@ -1,3 +1,83 @@
+import { escapeHTML } from '../../utils/sanitize.js';
+
+function formatNumeroSafe(value) {
+  return window.formatarNumero(value || 0);
+}
+
+function buildSubelementoDisplay(item) {
+  if (!item.subelementoCodigo) {
+    return '-';
+  }
+
+  const codigo = escapeHTML(String(item.subelementoCodigo));
+  const nome = escapeHTML(String(item.subelementoNome || 'N/A'));
+  return `${codigo} - ${nome}`;
+}
+
+function buildCatmatDisplay(item) {
+  const codigo = escapeHTML(String(item.catmatCodigo || '-'));
+  const descricao = item.catmatDescricao ? ` - ${escapeHTML(String(item.catmatDescricao))}` : '';
+  return `${codigo}${descricao}`;
+}
+
+function buildHiddenInput(field, value) {
+  return `<input type="hidden" data-field="${field}" value="${escapeHTML(String(value ?? ''))}">`;
+}
+
+function buildItemRowMarkup(item, index) {
+  const seq = item.seq || index + 1;
+  const descricao = escapeHTML(String(item.descricao || ''));
+  const unidade = escapeHTML(String(item.unidade || 'UN'));
+  const itemCompra = escapeHTML(String(item.itemCompra || '-'));
+  const observacao = item.observacao ? `<br><small>Obs: ${escapeHTML(String(item.observacao))}</small>` : '';
+  const subelementoDisplay = buildSubelementoDisplay(item);
+  const catmatDisplay = buildCatmatDisplay(item);
+
+  const quantidadeFmt = formatNumeroSafe(item.quantidade);
+  const valorUnitFmt = formatNumeroSafe(item.valorUnitario);
+  const valorTotalFmt = formatNumeroSafe(item.valorTotal);
+
+  return `
+    <div class="item-row__content">
+      <div class="item-row__info">
+        <strong>${seq}.</strong> ${descricao}<br>
+        <small>${unidade} | Qtd: ${quantidadeFmt} | Vlr Un.: ${valorUnitFmt} | Total: ${valorTotalFmt}</small><br>
+        <small>Subelemento: ${subelementoDisplay} | Item Compra: ${itemCompra} | CATMAT: ${catmatDisplay}</small>
+        ${observacao}
+      </div>
+      <div class="item-row__actions">
+        <button type="button" class="btn btn-sm btn-secondary" data-action="edit">Editar</button>
+        <button type="button" class="btn btn-sm btn-danger" data-action="delete">Excluir</button>
+      </div>
+    </div>
+    ${buildHiddenInput('seq', seq)}
+    ${buildHiddenInput('codigo', item.subelementoCodigo || '')}
+    ${buildHiddenInput('descricao', item.descricao || '')}
+    ${buildHiddenInput('unidade', item.unidade || 'UN')}
+    ${buildHiddenInput('quantidade', quantidadeFmt)}
+    ${buildHiddenInput('valorUnitario', valorUnitFmt)}
+    ${buildHiddenInput('valorTotal', valorTotalFmt)}
+    ${buildHiddenInput('itemCompra', item.itemCompra || '')}
+    ${buildHiddenInput('subelementoCodigo', item.subelementoCodigo || '')}
+    ${buildHiddenInput('subelementoNome', item.subelementoNome || '')}
+    ${buildHiddenInput('observacao', item.observacao || '')}
+    ${buildHiddenInput('catmatCodigo', item.catmatCodigo || '')}
+    ${buildHiddenInput('catmatDescricao', item.catmatDescricao || '')}
+    ${buildHiddenInput('catmatFonte', item.catmatFonte || '')}
+  `;
+}
+
+function createItemRow(app, item, index) {
+  const row = document.createElement('div');
+  row.classList.add('item-row');
+  row.innerHTML = buildItemRowMarkup(item, index);
+
+  row.querySelector('[data-action="edit"]').addEventListener('click', () => app.abrirModalItemEmpenho({ index }));
+  row.querySelector('[data-action="delete"]').addEventListener('click', () => app.excluirItemEmpenho(index));
+
+  return row;
+}
+
 export function renderItensEmpenho(app) {
   const container = document.getElementById('itensEmpenho');
   if (!container) {
@@ -6,45 +86,7 @@ export function renderItensEmpenho(app) {
   container.innerHTML = '';
 
   (app.empenhoDraft.itens || []).forEach((item, index) => {
-    const subelementoDisplay = item.subelementoCodigo
-      ? `${item.subelementoCodigo} - ${item.subelementoNome || 'N/A'}`
-      : '-';
-
-    const row = document.createElement('div');
-    row.classList.add('item-row');
-    row.innerHTML = `
-        <div class="item-row__content">
-          <div class="item-row__info">
-            <strong>${item.seq || index + 1}.</strong> ${item.descricao || ''}<br>
-            <small>${item.unidade || 'UN'} | Qtd: ${window.formatarNumero(item.quantidade || 0)} | Vlr Un.: ${window.formatarNumero(item.valorUnitario || 0)} | Total: ${window.formatarNumero(item.valorTotal || 0)}</small><br>
-            <small>Subelemento: ${subelementoDisplay} | Item Compra: ${item.itemCompra || '-'} | CATMAT: ${item.catmatCodigo || '-'} ${item.catmatDescricao ? ' - ' + item.catmatDescricao : ''}</small>
-            ${item.observacao ? `<br><small>Obs: ${item.observacao}</small>` : ''}
-          </div>
-          <div class="item-row__actions">
-            <button type="button" class="btn btn-sm btn-secondary" data-action="edit">Editar</button>
-            <button type="button" class="btn btn-sm btn-danger" data-action="delete">Excluir</button>
-          </div>
-        </div>
-  <input type="hidden" data-field="seq" value="${item.seq || index + 1}">
-  <input type="hidden" data-field="codigo" value="${item.subelementoCodigo || ''}">
-  <input type="hidden" data-field="descricao" value="${item.descricao || ''}">
-        <input type="hidden" data-field="unidade" value="${item.unidade || 'UN'}">
-        <input type="hidden" data-field="quantidade" value="${window.formatarNumero(item.quantidade || 0)}">
-        <input type="hidden" data-field="valorUnitario" value="${window.formatarNumero(item.valorUnitario || 0)}">
-        <input type="hidden" data-field="valorTotal" value="${window.formatarNumero(item.valorTotal || 0)}">
-        <input type="hidden" data-field="itemCompra" value="${item.itemCompra || ''}">
-        <input type="hidden" data-field="subelementoCodigo" value="${item.subelementoCodigo || ''}">
-        <input type="hidden" data-field="subelementoNome" value="${item.subelementoNome || ''}">
-        <input type="hidden" data-field="observacao" value="${item.observacao || ''}">
-        <input type="hidden" data-field="catmatCodigo" value="${item.catmatCodigo || ''}">
-        <input type="hidden" data-field="catmatDescricao" value="${item.catmatDescricao || ''}">
-        <input type="hidden" data-field="catmatFonte" value="${item.catmatFonte || ''}">
-      `;
-
-    row.querySelector('[data-action="edit"]').addEventListener('click', () => app.abrirModalItemEmpenho({ index }));
-    row.querySelector('[data-action="delete"]').addEventListener('click', () => app.excluirItemEmpenho(index));
-
-    container.appendChild(row);
+    container.appendChild(createItemRow(app, item, index));
   });
 
   app.atualizarTotaisEmpenho();

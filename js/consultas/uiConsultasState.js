@@ -1,5 +1,13 @@
 import { DATASETS } from './datasetsConfig.js';
 import { createPriceDashboardState } from './precosPraticadosRenderer.js';
+import { shouldAutoSearch } from './uiConsultasFilters.js';
+
+export {
+  sanitizeCodesInput,
+  normalizeText,
+  shouldAutoSearch,
+  createSearchSignature
+} from './uiConsultasFilters.js';
 
 export const AUTO_SEARCH_DEBOUNCE_MS = 650;
 export const PRICE_INTELLIGENCE_DATASET = 'precos-praticados';
@@ -104,24 +112,6 @@ export function setSearchHint(message = '') {
   hint.textContent = String(message || '').trim();
 }
 
-export function sanitizeCodesInput(value) {
-  const source = Array.isArray(value) ? value : String(value || '').split(/[\s,;\n\r]+/);
-  const uniqueCodes = [];
-  const seen = new Set();
-
-  source.forEach((entry) => {
-    const normalized = String(entry || '').replace(/\D/g, '');
-    if (!normalized || seen.has(normalized)) {
-      return;
-    }
-
-    seen.add(normalized);
-    uniqueCodes.push(normalized);
-  });
-
-  return uniqueCodes.join(', ');
-}
-
 export function getRequiredHint(config = DATASETS[state.dataset]) {
   if (isPriceIntelligenceDataset()) {
     return 'Informe ao menos um código CATMAT/CATSER para gerar o painel de preços.';
@@ -190,18 +180,6 @@ export function canSearchWithFilters(filters = {}, dataset = state.dataset) {
   return Object.values(filters || {}).some((value) => String(value || '').trim() !== '');
 }
 
-export function normalizeText(str) {
-  return String(str || '')
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .toLowerCase()
-    .trim();
-}
-
-export function shouldAutoSearch(text) {
-  return normalizeText(text).length >= 3;
-}
-
 export function hasAnyTextFilterTooShort(filters = {}, dataset = state.dataset) {
   const config = DATASETS[dataset];
   if (!config?.filters) {
@@ -247,25 +225,6 @@ export function hasAnyTextFilterTooShort(filters = {}, dataset = state.dataset) 
     const value = String(filters?.[filter.name] || '').trim();
     return value.length > 0 && !shouldAutoSearch(value);
   });
-}
-
-function stableSerialize(value) {
-  if (Array.isArray(value)) {
-    return `[${value.map((entry) => stableSerialize(entry)).join(',')}]`;
-  }
-
-  if (value && typeof value === 'object') {
-    return `{${Object.keys(value)
-      .sort()
-      .map((key) => `${JSON.stringify(key)}:${stableSerialize(value[key])}`)
-      .join(',')}}`;
-  }
-
-  return JSON.stringify(value);
-}
-
-export function createSearchSignature(dataset, params = {}) {
-  return stableSerialize({ dataset, params });
 }
 
 export function setFiltersOnForm(filters = {}) {

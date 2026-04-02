@@ -7,9 +7,9 @@ export async function excluirDocumento(app, documentoId, tipo) {
     `ATENCAO!\n\n` +
       `Deseja realmente excluir este ${tipoNome}?\n\n` +
       `Esta acao ira:\n` +
-      `- Remover o registro do banco de dados\n` +
       `${tipo === 'empenho' ? '- Remover os saldos relacionados\n' : ''}` +
-      `\nEsta operacao NAO pode ser desfeita!`
+      `- Remover o registro do banco de dados\n\n` +
+      `Esta operacao NAO pode ser desfeita!`
   );
 
   if (!confirmacao) {
@@ -44,18 +44,6 @@ export async function excluirDocumento(app, documentoId, tipo) {
   }
 }
 
-export async function sincronizarArquivos() {
-  alert('Sincronizacao de diretorios externos desativada. O sistema opera com persistencia em banco/API.');
-}
-
-export async function verificarIntegridadePastas() {
-  alert('Verificacao de integridade de diretorios externos desativada. O sistema opera com persistencia em banco/API.');
-}
-
-export async function repararEstrutura() {
-  alert('Reparo de estrutura de diretorios externos desativado. O sistema opera com persistencia em banco/API.');
-}
-
 export async function limparRegistrosDeletados(app) {
   try {
     app.showLoading('Limpando registros deletados...');
@@ -88,10 +76,10 @@ export async function limparRegistrosDeletados(app) {
     await app.carregarEmpenhosSelect();
 
     alert(`Limpeza concluida!\n\n${totalExcluidos} registro(s) deletado(s) permanentemente do banco de dados.`);
-    app.hideLoading();
   } catch (error) {
     console.error('Erro ao limpar registros:', error);
     app.showError(`Erro na limpeza: ${error.message}`);
+  } finally {
     app.hideLoading();
   }
 }
@@ -113,7 +101,6 @@ export async function limparRegistrosOrfaos(app) {
     const empenhosOrfaos = todosEmpenhos.filter((emp) => !mapaArquivos.has(emp.id));
 
     if (empenhosOrfaos.length === 0) {
-      app.hideLoading();
       alert('Nenhum registro orfao encontrado!');
       return;
     }
@@ -129,9 +116,7 @@ export async function limparRegistrosOrfaos(app) {
       `\n\nDeseja excluir permanentemente esses registros?\nEsta acao NAO pode ser desfeita!`;
 
     const confirmar = confirm(mensagem);
-
     if (!confirmar) {
-      app.hideLoading();
       return;
     }
 
@@ -151,10 +136,10 @@ export async function limparRegistrosOrfaos(app) {
     await app.carregarEmpenhosSelect();
 
     alert(`Limpeza de orfaos concluida!\n\n${totalExcluidos} empenho(s) sem arquivo foram excluidos do banco.`);
-    app.hideLoading();
   } catch (error) {
     console.error('Erro ao limpar registros orfaos:', error);
     app.showError(`Erro na limpeza: ${error.message}`);
+  } finally {
     app.hideLoading();
   }
 }

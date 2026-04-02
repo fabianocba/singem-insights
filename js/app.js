@@ -8,29 +8,27 @@
 // ============================================================================
 import repository from './core/repository.js';
 import { APP_VERSION, APP_BUILD, logVersion } from './core/version.js';
-import './relatoriosEmpenhos.js';
+import InputValidator from './core/inputValidator.js';
+import './features/relatoriosEmpenhos/index.js';
 import { initInfrastructureInfo } from './infrastructureInfo.js';
 import './catmatIntegration.js';
-import * as CatalogacaoTela from './catalogacaoTela.js';
 import { createAlmoxarifadoFeature } from './features/almoxarifado/pages.js';
 import { createEmpenhoFeature } from './features/empenho/pages.js';
 import { createNotaFiscalFeature } from './features/notaFiscal/pages.js';
 import { showToast as sharedShowToast } from './shared/ui/toast.js';
 import { hideLoader, showLoader } from './shared/ui/loader.js';
-import { refreshPremiumShell } from './ui/premiumShell.js';
 import * as dbGateway from './core/dbGateway.js';
+import { normalizeVersionMeta, resolveCanonicalVersionMeta } from './features/app/versionBranding.js';
 import {
-  normalizeVersionMeta,
-  resolveCanonicalVersionMeta
-} from './features/app/versionBranding.js';
+  excluirDocumento as excluirDocumentoCleanup,
+  limparRegistrosDeletados as limparRegistrosDeletadosCleanup,
+  limparRegistrosOrfaos as limparRegistrosOrfaosCleanup
+} from './features/app/databaseCleanup.js';
 import {
-  excluirDocumento as excluirDocumentoLegacy,
   sincronizarArquivos as sincronizarArquivosLegacy,
   verificarIntegridadePastas as verificarIntegridadePastasLegacy,
-  repararEstrutura as repararEstruturaLegacy,
-  limparRegistrosDeletados as limparRegistrosDeletadosLegacy,
-  limparRegistrosOrfaos as limparRegistrosOrfaosLegacy
-} from './features/app/legacyDataMaintenance.js';
+  repararEstrutura as repararEstruturaLegacy
+} from './features/app/disabledDirectoryMaintenance.js';
 import * as Relatorios from './features/app/relatorios.js';
 import * as EmpenhoSupport from './features/app/empenhoSupport.js';
 import * as EmpenhoValidationSupport from './features/app/empenhoValidationSupport.js';
@@ -52,6 +50,11 @@ import * as UserSessionSupport from './features/app/userSessionSupport.js';
 import * as AuthSessionSupport from './features/app/authSessionSupport.js';
 import * as FormSetupSupport from './features/app/formSetupSupport.js';
 import * as CadastroEmpenhoNavigationSupport from './features/app/cadastroEmpenhoNavigation.js';
+import * as InitialDataLoader from './features/app/initialDataLoader.js';
+import * as EntregaSupport from './features/app/entregaSupport.js';
+import * as ScreenNavigation from './features/app/screenNavigation.js';
+import * as AppFormState from './features/app/appFormState.js';
+import * as AppDisplayFormatters from './features/app/appDisplayFormatters.js';
 import { createAppBootstrap } from './features/app/bootstrap.js';
 import { setupInfrastructureListeners as setupInfrastructureListenersImpl } from './features/app/infrastructureListeners.js';
 
@@ -909,127 +912,21 @@ export class ControleMaterialApp {
    * Carrega dados iniciais da aplicação
    */
   async carregarDadosIniciais() {
-    try {
-      // Carrega empenhos para os selects
-      await this.carregarEmpenhosSelect();
-
-      // Carrega fornecedores para filtros
-      await this.carregarFornecedoresFiltro();
-
-      console.log('[APP] ℹ️ Sincronização de diretórios externos desativada (modo banco/API).');
-    } catch (error) {
-      console.error('Erro ao carregar dados iniciais:', error);
-    }
+    return InitialDataLoader.carregarDadosIniciais(this);
   }
 
   /**
    * Carrega empenhos nos elementos select
    */
   async carregarEmpenhosSelect() {
-    const DEBUG_NF_EMPENHO = false; // Habilitar apenas em diagnóstico local
-
-    try {
-      // Usa true para incluir TODOS os empenhos (mesmo sem arquivo PDF vinculado)
-      const empenhos = await dbGateway.buscarEmpenhos(true);
-
-      if (DEBUG_NF_EMPENHO) {
-        console.log('[DEBUG_NF_EMPENHO] carregarEmpenhosSelect() chamado');
-        console.log('[DEBUG_NF_EMPENHO] dbManager pronto:', dbGateway.hasDbManager());
-        console.log('[DEBUG_NF_EMPENHO] Empenhos retornados:', empenhos?.length || 0);
-        if (empenhos?.length > 0) {
-          console.log('[DEBUG_NF_EMPENHO] Primeiro empenho:', empenhos[0]);
-        }
-      }
-
-      if (DEBUG_NF_EMPENHO) {
-        console.log('[carregarEmpenhosSelect] Empenhos encontrados:', empenhos?.length || 0);
-      }
-
-      // Select de entregas
-      const empenhoSelect = document.getElementById('empenhoSelect');
-      if (empenhoSelect) {
-        empenhoSelect.innerHTML = '<option value="">Selecione um empenho...</option>';
-        empenhos.forEach((empenho) => {
-          const option = document.createElement('option');
-          option.value = empenho.id;
-          option.textContent = `${empenho.numero} - ${empenho.fornecedor}`;
-          empenhoSelect.appendChild(option);
-        });
-      }
-
-      // Select de notas fiscais (empenho associado)
-      const empenhoAssociadoSelect = document.getElementById('empenhoAssociado');
-      if (DEBUG_NF_EMPENHO) {
-        console.log('[DEBUG_NF_EMPENHO] Select #empenhoAssociado encontrado:', !!empenhoAssociadoSelect);
-      }
-
-      if (empenhoAssociadoSelect) {
-        empenhoAssociadoSelect.innerHTML = '<option value="">Selecione um empenho...</option>';
-
-        if (empenhos.length === 0) {
-          if (DEBUG_NF_EMPENHO) {
-            console.log('[DEBUG_NF_EMPENHO] Nenhum empenho - mostrando aviso');
-          }
-          const optionVazio = document.createElement('option');
-          optionVazio.value = '';
-          optionVazio.textContent = 'Nenhum empenho cadastrado';
-          optionVazio.disabled = true;
-          empenhoAssociadoSelect.appendChild(optionVazio);
-        } else {
-          // Ordena por ano/número decrescente (mais recentes primeiro)
-          const empenhosOrdenados = [...empenhos].sort((a, b) => {
-            const anoA = parseInt(a.ano) || 0;
-            const anoB = parseInt(b.ano) || 0;
-            if (anoB !== anoA) {
-              return anoB - anoA;
-            }
-            const numA = parseInt(a.numero) || 0;
-            const numB = parseInt(b.numero) || 0;
-            return numB - numA;
-          });
-
-          empenhosOrdenados.forEach((empenho) => {
-            const option = document.createElement('option');
-            option.value = empenho.id;
-            // Formato: "2025 NE 000123 — FORNECEDOR LTDA — R$ 1.234,56"
-            const valorFormatado =
-              typeof empenho.valorTotal === 'number'
-                ? empenho.valorTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
-                : 'R$ 0,00';
-            const fornecedorResumo = (empenho.fornecedor || 'N/D').toUpperCase().substring(0, 30);
-            option.textContent = `${empenho.ano || ''} NE ${empenho.numero || ''} — ${fornecedorResumo} — ${valorFormatado}`;
-            empenhoAssociadoSelect.appendChild(option);
-          });
-        }
-        if (DEBUG_NF_EMPENHO) {
-          console.log('[carregarEmpenhosSelect] Select empenhoAssociado populado:', empenhos.length, 'opções');
-        }
-      }
-    } catch (error) {
-      console.error('[carregarEmpenhosSelect] Erro ao carregar empenhos:', error);
-    }
+    return InitialDataLoader.carregarEmpenhosSelect();
   }
 
   /**
    * Carrega fornecedores no filtro de relatórios
    */
   async carregarFornecedoresFiltro() {
-    try {
-      const fornecedores = await dbGateway.buscarFornecedores();
-      const filtroSelect = document.getElementById('filtroFornecedor');
-
-      if (filtroSelect && fornecedores.length > 0) {
-        filtroSelect.innerHTML = '<option value="">Todos os fornecedores</option>';
-        fornecedores.forEach((fornecedor) => {
-          const option = document.createElement('option');
-          option.value = fornecedor.cnpj;
-          option.textContent = fornecedor.nome;
-          filtroSelect.appendChild(option);
-        });
-      }
-    } catch (error) {
-      console.error('Erro ao carregar fornecedores:', error);
-    }
+    return InitialDataLoader.carregarFornecedoresFiltro();
   }
 
   /**
@@ -1075,25 +972,7 @@ export class ControleMaterialApp {
    * Valida se é uma data válida (formato ISO ou dd/mm/aaaa)
    */
   isValidDate(dateStr) {
-    if (!dateStr) {
-      return false;
-    }
-
-    // Tentar parse ISO (aaaa-mm-dd)
-    const dateObj = new Date(dateStr);
-    if (!isNaN(dateObj.getTime())) {
-      return true;
-    }
-
-    // Tentar parse brasileiro (dd/mm/aaaa)
-    const match = dateStr.match(/(\d{2})\/(\d{2})\/(\d{4})/);
-    if (match) {
-      const [, dia, mes, ano] = match;
-      const date = new Date(ano, mes - 1, dia);
-      return !isNaN(date.getTime());
-    }
-
-    return false;
+    return InputValidator.isValidDate(dateStr);
   }
 
   /**
@@ -1107,29 +986,7 @@ export class ControleMaterialApp {
    * Salva entrega no banco de dados
    */
   async salvarEntrega() {
-    try {
-      this.showLoading('Salvando entrega...');
-
-      const formData = new FormData(document.getElementById('formEntrega'));
-      const itensRecebidos = this.coletarItensRecebidos('itensEntrega');
-
-      const entrega = {
-        empenhoId: formData.get('empenhoSelect'),
-        dataEntrega: formData.get('dataEntrega'),
-        observacoes: formData.get('observacoesEntrega'),
-        itensRecebidos: itensRecebidos
-      };
-
-      await dbGateway.salvarEntrega(entrega);
-
-      this.showSuccess('Entrega registrada com sucesso!');
-      this.limparFormulario('formEntrega');
-    } catch (error) {
-      console.error('Erro ao salvar entrega:', error);
-      this.showError('Erro ao salvar entrega: ' + error.message);
-    } finally {
-      this.hideLoading();
-    }
+    return EntregaSupport.salvarEntrega(this);
   }
 
   /**
@@ -1246,74 +1103,7 @@ export class ControleMaterialApp {
    * Navega para uma tela específica
    */
   showScreen(screenId) {
-    // Verifica autenticação (exceto para tela de login)
-    if (screenId !== 'loginScreen' && !this.usuarioLogado) {
-      screenId = 'loginScreen';
-    }
-
-    // Esconde todas as telas via classes utilitárias (evita conflito de inline style)
-    document.querySelectorAll('.screen').forEach((screen) => {
-      screen.classList.remove('active');
-      screen.classList.add('hidden');
-      screen.setAttribute('aria-hidden', 'true');
-    });
-
-    // Mostra a tela solicitada
-    const targetScreen = document.getElementById(screenId);
-    if (targetScreen) {
-      targetScreen.classList.remove('hidden');
-      targetScreen.classList.add('active');
-      targetScreen.setAttribute('aria-hidden', 'false');
-      this.currentScreen = screenId;
-
-      // Inicializa módulo de consultas quando a tela for aberta
-      if (screenId === 'consultasScreen' && typeof window.initConsultas === 'function') {
-        window.initConsultas();
-      }
-
-      // Inicializa tela de pedidos de catalogação CATMAT
-      if (screenId === 'catalogacaoScreen') {
-        CatalogacaoTela.initTelaCatalogacao('catalogacaoPedidosContainer');
-      }
-
-      if (screenId === 'almoxarifadoScreen') {
-        this.features.almoxarifado?.activate().catch((error) => {
-          console.error('[showScreen] Erro ao abrir almoxarifado:', error);
-          this.showError('Erro ao abrir o módulo de almoxarifado: ' + error.message, error);
-        });
-      }
-
-      // Carrega empenhos no select quando entra na tela de Nota Fiscal
-      if (screenId === 'notaFiscalScreen') {
-        this.carregarEmpenhosSelect().catch((err) =>
-          console.error('[showScreen] Erro ao carregar empenhos para NF:', err)
-        );
-      }
-    }
-
-    // Controla visibilidade do header
-    const header = document.getElementById('mainHeader');
-    if (header) {
-      if (screenId === 'loginScreen') {
-        header.classList.add('hidden');
-      } else {
-        header.classList.remove('hidden');
-      }
-    }
-
-    // Atualiza navegação
-    document.querySelectorAll('.nav-btn').forEach((btn) => {
-      btn.classList.remove('active');
-    });
-
-    if (screenId === 'homeScreen') {
-      document.getElementById('btnHome')?.classList.add('active');
-    } else if (screenId === 'configScreen') {
-      document.getElementById('btnConfig')?.classList.add('active');
-    }
-
-    document.body.dataset.currentScreen = screenId;
-    refreshPremiumShell(this);
+    return ScreenNavigation.showScreen(this, screenId);
   }
 
   /**
@@ -1561,164 +1351,49 @@ export class ControleMaterialApp {
    * Coleta dados dos itens recebidos na entrega
    */
   coletarItensRecebidos(containerId) {
-    const container = document.getElementById(containerId);
-    if (!container) {
-      console.warn('[coletarItensRecebidos] Container não encontrado:', containerId);
-      return [];
-    }
-    const itens = [];
-
-    container.querySelectorAll('.item-row').forEach((row) => {
-      const quantidadeRecebida = parseFloat(row.querySelector('[data-field="quantidadeRecebida"]')?.value) || 0;
-
-      if (quantidadeRecebida > 0) {
-        const item = {
-          codigo: row.querySelector('[data-field="codigo"]')?.textContent || '',
-          descricao: row.querySelector('[data-field="descricao"]')?.textContent || '',
-          unidade: row.querySelector('[data-field="unidade"]')?.textContent || 'UN',
-          valorUnitario: parseFloat(row.querySelector('[data-field="valorUnitario"]')?.textContent) || 0,
-          quantidade: quantidadeRecebida
-        };
-        itens.push(item);
-      }
-    });
-
-    return itens;
+    return EntregaSupport.coletarItensRecebidos(containerId);
   }
 
   /**
    * Carrega itens de um empenho na tela de entrega
    */
   async carregarItensEmpenho(empenhoId) {
-    try {
-      const empenho = await dbGateway.buscarEmpenhoPorId(empenhoId);
-      if (!empenho) {
-        return;
-      }
-
-      const container = document.getElementById('itensEntrega');
-      container.innerHTML = '';
-
-      empenho.itens.forEach((item) => {
-        const itemRow = document.createElement('div');
-        itemRow.className = 'item-row';
-        itemRow.innerHTML = `
-                    <div data-field="codigo">${item.codigo}</div>
-                    <div data-field="descricao">${item.descricao}</div>
-                    <div data-field="unidade">${item.unidade}</div>
-                    <div data-field="valorUnitario">${item.valorUnitario}</div>
-                    <input type="number" placeholder="Qtd. Recebida" data-field="quantidadeRecebida" step="0.01" max="${item.quantidade}">
-                `;
-        container.appendChild(itemRow);
-      });
-    } catch (error) {
-      console.error('Erro ao carregar itens do empenho:', error);
-    }
+    return EntregaSupport.carregarItensEmpenho(empenhoId);
   }
 
   /**
    * Calcula valor total dos itens
    */
   calcularValorTotalItens(itens) {
-    return itens.reduce((total, item) => {
-      return total + item.quantidade * item.valorUnitario;
-    }, 0);
+    return EntregaSupport.calcularValorTotalItens(itens);
   }
 
   /**
    * Formata CNPJ durante digitação (event handler)
    */
   formatarCNPJInput(e) {
-    let value = e.target.value.replace(/\D/g, '');
-    value = value.replace(/^(\d{2})(\d)/, '$1.$2');
-    value = value.replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3');
-    value = value.replace(/\.(\d{3})(\d)/, '.$1/$2');
-    value = value.replace(/(\d{4})(\d)/, '$1-$2');
-    e.target.value = value;
+    return AppDisplayFormatters.formatarCNPJInput(e);
   }
 
   /**
    * Converte arquivo para Base64
    */
   fileToBase64(file) {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result);
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
+    return AppFormState.fileToBase64(file);
   }
 
   /**
    * Limpa formulário
    */
   limparFormulario(formId) {
-    const form = document.getElementById(formId);
-    if (form) {
-      form.reset();
-
-      // Limpa containers de itens
-      const containers = form.querySelectorAll('.items-list');
-      containers.forEach((container) => {
-        container.innerHTML = '';
-      });
-
-      // Remove botão de editar (modo visualização)
-      const btnEditarEmpenho = document.getElementById('btnHabilitarEdicao');
-      if (btnEditarEmpenho) {
-        btnEditarEmpenho.remove();
-      }
-
-      // Habilita todos os campos (caso estivesse em modo visualização)
-      const campos = form.querySelectorAll('input, select, textarea');
-      campos.forEach((campo) => {
-        campo.disabled = false;
-        campo.classList.remove('campo-visualizacao');
-      });
-
-      // Mostra botões ocultos
-      const botoesOcultos = form.querySelectorAll('.btn-acao, #btnAddItem, #btnValidarEmpenho, button[type="submit"]');
-      botoesOcultos.forEach((btn) => {
-        btn.style.display = '';
-      });
-
-      const btnAnexarPdf = document.getElementById('btnAnexarPdfNE');
-      if (btnAnexarPdf) {
-        btnAnexarPdf.style.display = '';
-      }
-    }
-
-    // Resetar status do PDF anexado
-    if (window.AnexarPdfNE?.resetarStatusAnexoUI) {
-      window.AnexarPdfNE.resetarStatusAnexoUI();
-    }
+    return AppFormState.limparFormulario(formId);
   }
 
   /**
    * Reseta o draft de empenho para estado inicial
    */
   _resetarDraftEmpenho() {
-    this.empenhoDraft = {
-      header: {
-        id: null,
-        ano: null,
-        numero: null,
-        dataEmissaoISO: null,
-        naturezaDespesa: null,
-        processoSuap: '',
-        valorTotalEmpenho: 0,
-        fornecedorRazao: null,
-        cnpjDigits: '',
-        telefoneDigits: '',
-        emailFornecedor: '',
-        statusValidacao: 'rascunho',
-        validadoEm: null,
-        validadoPor: null
-      },
-      itens: []
-    };
-    this.itemCounter = 0;
-    console.log('[APP] 🧹 Draft de empenho resetado');
+    return AppFormState.resetarDraftEmpenho(this);
   }
 
   async gerarRelatorio(tipo) {
@@ -1797,24 +1472,7 @@ export class ControleMaterialApp {
    * Formata número para exibição
    */
   formatarNumero(valor) {
-    if (valor === null || valor === undefined || valor === '') {
-      return '-';
-    }
-    const num = parseFloat(valor);
-    if (isNaN(num)) {
-      return '-';
-    }
-
-    // Se for inteiro, não mostra decimais
-    if (Number.isInteger(num)) {
-      return num.toLocaleString('pt-BR');
-    }
-
-    // Se tiver decimais, mostra até 4 casas
-    return num.toLocaleString('pt-BR', {
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 4
-    });
+    return AppDisplayFormatters.formatarNumero(valor);
   }
 
   // Função mostrarMenuExportacao removida - exportação agora em Configurações → Preferências
@@ -1830,7 +1488,7 @@ export class ControleMaterialApp {
    * @param {string} tipo - Tipo ('empenho' ou 'notaFiscal')
    */
   async excluirDocumento(documentoId, tipo) {
-    return excluirDocumentoLegacy(this, documentoId, tipo);
+    return excluirDocumentoCleanup(this, documentoId, tipo);
   }
 
   /**
@@ -1861,14 +1519,14 @@ export class ControleMaterialApp {
    * Limpa registros de documentos com arquivos deletados do banco de dados
    */
   async limparRegistrosDeletados() {
-    return limparRegistrosDeletadosLegacy(this);
+    return limparRegistrosDeletadosCleanup(this);
   }
 
   /**
    * Limpa registros órfãos (empenhos/NFs sem arquivo vinculado)
    */
   async limparRegistrosOrfaos() {
-    return limparRegistrosOrfaosLegacy(this);
+    return limparRegistrosOrfaosCleanup(this);
   }
 
   /**
@@ -1880,7 +1538,6 @@ export class ControleMaterialApp {
   setupInfrastructureListeners() {
     return setupInfrastructureListenersImpl(this);
   }
-
 }
 
 // ============================================================================
