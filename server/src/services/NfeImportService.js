@@ -15,14 +15,17 @@ const DfeClient = require('../../integrations/sefaz/DfeClient');
 const NfeXmlParser = require('../utils/xmlParser');
 const DanfeGenerator = require('../utils/danfeGenerator');
 const { buildImportRecord } = require('./nfeImportRecordBuilder');
+const fileStorageService = require('./fileStorageService');
+const { storageConfig } = require('../config/storage');
 
 class NfeImportService {
   constructor(config = {}) {
     this.config = {
-      storagePath: config.storagePath || path.join(__dirname, '../../storage/nfe'),
+      storagePath: config.storagePath || storageConfig.structure.notasFiscais.base,
       ambiente: config.ambiente || 'producao',
       certificadoPath: config.certificadoPath || null,
       certificadoSenha: config.certificadoSenha || null,
+      modoRegistro: config.modoRegistro || 'real',
       ...config
     };
 
@@ -178,10 +181,32 @@ class NfeImportService {
     // 2. Salva XML no storage
     const xmlPath = path.join(this.paths.xml, `${chaveAcesso}.xml`);
     await fs.writeFile(xmlPath, xmlContent, 'utf8');
+    await fileStorageService.registerExistingPath({
+      absolutePath: xmlPath,
+      modulo: 'notas-fiscais',
+      categoria: 'xml',
+      nomeOriginal: `${chaveAcesso}.xml`,
+      mimeType: 'application/xml',
+      entidadeTipo: 'nfe',
+      entidadeId: chaveAcesso,
+      modoRegistro: this.config.modoRegistro,
+      prefix: 'NFXML'
+    });
 
     // 3. Gera DANFE em PDF
     const pdfPath = path.join(this.paths.pdf, `${chaveAcesso}.pdf`);
     await this.danfeGenerator.gerar(dadosNfe, pdfPath);
+    await fileStorageService.registerExistingPath({
+      absolutePath: pdfPath,
+      modulo: 'notas-fiscais',
+      categoria: 'pdf',
+      nomeOriginal: `${chaveAcesso}.pdf`,
+      mimeType: 'application/pdf',
+      entidadeTipo: 'nfe',
+      entidadeId: chaveAcesso,
+      modoRegistro: this.config.modoRegistro,
+      prefix: 'NF_PDF'
+    });
 
     // 4. Prepara objeto para persistência
     const registro = buildImportRecord({

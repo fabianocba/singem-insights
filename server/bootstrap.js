@@ -1,6 +1,8 @@
-const path = require('path');
 const NfeImportService = require('./src/services/NfeImportService');
 const NfeImportServiceV2 = require('./src/services/NfeImportServiceV2');
+const { storageConfig } = require('./src/config/storage');
+const { bootstrapStorageDirectories } = require('./src/bootstrap/storageBootstrap');
+const systemConfigService = require('./src/services/systemConfigService');
 const db = require('./db');
 const databaseCompat = require('./config/database');
 const { verifySmtpConnection } = require('./src/services/emailService');
@@ -9,14 +11,16 @@ const { config, getCorsOrigins, validateRuntimeConfig } = require('./config');
 
 async function initializeNfeServices() {
   const nfeService = new NfeImportService({
-    storagePath: path.join(__dirname, '../storage/nfe'),
+    storagePath: storageConfig.structure.notasFiscais.base,
+    modoRegistro: storageConfig.policy.defaultMode,
     ambiente: config.sefaz.ambiente,
     certificadoPath: config.sefaz.certificadoPath,
     certificadoSenha: config.sefaz.certificadoSenha
   });
 
   const nfeServiceV2 = new NfeImportServiceV2({
-    storagePath: path.join(__dirname, '../storage/nfe')
+    storagePath: storageConfig.structure.notasFiscais.base,
+    modoRegistro: storageConfig.policy.defaultMode
   });
 
   nfeService
@@ -42,6 +46,11 @@ async function initializeNfeServices() {
 
 async function startServer() {
   validateRuntimeConfig();
+
+  const storageBootstrap = await bootstrapStorageDirectories({ strict: config.env === 'production' });
+  if (!storageBootstrap.ok) {
+    console.warn('[Storage] Startup com falhas de diretório:', storageBootstrap.failures);
+  }
 
   const corsOrigins = getCorsOrigins();
   const { nfeService, nfeServiceV2 } = await initializeNfeServices();
@@ -87,6 +96,14 @@ async function startServer() {
   if (dbReady) {
     await databaseCompat.runMigrations();
     console.log('[DB] PostgreSQL conectado e migrations aplicadas');
+
+    await systemConfigService.upsertSystemConfig({
+      chave: 'storage.base_path',
+      valor: storageConfig.basePath,
+      descricao: 'Pasta base de armazenamento persistente usada pelo backend',
+      categoria: 'storage',
+      modoRegistro: storageConfig.policy.defaultMode
+    });
   } else {
     console.log('[DB] PostgreSQL indisponível no startup healthcheck');
   }

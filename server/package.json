@@ -13,6 +13,8 @@
     "test:integracoes": "node --test tests/integracoes.contract.test.js",
     "db:migrate": "node -e \"require('./config/database').runMigrations().then(() => process.exit())\"",
     "db:seed": "node scripts/seed-admin.js",
+    "db:seed:simulacao:dry": "node scripts/seed-simulacao-realista.js",
+    "db:seed:simulacao": "node scripts/seed-simulacao-realista.js --apply",
     "catmat:sync": "node scripts/import-catmat.js"
   },
   "keywords": [

@@ -102,6 +102,10 @@ services:
       SMTP_PASS: ${SMTP_PASS:-}
       SMTP_FROM: ${SMTP_FROM:-}
       FRONTEND_URL: ${FRONTEND_URL:-http://localhost:8000}
+      STORAGE_BASE_PATH: /app/storage
+      SINGEM_DATA_MODE: ${SINGEM_DATA_MODE:-simulado}
+      UPLOAD_MAX_FILE_SIZE_BYTES: ${UPLOAD_MAX_FILE_SIZE_BYTES:-26214400}
+      UPLOAD_ALLOWED_MIME_TYPES: ${UPLOAD_ALLOWED_MIME_TYPES:-application/pdf,application/xml,text/xml,text/plain,image/png,image/jpeg,application/zip,application/json}
     ports:
       - '${BACKEND_PORT_EXTERNAL:-3000}:3000'
     networks:
@@ -110,7 +114,7 @@ services:
       postgres:
         condition: service_healthy
     volumes:
-      - ../../storage:/app/storage
+      - ${SINGEM_STORAGE_HOST_PATH:-../../storage}:/app/storage
       - backend_logs:/app/logs
     healthcheck:
       test:

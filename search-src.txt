@@ -1,0 +1,128 @@
+C:\SINGEM\server\src\bootstrap\storageBootstrap.js:13: storageConfig.structure.empenhos.base,
+C:\SINGEM\server\src\bootstrap\storageBootstrap.js:14: storageConfig.structure.empenhos.pdf,
+C:\SINGEM\server\src\config\storage.js:19: base: path.join(basePath, 'notas-fiscais'),
+C:\SINGEM\server\src\config\storage.js:20: pdf: path.join(basePath, 'notas-fiscais', 'pdf'),
+C:\SINGEM\server\src\config\storage.js:21: xml: path.join(basePath, 'notas-fiscais', 'xml'),
+C:\SINGEM\server\src\config\storage.js:22: meta: path.join(basePath, 'notas-fiscais', 'meta')
+C:\SINGEM\server\src\config\storage.js:24: empenhos: {
+C:\SINGEM\server\src\config\storage.js:25: base: path.join(basePath, 'empenhos'),
+C:\SINGEM\server\src\config\storage.js:26: pdf: path.join(basePath, 'empenhos', 'pdf')
+C:\SINGEM\server\src\config\storage.js:49: if (normalizedModulo === 'notas-fiscais') {
+C:\SINGEM\server\src\config\storage.js:62: if (normalizedModulo === 'empenhos') {
+C:\SINGEM\server\src\config\storage.js:64: return storageConfig.structure.empenhos.pdf;
+C:\SINGEM\server\src\config\storage.js:66: return storageConfig.structure.empenhos.base;
+C:\SINGEM\server\src\core\routes.js:4: const empenhosRoutes = require('../modules/empenhos/empenhos.routes');
+C:\SINGEM\server\src\core\routes.js:6: const notasFiscaisRoutes = require('../modules/notas-fiscais/notas-fiscais.routes');
+C:\SINGEM\server\src\core\routes.js:34: app.use('/api/empenhos', empenhosRoutes);
+C:\SINGEM\server\src\core\routes.js:35: app.use('/api/notas-fiscais', notasFiscaisRoutes);
+C:\SINGEM\server\src\core\routes.js:55: '/api/empenhos',
+C:\SINGEM\server\src\core\routes.js:56: '/api/notas-fiscais',
+C:\SINGEM\server\src\modules\empenhos\empenhos.controller.js:1: const empenhosService = require('./empenhos.service');
+C:\SINGEM\server\src\modules\empenhos\empenhos.controller.js:7: const result = await empenhosService.listEmpenhos(req.query);
+C:\SINGEM\server\src\modules\empenhos\empenhos.controller.js:16: const result = await empenhosService.getEmpenhoById(req.params.id);
+C:\SINGEM\server\src\modules\empenhos\empenhos.controller.js:25: const result = await empenhosService.getEmpenhoBySlug(req.params.slug);
+C:\SINGEM\server\src\modules\empenhos\empenhos.controller.js:34: const result = await empenhosService.createEmpenho(req.body, req.user, { ip: req.ip });
+C:\SINGEM\server\src\modules\empenhos\empenhos.controller.js:43: const result = await empenhosService.updateEmpenho(req.params.id, req.body, req.user, { ip: req.ip });
+C:\SINGEM\server\src\modules\empenhos\empenhos.controller.js:52: const result = await empenhosService.deleteEmpenho(req.params.id);
+C:\SINGEM\server\src\modules\empenhos\empenhos.controller.js:61: const result = await empenhosService.syncEmpenhos(req.body.operacoes, req.user);
+C:\SINGEM\server\src\modules\empenhos\empenhos.controller.js:71: await empenhosService.getEmpenhoById(empenhoId);
+C:\SINGEM\server\src\modules\empenhos\empenhos.controller.js:84: modulo: 'empenhos',
+C:\SINGEM\server\src\modules\empenhos\empenhos.controller.js:109: await empenhosService.getEmpenhoById(empenhoId);
+C:\SINGEM\server\src\modules\empenhos\empenhos.controller.js:123: await empenhosService.getEmpenhoById(empenhoId);
+C:\SINGEM\server\src\modules\empenhos\empenhos.repository.js:2: const baseEmpenhosRepository = require('../../repositories/empenhos.repository');
+C:\SINGEM\server\src\modules\empenhos\empenhos.repository.js:69: FROM empenhos
+C:\SINGEM\server\src\modules\empenhos\empenhos.repository.js:77: const countSql = `SELECT COUNT(*) AS total FROM empenhos ${where}`;
+C:\SINGEM\server\src\modules\empenhos\empenhos.repository.js:90: return baseEmpenhosRepository.findBySlugOnlyId(slug);
+C:\SINGEM\server\src\modules\empenhos\empenhos.repository.js:94: return baseEmpenhosRepository.create(data);
+C:\SINGEM\server\src\modules\empenhos\empenhos.repository.js:98: return baseEmpenhosRepository.update(id, data);
+C:\SINGEM\server\src\modules\empenhos\empenhos.repository.js:102: return baseEmpenhosRepository.remove(id);
+C:\SINGEM\server\src\modules\empenhos\empenhos.repository.js:147: findAll: baseEmpenhosRepository.findAll,
+C:\SINGEM\server\src\modules\empenhos\empenhos.repository.js:148: findById: baseEmpenhosRepository.findById,
+C:\SINGEM\server\src\modules\empenhos\empenhos.repository.js:149: findBySlug: baseEmpenhosRepository.findBySlug,
+C:\SINGEM\server\src\modules\empenhos\empenhos.routes.js:6: const controller = require('./empenhos.controller');
+C:\SINGEM\server\src\modules\empenhos\empenhos.routes.js:9: listEmpenhosSchema,
+C:\SINGEM\server\src\modules\empenhos\empenhos.routes.js:10: idEmpenhoSchema,
+C:\SINGEM\server\src\modules\empenhos\empenhos.routes.js:11: slugEmpenhoSchema,
+C:\SINGEM\server\src\modules\empenhos\empenhos.routes.js:12: createEmpenhoSchema,
+C:\SINGEM\server\src\modules\empenhos\empenhos.routes.js:13: updateEmpenhoSchema,
+C:\SINGEM\server\src\modules\empenhos\empenhos.routes.js:14: syncEmpenhosSchema
+C:\SINGEM\server\src\modules\empenhos\empenhos.routes.js:15: } = require('./empenhos.validation');
+C:\SINGEM\server\src\modules\empenhos\empenhos.routes.js:25: router.get('/', authenticate, validate(listEmpenhosSchema), controller.list);
+C:\SINGEM\server\src\modules\empenhos\empenhos.routes.js:26: router.get('/slug/:slug', authenticate, validate(slugEmpenhoSchema), controller.getBySlug);
+C:\SINGEM\server\src\modules\empenhos\empenhos.routes.js:31: validate(idEmpenhoSchema),
+C:\SINGEM\server\src\modules\empenhos\empenhos.routes.js:38: validate(idEmpenhoSchema),
+C:\SINGEM\server\src\modules\empenhos\empenhos.routes.js:42: '/:id/arquivos/upload',
+C:\SINGEM\server\src\modules\empenhos\empenhos.routes.js:45: validate(idEmpenhoSchema),
+C:\SINGEM\server\src\modules\empenhos\empenhos.routes.js:49: router.get('/:id', authenticate, validate(idEmpenhoSchema), controller.getById);
+C:\SINGEM\server\src\modules\empenhos\empenhos.routes.js:54: validate(createEmpenhoSchema),
+C:\SINGEM\server\src\modules\empenhos\empenhos.routes.js:61: validate(updateEmpenhoSchema),
+C:\SINGEM\server\src\modules\empenhos\empenhos.routes.js:64: router.delete('/:id', authenticate, validate(idEmpenhoSchema), controller.remove);
+C:\SINGEM\server\src\modules\empenhos\empenhos.routes.js:65: router.post('/sync', authenticate, validate(syncEmpenhosSchema), controller.sync);
+C:\SINGEM\server\src\modules\empenhos\empenhos.service.js:1: const baseEmpenhosService = require('../../services/empenhos.service');
+C:\SINGEM\server\src\modules\empenhos\empenhos.service.js:3: const empenhosRepository = require('./empenhos.repository');
+C:\SINGEM\server\src\modules\empenhos\empenhos.service.js:6: async function listEmpenhos(query) {
+C:\SINGEM\server\src\modules\empenhos\empenhos.service.js:38: const result = await empenhosRepository.findAllPaginated(filters);
+C:\SINGEM\server\src\modules\empenhos\empenhos.service.js:63: async function syncEmpenhos(operacoes, user) {
+C:\SINGEM\server\src\modules\empenhos\empenhos.service.js:78: resultado = await empenhosRepository.createSyncIfMissing({
+C:\SINGEM\server\src\modules\empenhos\empenhos.service.js:84: resultado = await empenhosRepository.updateSync(op.id, op.dados || {});
+C:\SINGEM\server\src\modules\empenhos\empenhos.service.js:87: resultado = await empenhosRepository.removeSync(op.id);
+C:\SINGEM\server\src\modules\empenhos\empenhos.service.js:107: listEmpenhos,
+C:\SINGEM\server\src\modules\empenhos\empenhos.service.js:108: getEmpenhoById: baseEmpenhosService.getEmpenhoById,
+C:\SINGEM\server\src\modules\empenhos\empenhos.service.js:109: getEmpenhoBySlug: baseEmpenhosService.getEmpenhoBySlug,
+C:\SINGEM\server\src\modules\empenhos\empenhos.service.js:110: createEmpenho: baseEmpenhosService.createEmpenho,
+C:\SINGEM\server\src\modules\empenhos\empenhos.service.js:111: updateEmpenho: baseEmpenhosService.updateEmpenho,
+C:\SINGEM\server\src\modules\empenhos\empenhos.service.js:112: deleteEmpenho: baseEmpenhosService.deleteEmpenho,
+C:\SINGEM\server\src\modules\empenhos\empenhos.service.js:113: syncEmpenhos
+C:\SINGEM\server\src\modules\empenhos\empenhos.validation.js:2: idEmpenhoSchema,
+C:\SINGEM\server\src\modules\empenhos\empenhos.validation.js:3: slugEmpenhoSchema,
+C:\SINGEM\server\src\modules\empenhos\empenhos.validation.js:4: createEmpenhoSchema,
+C:\SINGEM\server\src\modules\empenhos\empenhos.validation.js:5: updateEmpenhoSchema
+C:\SINGEM\server\src\modules\empenhos\empenhos.validation.js:6: } = require('../../validators/empenhos.validators');
+C:\SINGEM\server\src\modules\empenhos\empenhos.validation.js:9: const listEmpenhosSchema = {
+C:\SINGEM\server\src\modules\empenhos\empenhos.validation.js:27: const syncEmpenhosSchema = {
+C:\SINGEM\server\src\modules\empenhos\empenhos.validation.js:40: listEmpenhosSchema,
+C:\SINGEM\server\src\modules\empenhos\empenhos.validation.js:41: idEmpenhoSchema,
+C:\SINGEM\server\src\modules\empenhos\empenhos.validation.js:42: slugEmpenhoSchema,
+C:\SINGEM\server\src\modules\empenhos\empenhos.validation.js:43: createEmpenhoSchema,
+C:\SINGEM\server\src\modules\empenhos\empenhos.validation.js:44: updateEmpenhoSchema,
+C:\SINGEM\server\src\modules\empenhos\empenhos.validation.js:45: syncEmpenhosSchema
+C:\SINGEM\server\src\modules\notas-fiscais\notas-fiscais.controller.js:1: const notasService = require('./notas-fiscais.service');
+C:\SINGEM\server\src\modules\notas-fiscais\notas-fiscais.controller.js:102: modulo: 'notas-fiscais',
+C:\SINGEM\server\src\modules\notas-fiscais\notas-fiscais.routes.js:6: const controller = require('./notas-fiscais.controller');
+C:\SINGEM\server\src\modules\notas-fiscais\notas-fiscais.routes.js:14: } = require('./notas-fiscais.validation');
+C:\SINGEM\server\src\modules\notas-fiscais\notas-fiscais.routes.js:41: '/:id/arquivos/upload',
+C:\SINGEM\server\src\modules\notas-fiscais\notas-fiscais.service.js:3: const notasRepository = require('./notas-fiscais.repository');
+C:\SINGEM\server\src\repositories\empenhos.repository.js:6: let sql = 'SELECT * FROM empenhos WHERE 1=1';
+C:\SINGEM\server\src\repositories\empenhos.repository.js:50: let countSql = 'SELECT COUNT(*) as total FROM empenhos WHERE 1=1';
+C:\SINGEM\server\src\repositories\empenhos.repository.js:79: return db.findById('empenhos', id);
+C:\SINGEM\server\src\repositories\empenhos.repository.js:83: const result = await db.query('SELECT * FROM empenhos WHERE slug = $1', [slug]);
+C:\SINGEM\server\src\repositories\empenhos.repository.js:88: const result = await db.query('SELECT id FROM empenhos WHERE slug = $1', [slug]);
+C:\SINGEM\server\src\repositories\empenhos.repository.js:93: return db.insert('empenhos', data);
+C:\SINGEM\server\src\repositories\empenhos.repository.js:97: return db.update('empenhos', id, data);
+C:\SINGEM\server\src\repositories\empenhos.repository.js:101: return db.remove('empenhos', id);
+C:\SINGEM\server\src\services\empenhos.service.js:2: const empenhosRepository = require('../repositories/empenhos.repository');
+C:\SINGEM\server\src\services\empenhos.service.js:141: async function listEmpenhos(filters) {
+C:\SINGEM\server\src\services\empenhos.service.js:144: const result = await empenhosRepository.findAll({ ...filters, limite, offset });
+C:\SINGEM\server\src\services\empenhos.service.js:159: const empenho = await empenhosRepository.findById(id);
+C:\SINGEM\server\src\services\empenhos.service.js:168: const empenho = await empenhosRepository.findBySlug(slug);
+C:\SINGEM\server\src\services\empenhos.service.js:183: const exists = await empenhosRepository.findBySlugOnlyId(createPayload.slug);
+C:\SINGEM\server\src\services\empenhos.service.js:188: const empenho = await empenhosRepository.create(createPayload);
+C:\SINGEM\server\src\services\empenhos.service.js:199: const current = await empenhosRepository.findById(id);
+C:\SINGEM\server\src\services\empenhos.service.js:207: const updated = await empenhosRepository.update(id, updateData);
+C:\SINGEM\server\src\services\empenhos.service.js:218: const current = await empenhosRepository.findById(id);
+C:\SINGEM\server\src\services\empenhos.service.js:227: await empenhosRepository.remove(id);
+C:\SINGEM\server\src\services\empenhos.service.js:235: listEmpenhos,
+C:\SINGEM\server\src\services\NfeImportService.js:186: modulo: 'notas-fiscais',
+C:\SINGEM\server\src\services\NfeImportService.js:201: modulo: 'notas-fiscais',
+C:\SINGEM\server\src\services\NfeImportServiceV2.js:153: modulo: 'notas-fiscais',
+C:\SINGEM\server\src\services\NfeImportServiceV2.js:164: modulo: 'notas-fiscais',
+C:\SINGEM\server\src\validators\empenhos.validators.js:3: const listEmpenhosSchema = {
+C:\SINGEM\server\src\validators\empenhos.validators.js:14: const idEmpenhoSchema = {
+C:\SINGEM\server\src\validators\empenhos.validators.js:18: const slugEmpenhoSchema = {
+C:\SINGEM\server\src\validators\empenhos.validators.js:24: const createEmpenhoSchema = {
+C:\SINGEM\server\src\validators\empenhos.validators.js:47: const updateEmpenhoSchema = {
+C:\SINGEM\server\src\validators\empenhos.validators.js:63: listEmpenhosSchema,
+C:\SINGEM\server\src\validators\empenhos.validators.js:64: idEmpenhoSchema,
+C:\SINGEM\server\src\validators\empenhos.validators.js:65: slugEmpenhoSchema,
+C:\SINGEM\server\src\validators\empenhos.validators.js:66: createEmpenhoSchema,
+C:\SINGEM\server\src\validators\empenhos.validators.js:67: updateEmpenhoSchema

@@ -1,20 +1,85 @@
 const AppError = require('../utils/appError');
 const empenhosRepository = require('../repositories/empenhos.repository');
+const db = require('../../config/database');
 const { logVinculoCatmat } = require('../utils/catmatValidation');
 
-function parseItens(input) {
-  if (!input?.itens) {
+function normalizeEmpenhoItems(itens) {
+  if (!Array.isArray(itens)) {
     return [];
   }
 
-  if (Array.isArray(input.itens)) {
-    return input.itens;
-  }
+  return itens
+    .map((item, index) => ({
+      item_numero: Number(item.item_numero || item.itemNumero || item.seq || index + 1),
+      material_id: item.material_id || item.materialId || null,
+      descricao: String(item.descricao || item.description || `Item ${index + 1}`).trim(),
+      unidade: String(item.unidade || item.un || 'UN').trim(),
+      quantidade: Number(item.quantidade || 0),
+      valor_unitario: Number(item.valor_unitario || item.valorUnitario || 0),
+      natureza_despesa: item.natureza_despesa || item.naturezaDespesa || null,
+      subelemento: item.subelemento || null
+    }))
+    .filter((item) => item.descricao && item.quantidade > 0);
+}
+
+async function listEmpenhoItems(empenhoId) {
+  const result = await db.query(
+    `SELECT id, item_numero AS seq, material_id, descricao, unidade, quantidade, valor_unitario,
+            natureza_despesa, subelemento
+       FROM empenho_items
+      WHERE empenho_id = $1
+      ORDER BY item_numero ASC, id ASC`,
+    [empenhoId]
+  );
+
+  return result.rows;
+}
+
+async function replaceEmpenhoItems(empenhoId, itens) {
+  const normalized = normalizeEmpenhoItems(itens);
+  const client = await db.getClient();
 
   try {
-    return JSON.parse(input.itens);
-  } catch {
-    return [];
+    await client.query('BEGIN');
+    await client.query('DELETE FROM empenho_items WHERE empenho_id = $1', [empenhoId]);
+
+    for (const item of normalized) {
+      await client.query(
+        `INSERT INTO empenho_items (
+          empenho_id,
+          material_id,
+          item_numero,
+          descricao,
+          unidade,
+          quantidade,
+          valor_unitario,
+          saldo_quantidade,
+          saldo_valor,
+          natureza_despesa,
+          subelemento
+        ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)`,
+        [
+          empenhoId,
+          item.material_id,
+          item.item_numero,
+          item.descricao,
+          item.unidade,
+          item.quantidade,
+          item.valor_unitario,
+          item.quantidade,
+          Number(item.quantidade) * Number(item.valor_unitario),
+          item.natureza_despesa,
+          item.subelemento
+        ]
+      );
+    }
+
+    await client.query('COMMIT');
+  } catch (error) {
+    await client.query('ROLLBACK');
+    throw error;
+  } finally {
+    client.release();
   }
 }
 
@@ -34,7 +99,6 @@ function buildEmpenhoCreatePayload(data, user) {
     natureza_despesa: data.naturezaDespesa || data.natureza_despesa || null,
     processo_suap: data.processoSuap || data.processo_suap || null,
     status_validacao: data.statusValidacao || data.status_validacao || 'rascunho',
-    itens: JSON.stringify(data.itens || []),
     pdf_data: data.pdfData || data.pdf_data || null,
     created_by: user.id
   };
@@ -60,9 +124,6 @@ function buildEmpenhoUpdatePayload(data, user) {
   }
   if (data.dataEmpenho !== undefined) {
     updateData.data_empenho = data.dataEmpenho;
-  }
-  if (data.itens !== undefined) {
-    updateData.itens = JSON.stringify(data.itens);
   }
   if (data.pdfData !== undefined) {
     updateData.pdf_data = data.pdfData;
@@ -186,6 +247,7 @@ async function createEmpenho(data, user, meta) {
   }
 
   const empenho = await empenhosRepository.create(createPayload);
+  await replaceEmpenhoItems(empenho.id, data.itens || []);
   await logCreateItemCatmat(data.itens, user, meta);
 
   return {
@@ -201,10 +263,13 @@ async function updateEmpenho(id, data, user, meta) {
     throw new AppError(404, 'NOT_FOUND', 'Empenho não encontrado');
   }
 
-  const itensAntes = parseItens(current);
+  const itensAntes = await listEmpenhoItems(id);
   const updateData = buildEmpenhoUpdatePayload(data, user);
 
   const updated = await empenhosRepository.update(id, updateData);
+  if (data.itens !== undefined) {
+    await replaceEmpenhoItems(id, data.itens || []);
+  }
   await logUpdateItemCatmat(data.itens, itensAntes, user, meta);
 
   return {

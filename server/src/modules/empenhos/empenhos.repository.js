@@ -119,7 +119,6 @@ async function createSyncIfMissing(data) {
     fornecedor: data.fornecedor,
     cnpj_fornecedor: (data.cnpjFornecedor || '').replace(/\D/g, ''),
     valor_total: Number.parseFloat(data.valorTotal) || 0,
-    itens: JSON.stringify(data.itens || []),
     status_validacao: data.statusValidacao || 'rascunho',
     created_by: data.createdBy
   });
@@ -130,8 +129,7 @@ async function createSyncIfMissing(data) {
 async function updateSync(id, data) {
   const atualizado = await update(id, {
     fornecedor: data.fornecedor,
-    valor_total: Number.parseFloat(data.valorTotal) || 0,
-    itens: JSON.stringify(data.itens || [])
+    valor_total: Number.parseFloat(data.valorTotal) || 0
   });
 
   return { id, status: atualizado ? 'atualizado' : 'erro' };

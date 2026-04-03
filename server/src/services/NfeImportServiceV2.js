@@ -11,13 +11,14 @@
  * @module NfeImportServiceV2
  */
 
-const path = require('path');
 const NfeXmlParser = require('../../domain/nfe/NfeXmlParser');
 const NfeFileStorage = require('../../domain/nfe/NfeFileStorage');
 const { validarNfeCompleta, validarChaveAcesso } = require('../../domain/nfe/NfeValidators');
 const { NfeConciliationService } = require('../../domain/nfe/NfeConciliationService');
 const { normalizeImportData } = require('./nfeImportNormalizer');
 const { shouldIncludeByFilters, mapToNfeSummary, sortByDataEmissaoDesc } = require('./nfeImportListing');
+const fileStorageService = require('./fileStorageService');
+const { storageConfig } = require('../config/storage');
 
 /**
  * Resultado padronizado de importação
@@ -35,7 +36,8 @@ class NfeImportServiceV2 {
    */
   constructor(config = {}) {
     this.config = {
-      storagePath: config.storagePath || path.join(process.cwd(), 'storage', 'nfe'),
+      storagePath: config.storagePath || storageConfig.structure.notasFiscais.base,
+      modoRegistro: config.modoRegistro || 'real',
       ...config
     };
 
@@ -143,6 +145,33 @@ class NfeImportServiceV2 {
     const metaResult = await this.storage.salvarMetadados(chave, dadosNormalizados);
     if (!metaResult.sucesso) {
       alerts.push(`Erro ao salvar metadados: ${metaResult.erro}`);
+    }
+
+    try {
+      await fileStorageService.registerExistingPath({
+        absolutePath: xmlResult.caminho,
+        modulo: 'notas-fiscais',
+        categoria: 'xml',
+        nomeOriginal: `${chave}.xml`,
+        mimeType: 'application/xml',
+        entidadeTipo: 'nfe',
+        entidadeId: chave,
+        modoRegistro: this.config.modoRegistro,
+        prefix: 'NFXML'
+      });
+      await fileStorageService.registerExistingPath({
+        absolutePath: metaResult.caminho,
+        modulo: 'notas-fiscais',
+        categoria: 'meta',
+        nomeOriginal: `${chave}.json`,
+        mimeType: 'application/json',
+        entidadeTipo: 'nfe',
+        entidadeId: chave,
+        modoRegistro: this.config.modoRegistro,
+        prefix: 'NFMETA'
+      });
+    } catch (metadataError) {
+      alerts.push(`Falha ao registrar metadados centralizados: ${metadataError.message}`);
     }
 
     dadosNormalizados.caminhos = this.storage.getCaminhos(chave);

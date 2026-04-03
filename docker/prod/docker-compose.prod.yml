@@ -9,11 +9,6 @@ networks:
   singem-network:
     driver: bridge
 
-volumes:
-  postgres_data:
-  backend_logs:
-  redis_data:
-
 services:
   postgres:
     image: pgvector/pgvector:pg15
@@ -40,7 +35,7 @@ services:
       - '-c'
       - 'log_disconnections=on'
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - ${SINGEM_DATA_HOST_PATH:-/opt/singem/data}/postgres:/var/lib/postgresql/data
     networks:
       - singem-network
     healthcheck:
@@ -59,7 +54,7 @@ services:
       --loglevel warning
       --requirepass ${REDIS_PASSWORD:?REDIS_PASSWORD obrigatória}
     volumes:
-      - redis_data:/data
+      - ${SINGEM_DATA_HOST_PATH:-/opt/singem/data}/redis:/data
     networks:
       - singem-network
     healthcheck:
@@ -102,6 +97,10 @@ services:
       CATMAT_ENABLED: ${CATMAT_ENABLED:-false}
       CATMAT_OBRIGATORIO: ${CATMAT_OBRIGATORIO:-false}
       REDIS_URL: redis://:${REDIS_PASSWORD:?REDIS_PASSWORD obrigatória}@redis:6379
+      STORAGE_BASE_PATH: /app/storage
+      SINGEM_DATA_MODE: ${SINGEM_DATA_MODE:-real}
+      UPLOAD_MAX_FILE_SIZE_BYTES: ${UPLOAD_MAX_FILE_SIZE_BYTES:-26214400}
+      UPLOAD_ALLOWED_MIME_TYPES: ${UPLOAD_ALLOWED_MIME_TYPES:-application/pdf,application/xml,text/xml,text/plain,image/png,image/jpeg,application/zip,application/json}
     ports:
       - '127.0.0.1:3000:3000'
     networks:
@@ -110,8 +109,9 @@ services:
       postgres:
         condition: service_healthy
     volumes:
-      - ../../storage:/app/storage
-      - backend_logs:/app/logs
+      - ${SINGEM_STORAGE_HOST_PATH:-/opt/singem/storage}:/app/storage
+      - ${SINGEM_STORAGE_HOST_PATH:-/opt/singem/storage}/logs/backend:/app/logs
+      - ${SINGEM_CONFIG_HOST_PATH:-/opt/singem/config}:/app/runtime-config
     healthcheck:
       test:
         [

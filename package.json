@@ -13,6 +13,8 @@
     "deploy": "pwsh -NoProfile -ExecutionPolicy Bypass -File ./scripts/deploy.ps1 -ProjectRoot .",
     "version": "pwsh -NoProfile -ExecutionPolicy Bypass -File ./scripts/version.ps1 -ProjectRoot .",
     "clean:legacy": "pwsh -NoProfile -ExecutionPolicy Bypass -File ./scripts/clean-legacy.ps1 -ProjectRoot .",
+    "seed:simulacao:dry": "pwsh -NoProfile -ExecutionPolicy Bypass -File ./scripts/seed-simulacao-realista.ps1 -ProjectRoot .",
+    "seed:simulacao": "pwsh -NoProfile -ExecutionPolicy Bypass -File ./scripts/seed-simulacao-realista.ps1 -ProjectRoot . -Apply",
     "dev": "npm run start",
     "dev:start": "npm run start",
     "dev:stop": "npm run stop",

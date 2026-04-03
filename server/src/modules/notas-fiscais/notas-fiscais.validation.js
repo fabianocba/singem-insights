@@ -46,9 +46,17 @@ const updateNotaSchema = {
     .passthrough()
 };
 
+const idNotaArquivoSchema = {
+  params: z.object({
+    id: z.coerce.number().int().positive(),
+    arquivoId: z.coerce.number().int().positive()
+  })
+};
+
 module.exports = {
   listNotasSchema,
   idNotaSchema,
+  idNotaArquivoSchema,
   chaveNotaSchema,
   createNotaSchema,
   updateNotaSchema

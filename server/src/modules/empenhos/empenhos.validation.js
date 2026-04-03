@@ -36,9 +36,17 @@ const syncEmpenhosSchema = {
   })
 };
 
+const idEmpenhoArquivoSchema = {
+  params: z.object({
+    id: z.coerce.number().int().positive(),
+    arquivoId: z.coerce.number().int().positive()
+  })
+};
+
 module.exports = {
   listEmpenhosSchema,
   idEmpenhoSchema,
+  idEmpenhoArquivoSchema,
   slugEmpenhoSchema,
   createEmpenhoSchema,
   updateEmpenhoSchema,

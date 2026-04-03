@@ -7,6 +7,7 @@ const notasFiscaisRoutes = require('../modules/notas-fiscais/notas-fiscais.route
 const estoqueRoutes = require('../routes/estoque.routes');
 const syncRoutes = require('../../routes/sync.routes');
 const catmatRoutes = require('../routes/catmat.routes');
+const arquivosRoutes = require('../routes/arquivos.routes');
 const catalogacaoRoutes = require('../../routes/catalogacao.routes');
 const comprasRoutes = require('../../routes/compras.routes');
 const comprasGovRoutes = require('../../routes/comprasgov.routes');
@@ -35,6 +36,7 @@ function registerRoutes(app, dependencies) {
   app.use('/api/estoque', estoqueRoutes);
   app.use('/api/sync', syncRoutes);
   app.use('/api/catmat', catmatRoutes);
+  app.use('/api/arquivos', arquivosRoutes);
   app.use('/api/catalogacao-pedidos', catalogacaoRoutes);
   app.use('/api/inteligencia-precos', createIntegracoesLimiter(), priceIntelligenceRoutes);
   app.use('/api/compras/inteligencia-precos', createIntegracoesLimiter(), priceIntelligenceRoutes);
@@ -55,6 +57,7 @@ function registerRoutes(app, dependencies) {
     '/api/estoque',
     '/api/sync',
     '/api/catmat',
+    '/api/arquivos',
     '/api/catalogacao-pedidos',
     '/api/inteligencia-precos',
     '/api/compras/inteligencia-precos',

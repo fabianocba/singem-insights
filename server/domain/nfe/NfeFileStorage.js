@@ -7,13 +7,14 @@
 
 const fs = require('fs').promises;
 const path = require('path');
+const { storageConfig } = require('../../src/config/storage');
 
 class NfeFileStorage {
   /**
    * @param {string} basePath - Caminho base para storage (ex: ./storage/nfe)
    */
   constructor(basePath) {
-    this.basePath = basePath || path.join(process.cwd(), 'storage', 'nfe');
+    this.basePath = basePath || storageConfig.structure.notasFiscais.base;
     this.paths = {
       xml: path.join(this.basePath, 'xml'),
       meta: path.join(this.basePath, 'meta'),
