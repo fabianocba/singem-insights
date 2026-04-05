@@ -1,3 +1,4 @@
+const bcrypt = require('bcrypt');
 const NfeImportService = require('./src/services/NfeImportService');
 const NfeImportServiceV2 = require('./src/services/NfeImportServiceV2');
 const { storageConfig } = require('./src/config/storage');
@@ -8,6 +9,43 @@ const databaseCompat = require('./config/database');
 const { verifySmtpConnection } = require('./src/services/emailService');
 const { createApp } = require('./app');
 const { config, getCorsOrigins, validateRuntimeConfig } = require('./config');
+
+async function ensureAdminUser() {
+  const adminLogin = String(config.admin?.login || '').trim().toLowerCase();
+  const adminPassword = config.admin?.password;
+
+  if (!adminLogin || !adminPassword) {
+    console.log('[Admin] ADMIN_LOGIN/ADMIN_PASSWORD não configurados, pulando criação automática');
+    return;
+  }
+
+  try {
+    const existing = await databaseCompat.query(
+      'SELECT id FROM usuarios WHERE LOWER(login) = $1 LIMIT 1',
+      [adminLogin]
+    );
+
+    if (existing.rows.length > 0) {
+      console.log(`[Admin] Usuário administrador já existe: ${adminLogin}`);
+      return;
+    }
+
+    const senhaHash = await bcrypt.hash(adminPassword, 10);
+    const adminEmail = String(config.admin?.email || `${adminLogin}@ifbaiano.edu.br`).toLowerCase();
+    const adminNome = config.admin?.nome || 'Administrador SINGEM';
+
+    await databaseCompat.query(
+      `INSERT INTO usuarios (login, email, senha_hash, nome, perfil, ativo)
+       VALUES ($1, $2, $3, $4, 'admin', true)
+       ON CONFLICT (login) DO NOTHING`,
+      [adminLogin, adminEmail, senhaHash, adminNome]
+    );
+
+    console.log(`[Admin] Usuário administrador criado: ${adminLogin}`);
+  } catch (err) {
+    console.warn('[Admin] Falha ao garantir usuário admin:', err.message);
+  }
+}
 
 async function initializeNfeServices() {
   const nfeService = new NfeImportService({
@@ -96,6 +134,8 @@ async function startServer() {
   if (dbReady) {
     await databaseCompat.runMigrations();
     console.log('[DB] PostgreSQL conectado e migrations aplicadas');
+
+    await ensureAdminUser();
 
     await systemConfigService.upsertSystemConfig({
       chave: 'storage.base_path',
