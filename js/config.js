@@ -177,6 +177,9 @@ window.CONFIG = {
   }
 };
 
+// Fonte única para chamadas de API no frontend.
+window.__API_BASE_URL__ = window.__API_BASE_URL__ || window.CONFIG.api.baseUrl;
+
 // Função para carregar configurações personalizadas
 window.carregarConfiguracoes = function () {
   return window.CONFIG;
