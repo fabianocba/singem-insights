@@ -160,7 +160,7 @@ export class ControleMaterialApp {
    * Verifica sessão sem auto-login
    */
   async verificarSessao() {
-    return AppShell.verificarSessao();
+    return AppShell.verificarSessao(this);
   }
 
   /**

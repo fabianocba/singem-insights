@@ -69,8 +69,39 @@ export function setupCriticalAuthListeners(app) {
   loginForm.addEventListener('submit', app._onLoginSubmitHandler);
 }
 
-export async function verificarSessao() {
-  console.log('ℹ️ Sessão persistente local desativada (modo PostgreSQL/VPS)');
+export async function verificarSessao(app) {
+  const token = window.__SINGEM_AUTH?.accessToken;
+  if (!token) {
+    console.log('ℹ️ Nenhum token em memória para restauração de sessão.');
+    return;
+  }
+
+  try {
+    const apiClient = (await import('../../services/apiClient.js')).default;
+    const response = await apiClient.get('/api/auth/me');
+
+    if (!(response?.sucesso && response?.usuario)) {
+      throw new Error('Resposta inválida de /api/auth/me');
+    }
+
+    app.usuarioLogado = { ...response.usuario };
+    app.authProvider = response.usuario.authProvider || 'local';
+
+    if (window.settingsUsuarios) {
+      window.settingsUsuarios.usuarioLogado = { ...app.usuarioLogado };
+    }
+
+    renderSidebar(app.usuarioLogado);
+    app.atualizarUsuarioHeader();
+    app.showScreen('homeScreen');
+    console.log('✅ Sessão restaurada com token em memória.');
+  } catch (error) {
+    console.warn('[AUTH] Falha ao restaurar sessão:', error?.message || error);
+    if (window.__SINGEM_AUTH) {
+      window.__SINGEM_AUTH.accessToken = null;
+      window.__SINGEM_AUTH.refreshToken = null;
+    }
+  }
 }
 
 export async function handleOAuthCallback(app) {

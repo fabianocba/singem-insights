@@ -9,10 +9,8 @@
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
 
-    <title>Controle de Material - IF Baiano</title>
+    <title>SINGEM - Login</title>
 
-    <!-- Sistema de versionamento e cache busting -->
-    <script type="module" src="js/versionManager.js"></script>
     <script src="js/ui/themeBoot.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -26,65 +24,22 @@
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
     />
+    <link rel="icon" type="image/svg+xml" href="img/favicon.svg" />
     <link rel="stylesheet" href="css/style.css" />
     <link rel="stylesheet" href="css/tailwind.css" />
-    <link rel="stylesheet" href="css/consultas.css" />
-    <link rel="stylesheet" href="css/protecao.css" />
-    <link rel="stylesheet" href="css/reports.css" />
-    <script
-      src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"
-      integrity="sha512-q+4liFwdPC/bNdhUpZx6aXDx/h77yEQtn4I1slHydcbZK34nLaR3cAeYSJshoxIOq3mjEf7xJE8YWIUHMn+oCQ=="
-      crossorigin="anonymous"
-      referrerpolicy="no-referrer"
-      defer
-    ></script>
-    <!-- @zxing/library fixado em 0.21.3 — não usar @latest (supply chain risk) -->
-    <script src="https://unpkg.com/@zxing/library@0.21.3/umd/index.min.js" defer></script>
+    <link rel="stylesheet" href="css/login-bootstrap.css" />
   </head>
-  <body data-page="main" class="antialiased">
-    <div id="app"></div>
+  <body data-page="login" class="antialiased">
+    <div id="loginSplash" class="login-splash" role="status" aria-live="polite">
+      <div class="login-splash__card">
+        <div class="login-splash__spinner" aria-hidden="true"></div>
+        <p id="loginSplashText">Inicializando autenticação...</p>
+      </div>
+    </div>
 
-    <script type="module" src="js/ui/appShellMount.js"></script>
-    <script src="js/platform-core.js"></script>
-    <script src="js/config.js" defer></script>
-    <script src="js/db.js" defer></script>
-    <script src="js/utils/dbSafe.js" defer></script>
-    <script src="js/utils/uxHelpers.js" defer></script>
-    <script src="js/pdfReader.js" defer></script>
-    <script type="module" src="js/neParserInit.js"></script>
-    <script type="module" src="js/nfeIntegration.js"></script>
-    <script src="js/fsManager.js" defer></script>
-    <script src="js/anexarPdfNE.js" defer></script>
-    <script src="js/core/protection.js" defer></script>
-    <script src="js/core/dataBackup.js" defer></script>
-    <script src="js/core/menuConfig.js" defer></script>
-    <script type="module" src="js/utils/formatters.js"></script>
-    <script src="js/nfValidator.js" defer></script>
-    <script src="js/globalBridge.js"></script>
-    <script type="module" src="js/bootstrap.js"></script>
-    <script type="module" src="js/ui/pageEnhancer.js"></script>
-    <script src="js/settings/index.js" defer></script>
-    <script src="js/settings/unidade.js" defer></script>
-    <script type="module" src="js/settings/usuarios.js"></script>
-    <script type="module" src="js/settings/rede.js"></script>
-    <script type="module" src="js/settings/preferencias.js"></script>
-    <script src="js/settings/arquivos.js" defer></script>
-    <script src="js/ui/settings/protecao.js" defer></script>
-    <script src="js/refine/patterns.js" defer></script>
-    <script src="js/refine/logger.js" defer></script>
-    <script src="js/refine/normalize.js" defer></script>
-    <script src="js/refine/validate.js" defer></script>
-    <script src="js/refine/analyzer.js" defer></script>
-    <script src="js/refine/detectors.js" defer></script>
-    <script src="js/refine/score.js" defer></script>
-    <script src="js/refine/ocrFallback.js" defer></script>
-    <script src="js/refine/extract/header.js" defer></script>
-    <script src="js/refine/extract/items.js" defer></script>
-    <script src="js/refine/extract/totals.js" defer></script>
-    <script src="js/refine/index.js" defer></script>
-    <script src="js/refine/ui-integration.js" defer></script>
-    <script type="module" src="js/softInit.js"></script>
-    <script src="js/exportCSV.js" defer></script>
-    <script src="js/authProvidersBootstrap.js"></script>
+    <div id="login-app" class="login-app" hidden></div>
+    <div id="app" hidden></div>
+
+    <script type="module" src="js/auth/login-bootstrap.js"></script>
   </body>
 </html>

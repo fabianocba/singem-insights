@@ -1,0 +1,84 @@
+body[data-page='login'] {
+  min-height: 100vh;
+  overflow: hidden;
+  background: radial-gradient(circle at 16% 18%, #dff5ec 0%, #f4faf7 46%, #edf5f2 100%);
+}
+
+body.login-booting #login-app {
+  visibility: hidden;
+}
+
+body.login-ready #login-app {
+  visibility: visible;
+}
+
+body.login-error .login-splash__card {
+  border-color: rgba(255, 152, 152, 0.48);
+}
+
+.login-splash {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, rgba(20, 48, 44, 0.93), rgba(33, 74, 67, 0.9));
+  opacity: 1;
+  transition: opacity 0.22s ease;
+}
+
+.login-splash.is-hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.login-splash__card {
+  width: min(92vw, 360px);
+  border-radius: 18px;
+  padding: 24px;
+  text-align: center;
+  color: #f7fffc;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.08);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 16px 44px rgba(0, 0, 0, 0.24);
+}
+
+.login-splash__spinner {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  margin: 0 auto 14px;
+  border: 3px solid rgba(255, 255, 255, 0.32);
+  border-top-color: #d6ffef;
+  animation: login-spin 0.9s linear infinite;
+}
+
+.login-splash__card p {
+  font-size: 0.96rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+@keyframes login-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.login-app {
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.login-app.is-ready {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+#app[hidden],
+#login-app[hidden] {
+  display: none !important;
+}
