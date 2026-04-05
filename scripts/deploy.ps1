@@ -507,6 +507,21 @@ fi
 docker compose "${compose_args[@]}" config --quiet >/dev/null
 log_ok 'Arquivos compose validados.'
 
+log_step 'Preparando diretórios persistentes e permissões de storage...'
+set -a
+# shellcheck disable=SC1091
+. docker/prod/.env.prod
+set +a
+
+storage_host_path="${SINGEM_STORAGE_HOST_PATH:-/opt/singem/storage}"
+data_host_path="${SINGEM_DATA_HOST_PATH:-/opt/singem/data}"
+config_host_path="${SINGEM_CONFIG_HOST_PATH:-/opt/singem/config}"
+
+mkdir -p "$storage_host_path" "$storage_host_path/logs/backend" "$data_host_path" "$config_host_path"
+chown -R 1001:1001 "$storage_host_path"
+chmod -R u+rwX,g+rwX "$storage_host_path"
+log_ok "Storage pronto: $storage_host_path (owner 1001:1001)"
+
 log_step 'Executando docker compose remoto...'
 docker compose "${compose_args[@]}" down --remove-orphans
 
