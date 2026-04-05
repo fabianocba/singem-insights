@@ -20,8 +20,61 @@ function setNoCacheHeaders(res) {
   res.setHeader('Expires', '0');
 }
 
+function normalizeOrigin(originValue) {
+  const raw = String(originValue || '').trim();
+  if (!raw) {
+    return '';
+  }
+
+  try {
+    const parsed = new URL(raw);
+    const protocol = parsed.protocol.toLowerCase();
+    const hostname = parsed.hostname.toLowerCase();
+    const defaultPort =
+      (protocol === 'https:' && parsed.port === '443') || (protocol === 'http:' && parsed.port === '80');
+    const port = parsed.port && !defaultPort ? `:${parsed.port}` : '';
+    return `${protocol}//${hostname}${port}`;
+  } catch (_error) {
+    return raw.replace(/\/+$/, '').toLowerCase();
+  }
+}
+
+function buildCorsOriginsSet(origins) {
+  const allowed = new Set();
+
+  for (const candidate of origins || []) {
+    const normalized = normalizeOrigin(candidate);
+    if (!normalized) {
+      continue;
+    }
+
+    allowed.add(normalized);
+
+    try {
+      const parsed = new URL(normalized);
+      const isLocalHost = ['localhost', '127.0.0.1', '::1'].includes(parsed.hostname);
+      if (isLocalHost) {
+        continue;
+      }
+
+      if (parsed.hostname.startsWith('www.')) {
+        const withoutWww = `${parsed.protocol}//${parsed.hostname.slice(4)}${parsed.port ? `:${parsed.port}` : ''}`;
+        allowed.add(normalizeOrigin(withoutWww));
+      } else if (parsed.hostname.includes('.')) {
+        const withWww = `${parsed.protocol}//www.${parsed.hostname}${parsed.port ? `:${parsed.port}` : ''}`;
+        allowed.add(normalizeOrigin(withWww));
+      }
+    } catch (_error) {
+      // Ignora aliases quando a origem não for uma URL válida.
+    }
+  }
+
+  return allowed;
+}
+
 function createApp({ nodeEnv, bodyLimit, corsOrigins, trustProxy, nfeService, nfeServiceV2 }) {
   const app = express();
+  const allowedCorsOrigins = buildCorsOriginsSet(corsOrigins);
 
   const corsOptions = {
     origin(origin, callback) {
@@ -29,7 +82,9 @@ function createApp({ nodeEnv, bodyLimit, corsOrigins, trustProxy, nfeService, nf
         return callback(null, true);
       }
 
-      if (corsOrigins.includes(origin)) {
+      const normalizedOrigin = normalizeOrigin(origin);
+
+      if (allowedCorsOrigins.has(normalizedOrigin)) {
         return callback(null, true);
       }
 

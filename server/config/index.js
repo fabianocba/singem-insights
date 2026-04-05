@@ -245,6 +245,13 @@ const config = {
 };
 
 function getCorsOrigins() {
+  const configuredOrigins = [...config.corsOrigins];
+  if (config.frontendUrl) {
+    configuredOrigins.push(config.frontendUrl);
+  }
+
+  const uniqueOrigins = [...new Set(configuredOrigins.filter(Boolean).map((origin) => String(origin).trim()))];
+
   if (config.env !== 'production') {
     const devDefaults = [
       'http://localhost:8000',
@@ -253,12 +260,12 @@ function getCorsOrigins() {
       'http://127.0.0.1:3000'
     ];
 
-    const merged = [...config.corsOrigins, ...devDefaults];
+    const merged = [...uniqueOrigins, ...devDefaults];
     return [...new Set(merged)];
   }
 
-  if (config.corsOrigins.length > 0) {
-    return config.corsOrigins;
+  if (uniqueOrigins.length > 0) {
+    return uniqueOrigins;
   }
 
   return [];
