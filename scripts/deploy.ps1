@@ -509,21 +509,70 @@ log_ok 'Arquivos compose validados.'
 
 log_step 'Executando docker compose remoto...'
 docker compose "${compose_args[@]}" down --remove-orphans
+
+log_step 'Verificando conflitos de porta 3000...'
+port_conflicts="$(docker ps --filter publish=3000 --format '{{.ID}} {{.Names}} {{.Ports}}')"
+if [ -n "$port_conflicts" ]; then
+  printf '%s\n' "$port_conflicts"
+  while IFS= read -r conflict_line; do
+    [ -n "$conflict_line" ] || continue
+    conflict_name="$(printf '%s' "$conflict_line" | awk '{print $2}')"
+    case "$conflict_name" in
+      singem-dev-backend*|singem-backend*)
+        log_step "Removendo container conflitante: $conflict_name"
+        docker rm -f "$conflict_name" >/dev/null
+        ;;
+      *)
+        fail "Porta 3000 já está em uso por container não gerenciado pelo deploy: $conflict_name"
+        ;;
+    esac
+  done <<EOF
+$port_conflicts
+EOF
+fi
+
 docker compose "${compose_args[@]}" up -d --build --remove-orphans
 docker compose "${compose_args[@]}" ps
 log_ok 'Docker compose remoto concluído.'
 
 if [ '__SKIP_HEALTHCHECK__' != '1' ]; then
   log_step 'Validando healthcheck...'
-  if ! curl -fsS http://127.0.0.1:3000/health >/dev/null; then
-    log_error 'Healthcheck remoto falhou.'
+  backend_container="$(docker compose "${compose_args[@]}" ps -q backend 2>/dev/null || true)"
+  max_attempts=30
+  attempt=1
+  health_ok=0
+
+  while [ "$attempt" -le "$max_attempts" ]; do
+    backend_health='unknown'
+    if [ -n "$backend_container" ]; then
+      backend_health="$(docker inspect --format '{{if .State.Health}}{{.State.Health.Status}}{{else}}none{{end}}' "$backend_container" 2>/dev/null || true)"
+    fi
+
+    if curl -fsS http://127.0.0.1:3000/health >/dev/null; then
+      health_ok=1
+      log_ok "Healthcheck remoto respondeu 200 na tentativa ${attempt}/${max_attempts} (container: ${backend_health:-unknown})."
+      break
+    fi
+
+    if [ "$backend_health" = 'unhealthy' ]; then
+      log_error 'Container backend marcado como unhealthy durante validação.'
+      docker ps || true
+      docker compose "${compose_args[@]}" logs --tail=200 backend || true
+      docker compose "${compose_args[@]}" logs --tail=120 frontend || true
+      exit 1
+    fi
+
+    sleep 5
+    attempt=$((attempt + 1))
+  done
+
+  if [ "$health_ok" -ne 1 ]; then
+    log_error 'Healthcheck remoto não respondeu 200 dentro da janela de espera.'
     docker ps || true
-    docker compose "${compose_args[@]}" logs --tail=120 backend || true
+    docker compose "${compose_args[@]}" logs --tail=200 backend || true
     docker compose "${compose_args[@]}" logs --tail=120 frontend || true
     exit 1
   fi
-
-  log_ok 'Healthcheck remoto respondeu 200.'
 fi
 '@
 

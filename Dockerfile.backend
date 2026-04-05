@@ -49,12 +49,14 @@ COPY --from=deps /build/server/node_modules ./server/node_modules
 
 # Entrypoint Docker (aguarda PostgreSQL antes de iniciar)
 COPY docker/entrypoint-backend.sh /app/entrypoint.sh
+COPY docker/healthcheck.js /app/healthcheck.js
 
 # Diretórios necessários em runtime
 # storage/nfe — substituído por volume em produção
 # logs        — volume persistente
 RUN mkdir -p storage/nfe logs \
     && chmod +x /app/entrypoint.sh \
+    && chmod +x /app/healthcheck.js \
     && chown -R singem:singem /app
 
 USER singem
@@ -63,8 +65,14 @@ WORKDIR /app/server
 
 EXPOSE 3000
 
-HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-    CMD wget -qO- http://localhost:3000/health || exit 1
+# HEALTHCHECK (mejorado):
+# - start-period=120s: tempo para inicialização completa + retry TCP no entrypoint
+# - interval=30s: verifica a cada 30 segundos
+# - timeout=10s: aguarda até 10s por resposta
+# - retries=3: marca unhealthy após 3 falhas consecutivas
+# - usa node healthcheck.js (funciona em Alpine, sem wget/curl)
+HEALTHCHECK --interval=30s --timeout=10s --start-period=120s --retries=3 \
+    CMD node /app/healthcheck.js
 
 ENTRYPOINT ["/app/entrypoint.sh"]
 CMD ["node", "index.js"]
