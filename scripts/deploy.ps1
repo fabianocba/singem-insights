@@ -531,9 +531,16 @@ $port_conflicts
 EOF
 fi
 
-docker compose "${compose_args[@]}" up -d --build --remove-orphans
+if ! docker compose "${compose_args[@]}" up -d --build --remove-orphans postgres redis backend; then
+  log_error 'Falha ao subir serviços core (postgres, redis, backend).'
+  docker ps || true
+  docker compose "${compose_args[@]}" logs --tail=240 backend || true
+  docker compose "${compose_args[@]}" logs --tail=180 postgres || true
+  exit 1
+fi
+
 docker compose "${compose_args[@]}" ps
-log_ok 'Docker compose remoto concluído.'
+log_ok 'Serviços core iniciados.'
 
 if [ '__SKIP_HEALTHCHECK__' != '1' ]; then
   log_step 'Validando healthcheck...'
@@ -574,6 +581,17 @@ if [ '__SKIP_HEALTHCHECK__' != '1' ]; then
     exit 1
   fi
 fi
+
+log_step 'Subindo frontend após backend saudável...'
+if ! docker compose "${compose_args[@]}" up -d --remove-orphans frontend; then
+  log_error 'Falha ao subir frontend após backend saudável.'
+  docker ps || true
+  docker compose "${compose_args[@]}" logs --tail=160 frontend || true
+  exit 1
+fi
+
+docker compose "${compose_args[@]}" ps
+log_ok 'Docker compose remoto concluído.'
 '@
 
   $remoteScript = $remoteScript.Replace('__REMOTE_PROJECT_CANDIDATES__', $bashCandidateArray)
