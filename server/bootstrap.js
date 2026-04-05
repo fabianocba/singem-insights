@@ -20,16 +20,6 @@ async function ensureAdminUser() {
   }
 
   try {
-    const existing = await databaseCompat.query(
-      'SELECT id FROM usuarios WHERE LOWER(login) = $1 LIMIT 1',
-      [adminLogin]
-    );
-
-    if (existing.rows.length > 0) {
-      console.log(`[Admin] Usuário administrador já existe: ${adminLogin}`);
-      return;
-    }
-
     const senhaHash = await bcrypt.hash(adminPassword, 10);
     const adminEmail = String(config.admin?.email || `${adminLogin}@ifbaiano.edu.br`).toLowerCase();
     const adminNome = config.admin?.nome || 'Administrador SINGEM';
@@ -37,11 +27,16 @@ async function ensureAdminUser() {
     await databaseCompat.query(
       `INSERT INTO usuarios (login, email, senha_hash, nome, perfil, ativo)
        VALUES ($1, $2, $3, $4, 'admin', true)
-       ON CONFLICT (login) DO NOTHING`,
+       ON CONFLICT (login) DO UPDATE SET
+         senha_hash = EXCLUDED.senha_hash,
+         email = EXCLUDED.email,
+         nome = EXCLUDED.nome,
+         perfil = 'admin',
+         ativo = true`,
       [adminLogin, adminEmail, senhaHash, adminNome]
     );
 
-    console.log(`[Admin] Usuário administrador criado: ${adminLogin}`);
+    console.log(`[Admin] Usuário administrador sincronizado: ${adminLogin}`);
   } catch (err) {
     console.warn('[Admin] Falha ao garantir usuário admin:', err.message);
   }
