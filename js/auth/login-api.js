@@ -38,6 +38,14 @@ async function request(path, options = {}) {
   return payload;
 }
 
+function unwrapPayload(payload) {
+  if (payload && typeof payload === 'object' && payload.status === 'success' && payload.data) {
+    return payload.data;
+  }
+
+  return payload;
+}
+
 function setAuthTokens(accessToken, refreshToken) {
   window.__SINGEM_AUTH = window.__SINGEM_AUTH || {
     accessToken: null,
@@ -50,12 +58,31 @@ function setAuthTokens(accessToken, refreshToken) {
 }
 
 export async function loginLocal(login, senha) {
-  const data = await request('/api/auth/login', {
+  const raw = await request('/api/auth/login', {
     method: 'POST',
     body: { login, senha }
   });
 
-  setAuthTokens(data?.accessToken, data?.refreshToken);
+  const data = unwrapPayload(raw);
+
+  if (!data || typeof data !== 'object') {
+    const error = new Error('Resposta inválida do endpoint de login.');
+    error.status = 502;
+    error.data = raw;
+    throw error;
+  }
+
+  const accessToken = typeof data.accessToken === 'string' ? data.accessToken.trim() : '';
+  const refreshToken = typeof data.refreshToken === 'string' ? data.refreshToken.trim() : '';
+
+  if (!accessToken || !refreshToken) {
+    const error = new Error('Autenticação incompleta: token não retornado pelo servidor.');
+    error.status = 401;
+    error.data = data;
+    throw error;
+  }
+
+  setAuthTokens(accessToken, refreshToken);
   return data;
 }
 
@@ -65,12 +92,14 @@ export async function fetchMe() {
     throw new Error('Token ausente para /api/auth/me');
   }
 
-  return request('/api/auth/me', {
+  const raw = await request('/api/auth/me', {
     method: 'GET',
     headers: {
       Authorization: `Bearer ${token}`
     }
   });
+
+  return unwrapPayload(raw);
 }
 
 export async function fetchGovBrStatus() {

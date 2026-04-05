@@ -1,6 +1,6 @@
 import { loadAppRuntime } from '../app-runtime-loader.js';
 import { LOGIN_SHELL_TEMPLATE } from '../ui/loginShellTemplate.js';
-import { fetchGovBrStatus, fetchSerproIdStatus, getApiBase, loginLocal } from './login-api.js';
+import { fetchGovBrStatus, fetchMe, fetchSerproIdStatus, getApiBase, loginLocal } from './login-api.js';
 
 function onDomReady(callback) {
   if (document.readyState === 'loading') {
@@ -244,6 +244,9 @@ async function handleLoginSubmit(event) {
   try {
     await loginLocal(login, senha);
 
+    // Só libera o runtime completo após validar sessão no backend.
+    await fetchMe();
+
     showSplash('Carregando ambiente da aplicação...');
     const loginApp = $('login-app');
     if (loginApp) {
@@ -262,7 +265,8 @@ async function handleLoginSubmit(event) {
     }
 
     hideSplash();
-  } catch (error) {
+        await loginLocal(login, senha);
+        await fetchMe();
     showLoginError(formatLoginError(error));
     hideSplash();
   } finally {

@@ -19,10 +19,12 @@ const API_CONFIG = {
 const RETRYABLE_METHODS = new Set(['GET', 'HEAD', 'OPTIONS']);
 const RETRYABLE_STATUS = new Set([408, 425, 429, 500, 502, 503, 504]);
 
+const initialAuth = window.__SINGEM_AUTH && typeof window.__SINGEM_AUTH === 'object' ? window.__SINGEM_AUTH : {};
+
 const authState = {
-  accessToken: null,
-  refreshToken: null,
-  user: null
+  accessToken: typeof initialAuth.accessToken === 'string' ? initialAuth.accessToken : null,
+  refreshToken: typeof initialAuth.refreshToken === 'string' ? initialAuth.refreshToken : null,
+  user: initialAuth.user || null
 };
 
 window.__SINGEM_AUTH = authState;
