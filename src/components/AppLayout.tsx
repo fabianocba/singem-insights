@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import AppSidebar from "./AppSidebar";
-import type { ModuloId } from "../../types";
+import type { ModuloId } from "../types";
 
 interface AppLayoutProps {
   children: ReactNode;
