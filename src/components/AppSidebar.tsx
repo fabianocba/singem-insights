@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { cn } from "@/lib/utils";
-import type { ModuloId } from "@/types";
+import { cn } from "../lib/utils";
+import type { ModuloId } from "../types";
 import {
   Package, Landmark, Truck, Wrench, Settings,
   ChevronDown, ChevronRight, FileText, Receipt,
