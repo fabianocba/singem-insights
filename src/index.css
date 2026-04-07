@@ -1,7 +1,7 @@
-@import "tailwindcss";
-@source "../src";
-
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap');
+@import "tailwindcss";
+
+@source "../src";
 
 @theme {
   --color-border: hsl(160 10% 88%);
@@ -32,7 +32,7 @@
   --color-popover: hsl(0 0% 100%);
   --color-popover-foreground: hsl(160 15% 10%);
 
-  --color-sidebar: hsl(165 30% 12%);
+  --color-sidebar-background: hsl(165 30% 12%);
   --color-sidebar-foreground: hsl(160 10% 85%);
   --color-sidebar-primary: hsl(160 50% 55%);
   --color-sidebar-primary-foreground: hsl(0 0% 100%);
