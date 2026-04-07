@@ -1,45 +1,14 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-    <!-- Meta tags para controle de cache -->
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-    <meta http-equiv="Pragma" content="no-cache" />
-    <meta http-equiv="Expires" content="0" />
-
-    <title>SINGEM - Login</title>
-
-    <script src="js/ui/themeBoot.js"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
-    <link rel="preconnect" href="https://unpkg.com" crossorigin />
-    <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
-    />
-    <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
-    />
-    <link rel="icon" type="image/svg+xml" href="img/favicon.svg" />
-    <link rel="stylesheet" href="css/style.css" />
-    <link rel="stylesheet" href="css/tailwind.css" />
-    <link rel="stylesheet" href="css/login-bootstrap.css" />
+    <title>SINGEM - Sistema Inteligente de Gestão de Materiais</title>
+    <meta name="description" content="SINGEM - Sistema de gestão de materiais, patrimônio, transportes e serviços gerais do IF Baiano" />
+    <link rel="icon" type="image/svg+xml" href="/img/favicon.svg" />
   </head>
-  <body data-page="login" class="antialiased">
-    <div id="loginSplash" class="login-splash" role="status" aria-live="polite">
-      <div class="login-splash__card">
-        <div class="login-splash__spinner" aria-hidden="true"></div>
-        <p id="loginSplashText">Inicializando autenticação...</p>
-      </div>
-    </div>
-
-    <div id="login-app" class="login-app" hidden></div>
-    <div id="app" hidden></div>
-
-    <script type="module" src="js/auth/login-bootstrap.js"></script>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
