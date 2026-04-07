@@ -1,10 +1,10 @@
 import { useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "../../components/ui/card";
+import { Button } from "../../components/ui/button";
+import { Input } from "../../components/ui/input";
+import { Badge } from "../../components/ui/badge";
 import { Plus, Search, FileText } from "lucide-react";
-import type { ModuloId } from "@/types";
+import type { ModuloId } from "../../types";
 
 const MOCK_EMPENHOS = [
   { id: '1', numero: '2026NE000045', fornecedor: 'Distribuidora Alpha', cnpj: '12.345.678/0001-90', valor: 15000, status: 'ativo' as const, objeto: 'Material de escritório' },

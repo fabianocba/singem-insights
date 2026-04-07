@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "../../components/ui/card";
+import { Input } from "../../components/ui/input";
+import { Badge } from "../../components/ui/badge";
 import { Search, ArrowUpDown } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "../../components/ui/button";
 
 const MOCK_ESTOQUE = [
   { id: '1', codigo: '339030-07-001', descricao: 'Papel A4 500fls', unidade: 'Resma', saldoAnterior: 100, entradas: 50, saidas: 30, saldoAtual: 120, subElemento: '07', valorMedio: 22.50 },

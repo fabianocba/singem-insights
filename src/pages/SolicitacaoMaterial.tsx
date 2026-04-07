@@ -1,10 +1,10 @@
 import { useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "../../components/ui/card";
+import { Button } from "../../components/ui/button";
+import { Input } from "../../components/ui/input";
+import { Badge } from "../../components/ui/badge";
 import { Plus, Search, ClipboardList } from "lucide-react";
-import type { ModuloId } from "@/types";
+import type { ModuloId } from "../../types";
 
 const MOCK_SMS = [
   { id: '1', numero: 'SM-2026-001', solicitante: 'João Silva', setor: 'Coordenação de TI', data: '2026-04-01', status: 'enviada' as const, qtdItens: 3 },

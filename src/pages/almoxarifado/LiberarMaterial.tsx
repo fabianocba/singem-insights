@@ -1,7 +1,7 @@
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent } from "../../components/ui/card";
 import { ClipboardList, Check } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Badge } from "../../components/ui/badge";
+import { Button } from "../../components/ui/button";
 
 const MOCK_PENDENTES = [
   { id: '1', numero: 'SM-2026-001', solicitante: 'João Silva', setor: 'TI', data: '2026-04-01', qtdItens: 3, status: 'autorizada' },
