@@ -1,7 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Landmark, FileText, Receipt, ClipboardList } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
-import { CardHeader, CardTitle } from "@/components/ui/card";
 
 const kpis = [
   { label: 'Bens Tombados', value: '342', icon: Landmark, color: 'text-blue-600' },
