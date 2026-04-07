@@ -2,90 +2,63 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap');
 
-@layer base {
-  :root {
-    --background: 0 0% 98%;
-    --foreground: 160 15% 10%;
-    --card: 0 0% 100%;
-    --card-foreground: 160 15% 10%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 160 15% 10%;
-    --primary: 165 38% 32%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 160 10% 92%;
-    --secondary-foreground: 160 15% 20%;
-    --muted: 160 10% 95%;
-    --muted-foreground: 160 5% 45%;
-    --accent: 39 48% 65%;
-    --accent-foreground: 39 60% 20%;
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 100%;
-    --success: 160 82% 34%;
-    --success-foreground: 0 0% 100%;
-    --warning: 36 65% 48%;
-    --warning-foreground: 0 0% 100%;
-    --info: 192 75% 34%;
-    --info-foreground: 0 0% 100%;
-    --border: 160 10% 88%;
-    --input: 160 10% 88%;
-    --ring: 165 38% 32%;
-    --radius: 0.5rem;
+@theme {
+  --color-border: hsl(160 10% 88%);
+  --color-input: hsl(160 10% 88%);
+  --color-ring: hsl(165 38% 32%);
+  --color-background: hsl(0 0% 98%);
+  --color-foreground: hsl(160 15% 10%);
 
-    --sidebar-background: 165 30% 12%;
-    --sidebar-foreground: 160 10% 85%;
-    --sidebar-primary: 160 50% 55%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 165 25% 18%;
-    --sidebar-accent-foreground: 160 10% 90%;
-    --sidebar-border: 165 20% 20%;
-    --sidebar-ring: 165 38% 32%;
-  }
+  --color-primary: hsl(165 38% 32%);
+  --color-primary-foreground: hsl(0 0% 100%);
+  --color-secondary: hsl(160 10% 92%);
+  --color-secondary-foreground: hsl(160 15% 20%);
+  --color-muted: hsl(160 10% 95%);
+  --color-muted-foreground: hsl(160 5% 45%);
+  --color-accent: hsl(39 48% 65%);
+  --color-accent-foreground: hsl(39 60% 20%);
+  --color-destructive: hsl(0 84% 60%);
+  --color-destructive-foreground: hsl(0 0% 100%);
+  --color-success: hsl(160 82% 34%);
+  --color-success-foreground: hsl(0 0% 100%);
+  --color-warning: hsl(36 65% 48%);
+  --color-warning-foreground: hsl(0 0% 100%);
+  --color-info: hsl(192 75% 34%);
+  --color-info-foreground: hsl(0 0% 100%);
 
-  .dark {
-    --background: 160 15% 8%;
-    --foreground: 160 5% 90%;
-    --card: 160 15% 10%;
-    --card-foreground: 160 5% 90%;
-    --popover: 160 15% 10%;
-    --popover-foreground: 160 5% 90%;
-    --primary: 160 50% 45%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 160 10% 18%;
-    --secondary-foreground: 160 5% 80%;
-    --muted: 160 10% 15%;
-    --muted-foreground: 160 5% 55%;
-    --accent: 39 48% 55%;
-    --accent-foreground: 39 60% 95%;
-    --destructive: 0 62% 50%;
-    --destructive-foreground: 0 0% 100%;
-    --success: 160 70% 40%;
-    --success-foreground: 0 0% 100%;
-    --warning: 36 65% 48%;
-    --warning-foreground: 0 0% 100%;
-    --info: 192 65% 40%;
-    --info-foreground: 0 0% 100%;
-    --border: 160 10% 20%;
-    --input: 160 10% 20%;
-    --ring: 160 50% 45%;
+  --color-card: hsl(0 0% 100%);
+  --color-card-foreground: hsl(160 15% 10%);
+  --color-popover: hsl(0 0% 100%);
+  --color-popover-foreground: hsl(160 15% 10%);
 
-    --sidebar-background: 165 30% 8%;
-    --sidebar-foreground: 160 10% 80%;
-    --sidebar-primary: 160 50% 50%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 165 25% 14%;
-    --sidebar-accent-foreground: 160 10% 85%;
-    --sidebar-border: 165 20% 15%;
-    --sidebar-ring: 160 50% 45%;
-  }
+  --color-sidebar: hsl(165 30% 12%);
+  --color-sidebar-foreground: hsl(160 10% 85%);
+  --color-sidebar-primary: hsl(160 50% 55%);
+  --color-sidebar-primary-foreground: hsl(0 0% 100%);
+  --color-sidebar-accent: hsl(165 25% 18%);
+  --color-sidebar-accent-foreground: hsl(160 10% 90%);
+  --color-sidebar-border: hsl(165 20% 20%);
+  --color-sidebar-ring: hsl(165 38% 32%);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
 }
 
-@layer base {
-  * { @apply border-border; }
-  body {
-    @apply bg-background text-foreground;
-    font-family: 'Inter', sans-serif;
-  }
-  h1, h2, h3, h4, h5, h6 {
-    font-family: 'Plus Jakarta Sans', sans-serif;
-  }
+:root {
+  --radius: 0.5rem;
+}
+
+* {
+  border-color: var(--color-border);
+}
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  font-family: 'Inter', sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Plus Jakarta Sans', sans-serif;
 }
