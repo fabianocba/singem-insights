@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Settings, Users, Building2, Bell } from "lucide-react";
+import { Users, Building2, Bell } from "lucide-react";
 
 export default function Configuracoes() {
   return (

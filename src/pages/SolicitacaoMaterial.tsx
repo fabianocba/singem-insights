@@ -16,7 +16,7 @@ const statusColors: Record<string, string> = {
   rascunho: 'secondary', enviada: 'warning', autorizada: 'success', rejeitada: 'destructive', atendida: 'default', parcial: 'warning',
 };
 
-export default function SolicitacaoMaterial({ modulo }: { modulo: ModuloId }) {
+export default function SolicitacaoMaterial({ modulo: _modulo }: { modulo: ModuloId }) {
   const [busca, setBusca] = useState('');
   // Simulando perfil: gestor vê todas, usuário só as suas
   const perfilSimulado = 'gestor';

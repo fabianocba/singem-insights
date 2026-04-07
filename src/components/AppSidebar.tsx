@@ -5,8 +5,8 @@ import type { ModuloId } from "@/types";
 import {
   Package, Landmark, Truck, Wrench, Settings,
   ChevronDown, ChevronRight, FileText, Receipt,
-  ClipboardList, BarChart3, BookOpen, PackageOpen,
-  Shield, Home
+  ClipboardList, BookOpen, PackageOpen,
+  Shield
 } from "lucide-react";
 
 interface AppSidebarProps {

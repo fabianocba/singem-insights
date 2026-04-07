@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { RotateCcw, TrendingDown, Settings } from "lucide-react";
+import { RotateCcw, TrendingDown } from "lucide-react";
 
 export default function AdmAlmoxarifado() {
   return (
