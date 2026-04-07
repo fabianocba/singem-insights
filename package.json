@@ -17,7 +17,7 @@
     "clean:legacy": "pwsh -NoProfile -ExecutionPolicy Bypass -File ./scripts/clean-legacy.ps1 -ProjectRoot .",
     "seed:simulacao:dry": "pwsh -NoProfile -ExecutionPolicy Bypass -File ./scripts/seed-simulacao-realista.ps1 -ProjectRoot .",
     "seed:simulacao": "pwsh -NoProfile -ExecutionPolicy Bypass -File ./scripts/seed-simulacao-realista.ps1 -ProjectRoot . -Apply",
-    "dev": "npm run start",
+    "dev:legacy": "npm run start",
     "dev:start": "npm run start",
     "dev:stop": "npm run stop",
     "dev:rebuild": "npm run rebuild",
