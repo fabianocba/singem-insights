@@ -339,7 +339,7 @@ export default function Empenhos({ modulo }: { modulo: ModuloId }) {
                 <div><Label>Data de Emissão</Label><Input type="date" value={form.dataVencimento || ''} onChange={e => setForm(p => ({ ...p, dataVencimento: e.target.value }))} /></div>
                 <div><Label>Fornecedor *</Label><Input value={form.fornecedor || ''} onChange={e => setForm(p => ({ ...p, fornecedor: e.target.value }))} /></div>
                 <div><Label>CNPJ *</Label><Input placeholder="00.000.000/0000-00" value={form.cnpj || ''} onChange={e => setForm(p => ({ ...p, cnpj: e.target.value }))} /></div>
-                <div className="md:col-span-2"><Label>Objeto</Label><Input value={form.objeto || ''} onChange={e => setForm(p => ({ ...p, objeto: e.target.value }))} /></div>
+                <div className="md:col-span-2"><Label>Processo SUAP</Label><Input value={form.objeto || ''} onChange={e => setForm(p => ({ ...p, objeto: e.target.value }))} /></div>
                 <div>
                   <Label>Subelemento</Label>
                   <select className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm text-foreground" value={form.subElemento || ''} onChange={e => setForm(p => ({ ...p, subElemento: e.target.value }))}>
