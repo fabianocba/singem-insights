@@ -3,7 +3,7 @@ import { Card, CardContent } from "../../components/ui/card";
 import { Input } from "../../components/ui/input";
 import { Badge } from "../../components/ui/badge";
 import { Button } from "../../components/ui/button";
-import { Search, Plus, Eye, Edit2, Car, User, Fuel, Calendar } from "lucide-react";
+import { Search, Plus, Eye, Edit2, Car, User, Fuel } from "lucide-react";
 import {
   Dialog,
   DialogContent,
