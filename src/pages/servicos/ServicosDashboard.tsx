@@ -1,5 +1,5 @@
 import { Card, CardContent } from "../../components/ui/card";
-import { FileText, Receipt, ClipboardCheck, Wrench, Clock, CheckCircle, AlertTriangle, TrendingUp } from "lucide-react";
+import { FileText, Receipt, ClipboardCheck, Clock, CheckCircle, AlertTriangle, TrendingUp } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from "recharts";
 
 const kpis = [
