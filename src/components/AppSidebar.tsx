@@ -92,14 +92,11 @@ const modules: ModuleConfig[] = [
 export default function AppSidebar({ moduloAtivo }: AppSidebarProps) {
   const navigate = useNavigate();
   const location = useLocation();
-  const [expanded, setExpanded] = useState<Record<string, boolean>>(() => {
-    const init: Record<string, boolean> = {};
-    modules.forEach(m => { init[m.id] = m.id === moduloAtivo; });
-    return init;
-  });
+  const [expandedModule, setExpandedModule] = useState<string | null>(moduloAtivo || null);
 
-  const toggleModule = (id: string) => {
-    setExpanded(prev => ({ ...prev, [id]: !prev[id] }));
+  const handleModuleClick = (mod: ModuleConfig) => {
+    setExpandedModule(prev => prev === mod.id ? null : mod.id);
+    navigate(mod.dashboardPath);
   };
 
   const isActive = (path: string) => location.pathname === path;
