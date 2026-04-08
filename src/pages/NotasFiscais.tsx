@@ -804,73 +804,121 @@ export default function NotasFiscais({ modulo }: { modulo: ModuloId }) {
                 </div>
               )}
 
-              {/* ─── STEP 4: Validação de Itens ─── */}
+              {/* ─── STEP 4: Vinculação de Itens NF ↔ Empenho ─── */}
               {step === 'itens' && (
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="text-base font-semibold text-foreground">Validação dos Itens</h3>
-                      <p className="text-sm text-muted-foreground">
-                        Confira cada item e marque como validado. Você pode editar quantidades e valores.
-                      </p>
-                    </div>
-                    <Button size="sm" variant="outline" onClick={adicionarItem}>
-                      <Plus className="h-3 w-3 mr-1" />Adicionar Item
-                    </Button>
+                  <div>
+                    <h3 className="text-base font-semibold text-foreground">Associação de Itens — NF × Empenho</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Para cada item da nota fiscal, selecione o item correspondente do empenho.
+                      {empenhoSelecionado
+                        ? ` Empenho: ${empenhoSelecionado}`
+                        : ' Nenhum empenho selecionado — volte e vincule um empenho.'}
+                    </p>
                   </div>
 
-                  <div className="space-y-2">
-                    {formItens.map((item, idx) => (
-                      <div
-                        key={idx}
-                        className={`p-3 rounded-lg border transition-all ${
-                          item.validado
-                            ? 'border-green-500/30 bg-green-500/5'
-                            : 'border-border'
-                        }`}
-                      >
-                        <div className="grid grid-cols-12 gap-2 items-end">
-                          <div className="col-span-12 md:col-span-4">
-                            <Label className="text-xs">Descrição</Label>
-                            <Input value={item.descricao || ''} onChange={e => atualizarItem(idx, 'descricao', e.target.value)} className="h-9 text-sm" />
+                  <div className="space-y-3">
+                    {formItens.map((item, idx) => {
+                      const itemEmpVinculado = itensEmpenhoAtual.find(ei => ei.id === item.empenhoItemId);
+                      const valorDiverge = itemEmpVinculado && Math.abs(item.valorUnitario - itemEmpVinculado.valorUnitario) > 0.01;
+                      const qtdExcede = itemEmpVinculado && item.quantidade > itemEmpVinculado.saldoDisponivel;
+
+                      return (
+                        <div
+                          key={idx}
+                          className={`p-4 rounded-lg border transition-all ${
+                            item.validado
+                              ? 'border-primary/40 bg-primary/5'
+                              : valorDiverge || qtdExcede
+                              ? 'border-destructive/40 bg-destructive/5'
+                              : 'border-border'
+                          }`}
+                        >
+                          {/* Item da NF (read-only) */}
+                          <div className="flex items-start gap-3 mb-3">
+                            <div className="w-6 h-6 rounded-full bg-muted flex items-center justify-center text-xs font-bold text-muted-foreground shrink-0 mt-0.5">
+                              {idx + 1}
+                            </div>
+                            <div className="flex-1 grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
+                              <div className="col-span-2">
+                                <span className="text-xs text-muted-foreground">Descrição NF</span>
+                                <p className="font-medium text-foreground">{item.descricao}</p>
+                              </div>
+                              <div>
+                                <span className="text-xs text-muted-foreground">Qtd</span>
+                                <p className="font-semibold text-foreground">{item.quantidade} {item.unidade}</p>
+                              </div>
+                              <div>
+                                <span className="text-xs text-muted-foreground">Vlr Unit.</span>
+                                <p className="font-semibold text-foreground">{fmt(item.valorUnitario)}</p>
+                              </div>
+                            </div>
                           </div>
-                          <div className="col-span-3 md:col-span-2">
-                            <Label className="text-xs">Unidade</Label>
-                            <Input value={item.unidade || ''} onChange={e => atualizarItem(idx, 'unidade', e.target.value)} className="h-9 text-sm" />
-                          </div>
-                          <div className="col-span-3 md:col-span-2">
-                            <Label className="text-xs">Qtd</Label>
-                            <Input type="number" value={item.quantidade || ''} onChange={e => atualizarItem(idx, 'quantidade', parseInt(e.target.value) || 0)} className="h-9 text-sm" />
-                          </div>
-                          <div className="col-span-3 md:col-span-2">
-                            <Label className="text-xs">Vlr Unit.</Label>
-                            <Input type="number" step="0.01" value={item.valorUnitario || ''} onChange={e => atualizarItem(idx, 'valorUnitario', parseFloat(e.target.value) || 0)} className="h-9 text-sm" />
-                          </div>
-                          <div className="col-span-3 md:col-span-2 flex gap-1 justify-end">
-                            <Button
-                              variant={item.validado ? "default" : "outline"}
-                              size="sm"
-                              className="h-9"
-                              onClick={() => toggleItemValidado(idx)}
-                              title={item.validado ? 'Desmarcar validação' : 'Validar item'}
-                            >
-                              <CheckCircle2 className={`h-4 w-4 ${item.validado ? '' : 'text-muted-foreground'}`} />
-                            </Button>
-                            <Button variant="ghost" size="icon" onClick={() => removerItem(idx)} className="h-9 w-9">
-                              <X className="h-3 w-3 text-destructive" />
-                            </Button>
+
+                          {/* Seletor de item do empenho */}
+                          {empenhoSelecionado && itensEmpenhoAtual.length > 0 ? (
+                            <div className="ml-9 space-y-2">
+                              <Label className="text-xs font-medium text-muted-foreground">
+                                Vincular ao item do empenho:
+                              </Label>
+                              <select
+                                className="w-full h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground"
+                                value={item.empenhoItemId || ''}
+                                onChange={e => vincularItemEmpenho(idx, e.target.value)}
+                              >
+                                <option value="">— Selecione o item do empenho —</option>
+                                {itensEmpenhoAtual.map(ei => {
+                                  const jaUsado = itensEmpenhoUsados.has(ei.id) && item.empenhoItemId !== ei.id;
+                                  return (
+                                    <option key={ei.id} value={ei.id} disabled={jaUsado}>
+                                      {ei.descricao} — {fmt(ei.valorUnitario)} — Saldo: {ei.saldoDisponivel} {ei.unidade}
+                                      {jaUsado ? ' (já vinculado)' : ''}
+                                    </option>
+                                  );
+                                })}
+                              </select>
+
+                              {/* Feedback de vinculação */}
+                              {itemEmpVinculado && (
+                                <div className="space-y-1 text-xs">
+                                  <div className="flex items-center gap-4">
+                                    <span className="text-muted-foreground">Empenho: {itemEmpVinculado.descricao}</span>
+                                  </div>
+                                  <div className="flex flex-wrap gap-3">
+                                    <span className={`flex items-center gap-1 ${valorDiverge ? 'text-destructive font-medium' : 'text-primary'}`}>
+                                      {valorDiverge ? <AlertTriangle className="h-3 w-3" /> : <CheckCircle2 className="h-3 w-3" />}
+                                      Valor: {fmt(itemEmpVinculado.valorUnitario)}
+                                      {valorDiverge && ` (NF: ${fmt(item.valorUnitario)})`}
+                                    </span>
+                                    <span className={`flex items-center gap-1 ${qtdExcede ? 'text-destructive font-medium' : 'text-primary'}`}>
+                                      {qtdExcede ? <AlertTriangle className="h-3 w-3" /> : <CheckCircle2 className="h-3 w-3" />}
+                                      Saldo: {itemEmpVinculado.saldoDisponivel} {itemEmpVinculado.unidade}
+                                      {qtdExcede && ` (NF pede ${item.quantidade})`}
+                                    </span>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          ) : (
+                            <div className="ml-9 text-xs text-muted-foreground italic">
+                              Vincule um empenho na etapa anterior para associar itens.
+                            </div>
+                          )}
+
+                          {/* Status line */}
+                          <div className="flex justify-between mt-3 ml-9 text-xs">
+                            <span className={item.validado ? 'text-primary font-medium' : 'text-muted-foreground'}>
+                              {item.validado ? '✓ Item associado e validado' :
+                               item.empenhoItemId && (valorDiverge || qtdExcede) ? '✗ Divergência — corrija antes de avançar' :
+                               'Aguardando associação'}
+                            </span>
+                            <span className="font-medium text-foreground">
+                              Subtotal: {fmt((item.quantidade || 0) * (item.valorUnitario || 0))}
+                            </span>
                           </div>
                         </div>
-                        <div className="flex justify-between mt-2 text-xs">
-                          <span className={item.validado ? 'text-green-600 dark:text-green-400 font-medium' : 'text-muted-foreground'}>
-                            {item.validado ? '✓ Item validado' : 'Aguardando validação'}
-                          </span>
-                          <span className="font-medium text-foreground">
-                            Subtotal: {fmt((item.quantidade || 0) * (item.valorUnitario || 0))}
-                          </span>
-                        </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
 
                   <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
