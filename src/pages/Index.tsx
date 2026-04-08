@@ -19,7 +19,7 @@ export default function Index() {
           SG
         </div>
         <h1 className="text-3xl font-bold text-foreground">SINGEM</h1>
-        <p className="text-muted-foreground mt-1">Sistema Inteligente de Gestão de Materiais — IF Baiano</p>
+        <p className="text-muted-foreground mt-1">Sistema Inteligente de Gestão de Materiais e Logística</p>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 max-w-6xl w-full">
