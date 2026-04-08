@@ -228,6 +228,53 @@ function simulateFornecedor(cnpjRaw: string) {
     'Fornecedor não cadastrado';
 }
 
+// ── XML Parser ─────────────────────────────────────
+function parseXmlNFe(xmlText: string): { form: Partial<NotaFiscal>; itens: ItemNF[] } | null {
+  try {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(xmlText, 'text/xml');
+    const getTag = (tag: string, ctx: Element | Document = doc): string =>
+      ctx.getElementsByTagName(tag)[0]?.textContent?.trim() || '';
+
+    const chave = getTag('chNFe');
+    const numero = getTag('nNF');
+    const serie = getTag('serie');
+    const dataEmissao = getTag('dhEmi').substring(0, 10) || getTag('dEmi');
+    const valorTotal = parseFloat(getTag('vNF')) || 0;
+
+    const emitNode = doc.getElementsByTagName('emit')[0];
+    const fornecedor = emitNode ? (getTag('xNome', emitNode) || getTag('xFant', emitNode)) : '';
+    const cnpjRaw = emitNode ? getTag('CNPJ', emitNode) : '';
+    const cnpj = cnpjRaw.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/, '$1.$2.$3/$4-$5');
+
+    const detNodes = doc.getElementsByTagName('det');
+    const itens: ItemNF[] = [];
+    for (let i = 0; i < detNodes.length; i++) {
+      const det = detNodes[i] as Element;
+      const prod = det.getElementsByTagName('prod')[0];
+      if (!prod) continue;
+      itens.push({
+        id: `xml-${Date.now()}-${i}`,
+        descricao: getTag('xProd', prod),
+        unidade: getTag('uCom', prod),
+        quantidade: parseFloat(getTag('qCom', prod)) || 0,
+        valorUnitario: parseFloat(getTag('vUnCom', prod)) || 0,
+        catmat: getTag('cProd', prod),
+        validado: false,
+      });
+    }
+
+    if (!numero && itens.length === 0) return null;
+
+    return {
+      form: { numero, serie, fornecedor, cnpj, dataEmissao, chaveNFe: chave, valor: valorTotal, status: 'pendente' as StatusNF },
+      itens,
+    };
+  } catch {
+    return null;
+  }
+}
+
 // ════════════════════════════════════════════════════
 // STEP INDICATORS
 // ════════════════════════════════════════════════════
