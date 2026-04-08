@@ -3,7 +3,7 @@ import { Card, CardContent } from "../components/ui/card";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Badge } from "../components/ui/badge";
-import { Plus, Search, Receipt, Eye, Edit2, Check, X, Filter, ScanBarcode, ArrowRight, ArrowLeft, Link2, CheckCircle2, AlertTriangle, Loader2, Upload, FileText, Trash2, Download } from "lucide-react";
+import { Plus, Search, Receipt, Eye, Edit2, Check, X, Filter, ScanBarcode, ArrowRight, ArrowLeft, Link2, CheckCircle2, AlertTriangle, Loader2, Upload, FileText, Trash2, Download, FileCode2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -228,6 +228,53 @@ function simulateFornecedor(cnpjRaw: string) {
     'Fornecedor não cadastrado';
 }
 
+// ── XML Parser ─────────────────────────────────────
+function parseXmlNFe(xmlText: string): { form: Partial<NotaFiscal>; itens: ItemNF[] } | null {
+  try {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(xmlText, 'text/xml');
+    const getTag = (tag: string, ctx: Element | Document = doc): string =>
+      ctx.getElementsByTagName(tag)[0]?.textContent?.trim() || '';
+
+    const chave = getTag('chNFe');
+    const numero = getTag('nNF');
+    const serie = getTag('serie');
+    const dataEmissao = getTag('dhEmi').substring(0, 10) || getTag('dEmi');
+    const valorTotal = parseFloat(getTag('vNF')) || 0;
+
+    const emitNode = doc.getElementsByTagName('emit')[0];
+    const fornecedor = emitNode ? (getTag('xNome', emitNode) || getTag('xFant', emitNode)) : '';
+    const cnpjRaw = emitNode ? getTag('CNPJ', emitNode) : '';
+    const cnpj = cnpjRaw.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/, '$1.$2.$3/$4-$5');
+
+    const detNodes = doc.getElementsByTagName('det');
+    const itens: ItemNF[] = [];
+    for (let i = 0; i < detNodes.length; i++) {
+      const det = detNodes[i] as Element;
+      const prod = det.getElementsByTagName('prod')[0];
+      if (!prod) continue;
+      itens.push({
+        id: `xml-${Date.now()}-${i}`,
+        descricao: getTag('xProd', prod),
+        unidade: getTag('uCom', prod),
+        quantidade: parseFloat(getTag('qCom', prod)) || 0,
+        valorUnitario: parseFloat(getTag('vUnCom', prod)) || 0,
+        catmat: getTag('cProd', prod),
+        validado: false,
+      });
+    }
+
+    if (!numero && itens.length === 0) return null;
+
+    return {
+      form: { numero, serie, fornecedor, cnpj, dataEmissao, chaveNFe: chave, valor: valorTotal, status: 'pendente' as StatusNF },
+      itens,
+    };
+  } catch {
+    return null;
+  }
+}
+
 // ════════════════════════════════════════════════════
 // STEP INDICATORS
 // ════════════════════════════════════════════════════
@@ -284,6 +331,8 @@ export default function NotasFiscais({ modulo }: { modulo: ModuloId }) {
   const chaveRef = useRef<HTMLInputElement>(null);
   const pdfInputRef = useRef<HTMLInputElement>(null);
   const [pdfFile, setPdfFile] = useState<File | null>(null);
+  const [modoEntrada, setModoEntrada] = useState<'chave' | 'xml'>('chave');
+  const xmlInputRef = useRef<HTMLInputElement>(null);
 
   const nfsFiltradas = nfs.filter(nf => {
     const matchBusca = nf.numero.includes(busca) || nf.fornecedor.toLowerCase().includes(busca.toLowerCase()) || nf.empenhoNumero.toLowerCase().includes(busca.toLowerCase());
@@ -309,6 +358,7 @@ export default function NotasFiscais({ modulo }: { modulo: ModuloId }) {
     setEmpenhoSelecionado('');
     setBuscaEmpenho('');
     setPdfFile(null);
+    setModoEntrada('chave');
     setDialogAberto(true);
     setTimeout(() => chaveRef.current?.focus(), 200);
   }
@@ -373,6 +423,33 @@ export default function NotasFiscais({ modulo }: { modulo: ModuloId }) {
       setChaveValida(null);
     }
   }, []);
+
+  function processarXml(file: File) {
+    setLendo(true);
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const xmlText = e.target?.result as string;
+      const result = parseXmlNFe(xmlText);
+      if (result) {
+        setForm(result.form);
+        setFormItens(result.itens);
+        setChaveInput(result.form.chaveNFe || '');
+        setChaveValida(true);
+        toast.success('XML importado com sucesso!', {
+          description: `NF ${result.form.numero} — ${result.form.fornecedor} — ${fmt(result.form.valor || 0)}`,
+        });
+        setTimeout(() => setStep('revisao'), 600);
+      } else {
+        toast.error('Erro ao ler XML', { description: 'Arquivo XML inválido ou não é uma NFe.' });
+      }
+      setLendo(false);
+    };
+    reader.onerror = () => {
+      toast.error('Erro ao ler arquivo');
+      setLendo(false);
+    };
+    reader.readAsText(file);
+  }
 
   function vincularItemEmpenho(idx: number, empenhoItemId: string) {
     const itensEmpenho = MOCK_EMPENHO_ITENS[empenhoSelecionado] || [];
@@ -637,67 +714,148 @@ export default function NotasFiscais({ modulo }: { modulo: ModuloId }) {
 
               <StepIndicator currentStep={step} />
 
-              {/* ─── STEP 1: Chave NFe ─── */}
+              {/* ─── STEP 1: Chave NFe / XML ─── */}
               {step === 'chave' && (
                 <div className="space-y-6">
-                  <div className="text-center space-y-3">
-                    <div className="mx-auto w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
-                      <ScanBarcode className="h-8 w-8 text-primary" />
-                    </div>
-                    <h3 className="text-lg font-semibold text-foreground">Leitura da Chave de Acesso NFe</h3>
-                    <p className="text-sm text-muted-foreground max-w-md mx-auto">
-                      Posicione o cursor no campo abaixo e utilize o leitor de código de barras para ler a chave da NFe.
-                      Os dados serão extraídos automaticamente.
-                    </p>
+                  {/* Tabs: Chave / XML */}
+                  <div className="flex gap-2 justify-center">
+                    <Button
+                      variant={modoEntrada === 'chave' ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => setModoEntrada('chave')}
+                      className="gap-2"
+                    >
+                      <ScanBarcode className="h-4 w-4" />
+                      Chave de Acesso
+                    </Button>
+                    <Button
+                      variant={modoEntrada === 'xml' ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => setModoEntrada('xml')}
+                      className="gap-2"
+                    >
+                      <FileCode2 className="h-4 w-4" />
+                      Importar XML
+                    </Button>
                   </div>
 
-                  <div className="max-w-lg mx-auto space-y-4">
-                    <div>
-                      <Label className="text-sm font-medium">Chave de Acesso NFe (44 dígitos)</Label>
-                      <div className="relative mt-1">
-                        <Input
-                          ref={chaveRef}
-                          value={chaveInput}
-                          onChange={e => processarChave(e.target.value)}
-                          placeholder="Escaneie ou cole a chave de 44 dígitos..."
-                          className={`font-mono text-center text-lg h-14 tracking-wider ${
-                            chaveValida === true ? 'border-green-500 bg-green-500/5' :
-                            chaveValida === false ? 'border-destructive bg-destructive/5' : ''
-                          }`}
-                          autoFocus
-                        />
-                        {lendo && (
-                          <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                            <Loader2 className="h-5 w-5 animate-spin text-primary" />
+                  {modoEntrada === 'chave' ? (
+                    <>
+                      <div className="text-center space-y-3">
+                        <div className="mx-auto w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
+                          <ScanBarcode className="h-8 w-8 text-primary" />
+                        </div>
+                        <h3 className="text-lg font-semibold text-foreground">Leitura da Chave de Acesso</h3>
+                        <p className="text-sm text-muted-foreground max-w-md mx-auto">
+                          Escaneie o código de barras ou cole a chave de 44 dígitos. Dados básicos serão extraídos (nº, série, CNPJ, data).
+                        </p>
+                      </div>
+
+                      <div className="max-w-lg mx-auto space-y-4">
+                        <div>
+                          <Label className="text-sm font-medium">Chave de Acesso NFe (44 dígitos)</Label>
+                          <div className="relative mt-1">
+                            <Input
+                              ref={chaveRef}
+                              value={chaveInput}
+                              onChange={e => processarChave(e.target.value)}
+                              placeholder="Escaneie ou cole a chave de 44 dígitos..."
+                              className={`font-mono text-center text-lg h-14 tracking-wider ${
+                                chaveValida === true ? 'border-green-500 bg-green-500/5' :
+                                chaveValida === false ? 'border-destructive bg-destructive/5' : ''
+                              }`}
+                              autoFocus
+                            />
+                            {lendo && (
+                              <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                                <Loader2 className="h-5 w-5 animate-spin text-primary" />
+                              </div>
+                            )}
+                          </div>
+                          <p className="text-xs text-muted-foreground mt-1 text-center">
+                            {chaveInput.replace(/\s/g, '').length}/44 dígitos {chaveInput.length !== chaveInput.replace(/\s/g, '').length && '(espaços ignorados)'}
+                          </p>
+                        </div>
+
+                        {chaveValida === true && (
+                          <div className="p-4 rounded-lg bg-primary/10 border border-primary/20 space-y-1">
+                            <div className="flex items-center gap-2 text-primary font-medium">
+                              <CheckCircle2 className="h-4 w-4" />
+                              Chave válida — dados extraídos
+                            </div>
+                            <p className="text-sm text-muted-foreground">
+                              NF {form.numero} · Série {form.serie} · {form.fornecedor} · UF {UF_NAMES[chaveInput.substring(0, 2)] || chaveInput.substring(0, 2)}
+                            </p>
+                          </div>
+                        )}
+
+                        {chaveValida === false && (
+                          <div className="p-4 rounded-lg bg-destructive/10 border border-destructive/20">
+                            <div className="flex items-center gap-2 text-destructive font-medium">
+                              <AlertTriangle className="h-4 w-4" />
+                              Chave inválida — verifique os dígitos
+                            </div>
                           </div>
                         )}
                       </div>
-                      <p className="text-xs text-muted-foreground mt-1 text-center">
-                        {chaveInput.replace(/\s/g, '').length}/44 dígitos {chaveInput.length !== chaveInput.replace(/\s/g, '').length && '(espaços ignorados)'}
-                      </p>
-                    </div>
-
-                    {chaveValida === true && (
-                      <div className="p-4 rounded-lg bg-green-500/10 border border-green-500/20 space-y-1">
-                        <div className="flex items-center gap-2 text-green-700 dark:text-green-400 font-medium">
-                          <CheckCircle2 className="h-4 w-4" />
-                          Chave válida — dados extraídos
+                    </>
+                  ) : (
+                    <>
+                      <div className="text-center space-y-3">
+                        <div className="mx-auto w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
+                          <FileCode2 className="h-8 w-8 text-primary" />
                         </div>
-                        <p className="text-sm text-muted-foreground">
-                          NF {form.numero} · Série {form.serie} · {form.fornecedor} · UF {UF_NAMES[chaveInput.substring(0, 2)] || chaveInput.substring(0, 2)}
+                        <h3 className="text-lg font-semibold text-foreground">Importar XML da NFe</h3>
+                        <p className="text-sm text-muted-foreground max-w-md mx-auto">
+                          Importe o arquivo XML da nota fiscal eletrônica para extrair <strong>todos os dados automaticamente</strong>:
+                          fornecedor, valor total, itens com descrição e quantidades.
                         </p>
                       </div>
-                    )}
 
-                    {chaveValida === false && (
-                      <div className="p-4 rounded-lg bg-destructive/10 border border-destructive/20">
-                        <div className="flex items-center gap-2 text-destructive font-medium">
-                          <AlertTriangle className="h-4 w-4" />
-                          Chave inválida — verifique os dígitos
-                        </div>
+                      <div className="max-w-lg mx-auto">
+                        <label className="flex flex-col items-center justify-center p-8 border-2 border-dashed border-border rounded-lg cursor-pointer hover:border-primary/50 hover:bg-muted/20 transition-colors">
+                          <Upload className="h-10 w-10 text-muted-foreground mb-3" />
+                          <p className="text-sm font-medium text-foreground">Clique para selecionar o XML da NFe</p>
+                          <p className="text-xs text-muted-foreground mt-1">Arquivo .xml da nota fiscal eletrônica</p>
+                          <input
+                            ref={xmlInputRef}
+                            type="file"
+                            accept=".xml"
+                            className="hidden"
+                            onChange={e => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                if (!file.name.toLowerCase().endsWith('.xml')) {
+                                  toast.error('Formato inválido', { description: 'Selecione um arquivo .xml' });
+                                  return;
+                                }
+                                processarXml(file);
+                              }
+                            }}
+                          />
+                        </label>
+
+                        {lendo && (
+                          <div className="flex items-center justify-center gap-2 mt-4 text-primary">
+                            <Loader2 className="h-5 w-5 animate-spin" />
+                            <span className="text-sm font-medium">Processando XML...</span>
+                          </div>
+                        )}
+
+                        {chaveValida === true && (
+                          <div className="p-4 rounded-lg bg-primary/10 border border-primary/20 space-y-1 mt-4">
+                            <div className="flex items-center gap-2 text-primary font-medium">
+                              <CheckCircle2 className="h-4 w-4" />
+                              XML importado — dados completos extraídos
+                            </div>
+                            <p className="text-sm text-muted-foreground">
+                              NF {form.numero} · {form.fornecedor} · {fmt(form.valor || 0)} · {formItens.length} itens
+                            </p>
+                          </div>
+                        )}
                       </div>
-                    )}
-                  </div>
+                    </>
+                  )}
 
                   <div className="flex justify-between">
                     <Button variant="outline" onClick={() => setDialogAberto(false)}>Cancelar</Button>
