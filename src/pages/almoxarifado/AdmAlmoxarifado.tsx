@@ -4,7 +4,7 @@ import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import { Badge } from "../../components/ui/badge";
 import { Label } from "../../components/ui/label";
-import { RotateCcw, TrendingDown, Search, Settings, History, AlertTriangle } from "lucide-react";
+import { RotateCcw, TrendingDown, Search, History, AlertTriangle } from "lucide-react";
 import {
   Dialog,
   DialogContent,

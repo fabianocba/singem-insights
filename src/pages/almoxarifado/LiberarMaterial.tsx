@@ -4,7 +4,7 @@ import { Badge } from "../../components/ui/badge";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import { Label } from "../../components/ui/label";
-import { ClipboardList, Check, Eye, Search, Package, X } from "lucide-react";
+import { ClipboardList, Check, Search, Package } from "lucide-react";
 import {
   Dialog,
   DialogContent,
