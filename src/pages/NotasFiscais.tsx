@@ -88,7 +88,32 @@ function parseChaveNFe(chave: string) {
   };
 }
 
-// ── Mock empenhos for linking ──────────────────────
+// ── Mock empenho items ─────────────────────────────
+const MOCK_EMPENHO_ITENS: Record<string, ItemEmpenhoMock[]> = {
+  '2026NE000045': [
+    { id: 'ei1', descricao: 'Papel A4 Chamex 500 folhas', unidade: 'Resma', quantidade: 200, valorUnitario: 24.90, saldoDisponivel: 120 },
+    { id: 'ei2', descricao: 'Caneta esferográfica azul caixa c/12', unidade: 'Cx', quantidade: 100, valorUnitario: 18.50, saldoDisponivel: 60 },
+    { id: 'ei3', descricao: 'Grampeador 26/6 metal', unidade: 'Un', quantidade: 80, valorUnitario: 32.00, saldoDisponivel: 40 },
+    { id: 'ei4', descricao: 'Clips niquelado nº3 cx c/100', unidade: 'Cx', quantidade: 200, valorUnitario: 4.50, saldoDisponivel: 150 },
+    { id: 'ei5', descricao: 'Envelope pardo A4 cx c/100', unidade: 'Cx', quantidade: 50, valorUnitario: 35.00, saldoDisponivel: 30 },
+  ],
+  '2026NE000046': [
+    { id: 'ei6', descricao: 'Toner HP 85A compatível', unidade: 'Un', quantidade: 50, valorUnitario: 89.00, saldoDisponivel: 30 },
+    { id: 'ei7', descricao: 'Mouse USB óptico Logitech', unidade: 'Un', quantidade: 200, valorUnitario: 45.00, saldoDisponivel: 100 },
+    { id: 'ei8', descricao: 'Teclado USB padrão ABNT2', unidade: 'Un', quantidade: 150, valorUnitario: 62.00, saldoDisponivel: 80 },
+    { id: 'ei9', descricao: 'Hub USB 4 portas', unidade: 'Un', quantidade: 100, valorUnitario: 45.00, saldoDisponivel: 50 },
+  ],
+  '2026NE000047': [
+    { id: 'ei10', descricao: 'Papel ofício A4 500 folhas', unidade: 'Resma', quantidade: 300, valorUnitario: 28.00, saldoDisponivel: 200 },
+    { id: 'ei11', descricao: 'Envelope pardo A4 caixa', unidade: 'Cx', quantidade: 100, valorUnitario: 35.00, saldoDisponivel: 60 },
+    { id: 'ei12', descricao: 'Pasta suspensa caixa c/50', unidade: 'Cx', quantidade: 80, valorUnitario: 42.00, saldoDisponivel: 50 },
+  ],
+  '2026NE000048': [
+    { id: 'ei13', descricao: 'Papel A4 Chamex 500fls', unidade: 'Resma', quantidade: 100, valorUnitario: 24.90, saldoDisponivel: 100 },
+    { id: 'ei14', descricao: 'Mouse USB óptico', unidade: 'Un', quantidade: 50, valorUnitario: 28.00, saldoDisponivel: 50 },
+  ],
+};
+
 const MOCK_EMPENHOS = [
   { numero: '2026NE000045', fornecedor: 'Distribuidora Alpha', cnpj: '12.345.678/0001-90', valor: 12000, saldo: 4500 },
   { numero: '2026NE000046', fornecedor: 'Tech Supplies LTDA', cnpj: '98.765.432/0001-10', valor: 25000, saldo: 11000 },
