@@ -1,11 +1,12 @@
 import { useNavigate } from "react-router-dom";
-import { Package, Landmark, Truck, Wrench } from "lucide-react";
+import { Package, Landmark, Truck, Wrench, Send } from "lucide-react";
 
 const modules = [
   { id: 'almoxarifado', label: 'Almoxarifado', desc: 'Material de Consumo (339030)', icon: Package, color: 'bg-emerald-600 hover:bg-emerald-700', path: '/almoxarifado' },
   { id: 'patrimonio', label: 'Patrimônio', desc: 'Equipamentos e Material Permanente (449052)', icon: Landmark, color: 'bg-blue-600 hover:bg-blue-700', path: '/patrimonio' },
-  { id: 'transportes', label: 'Transportes', desc: 'Cadastro, Manutenção e Solicitações', icon: Truck, color: 'bg-amber-600 hover:bg-amber-700', path: '/transportes' },
+  { id: 'transportes', label: 'Transportes', desc: 'Cadastro, Manutenção e Gestão', icon: Truck, color: 'bg-amber-600 hover:bg-amber-700', path: '/transportes' },
   { id: 'servicos', label: 'Serviços Gerais', desc: 'Contratos e Ordens de Serviço', icon: Wrench, color: 'bg-purple-600 hover:bg-purple-700', path: '/servicos' },
+  { id: 'solicitacoes', label: 'Solicitações', desc: 'SM, Transportes e Ordens de Serviço', icon: Send, color: 'bg-cyan-600 hover:bg-cyan-700', path: '/solicitacoes' },
 ];
 
 export default function Index() {
@@ -21,7 +22,7 @@ export default function Index() {
         <p className="text-muted-foreground mt-1">Sistema Inteligente de Gestão de Materiais — IF Baiano</p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-5xl w-full">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 max-w-6xl w-full">
         {modules.map((mod) => (
           <button
             key={mod.id}
