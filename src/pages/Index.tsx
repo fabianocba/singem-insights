@@ -16,7 +16,7 @@ export default function Index() {
     <div className="min-h-screen bg-background flex flex-col items-center justify-center p-8">
       <div className="text-center mb-12">
         <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary text-primary-foreground font-bold text-2xl mb-4">
-          SI
+          SG
         </div>
         <h1 className="text-3xl font-bold text-foreground">SINGEM</h1>
         <p className="text-muted-foreground mt-1">Sistema Inteligente de Gestão de Materiais — IF Baiano</p>
