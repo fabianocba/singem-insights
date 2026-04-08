@@ -432,7 +432,7 @@ export default function NotasFiscais({ modulo }: { modulo: ModuloId }) {
     const novaNF: NotaFiscal = {
       ...form,
       id: form.id || `nf${Date.now()}`,
-      valor: valorTotalNF,
+      valor: form.valor || valorTotalNF,
       itens: formItens,
       empenhoNumero: empenhoSelecionado,
       dataEntrada: new Date().toISOString().slice(0, 10),
