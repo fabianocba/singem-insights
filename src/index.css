@@ -29,13 +29,14 @@
   --color-popover: hsl(0 0% 100%);
   --color-popover-foreground: hsl(160 15% 10%);
 
+  --color-sidebar: hsl(165 30% 12%);
   --color-sidebar-background: hsl(165 30% 12%);
   --color-sidebar-foreground: hsl(160 10% 85%);
   --color-sidebar-primary: hsl(160 50% 55%);
   --color-sidebar-primary-foreground: hsl(0 0% 100%);
   --color-sidebar-accent: hsl(165 25% 18%);
-  --color-sidebar-accent-foreground: hsl(160 10% 90%);
-  --color-sidebar-border: hsl(165 20% 20%);
+  --color-sidebar-accent-foreground: hsl(160 10% 95%);
+  --color-sidebar-border: hsl(165 20% 22%);
   --color-sidebar-ring: hsl(165 38% 32%);
 
   --radius-sm: 0.25rem;
