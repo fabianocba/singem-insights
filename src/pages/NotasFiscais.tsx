@@ -3,7 +3,7 @@ import { Card, CardContent } from "../components/ui/card";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Badge } from "../components/ui/badge";
-import { Plus, Search, Receipt, Eye, Edit2, Check, X, Filter, ScanBarcode, ArrowRight, ArrowLeft, Link2, CheckCircle2, AlertTriangle, Loader2 } from "lucide-react";
+import { Plus, Search, Receipt, Eye, Edit2, Check, X, Filter, ScanBarcode, ArrowRight, ArrowLeft, Link2, CheckCircle2, AlertTriangle, Loader2, Upload, FileText, Trash2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -42,6 +42,8 @@ interface NotaFiscal {
   status: StatusNF;
   itens: ItemNF[];
   observacao: string;
+  pdfNome?: string;
+  pdfUrl?: string;
 }
 
 type StepRegistro = 'chave' | 'revisao' | 'empenho' | 'itens' | 'validacao';
@@ -234,6 +236,8 @@ export default function NotasFiscais({ modulo }: { modulo: ModuloId }) {
   const [empenhoSelecionado, setEmpenhoSelecionado] = useState<string>('');
   const [buscaEmpenho, setBuscaEmpenho] = useState('');
   const chaveRef = useRef<HTMLInputElement>(null);
+  const pdfInputRef = useRef<HTMLInputElement>(null);
+  const [pdfFile, setPdfFile] = useState<File | null>(null);
 
   const nfsFiltradas = nfs.filter(nf => {
     const matchBusca = nf.numero.includes(busca) || nf.fornecedor.toLowerCase().includes(busca.toLowerCase()) || nf.empenhoNumero.toLowerCase().includes(busca.toLowerCase());
@@ -258,6 +262,7 @@ export default function NotasFiscais({ modulo }: { modulo: ModuloId }) {
     setChaveValida(null);
     setEmpenhoSelecionado('');
     setBuscaEmpenho('');
+    setPdfFile(null);
     setDialogAberto(true);
     setTimeout(() => chaveRef.current?.focus(), 200);
   }
@@ -365,6 +370,8 @@ export default function NotasFiscais({ modulo }: { modulo: ModuloId }) {
       empenhoNumero: empenhoSelecionado,
       dataEntrada: new Date().toISOString().slice(0, 10),
       status: empenhoSelecionado ? 'vinculada' : 'pendente',
+      pdfNome: pdfFile?.name || form.pdfNome,
+      pdfUrl: pdfFile ? URL.createObjectURL(pdfFile) : form.pdfUrl,
     } as NotaFiscal;
 
     if (form.id) {
@@ -856,6 +863,61 @@ export default function NotasFiscais({ modulo }: { modulo: ModuloId }) {
                     </div>
                   )}
 
+                  {/* PDF Upload */}
+                  <div className="border-t pt-4">
+                    <h4 className="text-sm font-semibold text-foreground mb-2 flex items-center gap-2">
+                      <FileText className="h-4 w-4" />
+                      PDF da Nota Fiscal
+                    </h4>
+                    {pdfFile ? (
+                      <div className="flex items-center justify-between p-3 bg-muted/30 rounded-lg border border-border">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                            <FileText className="h-5 w-5 text-primary" />
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium text-foreground">{pdfFile.name}</p>
+                            <p className="text-xs text-muted-foreground">
+                              {(pdfFile.size / 1024).toFixed(0)} KB
+                            </p>
+                          </div>
+                        </div>
+                        <Button variant="ghost" size="icon" onClick={() => setPdfFile(null)} title="Remover PDF">
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
+                      </div>
+                    ) : (
+                      <label
+                        className="flex flex-col items-center justify-center p-6 border-2 border-dashed border-border rounded-lg cursor-pointer hover:border-primary/50 hover:bg-muted/20 transition-colors"
+                      >
+                        <Upload className="h-8 w-8 text-muted-foreground mb-2" />
+                        <p className="text-sm font-medium text-foreground">Clique para anexar o PDF da NF</p>
+                        <p className="text-xs text-muted-foreground mt-1">PDF, máx. 10MB</p>
+                        <input
+                          ref={pdfInputRef}
+                          type="file"
+                          accept=".pdf"
+                          className="hidden"
+                          onChange={e => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              if (file.size > 10 * 1024 * 1024) {
+                                toast.error('Arquivo muito grande', { description: 'Máximo 10MB.' });
+                                return;
+                              }
+                              if (file.type !== 'application/pdf') {
+                                toast.error('Formato inválido', { description: 'Apenas arquivos PDF.' });
+                                return;
+                              }
+                              setPdfFile(file);
+                              toast.success('PDF anexado!', { description: file.name });
+                            }
+                          }}
+                        />
+                      </label>
+                    )}
+                  </div>
+
                   <div className="flex justify-between pt-2">
                     <Button variant="outline" onClick={() => setStep('itens')}>
                       <ArrowLeft className="h-4 w-4 mr-1" />Voltar
@@ -913,6 +975,28 @@ export default function NotasFiscais({ modulo }: { modulo: ModuloId }) {
                   </tbody>
                 </table>
               </div>
+
+              {/* PDF anexado */}
+              {detalhe.pdfNome && (
+                <div className="border-t pt-4">
+                  <p className="text-sm font-semibold text-foreground mb-2 flex items-center gap-2">
+                    <FileText className="h-4 w-4" /> PDF da Nota Fiscal
+                  </p>
+                  <div className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                        <FileText className="h-5 w-5 text-primary" />
+                      </div>
+                      <p className="text-sm font-medium text-foreground">{detalhe.pdfNome}</p>
+                    </div>
+                    {detalhe.pdfUrl && (
+                      <Button size="sm" variant="outline" onClick={() => window.open(detalhe.pdfUrl, '_blank')}>
+                        <Eye className="h-4 w-4 mr-1" />Visualizar
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              )}
 
               {/* Ações de aceite */}
               <DialogFooter className="flex-col sm:flex-row gap-2">
