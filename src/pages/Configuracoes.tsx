@@ -426,3 +426,167 @@ function TabNotificacoes() {
     </div>
   );
 }
+
+/* ═══════ ABA PREFERÊNCIAS VISUAIS ═══════════════════════ */
+type Tema = "light" | "dark" | "system";
+
+function TabPreferencias() {
+  const [tema, setTema] = useState<Tema>(() => {
+    return (localStorage.getItem("singem-tema") as Tema) || "light";
+  });
+  const [fontSize, setFontSize] = useState(() => localStorage.getItem("singem-fontsize") || "normal");
+  const [idioma, setIdioma] = useState(() => localStorage.getItem("singem-idioma") || "pt-BR");
+  const [sidebarCompacta, setSidebarCompacta] = useState(() => localStorage.getItem("singem-sidebar-compact") === "true");
+  const [animacoes, setAnimacoes] = useState(() => localStorage.getItem("singem-animacoes") !== "false");
+
+  const aplicarTema = (t: Tema) => {
+    setTema(t);
+    const root = document.documentElement;
+    if (t === "dark") {
+      root.classList.add("dark");
+    } else if (t === "light") {
+      root.classList.remove("dark");
+    } else {
+      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      root.classList.toggle("dark", prefersDark);
+    }
+    localStorage.setItem("singem-tema", t);
+  };
+
+  const salvar = () => {
+    localStorage.setItem("singem-fontsize", fontSize);
+    localStorage.setItem("singem-idioma", idioma);
+    localStorage.setItem("singem-sidebar-compact", String(sidebarCompacta));
+    localStorage.setItem("singem-animacoes", String(animacoes));
+    aplicarTema(tema);
+    toast.success("Preferências visuais salvas.");
+  };
+
+  const temaOpcoes: { value: Tema; label: string; icon: React.ReactNode; desc: string }[] = [
+    { value: "light", label: "Claro", icon: <Sun className="h-5 w-5" />, desc: "Tema claro padrão" },
+    { value: "dark", label: "Escuro", icon: <Moon className="h-5 w-5" />, desc: "Reduz o brilho da tela" },
+    { value: "system", label: "Sistema", icon: <Monitor className="h-5 w-5" />, desc: "Segue o SO" },
+  ];
+
+  return (
+    <div className="space-y-6">
+      {/* Tema */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-base">
+            <Palette className="h-5 w-5 text-primary" />Tema de Cores
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            {temaOpcoes.map(op => (
+              <button
+                key={op.value}
+                onClick={() => aplicarTema(op.value)}
+                className={cn(
+                  "flex items-center gap-3 p-4 rounded-lg border-2 transition-all text-left",
+                  tema === op.value
+                    ? "border-primary bg-primary/5"
+                    : "border-border hover:border-primary/40"
+                )}
+              >
+                <div className={cn(
+                  "p-2 rounded-md",
+                  tema === op.value ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+                )}>{op.icon}</div>
+                <div>
+                  <p className="font-medium text-sm">{op.label}</p>
+                  <p className="text-xs text-muted-foreground">{op.desc}</p>
+                </div>
+              </button>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Tipografia e Idioma */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Type className="h-5 w-5 text-primary" />Tipografia
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <Label>Tamanho da fonte</Label>
+              <Select value={fontSize} onValueChange={setFontSize}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="small">Pequena</SelectItem>
+                  <SelectItem value="normal">Normal</SelectItem>
+                  <SelectItem value="large">Grande</SelectItem>
+                  <SelectItem value="xlarge">Extra grande</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="p-3 rounded-md bg-muted/50 text-sm">
+              <p className={cn(
+                fontSize === "small" && "text-xs",
+                fontSize === "normal" && "text-sm",
+                fontSize === "large" && "text-base",
+                fontSize === "xlarge" && "text-lg",
+              )}>
+                Pré-visualização do tamanho selecionado. O Sistema Inteligente de Gestão de Materiais e Logística adapta a interface.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Languages className="h-5 w-5 text-primary" />Idioma
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <Label>Idioma do sistema</Label>
+              <Select value={idioma} onValueChange={setIdioma}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="pt-BR">Português (Brasil)</SelectItem>
+                  <SelectItem value="en">English</SelectItem>
+                  <SelectItem value="es">Español</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <p className="text-xs text-muted-foreground">Altera os rótulos e mensagens da interface. Dados cadastrais permanecem no idioma original.</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Opções extras */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-base">
+            <Monitor className="h-5 w-5 text-primary" />Interface
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium">Sidebar compacta</p>
+              <p className="text-xs text-muted-foreground">Reduz a largura do menu lateral</p>
+            </div>
+            <Switch checked={sidebarCompacta} onCheckedChange={(v: boolean) => setSidebarCompacta(v)} />
+          </div>
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium">Animações</p>
+              <p className="text-xs text-muted-foreground">Transições e efeitos visuais na interface</p>
+            </div>
+            <Switch checked={animacoes} onCheckedChange={(v: boolean) => setAnimacoes(v)} />
+          </div>
+        </CardContent>
+      </Card>
+
+      <Button onClick={salvar}><Save className="h-4 w-4 mr-1" />Salvar Preferências</Button>
+    </div>
+  );
+}
