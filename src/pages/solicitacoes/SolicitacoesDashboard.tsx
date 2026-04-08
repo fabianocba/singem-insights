@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card";
-import { ClipboardList, Package, Landmark, Truck, Wrench } from "lucide-react";
+import { Package, Landmark, Truck, Wrench } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 
 const kpis = [

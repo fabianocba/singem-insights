@@ -6,7 +6,7 @@ import {
   Package, Landmark, Truck, Wrench, Settings,
   ChevronDown, ChevronRight, FileText, Receipt,
   ClipboardList, BookOpen, PackageOpen,
-  Shield
+  Shield, Send
 } from "lucide-react";
 
 interface AppSidebarProps {
@@ -42,7 +42,6 @@ const modules: ModuleConfig[] = [
       { label: 'Catálogo', path: '/almoxarifado/catalogo', icon: BookOpen },
       { label: 'Liberar Material', path: '/almoxarifado/liberar-material', icon: ClipboardList },
       { label: 'ADM', path: '/almoxarifado/adm', icon: Shield },
-      { label: 'Solicitação (SM)', path: '/almoxarifado/solicitacao', icon: ClipboardList },
     ],
   },
   {
@@ -54,7 +53,6 @@ const modules: ModuleConfig[] = [
     items: [
       { label: 'Empenhos', path: '/patrimonio/empenhos', icon: FileText },
       { label: 'Notas Fiscais', path: '/patrimonio/notas-fiscais', icon: Receipt },
-      { label: 'Solicitação (SM)', path: '/patrimonio/solicitacao', icon: ClipboardList },
     ],
   },
   {
@@ -63,9 +61,7 @@ const modules: ModuleConfig[] = [
     icon: Truck,
     color: 'text-amber-400',
     dashboardPath: '/transportes',
-    items: [
-      { label: 'Solicitação', path: '/transportes/solicitacao', icon: ClipboardList },
-    ],
+    items: [],
   },
   {
     id: 'servicos',
@@ -76,6 +72,19 @@ const modules: ModuleConfig[] = [
     items: [
       { label: 'Contratos', path: '/servicos/contratos', icon: FileText },
       { label: 'Notas Fiscais', path: '/servicos/notas-fiscais', icon: Receipt },
+    ],
+  },
+  {
+    id: 'solicitacoes',
+    label: 'Solicitações',
+    icon: Send,
+    color: 'text-cyan-400',
+    dashboardPath: '/solicitacoes',
+    items: [
+      { label: 'SM Almoxarifado', path: '/solicitacoes/almoxarifado', icon: Package },
+      { label: 'SM Patrimônio', path: '/solicitacoes/patrimonio', icon: Landmark },
+      { label: 'Transportes', path: '/solicitacoes/transportes', icon: Truck },
+      { label: 'Ordem de Serviço', path: '/solicitacoes/ordem-servico', icon: Wrench },
     ],
   },
 ];
