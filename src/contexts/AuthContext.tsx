@@ -16,6 +16,8 @@ interface AuthContextType {
   isAuthenticated: boolean;
   login: (email: string, senha: string) => Promise<{ ok: boolean; error?: string }>;
   logout: () => void;
+  updateUsuario: (email: string, changes: Partial<UsuarioAuth>) => void;
+  getAllUsers: () => UsuarioAuth[];
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -56,8 +58,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem("singem-auth");
   }, []);
 
+  const updateUsuario = useCallback((email: string, changes: Partial<UsuarioAuth>) => {
+    // Update DEMO_USERS in memory
+    const key = email.toLowerCase().trim();
+    if (DEMO_USERS[key]) {
+      DEMO_USERS[key].user = { ...DEMO_USERS[key].user, ...changes };
+    }
+    // If the updated user is the logged-in user, refresh session
+    setUsuario(prev => {
+      if (prev && prev.email.toLowerCase() === key) {
+        const updated = { ...prev, ...changes };
+        localStorage.setItem("singem-auth", JSON.stringify(updated));
+        return updated;
+      }
+      return prev;
+    });
+  }, []);
+
+  const getAllUsers = useCallback(() => {
+    return Object.values(DEMO_USERS).map(entry => entry.user);
+  }, []);
+
   return (
-    <AuthContext.Provider value={{ usuario, isAuthenticated: !!usuario, login, logout }}>
+    <AuthContext.Provider value={{ usuario, isAuthenticated: !!usuario, login, logout, updateUsuario, getAllUsers }}>
       {children}
     </AuthContext.Provider>
   );
