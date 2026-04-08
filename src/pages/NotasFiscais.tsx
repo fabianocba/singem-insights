@@ -1051,7 +1051,7 @@ export default function NotasFiscais({ modulo }: { modulo: ModuloId }) {
                 </div>
               )}
 
-              {/* Ações de aceite */}
+              {/* Ações */}
               <DialogFooter className="flex-col sm:flex-row gap-2">
                 {(detalhe.status === 'pendente' || detalhe.status === 'vinculada') && (
                   <>
@@ -1059,6 +1059,9 @@ export default function NotasFiscais({ modulo }: { modulo: ModuloId }) {
                     <Button variant="default" onClick={() => aceitarNF(detalhe.id)}><Check className="h-4 w-4 mr-1" />Aceitar e Dar Entrada</Button>
                   </>
                 )}
+                <Button variant="outline" onClick={() => exportarPdfNF(detalhe)}>
+                  <Download className="h-4 w-4 mr-1" />Exportar PDF
+                </Button>
                 <Button variant="outline" onClick={() => setDialogAberto(false)}>Fechar</Button>
                 <Button onClick={() => abrirEditar(detalhe)}>Editar</Button>
               </DialogFooter>
