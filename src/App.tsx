@@ -35,9 +35,20 @@ import GestorAprovacoes from "./pages/shared/GestorAprovacoes";
 
 const queryClient = new QueryClient();
 
-function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated } = useAuth();
+function ProtectedRoute({ children, allowedProfiles, requiredModulo }: { children: React.ReactNode; allowedProfiles?: string[]; requiredModulo?: string }) {
+  const { isAuthenticated, usuario } = useAuth();
   if (!isAuthenticated) return <Navigate to="/login" replace />;
+  if (allowedProfiles && usuario && !allowedProfiles.includes(usuario.perfil)) {
+    // Admin bypass
+    if (usuario.perfil !== "admin") return <Navigate to="/" replace />;
+  }
+  if (requiredModulo && usuario && usuario.perfil === "gestor") {
+    if (!usuario.modulos?.includes(requiredModulo)) return <Navigate to="/" replace />;
+  }
+  if (requiredModulo && usuario && usuario.perfil === "solicitante") {
+    // Solicitante can only access solicitacoes routes
+    if (requiredModulo !== "solicitacoes") return <Navigate to="/" replace />;
+  }
   return <>{children}</>;
 }
 
