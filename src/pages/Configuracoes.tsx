@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
 import {
   Users, Building2, Bell, Plus, Pencil, Trash2, Shield, Save, Search,
-  Mail, Phone, MapPin, Hash, CheckCircle2, XCircle, BellRing, BellOff
+  Mail, Phone, MapPin, Hash, CheckCircle2, XCircle, BellRing, BellOff, Save
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "../lib/utils";
