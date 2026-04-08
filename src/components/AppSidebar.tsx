@@ -7,7 +7,7 @@ import {
   Package, Landmark, Truck, Wrench, Settings,
   ChevronDown, ChevronRight, FileText, Receipt,
   ClipboardList, BookOpen, PackageOpen,
-  Shield, Send, Inbox, LogOut, User
+  Shield, Send, Inbox, LogOut
 } from "lucide-react";
 
 interface AppSidebarProps {
@@ -107,6 +107,7 @@ const modules: ModuleConfig[] = [
 export default function AppSidebar({ moduloAtivo }: AppSidebarProps) {
   const navigate = useNavigate();
   const location = useLocation();
+  const { usuario, logout } = useAuth();
   const [expandedModule, setExpandedModule] = useState<string | null>(moduloAtivo || null);
 
   const handleModuleClick = (mod: ModuleConfig) => {
