@@ -44,9 +44,9 @@ interface ConfigNotificacao {
 
 /* ─── Dados mock ─────────────────────────────────────── */
 const usuariosIniciais: Usuario[] = [
-  { id: "1", nome: "Admin Sistema", email: "admin@ifbaiano.edu.br", perfil: "admin", modulos: ["almoxarifado", "patrimonio", "transportes", "servicos"], ativo: true },
-  { id: "2", nome: "Maria Santos", email: "maria@ifbaiano.edu.br", perfil: "gestor", modulos: ["almoxarifado"], ativo: true },
-  { id: "3", nome: "João Pereira", email: "joao@ifbaiano.edu.br", perfil: "gestor", modulos: ["patrimonio", "transportes"], ativo: true },
+  { id: "1", nome: "Administrador", email: "admin@ifbaiano.edu.br", perfil: "admin", modulos: ["almoxarifado", "patrimonio", "transportes", "servicos"], ativo: true },
+  { id: "2", nome: "Maria Santos", email: "gestor@ifbaiano.edu.br", perfil: "gestor", modulos: ["almoxarifado", "patrimonio"], ativo: true },
+  { id: "3", nome: "João Pereira", email: "solicitante@ifbaiano.edu.br", perfil: "solicitante", modulos: [], ativo: true },
   { id: "4", nome: "Ana Costa", email: "ana@ifbaiano.edu.br", perfil: "solicitante", modulos: [], ativo: true },
   { id: "5", nome: "Carlos Lima", email: "carlos@ifbaiano.edu.br", perfil: "solicitante", modulos: [], ativo: false },
 ];
