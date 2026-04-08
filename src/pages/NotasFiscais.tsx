@@ -370,6 +370,8 @@ export default function NotasFiscais({ modulo }: { modulo: ModuloId }) {
       empenhoNumero: empenhoSelecionado,
       dataEntrada: new Date().toISOString().slice(0, 10),
       status: empenhoSelecionado ? 'vinculada' : 'pendente',
+      pdfNome: pdfFile?.name || form.pdfNome,
+      pdfUrl: pdfFile ? URL.createObjectURL(pdfFile) : form.pdfUrl,
     } as NotaFiscal;
 
     if (form.id) {
