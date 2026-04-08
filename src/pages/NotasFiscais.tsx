@@ -396,6 +396,60 @@ export default function NotasFiscais({ modulo }: { modulo: ModuloId }) {
     setDialogAberto(false);
   }
 
+  function exportarPdfNF(nf: NotaFiscal) {
+    // Generate a printable HTML and open print dialog
+    const itensHtml = nf.itens.map(it => `
+      <tr>
+        <td style="padding:6px;border-bottom:1px solid #eee">${it.descricao}</td>
+        <td style="padding:6px;border-bottom:1px solid #eee;text-align:center">${it.unidade}</td>
+        <td style="padding:6px;border-bottom:1px solid #eee;text-align:right">${it.quantidade}</td>
+        <td style="padding:6px;border-bottom:1px solid #eee;text-align:right">${fmt(it.valorUnitario)}</td>
+        <td style="padding:6px;border-bottom:1px solid #eee;text-align:right;font-weight:600">${fmt(it.quantidade * it.valorUnitario)}</td>
+      </tr>
+    `).join('');
+
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>NF ${nf.numero}</title>
+      <style>body{font-family:Inter,Arial,sans-serif;margin:40px;color:#1a1a1a}
+      h1{font-size:20px;color:#377566;margin-bottom:4px}
+      .header{display:flex;justify-content:space-between;border-bottom:2px solid #377566;padding-bottom:16px;margin-bottom:20px}
+      .badge{background:#377566;color:#fff;padding:4px 12px;border-radius:12px;font-size:12px;font-weight:600}
+      table{width:100%;border-collapse:collapse;margin-top:12px}
+      th{text-align:left;padding:8px 6px;border-bottom:2px solid #377566;font-size:13px;color:#377566}
+      .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px}
+      .field{font-size:13px}.field label{color:#666;font-size:11px;display:block;margin-bottom:2px}
+      .field p{margin:0;font-weight:600}.chave{font-family:monospace;font-size:11px;word-break:break-all;background:#f5f5f5;padding:8px;border-radius:6px;margin:12px 0}
+      .total{text-align:right;font-size:18px;font-weight:700;margin-top:12px;padding-top:8px;border-top:2px solid #377566}
+      .footer{margin-top:40px;text-align:center;font-size:11px;color:#999;border-top:1px solid #eee;padding-top:12px}
+      @media print{body{margin:20px}}</style></head><body>
+      <div class="header"><div><h1>NOTA FISCAL Nº ${nf.numero} — Série ${nf.serie}</h1>
+      <p style="margin:0;font-size:13px;color:#666">SINGEM — Sistema Inteligente de Gestão de Materiais</p></div>
+      <span class="badge">${statusLabel[nf.status].toUpperCase()}</span></div>
+      <div class="grid">
+        <div class="field"><label>Fornecedor</label><p>${nf.fornecedor}</p></div>
+        <div class="field"><label>CNPJ</label><p>${nf.cnpj}</p></div>
+        <div class="field"><label>Data Emissão</label><p>${new Date(nf.dataEmissao).toLocaleDateString('pt-BR')}</p></div>
+        <div class="field"><label>Data Entrada</label><p>${nf.dataEntrada ? new Date(nf.dataEntrada).toLocaleDateString('pt-BR') : '—'}</p></div>
+        <div class="field"><label>Empenho Vinculado</label><p>${nf.empenhoNumero || 'Não vinculado'}</p></div>
+        <div class="field"><label>Status</label><p>${statusLabel[nf.status]}</p></div>
+      </div>
+      ${nf.chaveNFe ? `<div class="chave"><strong>Chave NFe:</strong> ${nf.chaveNFe}</div>` : ''}
+      <h3 style="font-size:14px;color:#377566;margin-bottom:4px">Itens (${nf.itens.length})</h3>
+      <table><thead><tr><th>Descrição</th><th style="text-align:center">Un</th><th style="text-align:right">Qtd</th><th style="text-align:right">Vlr Unit.</th><th style="text-align:right">Subtotal</th></tr></thead>
+      <tbody>${itensHtml}</tbody></table>
+      <div class="total">VALOR TOTAL: ${fmt(nf.valor)}</div>
+      ${nf.observacao ? `<p style="margin-top:16px;font-size:13px"><strong>Observação:</strong> ${nf.observacao}</p>` : ''}
+      <div class="footer">Gerado pelo SINGEM em ${new Date().toLocaleString('pt-BR')} — IF Baiano</div>
+      </body></html>`;
+
+    const win = window.open('', '_blank');
+    if (win) {
+      win.document.write(html);
+      win.document.close();
+      setTimeout(() => win.print(), 500);
+    }
+    toast.success('PDF gerado para impressão/download');
+  }
+
   const empenhosMatch = MOCK_EMPENHOS.filter(e => {
     if (!buscaEmpenho) return true;
     return e.numero.toLowerCase().includes(buscaEmpenho.toLowerCase()) ||
