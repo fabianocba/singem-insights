@@ -731,6 +731,12 @@ export default function NotasFiscais({ modulo }: { modulo: ModuloId }) {
                     <div><Label>Fornecedor *</Label><Input value={form.fornecedor || ''} onChange={e => setForm(p => ({ ...p, fornecedor: e.target.value }))} /></div>
                     <div><Label>CNPJ *</Label><Input value={form.cnpj || ''} onChange={e => setForm(p => ({ ...p, cnpj: e.target.value }))} placeholder="00.000.000/0000-00" /></div>
                     <div><Label>Data Emissão</Label><Input type="date" value={form.dataEmissao || ''} onChange={e => setForm(p => ({ ...p, dataEmissao: e.target.value }))} /></div>
+                    <div>
+                      <Label>Valor Total da NF</Label>
+                      <div className="h-10 px-3 flex items-center rounded-md border border-input bg-muted/30 font-bold text-foreground">
+                        {fmt(valorTotalNF)}
+                      </div>
+                    </div>
                     <div><Label>Chave NFe</Label><Input value={form.chaveNFe || ''} className="font-mono text-xs" readOnly disabled /></div>
                     <div className="md:col-span-2"><Label>Observação</Label><Input value={form.observacao || ''} onChange={e => setForm(p => ({ ...p, observacao: e.target.value }))} /></div>
                   </div>
