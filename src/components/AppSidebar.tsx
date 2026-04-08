@@ -82,7 +82,7 @@ const modules: ModuleConfig[] = [
     dashboardPath: '/solicitacoes',
     items: [
       { label: 'SM Almoxarifado', path: '/solicitacoes/almoxarifado', icon: Package },
-      { label: 'SM Patrimônio', path: '/solicitacoes/patrimonio', icon: Landmark },
+      { label: 'SB Patrimônio', path: '/solicitacoes/patrimonio', icon: Landmark },
       { label: 'Solicitação de Veículo', path: '/solicitacoes/transportes', icon: Truck },
       { label: 'Solicitação de Serviço', path: '/solicitacoes/ordem-servico', icon: Wrench },
     ],
