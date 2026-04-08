@@ -1,11 +1,10 @@
 import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card";
+import { Card, CardContent } from "../../components/ui/card";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
-import { Badge } from "../../components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "../../components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select";
-import { Plus, Search, Wrench, ClipboardList, Calendar, User, MapPin, Eye, Pencil, CheckCircle, XCircle } from "lucide-react";
+import { Plus, Search, Wrench, ClipboardList, Calendar, User, MapPin, CheckCircle, XCircle } from "lucide-react";
 
 interface OrdemServico {
   id: string;
@@ -61,7 +60,6 @@ export default function OrdensServico() {
   const [modalAberto, setModalAberto] = useState(false);
   const [detalhesAberto, setDetalhesAberto] = useState(false);
   const [ordemSelecionada, setOrdemSelecionada] = useState<OrdemServico | null>(null);
-  const [editando, setEditando] = useState(false);
 
   const [form, setForm] = useState({
     descricao: '', tipo: '', prioridade: 'Normal', setor: '', local: '', solicitante: '', responsavel: '', dataPrevista: '', observacoes: '',
@@ -113,7 +111,6 @@ export default function OrdensServico() {
         <Button onClick={() => setModalAberto(true)}><Plus className="h-4 w-4 mr-2" /> Nova OS</Button>
       </div>
 
-      {/* Contadores rápidos */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {[
           { label: 'Total', value: contadores.total, cls: 'text-foreground' },
@@ -130,7 +127,6 @@ export default function OrdensServico() {
         ))}
       </div>
 
-      {/* Filtros */}
       <div className="flex flex-wrap gap-3">
         <div className="relative flex-1 min-w-[200px] max-w-sm">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -155,7 +151,6 @@ export default function OrdensServico() {
         </Select>
       </div>
 
-      {/* Lista */}
       <div className="grid gap-3">
         {filtrados.map(os => (
           <Card key={os.id} className="border-border/50 hover:border-border transition-colors cursor-pointer" onClick={() => { setOrdemSelecionada(os); setDetalhesAberto(true); }}>
@@ -191,24 +186,23 @@ export default function OrdensServico() {
         )}
       </div>
 
-      {/* Modal Nova OS */}
       <Dialog open={modalAberto} onOpenChange={setModalAberto}>
         <DialogContent className="max-w-lg">
           <DialogHeader><DialogTitle>Nova Ordem de Serviço</DialogTitle></DialogHeader>
           <div className="space-y-3">
             <Input placeholder="Descrição do serviço *" value={form.descricao} onChange={e => setForm({ ...form, descricao: e.target.value })} />
             <div className="grid grid-cols-2 gap-3">
-              <Select value={form.tipo} onValueChange={v => setForm({ ...form, tipo: v })}>
+              <Select value={form.tipo} onValueChange={(v: string) => setForm({ ...form, tipo: v })}>
                 <SelectTrigger><SelectValue placeholder="Tipo de serviço *" /></SelectTrigger>
                 <SelectContent>{TIPOS.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
               </Select>
-              <Select value={form.prioridade} onValueChange={v => setForm({ ...form, prioridade: v })}>
+              <Select value={form.prioridade} onValueChange={(v: string) => setForm({ ...form, prioridade: v })}>
                 <SelectTrigger><SelectValue placeholder="Prioridade" /></SelectTrigger>
                 <SelectContent>{PRIORIDADES.map(p => <SelectItem key={p} value={p}>{p}</SelectItem>)}</SelectContent>
               </Select>
             </div>
             <div className="grid grid-cols-2 gap-3">
-              <Select value={form.setor} onValueChange={v => setForm({ ...form, setor: v })}>
+              <Select value={form.setor} onValueChange={(v: string) => setForm({ ...form, setor: v })}>
                 <SelectTrigger><SelectValue placeholder="Setor *" /></SelectTrigger>
                 <SelectContent>{SETORES.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
               </Select>
@@ -228,7 +222,6 @@ export default function OrdensServico() {
         </DialogContent>
       </Dialog>
 
-      {/* Modal Detalhes */}
       <Dialog open={detalhesAberto} onOpenChange={setDetalhesAberto}>
         <DialogContent className="max-w-lg">
           {ordemSelecionada && (

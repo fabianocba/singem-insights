@@ -1,6 +1,5 @@
-import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card";
-import { Wrench, FileText, Receipt, ClipboardCheck, Clock, CheckCircle, AlertTriangle, TrendingUp } from "lucide-react";
+import { Card, CardContent } from "../../components/ui/card";
+import { FileText, Receipt, ClipboardCheck, Wrench, Clock, CheckCircle, AlertTriangle, TrendingUp } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from "recharts";
 
 const kpis = [
@@ -81,8 +80,8 @@ export default function ServicosDashboard() {
       {/* Gráficos */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <Card className="lg:col-span-2 border-border/50">
-          <CardHeader><CardTitle className="text-base flex items-center gap-2"><TrendingUp className="h-4 w-4" /> OS por Mês</CardTitle></CardHeader>
-          <CardContent>
+          <CardContent className="p-4">
+            <h3 className="text-base font-semibold flex items-center gap-2 mb-4"><TrendingUp className="h-4 w-4" /> OS por Mês</h3>
             <ResponsiveContainer width="100%" height={250}>
               <BarChart data={osPorMes}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
@@ -97,11 +96,11 @@ export default function ServicosDashboard() {
         </Card>
 
         <Card className="border-border/50">
-          <CardHeader><CardTitle className="text-base">Status das OS</CardTitle></CardHeader>
-          <CardContent>
+          <CardContent className="p-4">
+            <h3 className="text-base font-semibold mb-4">Status das OS</h3>
             <ResponsiveContainer width="100%" height={250}>
               <PieChart>
-                <Pie data={osPorStatus} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} label={({ name, value }) => `${value}`}>
+                <Pie data={osPorStatus} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} label={({ value }: { value: number }) => `${value}`}>
                   {osPorStatus.map((entry, i) => <Cell key={i} fill={entry.color} />)}
                 </Pie>
                 <Legend wrapperStyle={{ fontSize: 12, color: 'hsl(var(--muted-foreground))' }} />
@@ -114,8 +113,8 @@ export default function ServicosDashboard() {
 
       {/* OS por Tipo */}
       <Card className="border-border/50">
-        <CardHeader><CardTitle className="text-base">OS por Tipo de Serviço</CardTitle></CardHeader>
-        <CardContent>
+        <CardContent className="p-4">
+          <h3 className="text-base font-semibold mb-4">OS por Tipo de Serviço</h3>
           <ResponsiveContainer width="100%" height={200}>
             <BarChart data={osPorTipo} layout="vertical">
               <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
@@ -130,8 +129,8 @@ export default function ServicosDashboard() {
 
       {/* Últimas OS */}
       <Card className="border-border/50">
-        <CardHeader><CardTitle className="text-base">Últimas Ordens de Serviço</CardTitle></CardHeader>
-        <CardContent>
+        <CardContent className="p-4">
+          <h3 className="text-base font-semibold mb-4">Últimas Ordens de Serviço</h3>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>

@@ -5,7 +5,7 @@ import { Input } from "../../components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "../../components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../components/ui/tabs";
-import { Shield, Users, Wrench, Settings, Plus, Pencil, Trash2, FileText, DollarSign, BarChart3 } from "lucide-react";
+import { Users, Wrench, Settings, Plus, FileText, DollarSign, BarChart3 } from "lucide-react";
 
 // === Equipes ===
 interface Equipe {
@@ -46,7 +46,7 @@ interface TipoServico {
   id: string;
   nome: string;
   categoria: string;
-  sla: number; // horas
+  sla: number;
   ativo: boolean;
 }
 
@@ -86,10 +86,9 @@ export default function AdmServicos() {
     setModalTipo(false);
   };
 
-  // KPIs resumo
   const totalOS = 45;
   const custoMes = 12350;
-  const tempoMedio = 18; // horas
+  const tempoMedio = 18;
 
   return (
     <div className="space-y-6">
@@ -98,7 +97,6 @@ export default function AdmServicos() {
         <p className="text-sm text-muted-foreground">Configurações e administração do módulo</p>
       </div>
 
-      {/* KPIs Admin */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <Card className="border-border/50">
           <CardContent className="p-4 flex items-center gap-3">
@@ -134,7 +132,6 @@ export default function AdmServicos() {
           <TabsTrigger value="config"><Settings className="h-4 w-4 mr-1" /> Configurações</TabsTrigger>
         </TabsList>
 
-        {/* Equipes */}
         <TabsContent value="equipes" className="space-y-4">
           <div className="flex justify-end">
             <Button size="sm" onClick={() => setModalEquipe(true)}><Plus className="h-4 w-4 mr-1" /> Nova Equipe</Button>
@@ -161,7 +158,6 @@ export default function AdmServicos() {
           </div>
         </TabsContent>
 
-        {/* Contratos Terceirizados */}
         <TabsContent value="contratos" className="space-y-4">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
@@ -195,7 +191,6 @@ export default function AdmServicos() {
           </div>
         </TabsContent>
 
-        {/* Tipos de Serviço */}
         <TabsContent value="tipos" className="space-y-4">
           <div className="flex justify-end">
             <Button size="sm" onClick={() => setModalTipo(true)}><Plus className="h-4 w-4 mr-1" /> Novo Tipo</Button>
@@ -228,7 +223,6 @@ export default function AdmServicos() {
           </div>
         </TabsContent>
 
-        {/* Configurações */}
         <TabsContent value="config" className="space-y-4">
           <Card className="border-border/50">
             <CardHeader><CardTitle className="text-base flex items-center gap-2"><Settings className="h-4 w-4" /> Parâmetros do Módulo</CardTitle></CardHeader>
@@ -283,7 +277,6 @@ export default function AdmServicos() {
         </TabsContent>
       </Tabs>
 
-      {/* Modal Equipe */}
       <Dialog open={modalEquipe} onOpenChange={setModalEquipe}>
         <DialogContent>
           <DialogHeader><DialogTitle>Nova Equipe</DialogTitle></DialogHeader>
@@ -302,7 +295,6 @@ export default function AdmServicos() {
         </DialogContent>
       </Dialog>
 
-      {/* Modal Tipo */}
       <Dialog open={modalTipo} onOpenChange={setModalTipo}>
         <DialogContent>
           <DialogHeader><DialogTitle>Novo Tipo de Serviço</DialogTitle></DialogHeader>
