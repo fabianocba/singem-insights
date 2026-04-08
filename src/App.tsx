@@ -28,6 +28,7 @@ import SolicitacoesDashboard from "./pages/solicitacoes/SolicitacoesDashboard";
 import SolicitacaoTransportes from "./pages/solicitacoes/SolicitacaoTransportes";
 import OrdemServico from "./pages/solicitacoes/OrdemServico";
 import Configuracoes from "./pages/Configuracoes";
+import GestorAprovacoes from "./pages/shared/GestorAprovacoes";
 
 const queryClient = new QueryClient();
 
@@ -47,6 +48,7 @@ function App() {
             <Route path="/almoxarifado/catalogo" element={<AppLayout modulo="almoxarifado"><Catalogo /></AppLayout>} />
             <Route path="/almoxarifado/liberar-material" element={<AppLayout modulo="almoxarifado"><LiberarMaterial /></AppLayout>} />
             <Route path="/almoxarifado/adm" element={<AppLayout modulo="almoxarifado"><AdmAlmoxarifado /></AppLayout>} />
+            <Route path="/almoxarifado/solicitacoes" element={<AppLayout modulo="almoxarifado"><GestorAprovacoes modulo="almoxarifado" /></AppLayout>} />
             {/* Patrimônio */}
             <Route path="/patrimonio" element={<AppLayout modulo="patrimonio"><PatrimonioDashboard /></AppLayout>} />
             <Route path="/patrimonio/empenhos" element={<AppLayout modulo="patrimonio"><Empenhos modulo="patrimonio" /></AppLayout>} />
@@ -54,18 +56,21 @@ function App() {
             <Route path="/patrimonio/itens" element={<AppLayout modulo="patrimonio"><ItensPatrimoniais /></AppLayout>} />
             <Route path="/patrimonio/movimentacao" element={<AppLayout modulo="patrimonio"><MovimentacaoBens /></AppLayout>} />
             <Route path="/patrimonio/adm" element={<AppLayout modulo="patrimonio"><AdmPatrimonio /></AppLayout>} />
+            <Route path="/patrimonio/solicitacoes" element={<AppLayout modulo="patrimonio"><GestorAprovacoes modulo="patrimonio" /></AppLayout>} />
             {/* Transportes */}
             <Route path="/transportes" element={<AppLayout modulo="transportes"><TransportesDashboard /></AppLayout>} />
             <Route path="/transportes/cadastros" element={<AppLayout modulo="transportes"><Cadastros /></AppLayout>} />
             <Route path="/transportes/manutencao" element={<AppLayout modulo="transportes"><Manutencao /></AppLayout>} />
             <Route path="/transportes/agendamentos" element={<AppLayout modulo="transportes"><Agendamentos /></AppLayout>} />
             <Route path="/transportes/adm" element={<AppLayout modulo="transportes"><AdmTransportes /></AppLayout>} />
+            <Route path="/transportes/solicitacoes" element={<AppLayout modulo="transportes"><GestorAprovacoes modulo="transportes" /></AppLayout>} />
             {/* Serviços Gerais */}
             <Route path="/servicos" element={<AppLayout modulo="servicos"><ServicosDashboard /></AppLayout>} />
             <Route path="/servicos/contratos" element={<AppLayout modulo="servicos"><Empenhos modulo="servicos" /></AppLayout>} />
             <Route path="/servicos/notas-fiscais" element={<AppLayout modulo="servicos"><NotasFiscais modulo="servicos" /></AppLayout>} />
             <Route path="/servicos/ordens" element={<AppLayout modulo="servicos"><OrdensServico /></AppLayout>} />
             <Route path="/servicos/adm" element={<AppLayout modulo="servicos"><AdmServicos /></AppLayout>} />
+            <Route path="/servicos/solicitacoes" element={<AppLayout modulo="servicos"><GestorAprovacoes modulo="servicos" /></AppLayout>} />
             {/* Solicitações */}
             <Route path="/solicitacoes" element={<AppLayout modulo="solicitacoes"><SolicitacoesDashboard /></AppLayout>} />
             <Route path="/solicitacoes/almoxarifado" element={<AppLayout modulo="solicitacoes"><SolicitacaoMaterial modulo="almoxarifado" /></AppLayout>} />
