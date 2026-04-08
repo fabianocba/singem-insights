@@ -10,7 +10,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
 import {
   Users, Building2, Bell, Plus, Pencil, Trash2, Save, Search,
-  Mail, Phone, MapPin, Hash, CheckCircle2, XCircle, BellRing, BellOff
+  Mail, Phone, MapPin, Hash, CheckCircle2, XCircle, BellRing, BellOff,
+  Palette, Sun, Moon, Monitor, Type, Languages
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "../lib/utils";
@@ -86,15 +87,17 @@ export default function Configuracoes() {
     <div className="space-y-6">
       <h1 className="text-2xl font-bold">Configurações</h1>
       <Tabs defaultValue="usuarios" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-3 max-w-lg">
+        <TabsList className="grid w-full grid-cols-4 max-w-2xl">
           <TabsTrigger value="usuarios" className="flex items-center gap-1.5 text-xs"><Users className="h-3.5 w-3.5" />Usuários</TabsTrigger>
           <TabsTrigger value="unidade" className="flex items-center gap-1.5 text-xs"><Building2 className="h-3.5 w-3.5" />Unidade</TabsTrigger>
           <TabsTrigger value="notificacoes" className="flex items-center gap-1.5 text-xs"><Bell className="h-3.5 w-3.5" />Notificações</TabsTrigger>
+          <TabsTrigger value="preferencias" className="flex items-center gap-1.5 text-xs"><Palette className="h-3.5 w-3.5" />Preferências</TabsTrigger>
         </TabsList>
 
         <TabsContent value="usuarios"><TabUsuarios /></TabsContent>
         <TabsContent value="unidade"><TabUnidade /></TabsContent>
         <TabsContent value="notificacoes"><TabNotificacoes /></TabsContent>
+        <TabsContent value="preferencias"><TabPreferencias /></TabsContent>
       </Tabs>
     </div>
   );
