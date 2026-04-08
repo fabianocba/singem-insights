@@ -135,7 +135,13 @@ export default function AppSidebar({ moduloAtivo }: AppSidebarProps) {
 
       {/* Módulos */}
       <nav className="flex-1 overflow-y-auto py-3 px-2 space-y-1">
-        {modules.map((mod) => (
+        {modules.filter(mod => {
+          if (!usuario) return false;
+          if (usuario.perfil === "admin") return true;
+          if (usuario.perfil === "solicitante") return mod.id === "solicitacoes";
+          // gestor
+          return mod.id === "solicitacoes" || (usuario.modulos?.includes(mod.id) ?? false);
+        }).map((mod) => (
           <div key={mod.id}>
             <button
               onClick={() => handleModuleClick(mod)}
