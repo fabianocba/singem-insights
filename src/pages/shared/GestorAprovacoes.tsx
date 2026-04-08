@@ -5,8 +5,8 @@ import { Input } from "../../components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "../../components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select";
 import {
-  Search, CheckCircle2, XCircle, Clock, Eye, MessageSquare,
-  Package, Landmark, Truck, Wrench, User, MapPin, Calendar, AlertTriangle
+  Search, CheckCircle2, XCircle, Clock,
+  Package, Landmark, Truck, Wrench, User, MapPin, AlertTriangle
 } from "lucide-react";
 import { toast } from "sonner";
 import { useNotificacoes } from "../../contexts/NotificacoesContext";
