@@ -3,7 +3,7 @@ import { Card, CardContent } from "../components/ui/card";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Badge } from "../components/ui/badge";
-import { Plus, Search, Receipt, Eye, Edit2, Check, X, Filter, ScanBarcode, ArrowRight, ArrowLeft, Link2, CheckCircle2, AlertTriangle, Loader2 } from "lucide-react";
+import { Plus, Search, Receipt, Eye, Edit2, Check, X, Filter, ScanBarcode, ArrowRight, ArrowLeft, Link2, CheckCircle2, AlertTriangle, Loader2, Upload, FileText, Trash2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -42,6 +42,8 @@ interface NotaFiscal {
   status: StatusNF;
   itens: ItemNF[];
   observacao: string;
+  pdfNome?: string;
+  pdfUrl?: string;
 }
 
 type StepRegistro = 'chave' | 'revisao' | 'empenho' | 'itens' | 'validacao';
@@ -234,6 +236,8 @@ export default function NotasFiscais({ modulo }: { modulo: ModuloId }) {
   const [empenhoSelecionado, setEmpenhoSelecionado] = useState<string>('');
   const [buscaEmpenho, setBuscaEmpenho] = useState('');
   const chaveRef = useRef<HTMLInputElement>(null);
+  const pdfInputRef = useRef<HTMLInputElement>(null);
+  const [pdfFile, setPdfFile] = useState<File | null>(null);
 
   const nfsFiltradas = nfs.filter(nf => {
     const matchBusca = nf.numero.includes(busca) || nf.fornecedor.toLowerCase().includes(busca.toLowerCase()) || nf.empenhoNumero.toLowerCase().includes(busca.toLowerCase());
@@ -258,6 +262,7 @@ export default function NotasFiscais({ modulo }: { modulo: ModuloId }) {
     setChaveValida(null);
     setEmpenhoSelecionado('');
     setBuscaEmpenho('');
+    setPdfFile(null);
     setDialogAberto(true);
     setTimeout(() => chaveRef.current?.focus(), 200);
   }
