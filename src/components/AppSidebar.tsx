@@ -53,6 +53,9 @@ const modules: ModuleConfig[] = [
     items: [
       { label: 'Empenhos', path: '/patrimonio/empenhos', icon: FileText },
       { label: 'Notas Fiscais', path: '/patrimonio/notas-fiscais', icon: Receipt },
+      { label: 'Itens Patrimoniais', path: '/patrimonio/itens', icon: PackageOpen },
+      { label: 'Movimentação de Bens', path: '/patrimonio/movimentacao', icon: ClipboardList },
+      { label: 'ADM', path: '/patrimonio/adm', icon: Shield },
     ],
   },
   {
@@ -61,7 +64,12 @@ const modules: ModuleConfig[] = [
     icon: Truck,
     color: 'text-amber-400',
     dashboardPath: '/transportes',
-    items: [],
+    items: [
+      { label: 'Cadastros', path: '/transportes/cadastros', icon: BookOpen },
+      { label: 'Manutenção', path: '/transportes/manutencao', icon: Wrench },
+      { label: 'Agendamentos', path: '/transportes/agendamentos', icon: ClipboardList },
+      { label: 'ADM', path: '/transportes/adm', icon: Shield },
+    ],
   },
   {
     id: 'servicos',
@@ -72,6 +80,8 @@ const modules: ModuleConfig[] = [
     items: [
       { label: 'Contratos', path: '/servicos/contratos', icon: FileText },
       { label: 'Notas Fiscais', path: '/servicos/notas-fiscais', icon: Receipt },
+      { label: 'Ordens de Serviço', path: '/servicos/ordens', icon: ClipboardList },
+      { label: 'ADM', path: '/servicos/adm', icon: Shield },
     ],
   },
   {
