@@ -990,10 +990,8 @@ export default function NotasFiscais({ modulo }: { modulo: ModuloId }) {
                       <p className="text-sm font-medium text-foreground">{detalhe.pdfNome}</p>
                     </div>
                     {detalhe.pdfUrl && (
-                      <Button size="sm" variant="outline" asChild>
-                        <a href={detalhe.pdfUrl} target="_blank" rel="noopener noreferrer">
-                          <Eye className="h-4 w-4 mr-1" />Visualizar
-                        </a>
+                      <Button size="sm" variant="outline" onClick={() => window.open(detalhe.pdfUrl, '_blank')}>
+                        <Eye className="h-4 w-4 mr-1" />Visualizar
                       </Button>
                     )}
                   </div>
