@@ -6,6 +6,7 @@ export interface PermissoesUsuario {
   patrimonio: PerfilModulo;
   transportes: PerfilModulo;
   servicos: PerfilModulo;
+  solicitacoes: PerfilModulo;
 }
 
 export interface Usuario {
@@ -18,7 +19,7 @@ export interface Usuario {
   permissoes: PermissoesUsuario;
 }
 
-export type ModuloId = 'almoxarifado' | 'patrimonio' | 'transportes' | 'servicos';
+export type ModuloId = 'almoxarifado' | 'patrimonio' | 'transportes' | 'servicos' | 'solicitacoes';
 
 export interface Empenho {
   id: string;
