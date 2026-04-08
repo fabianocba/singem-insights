@@ -16,6 +16,8 @@ interface AuthContextType {
   isAuthenticated: boolean;
   login: (email: string, senha: string) => Promise<{ ok: boolean; error?: string }>;
   logout: () => void;
+  updateUsuario: (email: string, changes: Partial<UsuarioAuth>) => void;
+  getAllUsers: () => UsuarioAuth[];
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
