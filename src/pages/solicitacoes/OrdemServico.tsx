@@ -5,6 +5,8 @@ import { Input } from "../../components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "../../components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select";
 import { Plus, Search, Wrench, Calendar, User, MapPin, Send } from "lucide-react";
+import { toast } from "sonner";
+import { useNotificacoes } from "../../contexts/NotificacoesContext";
 
 interface SolicitacaoServico {
   id: string;
@@ -70,11 +72,14 @@ export default function OrdemServico() {
     return buscaOk && statusOk;
   });
 
+  const { adicionarNotificacao } = useNotificacoes();
+
   const handleSalvar = (enviar: boolean) => {
     if (!form.solicitante || !form.setor || !form.descricao || !form.tipoServico) return;
+    const numero = `SS-2026-${String(solicitacoes.length + 1).padStart(3, '0')}`;
     const nova: SolicitacaoServico = {
       id: String(Date.now()),
-      numero: `SS-2026-${String(solicitacoes.length + 1).padStart(3, '0')}`,
+      numero,
       ...form,
       data: new Date().toISOString().split('T')[0],
       status: enviar ? 'enviada' : 'rascunho',
@@ -83,11 +88,22 @@ export default function OrdemServico() {
     setSolicitacoes([nova, ...solicitacoes]);
     setForm({ solicitante: '', setor: '', tipoServico: '', prioridade: 'Normal', descricao: '', local: '', observacao: '' });
     setModalNova(false);
+    if (enviar) {
+      toast.success(`${numero} enviada para Serviços Gerais`);
+      adicionarNotificacao({ tipo: 'sol_servico', titulo: `${numero} Enviada`, mensagem: `Solicitação de serviço enviada ao setor de Serviços Gerais.`, link: '/solicitacoes/ordem-servico' });
+    } else {
+      toast.info(`${numero} salva como rascunho`);
+    }
   };
 
   const handleEnviar = (id: string) => {
+    const sol = solicitacoes.find(s => s.id === id);
     setSolicitacoes(solicitacoes.map(s => s.id === id ? { ...s, status: 'enviada' } : s));
     if (detalhes?.id === id) setDetalhes({ ...detalhes, status: 'enviada' });
+    if (sol) {
+      toast.success(`${sol.numero} enviada para Serviços Gerais`);
+      adicionarNotificacao({ tipo: 'sol_servico', titulo: `${sol.numero} Enviada`, mensagem: `Solicitação de serviço enviada ao setor de Serviços Gerais.`, link: '/solicitacoes/ordem-servico' });
+    }
   };
 
   const contadores = {

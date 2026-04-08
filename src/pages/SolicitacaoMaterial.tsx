@@ -5,6 +5,8 @@ import { Input } from "../components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "../components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
 import { Plus, Search, ClipboardList, Package, Landmark, Trash2, Calendar, User, MapPin, Send } from "lucide-react";
+import { toast } from "sonner";
+import { useNotificacoes } from "../contexts/NotificacoesContext";
 import type { ModuloId } from "../types";
 
 interface ItemSM {
@@ -117,11 +119,14 @@ export default function SolicitacaoMaterial({ modulo }: { modulo: ModuloId }) {
     setItensForm(itensForm.map(i => i.id === id ? { ...i, [field]: value } : i));
   };
 
+  const { adicionarNotificacao } = useNotificacoes();
+
   const handleSalvar = (enviar: boolean) => {
     if (!form.solicitante || !form.setor || itensForm.some(i => !i.descricao)) return;
+    const numero = `${prefix}-2026-${String(solicitacoes.length + 1).padStart(3, '0')}`;
     const nova: SolicitacaoMat = {
       id: String(Date.now()),
-      numero: `${prefix}-2026-${String(solicitacoes.length + 1).padStart(3, '0')}`,
+      numero,
       ...form,
       data: new Date().toISOString().split('T')[0],
       status: enviar ? 'enviada' : 'rascunho',
@@ -134,11 +139,33 @@ export default function SolicitacaoMaterial({ modulo }: { modulo: ModuloId }) {
     setForm({ solicitante: '', setor: '', justificativa: '', observacao: '' });
     setItensForm([{ id: '1', codigo: '', descricao: '', unidade: 'Un', quantidade: 1 }]);
     setModalNova(false);
+
+    if (enviar) {
+      toast.success(`${numero} enviada para ${setorGestor}`);
+      adicionarNotificacao({
+        tipo: isAlmox ? 'sm_almox' : 'sb_patrim',
+        titulo: `${numero} Enviada`,
+        mensagem: `Sua solicitação foi enviada ao setor de ${setorGestor} para análise.`,
+        link: isAlmox ? '/solicitacoes/almoxarifado' : '/solicitacoes/patrimonio',
+      });
+    } else {
+      toast.info(`${numero} salva como rascunho`);
+    }
   };
 
   const handleEnviar = (id: string) => {
+    const sol = solicitacoes.find(s => s.id === id);
     setSolicitacoes(solicitacoes.map(s => s.id === id ? { ...s, status: 'enviada' } : s));
     if (detalhes?.id === id) setDetalhes({ ...detalhes, status: 'enviada' });
+    if (sol) {
+      toast.success(`${sol.numero} enviada para ${setorGestor}`);
+      adicionarNotificacao({
+        tipo: isAlmox ? 'sm_almox' : 'sb_patrim',
+        titulo: `${sol.numero} Enviada`,
+        mensagem: `Sua solicitação foi enviada ao setor de ${setorGestor} para análise.`,
+        link: isAlmox ? '/solicitacoes/almoxarifado' : '/solicitacoes/patrimonio',
+      });
+    }
   };
 
   const contadores = {

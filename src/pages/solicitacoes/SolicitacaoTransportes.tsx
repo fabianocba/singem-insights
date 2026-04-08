@@ -5,6 +5,8 @@ import { Input } from "../../components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "../../components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select";
 import { Plus, Search, Truck, Calendar, User, Clock, Send, Users } from "lucide-react";
+import { toast } from "sonner";
+import { useNotificacoes } from "../../contexts/NotificacoesContext";
 
 interface SolicitacaoVeiculo {
   id: string;
@@ -67,11 +69,14 @@ export default function SolicitacaoTransportes() {
     return buscaOk && statusOk;
   });
 
+  const { adicionarNotificacao } = useNotificacoes();
+
   const handleSalvar = (enviar: boolean) => {
     if (!form.solicitante || !form.setor || !form.destino || !form.motivo) return;
+    const numero = `SV-2026-${String(solicitacoes.length + 1).padStart(3, '0')}`;
     const nova: SolicitacaoVeiculo = {
       id: String(Date.now()),
-      numero: `SV-2026-${String(solicitacoes.length + 1).padStart(3, '0')}`,
+      numero,
       ...form,
       passageiros: Number(form.passageiros) || 1,
       data: new Date().toISOString().split('T')[0],
@@ -81,11 +86,22 @@ export default function SolicitacaoTransportes() {
     setSolicitacoes([nova, ...solicitacoes]);
     setForm({ solicitante: '', setor: '', destino: '', motivo: '', dataViagem: '', horaPartida: '', horaRetorno: '', passageiros: '', tipoVeiculo: '', observacao: '' });
     setModalNova(false);
+    if (enviar) {
+      toast.success(`${numero} enviada para Transportes`);
+      adicionarNotificacao({ tipo: 'sol_veiculo', titulo: `${numero} Enviada`, mensagem: `Solicitação de veículo enviada à Coordenação de Transportes.`, link: '/solicitacoes/transportes' });
+    } else {
+      toast.info(`${numero} salva como rascunho`);
+    }
   };
 
   const handleEnviar = (id: string) => {
+    const sol = solicitacoes.find(s => s.id === id);
     setSolicitacoes(solicitacoes.map(s => s.id === id ? { ...s, status: 'enviada' } : s));
     if (detalhes?.id === id) setDetalhes({ ...detalhes, status: 'enviada' });
+    if (sol) {
+      toast.success(`${sol.numero} enviada para Transportes`);
+      adicionarNotificacao({ tipo: 'sol_veiculo', titulo: `${sol.numero} Enviada`, mensagem: `Solicitação de veículo enviada à Coordenação de Transportes.`, link: '/solicitacoes/transportes' });
+    }
   };
 
   const contadores = {
