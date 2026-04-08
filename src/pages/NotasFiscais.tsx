@@ -364,21 +364,42 @@ export default function NotasFiscais({ modulo }: { modulo: ModuloId }) {
     }
   }, []);
 
-  function toggleItemValidado(idx: number) {
-    setFormItens(prev => prev.map((it, i) => i === idx ? { ...it, validado: !it.validado } : it));
+  function vincularItemEmpenho(idx: number, empenhoItemId: string) {
+    const itensEmpenho = MOCK_EMPENHO_ITENS[empenhoSelecionado] || [];
+    const itemEmp = itensEmpenho.find(ei => ei.id === empenhoItemId);
+    
+    setFormItens(prev => prev.map((it, i) => {
+      if (i !== idx) return it;
+      
+      if (!empenhoItemId) {
+        return { ...it, empenhoItemId: undefined, validado: false };
+      }
+
+      if (!itemEmp) return it;
+
+      // Validações automáticas
+      const erros: string[] = [];
+      if (Math.abs(it.valorUnitario - itemEmp.valorUnitario) > 0.01) {
+        erros.push(`Valor unitário diverge: NF ${fmt(it.valorUnitario)} ≠ Empenho ${fmt(itemEmp.valorUnitario)}`);
+      }
+      if (it.quantidade > itemEmp.saldoDisponivel) {
+        erros.push(`Quantidade (${it.quantidade}) excede saldo disponível (${itemEmp.saldoDisponivel})`);
+      }
+
+      if (erros.length > 0) {
+        toast.error('Divergência detectada', { description: erros.join(' | ') });
+        return { ...it, empenhoItemId, validado: false };
+      }
+
+      return { ...it, empenhoItemId, validado: true };
+    }));
   }
 
-  function atualizarItem(idx: number, campo: string, valor: string | number) {
-    setFormItens(prev => prev.map((it, i) => i === idx ? { ...it, [campo]: valor } : it));
-  }
+  // Derived: itens do empenho selecionado
+  const itensEmpenhoAtual = MOCK_EMPENHO_ITENS[empenhoSelecionado] || [];
 
-  function adicionarItem() {
-    setFormItens(prev => [...prev, { id: `tmp-${Date.now()}`, descricao: '', unidade: 'Un', quantidade: 1, valorUnitario: 0, validado: false }]);
-  }
-
-  function removerItem(idx: number) {
-    setFormItens(prev => prev.filter((_, i) => i !== idx));
-  }
+  // Quais itens do empenho já foram usados
+  const itensEmpenhoUsados = new Set(formItens.map(it => it.empenhoItemId).filter(Boolean));
 
   const todosItensValidados = formItens.length > 0 && formItens.every(it => it.validado);
   const valorTotalNF = formItens.reduce((s, it) => s + (it.quantidade || 0) * (it.valorUnitario || 0), 0);
