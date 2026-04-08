@@ -331,6 +331,8 @@ export default function NotasFiscais({ modulo }: { modulo: ModuloId }) {
   const chaveRef = useRef<HTMLInputElement>(null);
   const pdfInputRef = useRef<HTMLInputElement>(null);
   const [pdfFile, setPdfFile] = useState<File | null>(null);
+  const [modoEntrada, setModoEntrada] = useState<'chave' | 'xml'>('chave');
+  const xmlInputRef = useRef<HTMLInputElement>(null);
 
   const nfsFiltradas = nfs.filter(nf => {
     const matchBusca = nf.numero.includes(busca) || nf.fornecedor.toLowerCase().includes(busca.toLowerCase()) || nf.empenhoNumero.toLowerCase().includes(busca.toLowerCase());
