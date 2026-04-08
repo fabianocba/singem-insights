@@ -397,7 +397,7 @@ export default function Empenhos({ modulo }: { modulo: ModuloId }) {
               <div className="grid grid-cols-2 gap-x-6 gap-y-3 py-4 text-sm">
                 <div><span className="text-muted-foreground">Fornecedor:</span><p className="font-medium text-foreground">{detalhe.fornecedor}</p></div>
                 <div><span className="text-muted-foreground">CNPJ:</span><p className="font-mono font-medium text-foreground">{detalhe.cnpj}</p></div>
-                <div className="col-span-2"><span className="text-muted-foreground">Objeto:</span><p className="font-medium text-foreground">{detalhe.objeto}</p></div>
+                <div className="col-span-2"><span className="text-muted-foreground">Processo SUAP:</span><p className="font-medium text-foreground">{detalhe.objeto}</p></div>
                 <div><span className="text-muted-foreground">Conta Contábil:</span><p className="font-mono font-medium text-foreground">{detalhe.contaContabil}</p></div>
                 <div><span className="text-muted-foreground">Subelemento:</span><p className="font-medium text-foreground">{detalhe.subElemento} — {subElementos.find(s => s.codigo === detalhe.subElemento)?.descricao}</p></div>
                 <div><span className="text-muted-foreground">Valor Total:</span><p className="font-bold text-foreground">{fmt(detalhe.valor)}</p></div>
