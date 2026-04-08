@@ -355,7 +355,7 @@ export default function Empenhos({ modulo }: { modulo: ModuloId }) {
                     <option value="cancelado">Cancelado</option>
                   </select>
                 </div>
-                <div><Label>Data Vencimento</Label><Input type="date" value={form.dataVencimento || ''} onChange={e => setForm(p => ({ ...p, dataVencimento: e.target.value }))} /></div>
+                <div><Label>Data de Emissão</Label><Input type="date" value={form.dataVencimento || ''} onChange={e => setForm(p => ({ ...p, dataVencimento: e.target.value }))} /></div>
                 <div className="md:col-span-2"><Label>Observação</Label><Input value={form.observacao || ''} onChange={e => setForm(p => ({ ...p, observacao: e.target.value }))} /></div>
               </div>
 
@@ -404,7 +404,7 @@ export default function Empenhos({ modulo }: { modulo: ModuloId }) {
                 <div><span className="text-muted-foreground">Valor Total:</span><p className="font-bold text-foreground">{fmt(detalhe.valor)}</p></div>
                 <div><span className="text-muted-foreground">Status:</span><p><Badge variant={statusVariant[detalhe.status] as any}>{statusLabel[detalhe.status]}</Badge></p></div>
                 <div><span className="text-muted-foreground">Criação:</span><p className="text-foreground">{new Date(detalhe.dataCriacao).toLocaleDateString('pt-BR')}</p></div>
-                <div><span className="text-muted-foreground">Vencimento:</span><p className="text-foreground">{detalhe.dataVencimento ? new Date(detalhe.dataVencimento).toLocaleDateString('pt-BR') : '—'}</p></div>
+                <div><span className="text-muted-foreground">Data de Emissão:</span><p className="text-foreground">{detalhe.dataVencimento ? new Date(detalhe.dataVencimento).toLocaleDateString('pt-BR') : '—'}</p></div>
                 {detalhe.observacao && <div className="col-span-2"><span className="text-muted-foreground">Observação:</span><p className="text-foreground">{detalhe.observacao}</p></div>}
               </div>
 
