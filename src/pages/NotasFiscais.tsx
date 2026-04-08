@@ -212,10 +212,18 @@ function simulateNFeItems(numero: string): ItemNF[] {
   return items;
 }
 
-// ── Simulated supplier lookup ──────────────────────
+// ── Simulated supplier lookup (cadastro de fornecedores) ──
+const CADASTRO_FORNECEDORES: Record<string, string> = {
+  '12345678000190': 'Distribuidora Alpha Materiais e Suprimentos LTDA',
+  '98765432000110': 'Tech Supplies Informática e Equipamentos LTDA',
+  '11222333000144': 'Papelaria Central Comércio de Materiais EIRELI',
+  '55666777000188': 'Info Norte Soluções em Tecnologia LTDA',
+};
+
 function simulateFornecedor(cnpjRaw: string) {
-  const match = MOCK_EMPENHOS.find(e => e.cnpj.replace(/\D/g, '') === cnpjRaw);
-  return match?.fornecedor || 'Fornecedor não cadastrado';
+  return CADASTRO_FORNECEDORES[cnpjRaw] ||
+    MOCK_EMPENHOS.find(e => e.cnpj.replace(/\D/g, '') === cnpjRaw)?.fornecedor ||
+    'Fornecedor não cadastrado';
 }
 
 // ════════════════════════════════════════════════════
