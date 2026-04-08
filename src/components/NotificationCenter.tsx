@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Bell, Check, CheckCheck, Package, Landmark, Truck, Wrench, X } from "lucide-react";
+import { Bell, CheckCheck, Package, Landmark, Truck, Wrench } from "lucide-react";
 import { useNotificacoes } from "../contexts/NotificacoesContext";
 import { cn } from "../lib/utils";
 
