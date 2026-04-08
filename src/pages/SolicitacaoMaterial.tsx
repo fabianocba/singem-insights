@@ -34,7 +34,7 @@ export default function SolicitacaoMaterial({ modulo: _modulo }: { modulo: Modul
             {perfilSimulado === 'gestor' ? 'Todas as solicitações' : 'Minhas solicitações'}
           </p>
         </div>
-        <Button><Plus className="h-4 w-4 mr-2" /> Nova SM</Button>
+        <Button><Plus className="h-4 w-4 mr-2" /> Nova SB</Button>
       </div>
 
       <div className="relative max-w-sm">
