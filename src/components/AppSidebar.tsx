@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { cn } from "../lib/utils";
+import { useAuth } from "../contexts/AuthContext";
 import type { ModuloId } from "../types";
 import {
   Package, Landmark, Truck, Wrench, Settings,
   ChevronDown, ChevronRight, FileText, Receipt,
   ClipboardList, BookOpen, PackageOpen,
-  Shield, Send, Inbox
+  Shield, Send, Inbox, LogOut
 } from "lucide-react";
 
 interface AppSidebarProps {
@@ -106,6 +107,7 @@ const modules: ModuleConfig[] = [
 export default function AppSidebar({ moduloAtivo }: AppSidebarProps) {
   const navigate = useNavigate();
   const location = useLocation();
+  const { usuario, logout } = useAuth();
   const [expandedModule, setExpandedModule] = useState<string | null>(moduloAtivo || null);
 
   const handleModuleClick = (mod: ModuleConfig) => {
@@ -177,7 +179,18 @@ export default function AppSidebar({ moduloAtivo }: AppSidebarProps) {
       </nav>
 
       {/* Footer */}
-      <div className="border-t border-white/10 p-2">
+      <div className="border-t border-white/10 p-2 space-y-1">
+        {usuario && (
+          <div className="flex items-center gap-2 px-3 py-2 text-white/60">
+            <div className="h-7 w-7 rounded-full bg-white/10 flex items-center justify-center text-xs font-bold text-white/80">
+              {usuario.nome.split(" ").map(n => n[0]).join("").slice(0, 2)}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs text-white/80 font-medium truncate">{usuario.nome}</p>
+              <p className="text-[10px] text-white/40 truncate">{usuario.perfil}</p>
+            </div>
+          </div>
+        )}
         <button
           onClick={() => navigate('/configuracoes')}
           className={cn(
@@ -189,6 +202,13 @@ export default function AppSidebar({ moduloAtivo }: AppSidebarProps) {
         >
           <Settings className="h-4 w-4" />
           <span>Configurações</span>
+        </button>
+        <button
+          onClick={() => { logout(); navigate('/login'); }}
+          className="w-full flex items-center gap-2.5 px-3 py-2 rounded-md text-sm text-red-300/60 hover:bg-red-500/10 hover:text-red-300 transition-colors"
+        >
+          <LogOut className="h-4 w-4" />
+          <span>Sair</span>
         </button>
       </div>
     </aside>
