@@ -240,7 +240,7 @@ function TabUsuarios() {
               </div>
             )}
             <div className="flex items-center gap-2">
-              <Switch checked={form.ativo} onCheckedChange={v => setForm(p => ({ ...p, ativo: v }))} />
+              <Switch checked={form.ativo} onCheckedChange={(v: boolean) => setForm(p => ({ ...p, ativo: v }))} />
               <Label>Ativo</Label>
             </div>
           </div>
