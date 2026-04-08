@@ -976,6 +976,30 @@ export default function NotasFiscais({ modulo }: { modulo: ModuloId }) {
                 </table>
               </div>
 
+              {/* PDF anexado */}
+              {detalhe.pdfNome && (
+                <div className="border-t pt-4">
+                  <p className="text-sm font-semibold text-foreground mb-2 flex items-center gap-2">
+                    <FileText className="h-4 w-4" /> PDF da Nota Fiscal
+                  </p>
+                  <div className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                        <FileText className="h-5 w-5 text-primary" />
+                      </div>
+                      <p className="text-sm font-medium text-foreground">{detalhe.pdfNome}</p>
+                    </div>
+                    {detalhe.pdfUrl && (
+                      <Button size="sm" variant="outline" asChild>
+                        <a href={detalhe.pdfUrl} target="_blank" rel="noopener noreferrer">
+                          <Eye className="h-4 w-4 mr-1" />Visualizar
+                        </a>
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              )}
+
               {/* Ações de aceite */}
               <DialogFooter className="flex-col sm:flex-row gap-2">
                 {(detalhe.status === 'pendente' || detalhe.status === 'vinculada') && (
