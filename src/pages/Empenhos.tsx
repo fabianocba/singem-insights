@@ -336,7 +336,7 @@ export default function Empenhos({ modulo }: { modulo: ModuloId }) {
               </DialogHeader>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
                 <div><Label>Nº Empenho *</Label><Input placeholder="2026NE000000" value={form.numero || ''} onChange={e => setForm(p => ({ ...p, numero: e.target.value.toUpperCase() }))} /></div>
-                
+                <div><Label>Data de Emissão</Label><Input type="date" value={form.dataVencimento || ''} onChange={e => setForm(p => ({ ...p, dataVencimento: e.target.value }))} /></div>
                 <div><Label>Fornecedor *</Label><Input value={form.fornecedor || ''} onChange={e => setForm(p => ({ ...p, fornecedor: e.target.value }))} /></div>
                 <div><Label>CNPJ *</Label><Input placeholder="00.000.000/0000-00" value={form.cnpj || ''} onChange={e => setForm(p => ({ ...p, cnpj: e.target.value }))} /></div>
                 <div className="md:col-span-2"><Label>Objeto</Label><Input value={form.objeto || ''} onChange={e => setForm(p => ({ ...p, objeto: e.target.value }))} /></div>
@@ -355,7 +355,6 @@ export default function Empenhos({ modulo }: { modulo: ModuloId }) {
                     <option value="cancelado">Cancelado</option>
                   </select>
                 </div>
-                <div><Label>Data de Emissão</Label><Input type="date" value={form.dataVencimento || ''} onChange={e => setForm(p => ({ ...p, dataVencimento: e.target.value }))} /></div>
                 <div className="md:col-span-2"><Label>Observação</Label><Input value={form.observacao || ''} onChange={e => setForm(p => ({ ...p, observacao: e.target.value }))} /></div>
               </div>
 
