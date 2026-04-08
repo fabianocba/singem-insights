@@ -358,6 +358,7 @@ export default function NotasFiscais({ modulo }: { modulo: ModuloId }) {
     setEmpenhoSelecionado('');
     setBuscaEmpenho('');
     setPdfFile(null);
+    setModoEntrada('chave');
     setDialogAberto(true);
     setTimeout(() => chaveRef.current?.focus(), 200);
   }
