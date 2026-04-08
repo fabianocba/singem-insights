@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "sonner";
 import { NotificacoesProvider } from "./contexts/NotificacoesContext";
+import { SolicitacoesProvider } from "./contexts/SolicitacoesContext";
 import AppLayout from "./components/AppLayout";
 import Index from "./pages/Index";
 import Empenhos from "./pages/Empenhos";
