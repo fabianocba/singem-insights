@@ -212,10 +212,18 @@ function simulateNFeItems(numero: string): ItemNF[] {
   return items;
 }
 
-// ── Simulated supplier lookup ──────────────────────
+// ── Simulated supplier lookup (cadastro de fornecedores) ──
+const CADASTRO_FORNECEDORES: Record<string, string> = {
+  '12345678000190': 'Distribuidora Alpha Materiais e Suprimentos LTDA',
+  '98765432000110': 'Tech Supplies Informática e Equipamentos LTDA',
+  '11222333000144': 'Papelaria Central Comércio de Materiais EIRELI',
+  '55666777000188': 'Info Norte Soluções em Tecnologia LTDA',
+};
+
 function simulateFornecedor(cnpjRaw: string) {
-  const match = MOCK_EMPENHOS.find(e => e.cnpj.replace(/\D/g, '') === cnpjRaw);
-  return match?.fornecedor || 'Fornecedor não cadastrado';
+  return CADASTRO_FORNECEDORES[cnpjRaw] ||
+    MOCK_EMPENHOS.find(e => e.cnpj.replace(/\D/g, '') === cnpjRaw)?.fornecedor ||
+    'Fornecedor não cadastrado';
 }
 
 // ════════════════════════════════════════════════════
@@ -723,6 +731,12 @@ export default function NotasFiscais({ modulo }: { modulo: ModuloId }) {
                     <div><Label>Fornecedor *</Label><Input value={form.fornecedor || ''} onChange={e => setForm(p => ({ ...p, fornecedor: e.target.value }))} /></div>
                     <div><Label>CNPJ *</Label><Input value={form.cnpj || ''} onChange={e => setForm(p => ({ ...p, cnpj: e.target.value }))} placeholder="00.000.000/0000-00" /></div>
                     <div><Label>Data Emissão</Label><Input type="date" value={form.dataEmissao || ''} onChange={e => setForm(p => ({ ...p, dataEmissao: e.target.value }))} /></div>
+                    <div>
+                      <Label>Valor Total da NF</Label>
+                      <div className="h-10 px-3 flex items-center rounded-md border border-input bg-muted/30 font-bold text-foreground">
+                        {fmt(valorTotalNF)}
+                      </div>
+                    </div>
                     <div><Label>Chave NFe</Label><Input value={form.chaveNFe || ''} className="font-mono text-xs" readOnly disabled /></div>
                     <div className="md:col-span-2"><Label>Observação</Label><Input value={form.observacao || ''} onChange={e => setForm(p => ({ ...p, observacao: e.target.value }))} /></div>
                   </div>
