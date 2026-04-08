@@ -121,30 +121,25 @@ export default function AppSidebar({ moduloAtivo }: AppSidebarProps) {
       <nav className="flex-1 overflow-y-auto py-3 px-2 space-y-1">
         {modules.map((mod) => (
           <div key={mod.id}>
-            {/* Cabeçalho do módulo */}
-            <div className="flex items-center">
-              <button
-                onClick={() => navigate(mod.dashboardPath)}
-                className={cn(
-                  "flex-1 flex items-center gap-2.5 px-3 py-2 rounded-md text-sm font-medium transition-colors",
-                  moduloAtivo === mod.id
-                    ? "bg-white/10 text-white"
-                    : "hover:bg-white/5 text-white/70"
-                )}
-              >
-                <mod.icon className={cn("h-4 w-4", mod.color)} />
-                <span>{mod.label}</span>
-              </button>
-              <button
-                onClick={() => toggleModule(mod.id)}
-                className="p-1.5 rounded hover:bg-white/10 text-white/50"
-              >
-                {expanded[mod.id] ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
-              </button>
-            </div>
+            <button
+              onClick={() => handleModuleClick(mod)}
+              className={cn(
+                "w-full flex items-center gap-2.5 px-3 py-2 rounded-md text-sm font-medium transition-colors",
+                moduloAtivo === mod.id
+                  ? "bg-white/10 text-white"
+                  : "hover:bg-white/5 text-white/70"
+              )}
+            >
+              <mod.icon className={cn("h-4 w-4", mod.color)} />
+              <span className="flex-1 text-left">{mod.label}</span>
+              {mod.items.length > 0 && (
+                expandedModule === mod.id
+                  ? <ChevronDown className="h-3.5 w-3.5 text-white/50" />
+                  : <ChevronRight className="h-3.5 w-3.5 text-white/50" />
+              )}
+            </button>
 
-            {/* Sub-itens */}
-            {expanded[mod.id] && (
+            {expandedModule === mod.id && mod.items.length > 0 && (
               <div className="ml-4 mt-0.5 space-y-0.5 border-l border-white/15 pl-3">
                 {mod.items.map((item) => (
                   <button
