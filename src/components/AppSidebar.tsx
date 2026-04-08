@@ -6,7 +6,7 @@ import {
   Package, Landmark, Truck, Wrench, Settings,
   ChevronDown, ChevronRight, FileText, Receipt,
   ClipboardList, BookOpen, PackageOpen,
-  Shield, Send
+  Shield, Send, Inbox
 } from "lucide-react";
 
 interface AppSidebarProps {
@@ -41,6 +41,7 @@ const modules: ModuleConfig[] = [
       { label: 'Estoque', path: '/almoxarifado/estoque', icon: PackageOpen },
       { label: 'Catálogo', path: '/almoxarifado/catalogo', icon: BookOpen },
       { label: 'Liberar Material', path: '/almoxarifado/liberar-material', icon: ClipboardList },
+      { label: 'Solicitações Recebidas', path: '/almoxarifado/solicitacoes', icon: Inbox },
       { label: 'ADM', path: '/almoxarifado/adm', icon: Shield },
     ],
   },
@@ -55,6 +56,7 @@ const modules: ModuleConfig[] = [
       { label: 'Notas Fiscais', path: '/patrimonio/notas-fiscais', icon: Receipt },
       { label: 'Itens Patrimoniais', path: '/patrimonio/itens', icon: PackageOpen },
       { label: 'Movimentação de Bens', path: '/patrimonio/movimentacao', icon: ClipboardList },
+      { label: 'Solicitações Recebidas', path: '/patrimonio/solicitacoes', icon: Inbox },
       { label: 'ADM', path: '/patrimonio/adm', icon: Shield },
     ],
   },
@@ -68,6 +70,7 @@ const modules: ModuleConfig[] = [
       { label: 'Cadastros', path: '/transportes/cadastros', icon: BookOpen },
       { label: 'Manutenção', path: '/transportes/manutencao', icon: Wrench },
       { label: 'Agendamentos', path: '/transportes/agendamentos', icon: ClipboardList },
+      { label: 'Solicitações Recebidas', path: '/transportes/solicitacoes', icon: Inbox },
       { label: 'ADM', path: '/transportes/adm', icon: Shield },
     ],
   },
@@ -81,6 +84,7 @@ const modules: ModuleConfig[] = [
       { label: 'Contratos', path: '/servicos/contratos', icon: FileText },
       { label: 'Notas Fiscais', path: '/servicos/notas-fiscais', icon: Receipt },
       { label: 'Ordens de Serviço', path: '/servicos/ordens', icon: ClipboardList },
+      { label: 'Solicitações Recebidas', path: '/servicos/solicitacoes', icon: Inbox },
       { label: 'ADM', path: '/servicos/adm', icon: Shield },
     ],
   },
