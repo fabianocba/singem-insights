@@ -9,8 +9,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "../components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
 import {
-  Users, Building2, Bell, Plus, Pencil, Trash2, Shield, Save, Search,
-  Mail, Phone, MapPin, Hash, CheckCircle2, XCircle, BellRing, BellOff, Save
+  Users, Building2, Bell, Plus, Pencil, Trash2, Save, Search,
+  Mail, Phone, MapPin, Hash, CheckCircle2, XCircle, BellRing, BellOff
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "../lib/utils";
