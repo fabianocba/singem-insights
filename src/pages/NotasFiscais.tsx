@@ -18,6 +18,16 @@ import { toast } from "sonner";
 // ── Types ──────────────────────────────────────────
 type StatusNF = 'pendente' | 'vinculada' | 'aceita' | 'rejeitada';
 
+interface ItemEmpenhoMock {
+  id: string;
+  descricao: string;
+  unidade: string;
+  quantidade: number;
+  valorUnitario: number;
+  saldoDisponivel: number;
+  catmat?: string;
+}
+
 interface ItemNF {
   id: string;
   descricao: string;
@@ -26,6 +36,7 @@ interface ItemNF {
   valorUnitario: number;
   validado?: boolean;
   catmat?: string;
+  empenhoItemId?: string; // ID do item do empenho vinculado
 }
 
 interface NotaFiscal {
