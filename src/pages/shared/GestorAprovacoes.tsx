@@ -10,31 +10,8 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { useNotificacoes } from "../../contexts/NotificacoesContext";
+import { useSolicitacoes } from "../../contexts/SolicitacoesContext";
 import type { ModuloId } from "../../types";
-
-type StatusSolicitacao = 'enviada' | 'autorizada' | 'rejeitada' | 'atendida' | 'parcial';
-
-interface ItemSolicitacao {
-  id: string;
-  descricao: string;
-  quantidade: number;
-  unidade: string;
-}
-
-interface Solicitacao {
-  id: string;
-  numero: string;
-  tipo: string;
-  solicitante: string;
-  setor: string;
-  data: string;
-  status: StatusSolicitacao;
-  itens: ItemSolicitacao[];
-  justificativa: string;
-  observacao: string;
-  destino?: string;
-  prioridade?: string;
-}
 
 const iconeModulo: Record<string, React.ElementType> = {
   almoxarifado: Package,
@@ -50,13 +27,6 @@ const tituloModulo: Record<string, string> = {
   servicos: "Solicitações de Serviço",
 };
 
-const prefixoModulo: Record<string, string> = {
-  almoxarifado: "SM",
-  patrimonio: "SB",
-  transportes: "SV",
-  servicos: "SS",
-};
-
 const tipoNotificacao: Record<string, 'sm_almox' | 'sb_patrim' | 'sol_veiculo' | 'sol_servico'> = {
   almoxarifado: 'sm_almox',
   patrimonio: 'sb_patrim',
@@ -64,56 +34,13 @@ const tipoNotificacao: Record<string, 'sm_almox' | 'sb_patrim' | 'sol_veiculo' |
   servicos: 'sol_servico',
 };
 
-function gerarSolicitacoesMock(modulo: string): Solicitacao[] {
-  const prefix = prefixoModulo[modulo];
-  const base: Solicitacao[] = [
-    {
-      id: '1', numero: `${prefix}-2026-007`, tipo: modulo, solicitante: 'Maria Silva',
-      setor: 'Coordenação de Ensino', data: '2026-04-08T09:00:00', status: 'enviada',
-      justificativa: 'Necessidade urgente para atender demanda do setor.',
-      observacao: '',
-      itens: [
-        { id: '1', descricao: modulo === 'almoxarifado' ? 'Resma Papel A4' : modulo === 'patrimonio' ? 'Cadeira Giratória' : modulo === 'transportes' ? 'Viagem a Salvador' : 'Reparo elétrico', quantidade: modulo === 'transportes' ? 1 : 10, unidade: modulo === 'transportes' ? 'viagem' : 'un' },
-        { id: '2', descricao: modulo === 'almoxarifado' ? 'Caneta Esferográfica' : modulo === 'patrimonio' ? 'Mesa de Escritório' : modulo === 'transportes' ? 'Transporte de equipamentos' : 'Troca de lâmpadas', quantidade: modulo === 'transportes' ? 1 : 20, unidade: modulo === 'transportes' ? 'viagem' : 'un' },
-      ],
-    },
-    {
-      id: '2', numero: `${prefix}-2026-008`, tipo: modulo, solicitante: 'João Santos',
-      setor: 'Departamento de TI', data: '2026-04-07T14:30:00', status: 'enviada',
-      justificativa: 'Reposição de materiais em baixa.',
-      observacao: '',
-      itens: [
-        { id: '3', descricao: modulo === 'almoxarifado' ? 'Toner HP' : modulo === 'patrimonio' ? 'Monitor 24"' : modulo === 'transportes' ? 'Viagem a Vitória da Conquista' : 'Manutenção ar-condicionado', quantidade: 2, unidade: 'un' },
-      ],
-    },
-    {
-      id: '3', numero: `${prefix}-2026-005`, tipo: modulo, solicitante: 'Ana Costa',
-      setor: 'Administração', data: '2026-04-06T10:00:00', status: 'autorizada',
-      justificativa: 'Solicitação previamente aprovada.',
-      observacao: 'Aprovado pela chefia.',
-      itens: [
-        { id: '4', descricao: modulo === 'almoxarifado' ? 'Grampeador' : modulo === 'patrimonio' ? 'Armário 2 portas' : modulo === 'transportes' ? 'Viagem de campo' : 'Pintura sala 12', quantidade: 3, unidade: 'un' },
-      ],
-    },
-    {
-      id: '4', numero: `${prefix}-2026-003`, tipo: modulo, solicitante: 'Carlos Almeida',
-      setor: 'CGAE', data: '2026-04-05T08:00:00', status: 'rejeitada',
-      justificativa: 'Material para evento.',
-      observacao: 'Item fora do catálogo.',
-      itens: [
-        { id: '5', descricao: modulo === 'almoxarifado' ? 'Fita adesiva especial' : modulo === 'patrimonio' ? 'Projetor multimídia' : modulo === 'transportes' ? 'Ônibus para excursão' : 'Instalação de cortinas', quantidade: 5, unidade: 'un' },
-      ],
-    },
-  ];
-  return base;
-}
-
-const statusConfig: Record<StatusSolicitacao, { label: string; color: string; icon: React.ElementType }> = {
+const statusConfig: Record<string, { label: string; color: string; icon: React.ElementType }> = {
   enviada: { label: 'Pendente', color: 'bg-amber-500/20 text-amber-300', icon: Clock },
-  autorizada: { label: 'Aprovada', color: 'bg-emerald-500/20 text-emerald-300', icon: CheckCircle2 },
+  aprovada: { label: 'Aprovada', color: 'bg-emerald-500/20 text-emerald-300', icon: CheckCircle2 },
   rejeitada: { label: 'Rejeitada', color: 'bg-red-500/20 text-red-300', icon: XCircle },
   atendida: { label: 'Atendida', color: 'bg-blue-500/20 text-blue-300', icon: CheckCircle2 },
   parcial: { label: 'Parcial', color: 'bg-orange-500/20 text-orange-300', icon: AlertTriangle },
+  rascunho: { label: 'Rascunho', color: 'bg-slate-500/20 text-slate-300', icon: Clock },
 };
 
 interface Props {
@@ -122,16 +49,22 @@ interface Props {
 
 export default function GestorAprovacoes({ modulo }: Props) {
   const { adicionarNotificacao } = useNotificacoes();
-  const [solicitacoes, setSolicitacoes] = useState<Solicitacao[]>(gerarSolicitacoesMock(modulo));
+  const { getPorTipo, atualizarStatus } = useSolicitacoes();
+
+  // Gestor vê apenas solicitações enviadas/aprovadas/rejeitadas/atendidas (não rascunhos)
+  const todasSolicitacoes = getPorTipo(modulo as any).filter(s => s.status !== 'rascunho');
+
   const [filtroStatus, setFiltroStatus] = useState<string>('todos');
   const [busca, setBusca] = useState('');
-  const [detalheSol, setDetalheSol] = useState<Solicitacao | null>(null);
+  const [detalheSolId, setDetalheSolId] = useState<string | null>(null);
   const [acaoDialog, setAcaoDialog] = useState<'aprovar' | 'rejeitar' | null>(null);
   const [motivoRejeicao, setMotivoRejeicao] = useState('');
 
   const Icon = iconeModulo[modulo];
 
-  const filtradas = solicitacoes.filter(s => {
+  const detalheSol = todasSolicitacoes.find(s => s.id === detalheSolId) || null;
+
+  const filtradas = todasSolicitacoes.filter(s => {
     const matchStatus = filtroStatus === 'todos' || s.status === filtroStatus;
     const matchBusca = busca === '' ||
       s.numero.toLowerCase().includes(busca.toLowerCase()) ||
@@ -140,14 +73,14 @@ export default function GestorAprovacoes({ modulo }: Props) {
     return matchStatus && matchBusca;
   });
 
-  const pendentes = solicitacoes.filter(s => s.status === 'enviada').length;
-  const aprovadas = solicitacoes.filter(s => s.status === 'autorizada').length;
-  const rejeitadas = solicitacoes.filter(s => s.status === 'rejeitada').length;
+  const pendentes = todasSolicitacoes.filter(s => s.status === 'enviada').length;
+  const aprovadas = todasSolicitacoes.filter(s => s.status === 'aprovada').length;
+  const rejeitadas = todasSolicitacoes.filter(s => s.status === 'rejeitada').length;
 
-  const handleAprovar = (sol: Solicitacao) => {
-    setSolicitacoes(prev => prev.map(s =>
-      s.id === sol.id ? { ...s, status: 'autorizada' as StatusSolicitacao, observacao: 'Aprovado pelo gestor.' } : s
-    ));
+  const handleAprovar = (solId: string) => {
+    const sol = todasSolicitacoes.find(s => s.id === solId);
+    if (!sol) return;
+    atualizarStatus(solId, 'aprovada', 'Aprovado pelo gestor.');
     adicionarNotificacao({
       tipo: tipoNotificacao[modulo],
       titulo: `${sol.numero} Aprovada`,
@@ -155,18 +88,18 @@ export default function GestorAprovacoes({ modulo }: Props) {
       link: `/solicitacoes/${modulo === 'servicos' ? 'ordem-servico' : modulo}`,
     });
     toast.success(`${sol.numero} aprovada com sucesso!`);
-    setDetalheSol(null);
+    setDetalheSolId(null);
     setAcaoDialog(null);
   };
 
-  const handleRejeitar = (sol: Solicitacao) => {
+  const handleRejeitar = (solId: string) => {
     if (!motivoRejeicao.trim()) {
       toast.error("Informe o motivo da rejeição.");
       return;
     }
-    setSolicitacoes(prev => prev.map(s =>
-      s.id === sol.id ? { ...s, status: 'rejeitada' as StatusSolicitacao, observacao: motivoRejeicao } : s
-    ));
+    const sol = todasSolicitacoes.find(s => s.id === solId);
+    if (!sol) return;
+    atualizarStatus(solId, 'rejeitada', motivoRejeicao);
     adicionarNotificacao({
       tipo: tipoNotificacao[modulo],
       titulo: `${sol.numero} Rejeitada`,
@@ -174,7 +107,7 @@ export default function GestorAprovacoes({ modulo }: Props) {
       link: `/solicitacoes/${modulo === 'servicos' ? 'ordem-servico' : modulo}`,
     });
     toast.error(`${sol.numero} rejeitada.`);
-    setDetalheSol(null);
+    setDetalheSolId(null);
     setAcaoDialog(null);
     setMotivoRejeicao('');
   };
@@ -249,7 +182,7 @@ export default function GestorAprovacoes({ modulo }: Props) {
           <SelectContent>
             <SelectItem value="todos">Todos</SelectItem>
             <SelectItem value="enviada">Pendentes</SelectItem>
-            <SelectItem value="autorizada">Aprovadas</SelectItem>
+            <SelectItem value="aprovada">Aprovadas</SelectItem>
             <SelectItem value="rejeitada">Rejeitadas</SelectItem>
             <SelectItem value="atendida">Atendidas</SelectItem>
           </SelectContent>
@@ -266,9 +199,9 @@ export default function GestorAprovacoes({ modulo }: Props) {
           </Card>
         ) : (
           filtradas.map(sol => {
-            const cfg = statusConfig[sol.status];
+            const cfg = statusConfig[sol.status] || statusConfig.enviada;
             return (
-              <Card key={sol.id} className="bg-card border-border hover:border-primary/30 transition-colors cursor-pointer" onClick={() => setDetalheSol(sol)}>
+              <Card key={sol.id} className="bg-card border-border hover:border-primary/30 transition-colors cursor-pointer" onClick={() => setDetalheSolId(sol.id)}>
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
@@ -295,10 +228,10 @@ export default function GestorAprovacoes({ modulo }: Props) {
                       </span>
                       {sol.status === 'enviada' && (
                         <div className="flex gap-1.5">
-                          <Button size="sm" variant="outline" className="h-7 text-xs border-emerald-500/50 text-emerald-400 hover:bg-emerald-500/10" onClick={e => { e.stopPropagation(); handleAprovar(sol); }}>
+                          <Button size="sm" variant="outline" className="h-7 text-xs border-emerald-500/50 text-emerald-400 hover:bg-emerald-500/10" onClick={e => { e.stopPropagation(); handleAprovar(sol.id); }}>
                             <CheckCircle2 className="h-3.5 w-3.5 mr-1" /> Aprovar
                           </Button>
-                          <Button size="sm" variant="outline" className="h-7 text-xs border-red-500/50 text-red-400 hover:bg-red-500/10" onClick={e => { e.stopPropagation(); setDetalheSol(sol); setAcaoDialog('rejeitar'); }}>
+                          <Button size="sm" variant="outline" className="h-7 text-xs border-red-500/50 text-red-400 hover:bg-red-500/10" onClick={e => { e.stopPropagation(); setDetalheSolId(sol.id); setAcaoDialog('rejeitar'); }}>
                             <XCircle className="h-3.5 w-3.5 mr-1" /> Rejeitar
                           </Button>
                         </div>
@@ -313,7 +246,7 @@ export default function GestorAprovacoes({ modulo }: Props) {
       </div>
 
       {/* Dialog Detalhes */}
-      <Dialog open={!!detalheSol && !acaoDialog} onOpenChange={() => setDetalheSol(null)}>
+      <Dialog open={!!detalheSol && !acaoDialog} onOpenChange={() => setDetalheSolId(null)}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
@@ -329,8 +262,8 @@ export default function GestorAprovacoes({ modulo }: Props) {
                 <div><span className="text-muted-foreground">Data:</span> <strong>{new Date(detalheSol.data).toLocaleDateString('pt-BR')}</strong></div>
                 <div>
                   <span className="text-muted-foreground">Status:</span>{' '}
-                  <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${statusConfig[detalheSol.status].color}`}>
-                    {statusConfig[detalheSol.status].label}
+                  <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${(statusConfig[detalheSol.status] || statusConfig.enviada).color}`}>
+                    {(statusConfig[detalheSol.status] || statusConfig.enviada).label}
                   </span>
                 </div>
               </div>
@@ -373,7 +306,7 @@ export default function GestorAprovacoes({ modulo }: Props) {
 
               {detalheSol.status === 'enviada' && (
                 <div className="flex gap-2 pt-2">
-                  <Button className="flex-1 bg-emerald-600 hover:bg-emerald-700" onClick={() => handleAprovar(detalheSol)}>
+                  <Button className="flex-1 bg-emerald-600 hover:bg-emerald-700" onClick={() => handleAprovar(detalheSol.id)}>
                     <CheckCircle2 className="h-4 w-4 mr-2" /> Aprovar Solicitação
                   </Button>
                   <Button variant="destructive" className="flex-1" onClick={() => setAcaoDialog('rejeitar')}>
@@ -408,7 +341,7 @@ export default function GestorAprovacoes({ modulo }: Props) {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => { setAcaoDialog(null); setMotivoRejeicao(''); }}>Cancelar</Button>
-            <Button variant="destructive" onClick={() => detalheSol && handleRejeitar(detalheSol)}>Confirmar Rejeição</Button>
+            <Button variant="destructive" onClick={() => detalheSolId && handleRejeitar(detalheSolId)}>Confirmar Rejeição</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

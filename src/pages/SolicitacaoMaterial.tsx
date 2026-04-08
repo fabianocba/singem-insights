@@ -7,68 +7,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { Plus, Search, ClipboardList, Package, Landmark, Trash2, Calendar, User, MapPin, Send } from "lucide-react";
 import { toast } from "sonner";
 import { useNotificacoes } from "../contexts/NotificacoesContext";
+import { useSolicitacoes } from "../contexts/SolicitacoesContext";
 import type { ModuloId } from "../types";
-
-interface ItemSM {
-  id: string;
-  codigo: string;
-  descricao: string;
-  unidade: string;
-  quantidade: number;
-}
-
-interface SolicitacaoMat {
-  id: string;
-  numero: string;
-  solicitante: string;
-  setor: string;
-  data: string;
-  status: string;
-  itens: ItemSM[];
-  justificativa: string;
-  observacao: string;
-  aprovadoPor: string;
-  dataAprovacao: string;
-  setorDestino: string; // setor gestor que recebe a solicitação
-}
-
-const MOCK_ALMOX: SolicitacaoMat[] = [
-  { id: '1', numero: 'SM-2026-001', solicitante: 'João Silva', setor: 'Coordenação de TI', data: '2026-04-01', status: 'enviada', justificativa: 'Reposição de material de escritório', observacao: '', aprovadoPor: '', dataAprovacao: '', setorDestino: 'Almoxarifado',
-    itens: [
-      { id: '1', codigo: '001.001', descricao: 'Resma papel A4', unidade: 'Resma', quantidade: 10 },
-      { id: '2', codigo: '001.015', descricao: 'Caneta esferográfica azul', unidade: 'Cx', quantidade: 5 },
-      { id: '3', codigo: '001.022', descricao: 'Grampeador de mesa', unidade: 'Un', quantidade: 2 },
-    ] },
-  { id: '2', numero: 'SM-2026-002', solicitante: 'Maria Souza', setor: 'Lab. Química', data: '2026-04-03', status: 'aprovada', justificativa: 'Material para aulas práticas', observacao: 'Entregar até 10/04', aprovadoPor: 'Gestor Almox.', dataAprovacao: '2026-04-04', setorDestino: 'Almoxarifado',
-    itens: [
-      { id: '1', codigo: '003.005', descricao: 'Luva de procedimento M', unidade: 'Cx', quantidade: 20 },
-      { id: '2', codigo: '003.012', descricao: 'Béquer 250ml', unidade: 'Un', quantidade: 10 },
-    ] },
-  { id: '3', numero: 'SM-2026-003', solicitante: 'Carlos Oliveira', setor: 'Biblioteca', data: '2026-04-05', status: 'rascunho', justificativa: '', observacao: '', aprovadoPor: '', dataAprovacao: '', setorDestino: 'Almoxarifado',
-    itens: [{ id: '1', codigo: '001.003', descricao: 'Envelope pardo A4', unidade: 'Un', quantidade: 50 }] },
-  { id: '4', numero: 'SM-2026-004', solicitante: 'Ana Lima', setor: 'Direção', data: '2026-04-06', status: 'atendida', justificativa: 'Reposição mensal', observacao: '', aprovadoPor: 'Gestor Almox.', dataAprovacao: '2026-04-06', setorDestino: 'Almoxarifado',
-    itens: [
-      { id: '1', codigo: '001.001', descricao: 'Resma papel A4', unidade: 'Resma', quantidade: 5 },
-      { id: '2', codigo: '002.001', descricao: 'Toner HP 85A', unidade: 'Un', quantidade: 3 },
-    ] },
-  { id: '5', numero: 'SM-2026-005', solicitante: 'Pedro Santos', setor: 'CGAE', data: '2026-04-07', status: 'rejeitada', justificativa: 'Necessidade de materiais', observacao: 'Item sem estoque', aprovadoPor: 'Gestor Almox.', dataAprovacao: '2026-04-07', setorDestino: 'Almoxarifado',
-    itens: [{ id: '1', codigo: '004.010', descricao: 'Cartucho tinta preta', unidade: 'Un', quantidade: 10 }] },
-];
-
-const MOCK_PATRIM: SolicitacaoMat[] = [
-  { id: '1', numero: 'SB-2026-001', solicitante: 'Lucia Mendes', setor: 'Lab. Informática', data: '2026-04-01', status: 'enviada', justificativa: 'Substituição de equipamentos defeituosos', observacao: '', aprovadoPor: '', dataAprovacao: '', setorDestino: 'Patrimônio',
-    itens: [
-      { id: '1', codigo: 'PAT-001', descricao: 'Monitor LED 24"', unidade: 'Un', quantidade: 3 },
-      { id: '2', codigo: 'PAT-002', descricao: 'Teclado USB', unidade: 'Un', quantidade: 5 },
-    ] },
-  { id: '2', numero: 'SB-2026-002', solicitante: 'Roberto Alves', setor: 'Coordenação', data: '2026-04-03', status: 'aprovada', justificativa: 'Necessidade de novo mobiliário', observacao: '', aprovadoPor: 'Gestor Patrim.', dataAprovacao: '2026-04-04', setorDestino: 'Patrimônio',
-    itens: [
-      { id: '1', codigo: 'PAT-015', descricao: 'Cadeira giratória', unidade: 'Un', quantidade: 2 },
-      { id: '2', codigo: 'PAT-020', descricao: 'Mesa escritório 1.20m', unidade: 'Un', quantidade: 1 },
-    ] },
-  { id: '3', numero: 'SB-2026-003', solicitante: 'Fernanda Costa', setor: 'Direção', data: '2026-04-05', status: 'rascunho', justificativa: '', observacao: '', aprovadoPor: '', dataAprovacao: '', setorDestino: 'Patrimônio',
-    itens: [{ id: '1', codigo: 'PAT-030', descricao: 'Ar-condicionado Split 12000 BTUs', unidade: 'Un', quantidade: 1 }] },
-];
+import type { ItemSolicitacao, TipoSolicitacao } from "../contexts/SolicitacoesContext";
 
 const statusColors: Record<string, string> = {
   rascunho: 'bg-slate-500/20 text-slate-400',
@@ -86,19 +27,25 @@ const SETORES = ['Coordenação de TI', 'Lab. Química', 'Lab. Informática', 'L
 
 export default function SolicitacaoMaterial({ modulo }: { modulo: ModuloId }) {
   const isAlmox = modulo === 'almoxarifado';
+  const tipo: TipoSolicitacao = modulo as TipoSolicitacao;
   const prefix = isAlmox ? 'SM' : 'SB';
   const titulo = isAlmox ? 'SM Almoxarifado' : 'SB Patrimônio';
   const setorGestor = isAlmox ? 'Almoxarifado' : 'Patrimônio';
 
-  const [solicitacoes, setSolicitacoes] = useState<SolicitacaoMat[]>(isAlmox ? MOCK_ALMOX : MOCK_PATRIM);
+  const { getPorTipo, adicionar, enviar: enviarSol } = useSolicitacoes();
+  const { adicionarNotificacao } = useNotificacoes();
+
+  const solicitacoes = getPorTipo(tipo);
   const [busca, setBusca] = useState('');
   const [filtroStatus, setFiltroStatus] = useState('todos');
   const [modalNova, setModalNova] = useState(false);
-  const [detalhes, setDetalhes] = useState<SolicitacaoMat | null>(null);
+  const [detalhes, setDetalhes] = useState<string | null>(null);
   const [modalDetalhes, setModalDetalhes] = useState(false);
 
   const [form, setForm] = useState({ solicitante: '', setor: '', justificativa: '', observacao: '' });
-  const [itensForm, setItensForm] = useState<ItemSM[]>([{ id: '1', codigo: '', descricao: '', unidade: 'Un', quantidade: 1 }]);
+  const [itensForm, setItensForm] = useState<ItemSolicitacao[]>([{ id: '1', codigo: '', descricao: '', unidade: 'Un', quantidade: 1 }]);
+
+  const detalheSol = solicitacoes.find(s => s.id === detalhes) || null;
 
   const filtrados = solicitacoes.filter(s => {
     const buscaOk = s.numero.toLowerCase().includes(busca.toLowerCase()) || s.solicitante.toLowerCase().includes(busca.toLowerCase()) || s.setor.toLowerCase().includes(busca.toLowerCase());
@@ -115,48 +62,41 @@ export default function SolicitacaoMaterial({ modulo }: { modulo: ModuloId }) {
     setItensForm(itensForm.filter(i => i.id !== id));
   };
 
-  const handleItemChange = (id: string, field: keyof ItemSM, value: string | number) => {
+  const handleItemChange = (id: string, field: keyof ItemSolicitacao, value: string | number) => {
     setItensForm(itensForm.map(i => i.id === id ? { ...i, [field]: value } : i));
   };
 
-  const { adicionarNotificacao } = useNotificacoes();
-
   const handleSalvar = (enviar: boolean) => {
     if (!form.solicitante || !form.setor || itensForm.some(i => !i.descricao)) return;
-    const numero = `${prefix}-2026-${String(solicitacoes.length + 1).padStart(3, '0')}`;
-    const nova: SolicitacaoMat = {
-      id: String(Date.now()),
-      numero,
-      ...form,
-      data: new Date().toISOString().split('T')[0],
+    const nova = adicionar({
+      tipo,
+      solicitante: form.solicitante,
+      setor: form.setor,
+      justificativa: form.justificativa,
+      observacao: form.observacao,
       status: enviar ? 'enviada' : 'rascunho',
       itens: itensForm,
-      aprovadoPor: '',
-      dataAprovacao: '',
-      setorDestino: setorGestor,
-    };
-    setSolicitacoes([nova, ...solicitacoes]);
+    });
     setForm({ solicitante: '', setor: '', justificativa: '', observacao: '' });
     setItensForm([{ id: '1', codigo: '', descricao: '', unidade: 'Un', quantidade: 1 }]);
     setModalNova(false);
 
     if (enviar) {
-      toast.success(`${numero} enviada para ${setorGestor}`);
+      toast.success(`${nova.numero} enviada para ${setorGestor}`);
       adicionarNotificacao({
         tipo: isAlmox ? 'sm_almox' : 'sb_patrim',
-        titulo: `${numero} Enviada`,
+        titulo: `${nova.numero} Enviada`,
         mensagem: `Sua solicitação foi enviada ao setor de ${setorGestor} para análise.`,
         link: isAlmox ? '/solicitacoes/almoxarifado' : '/solicitacoes/patrimonio',
       });
     } else {
-      toast.info(`${numero} salva como rascunho`);
+      toast.info(`${nova.numero} salva como rascunho`);
     }
   };
 
   const handleEnviar = (id: string) => {
     const sol = solicitacoes.find(s => s.id === id);
-    setSolicitacoes(solicitacoes.map(s => s.id === id ? { ...s, status: 'enviada' } : s));
-    if (detalhes?.id === id) setDetalhes({ ...detalhes, status: 'enviada' });
+    enviarSol(id);
     if (sol) {
       toast.success(`${sol.numero} enviada para ${setorGestor}`);
       adicionarNotificacao({
@@ -226,7 +166,7 @@ export default function SolicitacaoMaterial({ modulo }: { modulo: ModuloId }) {
       {/* Lista */}
       <div className="grid gap-3">
         {filtrados.map(s => (
-          <Card key={s.id} className="border-border/50 hover:border-border transition-colors cursor-pointer" onClick={() => { setDetalhes(s); setModalDetalhes(true); }}>
+          <Card key={s.id} className="border-border/50 hover:border-border transition-colors cursor-pointer" onClick={() => { setDetalhes(s.id); setModalDetalhes(true); }}>
             <CardContent className="p-4">
               <div className="flex items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
@@ -247,7 +187,7 @@ export default function SolicitacaoMaterial({ modulo }: { modulo: ModuloId }) {
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-xs text-muted-foreground">→ {s.setorDestino}</span>
+                  <span className="text-xs text-muted-foreground">→ {setorGestor}</span>
                   <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${statusColors[s.status]}`}>{statusLabels[s.status]}</span>
                 </div>
               </div>
@@ -284,7 +224,7 @@ export default function SolicitacaoMaterial({ modulo }: { modulo: ModuloId }) {
                 {itensForm.map((item, idx) => (
                   <div key={item.id} className="flex gap-2 items-center">
                     <span className="text-xs text-muted-foreground w-6">{idx + 1}.</span>
-                    <Input placeholder="Código" value={item.codigo} onChange={e => handleItemChange(item.id, 'codigo', e.target.value)} className="w-24" />
+                    <Input placeholder="Código" value={item.codigo || ''} onChange={e => handleItemChange(item.id, 'codigo', e.target.value)} className="w-24" />
                     <Input placeholder="Descrição do item *" value={item.descricao} onChange={e => handleItemChange(item.id, 'descricao', e.target.value)} className="flex-1" />
                     <Input placeholder="Un" value={item.unidade} onChange={e => handleItemChange(item.id, 'unidade', e.target.value)} className="w-16" />
                     <Input type="number" placeholder="Qtd" value={item.quantidade} onChange={e => handleItemChange(item.id, 'quantidade', Number(e.target.value))} className="w-20" />
@@ -315,35 +255,34 @@ export default function SolicitacaoMaterial({ modulo }: { modulo: ModuloId }) {
       {/* Modal Detalhes */}
       <Dialog open={modalDetalhes} onOpenChange={setModalDetalhes}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          {detalhes && (
+          {detalheSol && (
             <>
               <DialogHeader>
                 <DialogTitle className="flex items-center gap-2">
                   {isAlmox ? <Package className="h-5 w-5 text-emerald-400" /> : <Landmark className="h-5 w-5 text-blue-400" />}
-                  {detalhes.numero}
-                  <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${statusColors[detalhes.status]}`}>{statusLabels[detalhes.status]}</span>
+                  {detalheSol.numero}
+                  <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${statusColors[detalheSol.status]}`}>{statusLabels[detalheSol.status]}</span>
                 </DialogTitle>
               </DialogHeader>
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-3 text-sm">
-                  <div><span className="text-muted-foreground">Solicitante:</span> <span className="font-medium">{detalhes.solicitante}</span></div>
-                  <div><span className="text-muted-foreground">Setor:</span> <span className="font-medium">{detalhes.setor}</span></div>
-                  <div><span className="text-muted-foreground">Data:</span> <span className="font-medium">{detalhes.data}</span></div>
-                  <div><span className="text-muted-foreground">Destino:</span> <span className="font-medium">{detalhes.setorDestino}</span></div>
-                  {detalhes.aprovadoPor && <div><span className="text-muted-foreground">Aprovado por:</span> <span className="font-medium">{detalhes.aprovadoPor}</span></div>}
-                  {detalhes.dataAprovacao && <div><span className="text-muted-foreground">Data aprovação:</span> <span className="font-medium">{detalhes.dataAprovacao}</span></div>}
+                  <div><span className="text-muted-foreground">Solicitante:</span> <span className="font-medium">{detalheSol.solicitante}</span></div>
+                  <div><span className="text-muted-foreground">Setor:</span> <span className="font-medium">{detalheSol.setor}</span></div>
+                  <div><span className="text-muted-foreground">Data:</span> <span className="font-medium">{detalheSol.data}</span></div>
+                  <div><span className="text-muted-foreground">Destino:</span> <span className="font-medium">{setorGestor}</span></div>
+                  {detalheSol.aprovadoPor && <div><span className="text-muted-foreground">Aprovado por:</span> <span className="font-medium">{detalheSol.aprovadoPor}</span></div>}
+                  {detalheSol.dataAprovacao && <div><span className="text-muted-foreground">Data aprovação:</span> <span className="font-medium">{detalheSol.dataAprovacao}</span></div>}
                 </div>
 
-                {detalhes.justificativa && (
-                  <div className="text-sm"><span className="text-muted-foreground">Justificativa:</span> <p className="mt-1">{detalhes.justificativa}</p></div>
+                {detalheSol.justificativa && (
+                  <div className="text-sm"><span className="text-muted-foreground">Justificativa:</span> <p className="mt-1">{detalheSol.justificativa}</p></div>
                 )}
-                {detalhes.observacao && (
-                  <div className="text-sm"><span className="text-muted-foreground">Observação:</span> <p className="mt-1">{detalhes.observacao}</p></div>
+                {detalheSol.observacao && (
+                  <div className="text-sm"><span className="text-muted-foreground">Observação:</span> <p className="mt-1">{detalheSol.observacao}</p></div>
                 )}
 
-                {/* Itens */}
                 <div>
-                  <h4 className="text-sm font-semibold mb-2">Itens ({detalhes.itens.length})</h4>
+                  <h4 className="text-sm font-semibold mb-2">Itens ({detalheSol.itens.length})</h4>
                   <div className="overflow-x-auto">
                     <table className="w-full text-sm">
                       <thead>
@@ -356,7 +295,7 @@ export default function SolicitacaoMaterial({ modulo }: { modulo: ModuloId }) {
                         </tr>
                       </thead>
                       <tbody>
-                        {detalhes.itens.map((item, idx) => (
+                        {detalheSol.itens.map((item, idx) => (
                           <tr key={item.id} className="border-b border-border/30">
                             <td className="py-1 px-2 text-muted-foreground">{idx + 1}</td>
                             <td className="py-1 px-2 font-mono text-xs">{item.codigo || '—'}</td>
@@ -370,26 +309,24 @@ export default function SolicitacaoMaterial({ modulo }: { modulo: ModuloId }) {
                   </div>
                 </div>
 
-                {/* Fluxo info */}
                 <div className="rounded-lg bg-muted/30 border border-border/50 p-3 text-xs text-muted-foreground">
                   <p className="font-medium text-foreground mb-1">Fluxo de aprovação</p>
                   <div className="flex items-center gap-2">
-                    <span className={detalhes.status !== 'rascunho' ? 'text-emerald-400' : ''}>Criada</span>
+                    <span className={detalheSol.status !== 'rascunho' ? 'text-emerald-400' : ''}>Criada</span>
                     <span>→</span>
-                    <span className={['enviada','aprovada','atendida'].includes(detalhes.status) ? 'text-emerald-400' : ''}>Enviada ao {setorGestor}</span>
+                    <span className={['enviada','aprovada','atendida'].includes(detalheSol.status) ? 'text-emerald-400' : ''}>Enviada ao {setorGestor}</span>
                     <span>→</span>
-                    <span className={['aprovada','atendida'].includes(detalhes.status) ? 'text-emerald-400' : detalhes.status === 'rejeitada' ? 'text-red-400' : ''}>
-                      {detalhes.status === 'rejeitada' ? 'Rejeitada' : 'Aprovada'}
+                    <span className={['aprovada','atendida'].includes(detalheSol.status) ? 'text-emerald-400' : detalheSol.status === 'rejeitada' ? 'text-red-400' : ''}>
+                      {detalheSol.status === 'rejeitada' ? 'Rejeitada' : 'Aprovada'}
                     </span>
                     <span>→</span>
-                    <span className={detalhes.status === 'atendida' ? 'text-emerald-400' : ''}>Atendida</span>
+                    <span className={detalheSol.status === 'atendida' ? 'text-emerald-400' : ''}>Atendida</span>
                   </div>
                 </div>
 
-                {/* Ações do solicitante */}
-                {detalhes.status === 'rascunho' && (
+                {detalheSol.status === 'rascunho' && (
                   <div className="flex gap-2">
-                    <Button size="sm" onClick={() => handleEnviar(detalhes.id)}>
+                    <Button size="sm" onClick={() => handleEnviar(detalheSol.id)}>
                       <Send className="h-3 w-3 mr-1" /> Enviar para {setorGestor}
                     </Button>
                   </div>

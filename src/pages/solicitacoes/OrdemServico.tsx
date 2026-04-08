@@ -7,35 +7,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { Plus, Search, Wrench, Calendar, User, MapPin, Send } from "lucide-react";
 import { toast } from "sonner";
 import { useNotificacoes } from "../../contexts/NotificacoesContext";
-
-interface SolicitacaoServico {
-  id: string;
-  numero: string;
-  solicitante: string;
-  setor: string;
-  data: string;
-  status: string;
-  tipoServico: string;
-  prioridade: string;
-  descricao: string;
-  local: string;
-  observacao: string;
-  aprovadoPor: string;
-  dataAprovacao: string;
-  osGerada: string; // número da OS gerada no módulo Serviços Gerais
-}
+import { useSolicitacoes } from "../../contexts/SolicitacoesContext";
 
 const TIPOS_SERVICO = ['Elétrica', 'Hidráulica', 'Manutenção Geral', 'Limpeza', 'Jardinagem', 'Pintura', 'Marcenaria', 'Alvenaria', 'Ar-condicionado', 'Outros'];
 const PRIORIDADES = ['Baixa', 'Normal', 'Alta', 'Urgente'];
 const SETORES = ['Coordenação de TI', 'Direção Geral', 'CGAE', 'Ensino', 'Lab. Informática', 'Lab. Ciências', 'Biblioteca', 'Coordenação', 'Administração', 'Refeitório', 'Quadra', 'Área Externa'];
-
-const MOCK: SolicitacaoServico[] = [
-  { id: '1', numero: 'SS-2026-001', solicitante: 'Ana Lima', setor: 'Biblioteca', data: '2026-04-01', status: 'enviada', tipoServico: 'Elétrica', prioridade: 'Alta', descricao: 'Lâmpadas queimadas no setor de periódicos', local: 'Bloco B - Biblioteca', observacao: '5 lâmpadas no corredor principal', aprovadoPor: '', dataAprovacao: '', osGerada: '' },
-  { id: '2', numero: 'SS-2026-002', solicitante: 'Pedro Santos', setor: 'Lab. Informática', data: '2026-04-02', status: 'aprovada', tipoServico: 'Ar-condicionado', prioridade: 'Urgente', descricao: 'Ar-condicionado do laboratório parou de funcionar', local: 'Bloco C - Lab 02', observacao: 'Temperatura acima de 35°C', aprovadoPor: 'Gestor Serviços', dataAprovacao: '2026-04-03', osGerada: 'OS-2026-047' },
-  { id: '3', numero: 'SS-2026-003', solicitante: 'Maria Souza', setor: 'Direção Geral', data: '2026-04-03', status: 'rascunho', tipoServico: 'Pintura', prioridade: 'Baixa', descricao: 'Pintura da sala de reuniões', local: 'Bloco Principal - Sala 3', observacao: '', aprovadoPor: '', dataAprovacao: '', osGerada: '' },
-  { id: '4', numero: 'SS-2026-004', solicitante: 'João Costa', setor: 'Coordenação', data: '2026-04-05', status: 'atendida', tipoServico: 'Hidráulica', prioridade: 'Alta', descricao: 'Vazamento na torneira do banheiro do corredor', local: 'Bloco A - Térreo', observacao: 'Urgente, está molhando o piso', aprovadoPor: 'Gestor Serviços', dataAprovacao: '2026-04-05', osGerada: 'OS-2026-044' },
-  { id: '5', numero: 'SS-2026-005', solicitante: 'Lucia Mendes', setor: 'Refeitório', data: '2026-04-06', status: 'rejeitada', tipoServico: 'Manutenção Geral', prioridade: 'Normal', descricao: 'Porta do depósito com fechadura emperrada', local: 'Refeitório - Depósito', observacao: 'Serviço de competência da empresa terceirizada', aprovadoPor: 'Gestor Serviços', dataAprovacao: '2026-04-07', osGerada: '' },
-];
 
 const statusColors: Record<string, string> = {
   rascunho: 'bg-slate-500/20 text-slate-400',
@@ -55,51 +31,57 @@ const prioridadeColors: Record<string, string> = {
 };
 
 export default function OrdemServico() {
-  const [solicitacoes, setSolicitacoes] = useState<SolicitacaoServico[]>(MOCK);
+  const { getPorTipo, adicionar, enviar: enviarSol } = useSolicitacoes();
+  const { adicionarNotificacao } = useNotificacoes();
+
+  const solicitacoes = getPorTipo('servicos');
   const [busca, setBusca] = useState('');
   const [filtroStatus, setFiltroStatus] = useState('todos');
   const [modalNova, setModalNova] = useState(false);
-  const [detalhes, setDetalhes] = useState<SolicitacaoServico | null>(null);
+  const [detalhes, setDetalhes] = useState<string | null>(null);
   const [modalDetalhes, setModalDetalhes] = useState(false);
 
   const [form, setForm] = useState({
     solicitante: '', setor: '', tipoServico: '', prioridade: 'Normal', descricao: '', local: '', observacao: '',
   });
 
+  const detalheSol = solicitacoes.find(s => s.id === detalhes) || null;
+
   const filtrados = solicitacoes.filter(s => {
-    const buscaOk = s.numero.toLowerCase().includes(busca.toLowerCase()) || s.descricao.toLowerCase().includes(busca.toLowerCase()) || s.solicitante.toLowerCase().includes(busca.toLowerCase());
+    const buscaOk = s.numero.toLowerCase().includes(busca.toLowerCase()) || (s.descricaoServico || s.justificativa).toLowerCase().includes(busca.toLowerCase()) || s.solicitante.toLowerCase().includes(busca.toLowerCase());
     const statusOk = filtroStatus === 'todos' || s.status === filtroStatus;
     return buscaOk && statusOk;
   });
 
-  const { adicionarNotificacao } = useNotificacoes();
-
   const handleSalvar = (enviar: boolean) => {
     if (!form.solicitante || !form.setor || !form.descricao || !form.tipoServico) return;
-    const numero = `SS-2026-${String(solicitacoes.length + 1).padStart(3, '0')}`;
-    const nova: SolicitacaoServico = {
-      id: String(Date.now()),
-      numero,
-      ...form,
-      data: new Date().toISOString().split('T')[0],
+    const nova = adicionar({
+      tipo: 'servicos',
+      solicitante: form.solicitante,
+      setor: form.setor,
+      justificativa: form.descricao,
+      observacao: form.observacao,
       status: enviar ? 'enviada' : 'rascunho',
-      aprovadoPor: '', dataAprovacao: '', osGerada: '',
-    };
-    setSolicitacoes([nova, ...solicitacoes]);
+      tipoServico: form.tipoServico,
+      prioridade: form.prioridade,
+      descricaoServico: form.descricao,
+      local: form.local,
+      osGerada: '',
+      itens: [{ id: '1', descricao: form.descricao, unidade: 'serviço', quantidade: 1 }],
+    });
     setForm({ solicitante: '', setor: '', tipoServico: '', prioridade: 'Normal', descricao: '', local: '', observacao: '' });
     setModalNova(false);
     if (enviar) {
-      toast.success(`${numero} enviada para Serviços Gerais`);
-      adicionarNotificacao({ tipo: 'sol_servico', titulo: `${numero} Enviada`, mensagem: `Solicitação de serviço enviada ao setor de Serviços Gerais.`, link: '/solicitacoes/ordem-servico' });
+      toast.success(`${nova.numero} enviada para Serviços Gerais`);
+      adicionarNotificacao({ tipo: 'sol_servico', titulo: `${nova.numero} Enviada`, mensagem: `Solicitação de serviço enviada ao setor de Serviços Gerais.`, link: '/solicitacoes/ordem-servico' });
     } else {
-      toast.info(`${numero} salva como rascunho`);
+      toast.info(`${nova.numero} salva como rascunho`);
     }
   };
 
   const handleEnviar = (id: string) => {
     const sol = solicitacoes.find(s => s.id === id);
-    setSolicitacoes(solicitacoes.map(s => s.id === id ? { ...s, status: 'enviada' } : s));
-    if (detalhes?.id === id) setDetalhes({ ...detalhes, status: 'enviada' });
+    enviarSol(id);
     if (sol) {
       toast.success(`${sol.numero} enviada para Serviços Gerais`);
       adicionarNotificacao({ tipo: 'sol_servico', titulo: `${sol.numero} Enviada`, mensagem: `Solicitação de serviço enviada ao setor de Serviços Gerais.`, link: '/solicitacoes/ordem-servico' });
@@ -159,7 +141,7 @@ export default function OrdemServico() {
 
       <div className="grid gap-3">
         {filtrados.map(s => (
-          <Card key={s.id} className="border-border/50 hover:border-border transition-colors cursor-pointer" onClick={() => { setDetalhes(s); setModalDetalhes(true); }}>
+          <Card key={s.id} className="border-border/50 hover:border-border transition-colors cursor-pointer" onClick={() => { setDetalhes(s.id); setModalDetalhes(true); }}>
             <CardContent className="p-4">
               <div className="flex items-start justify-between gap-4">
                 <div className="flex items-start gap-3 flex-1">
@@ -169,10 +151,10 @@ export default function OrdemServico() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
                       <span className="font-mono text-xs text-muted-foreground">{s.numero}</span>
-                      <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${prioridadeColors[s.prioridade]}`}>{s.prioridade}</span>
+                      {s.prioridade && <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${prioridadeColors[s.prioridade] || ''}`}>{s.prioridade}</span>}
                       {s.osGerada && <span className="text-xs text-emerald-400 font-mono">→ {s.osGerada}</span>}
                     </div>
-                    <p className="font-semibold text-sm">{s.descricao}</p>
+                    <p className="font-semibold text-sm">{s.descricaoServico || s.justificativa}</p>
                     <div className="flex flex-wrap gap-x-4 gap-y-1 mt-1 text-xs text-muted-foreground">
                       <span className="flex items-center gap-1"><User className="h-3 w-3" />{s.solicitante}</span>
                       <span className="flex items-center gap-1"><MapPin className="h-3 w-3" />{s.setor} — {s.local}</span>
@@ -218,7 +200,6 @@ export default function OrdemServico() {
             </div>
             <Input placeholder="Local (ex: Bloco B - Sala 5)" value={form.local} onChange={e => setForm({ ...form, local: e.target.value })} />
             <Input placeholder="Observações adicionais" value={form.observacao} onChange={e => setForm({ ...form, observacao: e.target.value })} />
-
             <div className="rounded-lg bg-muted/30 border border-border/50 p-3 text-xs text-muted-foreground">
               <p><strong>Fluxo:</strong> Ao enviar, sua solicitação será analisada pelo setor de <strong>Serviços Gerais</strong>. Se aprovada, uma Ordem de Serviço (OS) será gerada automaticamente para execução.</p>
             </div>
@@ -238,50 +219,50 @@ export default function OrdemServico() {
       {/* Modal Detalhes */}
       <Dialog open={modalDetalhes} onOpenChange={setModalDetalhes}>
         <DialogContent className="max-w-lg">
-          {detalhes && (
+          {detalheSol && (
             <>
               <DialogHeader>
                 <DialogTitle className="flex items-center gap-2">
                   <Wrench className="h-5 w-5 text-purple-400" />
-                  {detalhes.numero}
-                  <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${statusColors[detalhes.status]}`}>{statusLabels[detalhes.status]}</span>
+                  {detalheSol.numero}
+                  <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${statusColors[detalheSol.status]}`}>{statusLabels[detalheSol.status]}</span>
                 </DialogTitle>
               </DialogHeader>
               <div className="space-y-4">
                 <div>
-                  <p className="font-semibold">{detalhes.descricao}</p>
-                  <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${prioridadeColors[detalhes.prioridade]}`}>{detalhes.prioridade}</span>
+                  <p className="font-semibold">{detalheSol.descricaoServico || detalheSol.justificativa}</p>
+                  {detalheSol.prioridade && <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${prioridadeColors[detalheSol.prioridade] || ''}`}>{detalheSol.prioridade}</span>}
                 </div>
                 <div className="grid grid-cols-2 gap-3 text-sm">
-                  <div><span className="text-muted-foreground">Tipo:</span> <span className="font-medium">{detalhes.tipoServico}</span></div>
-                  <div><span className="text-muted-foreground">Local:</span> <span className="font-medium">{detalhes.local}</span></div>
-                  <div><span className="text-muted-foreground">Solicitante:</span> <span className="font-medium">{detalhes.solicitante}</span></div>
-                  <div><span className="text-muted-foreground">Setor:</span> <span className="font-medium">{detalhes.setor}</span></div>
-                  <div><span className="text-muted-foreground">Data:</span> <span className="font-medium">{detalhes.data}</span></div>
-                  {detalhes.aprovadoPor && <div><span className="text-muted-foreground">Aprovado por:</span> <span className="font-medium">{detalhes.aprovadoPor}</span></div>}
-                  {detalhes.osGerada && <div><span className="text-muted-foreground">OS Gerada:</span> <span className="font-medium text-emerald-400">{detalhes.osGerada}</span></div>}
+                  <div><span className="text-muted-foreground">Tipo:</span> <span className="font-medium">{detalheSol.tipoServico}</span></div>
+                  <div><span className="text-muted-foreground">Local:</span> <span className="font-medium">{detalheSol.local}</span></div>
+                  <div><span className="text-muted-foreground">Solicitante:</span> <span className="font-medium">{detalheSol.solicitante}</span></div>
+                  <div><span className="text-muted-foreground">Setor:</span> <span className="font-medium">{detalheSol.setor}</span></div>
+                  <div><span className="text-muted-foreground">Data:</span> <span className="font-medium">{detalheSol.data}</span></div>
+                  {detalheSol.aprovadoPor && <div><span className="text-muted-foreground">Aprovado por:</span> <span className="font-medium">{detalheSol.aprovadoPor}</span></div>}
+                  {detalheSol.osGerada && <div><span className="text-muted-foreground">OS Gerada:</span> <span className="font-medium text-emerald-400">{detalheSol.osGerada}</span></div>}
                 </div>
-                {detalhes.observacao && (
-                  <div className="text-sm"><span className="text-muted-foreground">Observação:</span> <p className="mt-1">{detalhes.observacao}</p></div>
+                {detalheSol.observacao && (
+                  <div className="text-sm"><span className="text-muted-foreground">Observação:</span> <p className="mt-1">{detalheSol.observacao}</p></div>
                 )}
 
                 <div className="rounded-lg bg-muted/30 border border-border/50 p-3 text-xs text-muted-foreground">
                   <p className="font-medium text-foreground mb-1">Fluxo</p>
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className={detalhes.status !== 'rascunho' ? 'text-emerald-400' : ''}>Solicitação</span>
+                    <span className={detalheSol.status !== 'rascunho' ? 'text-emerald-400' : ''}>Solicitação</span>
                     <span>→</span>
-                    <span className={['enviada','aprovada','atendida'].includes(detalhes.status) ? 'text-emerald-400' : ''}>Enviada a Serviços Gerais</span>
+                    <span className={['enviada','aprovada','atendida'].includes(detalheSol.status) ? 'text-emerald-400' : ''}>Enviada a Serviços Gerais</span>
                     <span>→</span>
-                    <span className={['aprovada','atendida'].includes(detalhes.status) ? 'text-emerald-400' : detalhes.status === 'rejeitada' ? 'text-red-400' : ''}>
-                      {detalhes.status === 'rejeitada' ? 'Rejeitada' : 'Aprovada → OS gerada'}
+                    <span className={['aprovada','atendida'].includes(detalheSol.status) ? 'text-emerald-400' : detalheSol.status === 'rejeitada' ? 'text-red-400' : ''}>
+                      {detalheSol.status === 'rejeitada' ? 'Rejeitada' : 'Aprovada → OS gerada'}
                     </span>
                     <span>→</span>
-                    <span className={detalhes.status === 'atendida' ? 'text-emerald-400' : ''}>Serviço Executado</span>
+                    <span className={detalheSol.status === 'atendida' ? 'text-emerald-400' : ''}>Serviço Executado</span>
                   </div>
                 </div>
 
-                {detalhes.status === 'rascunho' && (
-                  <Button size="sm" onClick={() => handleEnviar(detalhes.id)}>
+                {detalheSol.status === 'rascunho' && (
+                  <Button size="sm" onClick={() => handleEnviar(detalheSol.id)}>
                     <Send className="h-3 w-3 mr-1" /> Enviar para Serviços Gerais
                   </Button>
                 )}
