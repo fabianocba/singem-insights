@@ -538,8 +538,7 @@ export default function NotasFiscais({ modulo }: { modulo: ModuloId }) {
                           ref={chaveRef}
                           value={chaveInput}
                           onChange={e => processarChave(e.target.value)}
-                          placeholder="Escaneie ou digite a chave de 44 dígitos..."
-                          maxLength={44}
+                          placeholder="Escaneie ou cole a chave de 44 dígitos..."
                           className={`font-mono text-center text-lg h-14 tracking-wider ${
                             chaveValida === true ? 'border-green-500 bg-green-500/5' :
                             chaveValida === false ? 'border-destructive bg-destructive/5' : ''
@@ -553,7 +552,7 @@ export default function NotasFiscais({ modulo }: { modulo: ModuloId }) {
                         )}
                       </div>
                       <p className="text-xs text-muted-foreground mt-1 text-center">
-                        {chaveInput.length}/44 dígitos
+                        {chaveInput.replace(/\s/g, '').length}/44 dígitos {chaveInput.length !== chaveInput.replace(/\s/g, '').length && '(espaços ignorados)'}
                       </p>
                     </div>
 
