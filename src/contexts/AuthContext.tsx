@@ -7,6 +7,7 @@ export interface UsuarioAuth {
   cargo: string;
   setor: string;
   perfil: "admin" | "gestor" | "solicitante";
+  modulos?: string[];
   avatar?: string;
 }
 
@@ -27,7 +28,7 @@ const DEMO_USERS: Record<string, { senha: string; user: UsuarioAuth }> = {
   },
   "gestor@ifbaiano.edu.br": {
     senha: "gestor123",
-    user: { id: "2", nome: "Maria Santos", email: "gestor@ifbaiano.edu.br", cargo: "Coord. Almoxarifado", setor: "Coordenação de Almoxarifado", perfil: "gestor" },
+    user: { id: "2", nome: "Maria Santos", email: "gestor@ifbaiano.edu.br", cargo: "Coord. Almoxarifado", setor: "Coordenação de Almoxarifado", perfil: "gestor", modulos: ["almoxarifado", "patrimonio"] },
   },
   "solicitante@ifbaiano.edu.br": {
     senha: "user123",
