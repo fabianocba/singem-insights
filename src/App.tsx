@@ -37,6 +37,7 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <NotificacoesProvider>
+        <SolicitacoesProvider>
         <BrowserRouter>
           <Toaster position="top-right" richColors />
           <Routes>
@@ -83,6 +84,7 @@ function App() {
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </BrowserRouter>
+        </SolicitacoesProvider>
       </NotificacoesProvider>
     </QueryClientProvider>
   );
