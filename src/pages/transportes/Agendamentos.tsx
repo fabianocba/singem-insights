@@ -18,11 +18,8 @@ import {
   Eye,
   Clock,
   CheckCircle2,
-  XCircle,
   MapPin,
-  User,
   Car,
-  AlertTriangle,
 } from "lucide-react";
 
 type StatusAgendamento = "pendente" | "aprovado" | "em_uso" | "concluido" | "cancelado";

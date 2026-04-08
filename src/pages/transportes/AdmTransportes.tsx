@@ -8,14 +8,10 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
   DialogDescription,
 } from "../../components/ui/dialog";
 import {
-  Shield,
   Car,
-  Wrench,
-  CalendarDays,
   DollarSign,
   Fuel,
   AlertTriangle,

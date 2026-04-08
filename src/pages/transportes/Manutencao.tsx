@@ -16,13 +16,11 @@ import {
   Plus,
   Search,
   Eye,
-  AlertTriangle,
   CheckCircle2,
   Clock,
   Car,
   Calendar,
   DollarSign,
-  Filter,
 } from "lucide-react";
 
 type TipoManutencao = "preventiva" | "corretiva" | "preditiva";
