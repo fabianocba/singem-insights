@@ -423,6 +423,33 @@ export default function NotasFiscais({ modulo }: { modulo: ModuloId }) {
     }
   }, []);
 
+  function processarXml(file: File) {
+    setLendo(true);
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const xmlText = e.target?.result as string;
+      const result = parseXmlNFe(xmlText);
+      if (result) {
+        setForm(result.form);
+        setFormItens(result.itens);
+        setChaveInput(result.form.chaveNFe || '');
+        setChaveValida(true);
+        toast.success('XML importado com sucesso!', {
+          description: `NF ${result.form.numero} — ${result.form.fornecedor} — ${fmt(result.form.valor || 0)}`,
+        });
+        setTimeout(() => setStep('revisao'), 600);
+      } else {
+        toast.error('Erro ao ler XML', { description: 'Arquivo XML inválido ou não é uma NFe.' });
+      }
+      setLendo(false);
+    };
+    reader.onerror = () => {
+      toast.error('Erro ao ler arquivo');
+      setLendo(false);
+    };
+    reader.readAsText(file);
+  }
+
   function vincularItemEmpenho(idx: number, empenhoItemId: string) {
     const itensEmpenho = MOCK_EMPENHO_ITENS[empenhoSelecionado] || [];
     const itemEmp = itensEmpenho.find(ei => ei.id === empenhoItemId);
