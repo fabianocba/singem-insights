@@ -60,44 +60,44 @@ function AppRoutes() {
       <Route path="/login" element={isAuthenticated ? <Navigate to="/" replace /> : <Login />} />
       <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
       {/* Almoxarifado */}
-      <Route path="/almoxarifado" element={<ProtectedRoute><AppLayout modulo="almoxarifado"><AlmoxarifadoDashboard /></AppLayout></ProtectedRoute>} />
-      <Route path="/almoxarifado/empenhos" element={<ProtectedRoute><AppLayout modulo="almoxarifado"><Empenhos modulo="almoxarifado" /></AppLayout></ProtectedRoute>} />
-      <Route path="/almoxarifado/notas-fiscais" element={<ProtectedRoute><AppLayout modulo="almoxarifado"><NotasFiscais modulo="almoxarifado" /></AppLayout></ProtectedRoute>} />
-      <Route path="/almoxarifado/estoque" element={<ProtectedRoute><AppLayout modulo="almoxarifado"><Estoque /></AppLayout></ProtectedRoute>} />
-      <Route path="/almoxarifado/catalogo" element={<ProtectedRoute><AppLayout modulo="almoxarifado"><Catalogo /></AppLayout></ProtectedRoute>} />
-      <Route path="/almoxarifado/liberar-material" element={<ProtectedRoute><AppLayout modulo="almoxarifado"><LiberarMaterial /></AppLayout></ProtectedRoute>} />
-      <Route path="/almoxarifado/adm" element={<ProtectedRoute><AppLayout modulo="almoxarifado"><AdmAlmoxarifado /></AppLayout></ProtectedRoute>} />
-      <Route path="/almoxarifado/solicitacoes" element={<ProtectedRoute><AppLayout modulo="almoxarifado"><GestorAprovacoes modulo="almoxarifado" /></AppLayout></ProtectedRoute>} />
+      <Route path="/almoxarifado" element={<ProtectedRoute requiredModulo="almoxarifado"><AppLayout modulo="almoxarifado"><AlmoxarifadoDashboard /></AppLayout></ProtectedRoute>} />
+      <Route path="/almoxarifado/empenhos" element={<ProtectedRoute requiredModulo="almoxarifado"><AppLayout modulo="almoxarifado"><Empenhos modulo="almoxarifado" /></AppLayout></ProtectedRoute>} />
+      <Route path="/almoxarifado/notas-fiscais" element={<ProtectedRoute requiredModulo="almoxarifado"><AppLayout modulo="almoxarifado"><NotasFiscais modulo="almoxarifado" /></AppLayout></ProtectedRoute>} />
+      <Route path="/almoxarifado/estoque" element={<ProtectedRoute requiredModulo="almoxarifado"><AppLayout modulo="almoxarifado"><Estoque /></AppLayout></ProtectedRoute>} />
+      <Route path="/almoxarifado/catalogo" element={<ProtectedRoute requiredModulo="almoxarifado"><AppLayout modulo="almoxarifado"><Catalogo /></AppLayout></ProtectedRoute>} />
+      <Route path="/almoxarifado/liberar-material" element={<ProtectedRoute requiredModulo="almoxarifado"><AppLayout modulo="almoxarifado"><LiberarMaterial /></AppLayout></ProtectedRoute>} />
+      <Route path="/almoxarifado/adm" element={<ProtectedRoute requiredModulo="almoxarifado"><AppLayout modulo="almoxarifado"><AdmAlmoxarifado /></AppLayout></ProtectedRoute>} />
+      <Route path="/almoxarifado/solicitacoes" element={<ProtectedRoute requiredModulo="almoxarifado"><AppLayout modulo="almoxarifado"><GestorAprovacoes modulo="almoxarifado" /></AppLayout></ProtectedRoute>} />
       {/* Patrimônio */}
-      <Route path="/patrimonio" element={<ProtectedRoute><AppLayout modulo="patrimonio"><PatrimonioDashboard /></AppLayout></ProtectedRoute>} />
-      <Route path="/patrimonio/empenhos" element={<ProtectedRoute><AppLayout modulo="patrimonio"><Empenhos modulo="patrimonio" /></AppLayout></ProtectedRoute>} />
-      <Route path="/patrimonio/notas-fiscais" element={<ProtectedRoute><AppLayout modulo="patrimonio"><NotasFiscais modulo="patrimonio" /></AppLayout></ProtectedRoute>} />
-      <Route path="/patrimonio/itens" element={<ProtectedRoute><AppLayout modulo="patrimonio"><ItensPatrimoniais /></AppLayout></ProtectedRoute>} />
-      <Route path="/patrimonio/movimentacao" element={<ProtectedRoute><AppLayout modulo="patrimonio"><MovimentacaoBens /></AppLayout></ProtectedRoute>} />
-      <Route path="/patrimonio/adm" element={<ProtectedRoute><AppLayout modulo="patrimonio"><AdmPatrimonio /></AppLayout></ProtectedRoute>} />
-      <Route path="/patrimonio/solicitacoes" element={<ProtectedRoute><AppLayout modulo="patrimonio"><GestorAprovacoes modulo="patrimonio" /></AppLayout></ProtectedRoute>} />
+      <Route path="/patrimonio" element={<ProtectedRoute requiredModulo="patrimonio"><AppLayout modulo="patrimonio"><PatrimonioDashboard /></AppLayout></ProtectedRoute>} />
+      <Route path="/patrimonio/empenhos" element={<ProtectedRoute requiredModulo="patrimonio"><AppLayout modulo="patrimonio"><Empenhos modulo="patrimonio" /></AppLayout></ProtectedRoute>} />
+      <Route path="/patrimonio/notas-fiscais" element={<ProtectedRoute requiredModulo="patrimonio"><AppLayout modulo="patrimonio"><NotasFiscais modulo="patrimonio" /></AppLayout></ProtectedRoute>} />
+      <Route path="/patrimonio/itens" element={<ProtectedRoute requiredModulo="patrimonio"><AppLayout modulo="patrimonio"><ItensPatrimoniais /></AppLayout></ProtectedRoute>} />
+      <Route path="/patrimonio/movimentacao" element={<ProtectedRoute requiredModulo="patrimonio"><AppLayout modulo="patrimonio"><MovimentacaoBens /></AppLayout></ProtectedRoute>} />
+      <Route path="/patrimonio/adm" element={<ProtectedRoute requiredModulo="patrimonio"><AppLayout modulo="patrimonio"><AdmPatrimonio /></AppLayout></ProtectedRoute>} />
+      <Route path="/patrimonio/solicitacoes" element={<ProtectedRoute requiredModulo="patrimonio"><AppLayout modulo="patrimonio"><GestorAprovacoes modulo="patrimonio" /></AppLayout></ProtectedRoute>} />
       {/* Transportes */}
-      <Route path="/transportes" element={<ProtectedRoute><AppLayout modulo="transportes"><TransportesDashboard /></AppLayout></ProtectedRoute>} />
-      <Route path="/transportes/cadastros" element={<ProtectedRoute><AppLayout modulo="transportes"><Cadastros /></AppLayout></ProtectedRoute>} />
-      <Route path="/transportes/manutencao" element={<ProtectedRoute><AppLayout modulo="transportes"><Manutencao /></AppLayout></ProtectedRoute>} />
-      <Route path="/transportes/agendamentos" element={<ProtectedRoute><AppLayout modulo="transportes"><Agendamentos /></AppLayout></ProtectedRoute>} />
-      <Route path="/transportes/adm" element={<ProtectedRoute><AppLayout modulo="transportes"><AdmTransportes /></AppLayout></ProtectedRoute>} />
-      <Route path="/transportes/solicitacoes" element={<ProtectedRoute><AppLayout modulo="transportes"><GestorAprovacoes modulo="transportes" /></AppLayout></ProtectedRoute>} />
+      <Route path="/transportes" element={<ProtectedRoute requiredModulo="transportes"><AppLayout modulo="transportes"><TransportesDashboard /></AppLayout></ProtectedRoute>} />
+      <Route path="/transportes/cadastros" element={<ProtectedRoute requiredModulo="transportes"><AppLayout modulo="transportes"><Cadastros /></AppLayout></ProtectedRoute>} />
+      <Route path="/transportes/manutencao" element={<ProtectedRoute requiredModulo="transportes"><AppLayout modulo="transportes"><Manutencao /></AppLayout></ProtectedRoute>} />
+      <Route path="/transportes/agendamentos" element={<ProtectedRoute requiredModulo="transportes"><AppLayout modulo="transportes"><Agendamentos /></AppLayout></ProtectedRoute>} />
+      <Route path="/transportes/adm" element={<ProtectedRoute requiredModulo="transportes"><AppLayout modulo="transportes"><AdmTransportes /></AppLayout></ProtectedRoute>} />
+      <Route path="/transportes/solicitacoes" element={<ProtectedRoute requiredModulo="transportes"><AppLayout modulo="transportes"><GestorAprovacoes modulo="transportes" /></AppLayout></ProtectedRoute>} />
       {/* Serviços Gerais */}
-      <Route path="/servicos" element={<ProtectedRoute><AppLayout modulo="servicos"><ServicosDashboard /></AppLayout></ProtectedRoute>} />
-      <Route path="/servicos/contratos" element={<ProtectedRoute><AppLayout modulo="servicos"><Empenhos modulo="servicos" /></AppLayout></ProtectedRoute>} />
-      <Route path="/servicos/notas-fiscais" element={<ProtectedRoute><AppLayout modulo="servicos"><NotasFiscais modulo="servicos" /></AppLayout></ProtectedRoute>} />
-      <Route path="/servicos/ordens" element={<ProtectedRoute><AppLayout modulo="servicos"><OrdensServico /></AppLayout></ProtectedRoute>} />
-      <Route path="/servicos/adm" element={<ProtectedRoute><AppLayout modulo="servicos"><AdmServicos /></AppLayout></ProtectedRoute>} />
-      <Route path="/servicos/solicitacoes" element={<ProtectedRoute><AppLayout modulo="servicos"><GestorAprovacoes modulo="servicos" /></AppLayout></ProtectedRoute>} />
+      <Route path="/servicos" element={<ProtectedRoute requiredModulo="servicos"><AppLayout modulo="servicos"><ServicosDashboard /></AppLayout></ProtectedRoute>} />
+      <Route path="/servicos/contratos" element={<ProtectedRoute requiredModulo="servicos"><AppLayout modulo="servicos"><Empenhos modulo="servicos" /></AppLayout></ProtectedRoute>} />
+      <Route path="/servicos/notas-fiscais" element={<ProtectedRoute requiredModulo="servicos"><AppLayout modulo="servicos"><NotasFiscais modulo="servicos" /></AppLayout></ProtectedRoute>} />
+      <Route path="/servicos/ordens" element={<ProtectedRoute requiredModulo="servicos"><AppLayout modulo="servicos"><OrdensServico /></AppLayout></ProtectedRoute>} />
+      <Route path="/servicos/adm" element={<ProtectedRoute requiredModulo="servicos"><AppLayout modulo="servicos"><AdmServicos /></AppLayout></ProtectedRoute>} />
+      <Route path="/servicos/solicitacoes" element={<ProtectedRoute requiredModulo="servicos"><AppLayout modulo="servicos"><GestorAprovacoes modulo="servicos" /></AppLayout></ProtectedRoute>} />
       {/* Solicitações */}
-      <Route path="/solicitacoes" element={<ProtectedRoute><AppLayout modulo="solicitacoes"><SolicitacoesDashboard /></AppLayout></ProtectedRoute>} />
-      <Route path="/solicitacoes/almoxarifado" element={<ProtectedRoute><AppLayout modulo="solicitacoes"><SolicitacaoMaterial modulo="almoxarifado" /></AppLayout></ProtectedRoute>} />
-      <Route path="/solicitacoes/patrimonio" element={<ProtectedRoute><AppLayout modulo="solicitacoes"><SolicitacaoMaterial modulo="patrimonio" /></AppLayout></ProtectedRoute>} />
-      <Route path="/solicitacoes/transportes" element={<ProtectedRoute><AppLayout modulo="solicitacoes"><SolicitacaoTransportes /></AppLayout></ProtectedRoute>} />
-      <Route path="/solicitacoes/ordem-servico" element={<ProtectedRoute><AppLayout modulo="solicitacoes"><OrdemServico /></AppLayout></ProtectedRoute>} />
-      {/* Configurações */}
-      <Route path="/configuracoes" element={<ProtectedRoute><AppLayout><Configuracoes /></AppLayout></ProtectedRoute>} />
+      <Route path="/solicitacoes" element={<ProtectedRoute requiredModulo="solicitacoes"><AppLayout modulo="solicitacoes"><SolicitacoesDashboard /></AppLayout></ProtectedRoute>} />
+      <Route path="/solicitacoes/almoxarifado" element={<ProtectedRoute requiredModulo="solicitacoes"><AppLayout modulo="solicitacoes"><SolicitacaoMaterial modulo="almoxarifado" /></AppLayout></ProtectedRoute>} />
+      <Route path="/solicitacoes/patrimonio" element={<ProtectedRoute requiredModulo="solicitacoes"><AppLayout modulo="solicitacoes"><SolicitacaoMaterial modulo="patrimonio" /></AppLayout></ProtectedRoute>} />
+      <Route path="/solicitacoes/transportes" element={<ProtectedRoute requiredModulo="solicitacoes"><AppLayout modulo="solicitacoes"><SolicitacaoTransportes /></AppLayout></ProtectedRoute>} />
+      <Route path="/solicitacoes/ordem-servico" element={<ProtectedRoute requiredModulo="solicitacoes"><AppLayout modulo="solicitacoes"><OrdemServico /></AppLayout></ProtectedRoute>} />
+      {/* Configurações — apenas admin e gestor */}
+      <Route path="/configuracoes" element={<ProtectedRoute allowedProfiles={["admin", "gestor"]}><AppLayout><Configuracoes /></AppLayout></ProtectedRoute>} />
       <Route path="*" element={<Navigate to="/login" replace />} />
     </Routes>
   );
