@@ -96,7 +96,7 @@ export default function AppSidebar({ moduloAtivo }: AppSidebarProps) {
   const isActive = (path: string) => location.pathname === path;
 
   return (
-    <aside className="w-64 flex-shrink-0 flex flex-col bg-sidebar text-sidebar-foreground border-r border-sidebar-border">
+    <aside className="w-64 flex-shrink-0 flex flex-col border-r border-sidebar-border" style={{ backgroundColor: 'hsl(165 30% 12%)', color: 'hsl(160 10% 85%)' }}>
       {/* Logo */}
       <div
         className="flex items-center gap-3 px-4 py-5 border-b border-sidebar-border cursor-pointer hover:opacity-80"
@@ -106,8 +106,8 @@ export default function AppSidebar({ moduloAtivo }: AppSidebarProps) {
           SI
         </div>
         <div>
-          <h1 className="text-base font-bold text-sidebar-primary-foreground tracking-tight">SINGEM</h1>
-          <p className="text-[10px] text-sidebar-foreground/60 leading-none">Gestão de Materiais</p>
+          <h1 className="text-base font-bold text-white tracking-tight">SINGEM</h1>
+          <p className="text-[10px] opacity-60 leading-none">Gestão de Materiais</p>
         </div>
       </div>
 
@@ -122,8 +122,8 @@ export default function AppSidebar({ moduloAtivo }: AppSidebarProps) {
                 className={cn(
                   "flex-1 flex items-center gap-2.5 px-3 py-2 rounded-md text-sm font-medium transition-colors",
                   moduloAtivo === mod.id
-                    ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                    : "hover:bg-sidebar-accent/50 text-sidebar-foreground/80"
+                    ? "bg-white/10 text-white"
+                    : "hover:bg-white/5 text-white/70"
                 )}
               >
                 <mod.icon className={cn("h-4 w-4", mod.color)} />
@@ -131,7 +131,7 @@ export default function AppSidebar({ moduloAtivo }: AppSidebarProps) {
               </button>
               <button
                 onClick={() => toggleModule(mod.id)}
-                className="p-1.5 rounded hover:bg-sidebar-accent/50 text-sidebar-foreground/50"
+                className="p-1.5 rounded hover:bg-white/10 text-white/50"
               >
                 {expanded[mod.id] ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
               </button>
@@ -139,7 +139,7 @@ export default function AppSidebar({ moduloAtivo }: AppSidebarProps) {
 
             {/* Sub-itens */}
             {expanded[mod.id] && (
-              <div className="ml-4 mt-0.5 space-y-0.5 border-l border-sidebar-border/50 pl-3">
+              <div className="ml-4 mt-0.5 space-y-0.5 border-l border-white/15 pl-3">
                 {mod.items.map((item) => (
                   <button
                     key={item.path}
@@ -147,8 +147,8 @@ export default function AppSidebar({ moduloAtivo }: AppSidebarProps) {
                     className={cn(
                       "w-full flex items-center gap-2 px-2.5 py-1.5 rounded text-xs transition-colors",
                       isActive(item.path)
-                        ? "bg-sidebar-primary/20 text-sidebar-primary font-medium"
-                        : "text-sidebar-foreground/60 hover:text-sidebar-foreground/90 hover:bg-sidebar-accent/30"
+                        ? "bg-emerald-500/20 text-emerald-300 font-medium"
+                        : "text-white/55 hover:text-white/90 hover:bg-white/5"
                     )}
                   >
                     <item.icon className="h-3.5 w-3.5" />
@@ -162,14 +162,14 @@ export default function AppSidebar({ moduloAtivo }: AppSidebarProps) {
       </nav>
 
       {/* Footer */}
-      <div className="border-t border-sidebar-border p-2">
+      <div className="border-t border-white/10 p-2">
         <button
           onClick={() => navigate('/configuracoes')}
           className={cn(
             "w-full flex items-center gap-2.5 px-3 py-2 rounded-md text-sm transition-colors",
             isActive('/configuracoes')
-              ? "bg-sidebar-accent text-sidebar-accent-foreground"
-              : "text-sidebar-foreground/60 hover:bg-sidebar-accent/50"
+              ? "bg-white/10 text-white"
+              : "text-white/55 hover:bg-white/5 hover:text-white/80"
           )}
         >
           <Settings className="h-4 w-4" />
