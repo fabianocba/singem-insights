@@ -218,6 +218,8 @@ const CADASTRO_FORNECEDORES: Record<string, string> = {
   '98765432000110': 'Tech Supplies Informática e Equipamentos LTDA',
   '11222333000144': 'Papelaria Central Comércio de Materiais EIRELI',
   '55666777000188': 'Info Norte Soluções em Tecnologia LTDA',
+  '43948405000169': 'LUPO S.A.',
+  '03007331012239': 'EBAZAR.COM.BR LTDA (Mercado Livre)',
 };
 
 function simulateFornecedor(cnpjRaw: string) {
@@ -430,7 +432,7 @@ export default function NotasFiscais({ modulo }: { modulo: ModuloId }) {
     const novaNF: NotaFiscal = {
       ...form,
       id: form.id || `nf${Date.now()}`,
-      valor: valorTotalNF,
+      valor: form.valor || valorTotalNF,
       itens: formItens,
       empenhoNumero: empenhoSelecionado,
       dataEntrada: new Date().toISOString().slice(0, 10),
@@ -732,10 +734,20 @@ export default function NotasFiscais({ modulo }: { modulo: ModuloId }) {
                     <div><Label>CNPJ *</Label><Input value={form.cnpj || ''} onChange={e => setForm(p => ({ ...p, cnpj: e.target.value }))} placeholder="00.000.000/0000-00" /></div>
                     <div><Label>Data Emissão</Label><Input type="date" value={form.dataEmissao || ''} onChange={e => setForm(p => ({ ...p, dataEmissao: e.target.value }))} /></div>
                     <div>
-                      <Label>Valor Total da NF</Label>
-                      <div className="h-10 px-3 flex items-center rounded-md border border-input bg-muted/30 font-bold text-foreground">
-                        {fmt(valorTotalNF)}
-                      </div>
+                      <Label>Valor Total da NF *</Label>
+                      <Input
+                        type="number"
+                        step="0.01"
+                        value={form.valor || ''}
+                        onChange={e => setForm(p => ({ ...p, valor: parseFloat(e.target.value) || 0 }))}
+                        placeholder="0,00"
+                        className="font-bold"
+                      />
+                      {formItens.length > 0 && (
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Soma dos itens extraídos: {fmt(valorTotalNF)}
+                        </p>
+                      )}
                     </div>
                     <div><Label>Chave NFe</Label><Input value={form.chaveNFe || ''} className="font-mono text-xs" readOnly disabled /></div>
                     <div className="md:col-span-2"><Label>Observação</Label><Input value={form.observacao || ''} onChange={e => setForm(p => ({ ...p, observacao: e.target.value }))} /></div>
