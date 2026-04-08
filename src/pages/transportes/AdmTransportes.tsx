@@ -154,7 +154,7 @@ export default function AdmTransportes() {
 
   const totalCombustivel = abastecimentos.reduce((acc, a) => acc + a.valorTotal, 0);
   const totalLitros = abastecimentos.reduce((acc, a) => acc + a.litros, 0);
-  const totalMultas = multas.reduce((acc, m) => acc + m.valor, 0);
+  const totalMultasPendentesValor = multas.filter((m) => m.status === "pendente").reduce((acc, m) => acc + m.valor, 0);
   const multasPendentes = multas.filter((m) => m.status === "pendente").length;
 
   const filteredAbast = abastecimentos.filter(
