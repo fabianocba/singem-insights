@@ -339,7 +339,7 @@ export default function Empenhos({ modulo }: { modulo: ModuloId }) {
                 <div><Label>Data de Emissão</Label><Input type="date" value={form.dataVencimento || ''} onChange={e => setForm(p => ({ ...p, dataVencimento: e.target.value }))} /></div>
                 <div><Label>Fornecedor *</Label><Input value={form.fornecedor || ''} onChange={e => setForm(p => ({ ...p, fornecedor: e.target.value }))} /></div>
                 <div><Label>CNPJ *</Label><Input placeholder="00.000.000/0000-00" value={form.cnpj || ''} onChange={e => setForm(p => ({ ...p, cnpj: e.target.value }))} /></div>
-                <div className="md:col-span-2"><Label>Objeto</Label><Input value={form.objeto || ''} onChange={e => setForm(p => ({ ...p, objeto: e.target.value }))} /></div>
+                <div className="md:col-span-2"><Label>Processo SUAP</Label><Input value={form.objeto || ''} onChange={e => setForm(p => ({ ...p, objeto: e.target.value }))} /></div>
                 <div>
                   <Label>Subelemento</Label>
                   <select className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm text-foreground" value={form.subElemento || ''} onChange={e => setForm(p => ({ ...p, subElemento: e.target.value }))}>
@@ -397,7 +397,7 @@ export default function Empenhos({ modulo }: { modulo: ModuloId }) {
               <div className="grid grid-cols-2 gap-x-6 gap-y-3 py-4 text-sm">
                 <div><span className="text-muted-foreground">Fornecedor:</span><p className="font-medium text-foreground">{detalhe.fornecedor}</p></div>
                 <div><span className="text-muted-foreground">CNPJ:</span><p className="font-mono font-medium text-foreground">{detalhe.cnpj}</p></div>
-                <div className="col-span-2"><span className="text-muted-foreground">Objeto:</span><p className="font-medium text-foreground">{detalhe.objeto}</p></div>
+                <div className="col-span-2"><span className="text-muted-foreground">Processo SUAP:</span><p className="font-medium text-foreground">{detalhe.objeto}</p></div>
                 <div><span className="text-muted-foreground">Conta Contábil:</span><p className="font-mono font-medium text-foreground">{detalhe.contaContabil}</p></div>
                 <div><span className="text-muted-foreground">Subelemento:</span><p className="font-medium text-foreground">{detalhe.subElemento} — {subElementos.find(s => s.codigo === detalhe.subElemento)?.descricao}</p></div>
                 <div><span className="text-muted-foreground">Valor Total:</span><p className="font-bold text-foreground">{fmt(detalhe.valor)}</p></div>

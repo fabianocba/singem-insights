@@ -165,7 +165,7 @@ export default function AdmServicos() {
                 <tr className="border-b border-border/50">
                   <th className="text-left py-2 px-3 text-muted-foreground font-medium">Empresa</th>
                   <th className="text-left py-2 px-3 text-muted-foreground font-medium">CNPJ</th>
-                  <th className="text-left py-2 px-3 text-muted-foreground font-medium">Objeto</th>
+                  <th className="text-left py-2 px-3 text-muted-foreground font-medium">Processo SUAP</th>
                   <th className="text-left py-2 px-3 text-muted-foreground font-medium">Vigência</th>
                   <th className="text-right py-2 px-3 text-muted-foreground font-medium">Valor Anual</th>
                   <th className="text-left py-2 px-3 text-muted-foreground font-medium">Status</th>

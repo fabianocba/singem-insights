@@ -489,7 +489,7 @@ export const DATASETS = {
     filters: [
       {
         name: 'objeto',
-        label: 'Nome/Objeto da Contratação',
+        label: 'Nome/Processo SUAP da Contratação',
         type: 'text',
         placeholder: 'Ex: aquisição de notebooks'
       },
