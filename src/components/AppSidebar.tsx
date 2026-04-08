@@ -135,7 +135,13 @@ export default function AppSidebar({ moduloAtivo }: AppSidebarProps) {
 
       {/* Módulos */}
       <nav className="flex-1 overflow-y-auto py-3 px-2 space-y-1">
-        {modules.map((mod) => (
+        {modules.filter(mod => {
+          if (!usuario) return false;
+          if (usuario.perfil === "admin") return true;
+          if (usuario.perfil === "solicitante") return mod.id === "solicitacoes";
+          // gestor
+          return mod.id === "solicitacoes" || (usuario.modulos?.includes(mod.id) ?? false);
+        }).map((mod) => (
           <div key={mod.id}>
             <button
               onClick={() => handleModuleClick(mod)}
@@ -191,18 +197,20 @@ export default function AppSidebar({ moduloAtivo }: AppSidebarProps) {
             </div>
           </div>
         )}
-        <button
-          onClick={() => navigate('/configuracoes')}
-          className={cn(
-            "w-full flex items-center gap-2.5 px-3 py-2 rounded-md text-sm transition-colors",
-            isActive('/configuracoes')
-              ? "bg-white/10 text-white"
-              : "text-white/55 hover:bg-white/5 hover:text-white/80"
-          )}
-        >
-          <Settings className="h-4 w-4" />
-          <span>Configurações</span>
-        </button>
+        {usuario?.perfil !== "solicitante" && (
+          <button
+            onClick={() => navigate('/configuracoes')}
+            className={cn(
+              "w-full flex items-center gap-2.5 px-3 py-2 rounded-md text-sm transition-colors",
+              isActive('/configuracoes')
+                ? "bg-white/10 text-white"
+                : "text-white/55 hover:bg-white/5 hover:text-white/80"
+            )}
+          >
+            <Settings className="h-4 w-4" />
+            <span>Configurações</span>
+          </button>
+        )}
         <button
           onClick={() => { logout(); navigate('/login'); }}
           className="w-full flex items-center gap-2.5 px-3 py-2 rounded-md text-sm text-red-300/60 hover:bg-red-500/10 hover:text-red-300 transition-colors"
