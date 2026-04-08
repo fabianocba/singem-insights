@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "../lib/utils";
+import { useAuth } from "../contexts/AuthContext";
 
 /* ─── Tipos ──────────────────────────────────────────── */
 interface Usuario {
@@ -105,7 +106,21 @@ export default function Configuracoes() {
 
 /* ═══════ ABA USUÁRIOS ═══════════════════════════════════ */
 function TabUsuarios() {
-  const [usuarios, setUsuarios] = useState<Usuario[]>(usuariosIniciais);
+  const { updateUsuario, getAllUsers } = useAuth();
+
+  // Initialize with both mock data and AuthContext users merged
+  const [usuarios, setUsuarios] = useState<Usuario[]>(() => {
+    const authUsers = getAllUsers();
+    // Merge auth users into the initial list, matching by email
+    const merged = [...usuariosIniciais];
+    for (const au of authUsers) {
+      const idx = merged.findIndex(u => u.email.toLowerCase() === au.email.toLowerCase());
+      if (idx >= 0) {
+        merged[idx] = { ...merged[idx], modulos: au.modulos || merged[idx].modulos };
+      }
+    }
+    return merged;
+  });
   const [busca, setBusca] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editando, setEditando] = useState<Usuario | null>(null);
@@ -122,7 +137,13 @@ function TabUsuarios() {
     if (!form.nome.trim() || !form.email.trim()) { toast.error("Preencha nome e email."); return; }
     if (editando) {
       setUsuarios(prev => prev.map(u => u.id === editando.id ? { ...u, ...form } : u));
-      toast.success("Usuário atualizado.");
+      // Sync with AuthContext — updates the logged-in gestor's modules in real-time
+      updateUsuario(form.email, { 
+        nome: form.nome, 
+        perfil: form.perfil, 
+        modulos: form.perfil === "gestor" ? form.modulos : undefined 
+      });
+      toast.success("Usuário atualizado. Permissões sincronizadas.");
     } else {
       setUsuarios(prev => [...prev, { id: Date.now().toString(), ...form }]);
       toast.success("Usuário cadastrado.");
