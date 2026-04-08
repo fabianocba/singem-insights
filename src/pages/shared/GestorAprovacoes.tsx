@@ -12,7 +12,7 @@ import { toast } from "sonner";
 import { useNotificacoes } from "../../contexts/NotificacoesContext";
 import { useSolicitacoes } from "../../contexts/SolicitacoesContext";
 import type { ModuloId } from "../../types";
-import type { StatusSolicitacao } from "../../contexts/SolicitacoesContext";
+import type { ModuloId } from "../../types";
 
 const iconeModulo: Record<string, React.ElementType> = {
   almoxarifado: Package,
